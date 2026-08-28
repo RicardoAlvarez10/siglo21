@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2D4A3E">
+<meta name="color-scheme" content="light">
+<title>Aprender en el Siglo XXI · Parcial 1</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --ok:#2D4A3E; --okBg:#EAF1ED;
+    --mal:#8C2F2F; --malBg:#F7EBEB; --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap}
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:24px 24px 20px}
+  .meta{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px}
+  .enunciado{font-size:17px;margin:0 0 18px}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start}
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .texto-libre{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .texto-libre input{font-family:Georgia,serif;font-size:15.5px;padding:10px 13px;
+    border:1px solid var(--borde);border-radius:3px;background:#fff;color:var(--texto);
+    min-width:190px;flex:1}
+  .texto-libre input:focus{outline:2px solid var(--acento);outline-offset:-1px}
+  .btn{font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;border-radius:3px;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px}
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600}
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600}
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic}
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .amp code{font-family:Consolas,monospace;font-size:13.5px;background:#F0EDE7;padding:1px 4px;border-radius:2px}
+
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0}
+  .aviso{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px}
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  /* ================================================================
+     Ajustes de interfaz - se agregan al final para pisar lo anterior
+     ================================================================ */
+
+  /* --- Titulos que respiran en pantallas chicas --- */
+  header h1{font-size:clamp(20px,5.2vw,29px);line-height:1.22}
+  header p{font-size:clamp(12.5px,3.2vw,14px)}
+  @media (max-width:760px){
+    header{margin-bottom:16px;text-align:left}
+    .wrap{padding:18px 16px 124px}
+  }
+
+  /* --- Barra de estado pegada arriba, para no volver al inicio a cambiar de tema --- */
+  .barraStick{margin-bottom:20px}
+  .barraStick .progreso{margin-bottom:0}
+  @media (max-width:760px){
+    .barraStick{position:sticky;top:0;z-index:22;background:var(--fondo);
+      margin:0 -16px 18px;padding:8px 16px 0}
+    .barraSup{margin-bottom:8px;gap:10px}
+    .estado{margin-bottom:0;font-size:12.5px;gap:10px}
+  }
+
+  /* --- El boton de temas ahora alterna, y se nota cuando el panel esta abierto --- */
+  .burger{min-height:40px;transition:background .15s ease,border-color .15s ease,color .15s ease}
+  .burger[aria-expanded="true"]{background:var(--acento);border-color:var(--acento);color:#fff}
+  .burger .ham{position:relative;transition:box-shadow .18s ease,transform .18s ease}
+  .burger[aria-expanded="true"] .ham{transform:rotate(45deg);box-shadow:none}
+  .burger[aria-expanded="true"] .ham::after{content:"";position:absolute;inset:0;
+    background:currentColor;border-radius:1px;transform:rotate(90deg)}
+
+  /* --- Foco visible para teclado, sin ensuciar el clic con el mouse --- */
+  .burger:focus-visible,.modo:focus-visible,.opcion:focus-visible,.btn:focus-visible,
+  .flot:focus-visible,.flag:focus-visible,.arbol button:focus-visible,
+  .cerrarPanel:focus-visible,.fijarPanel:focus-visible{
+    outline:2px solid var(--acento);outline-offset:2px}
+
+  /* --- Choque de nombres de clase ---
+     El estado "no hay preguntas" usa .vacio con 30px de padding vertical, y las
+     insignias del indice se llaman .est.vacio, asi que heredaban ese padding y
+     pasaban de 18 a 62 px de alto. Cada leccion sin responder estiraba su fila y
+     alargaba el indice, sobre todo en el telefono. */
+  .est.vacio{padding:0 7px;font-style:normal;text-align:center}
+
+  /* --- Panel lateral: mas comodo de tocar y con respiro abajo --- */
+  .panel{padding-bottom:calc(26px + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  body.sinScroll{overflow:hidden}
+  @media (max-width:760px){
+    .panel{width:min(88vw,330px);max-width:none}
+    .arbol button{min-height:40px;padding:9px 10px}
+    .modo{min-height:42px;padding:10px 12px}
+    .panelTop{margin-bottom:14px}
+    .cerrarPanel{font-size:20px;padding:6px 10px;min-height:40px}
+  }
+
+  /* --- Con el menu anclado, el texto no queda pegado al borde derecho --- */
+  @media (min-width:1025px){
+    body.fijo .wrap{max-width:900px;padding-left:34px;padding-right:34px}
+  }
+
+  /* --- Preguntas y respuestas: objetivos de toque mas grandes --- */
+  @media (max-width:760px){
+    .tarjeta,.resumen{padding:18px 16px 16px;border-radius:6px}
+    .enunciado{font-size:16.5px}
+    .opcion{padding:13px 14px;font-size:15.5px;min-height:48px;align-items:center}
+    .metaFila{gap:10px}
+    .meta{font-size:11px;letter-spacing:.04em}
+    .flag{min-height:36px;padding:6px 12px}
+    .texto-libre{flex-direction:column;align-items:stretch}
+    .texto-libre input{min-width:0;width:100%}
+    .texto-libre .btn{width:100%;min-height:46px}
+    .pie{flex-direction:column;align-items:stretch;gap:10px}
+    .pie .btn{width:100%;min-height:46px}
+    .pie .ref{order:2;text-align:center}
+    .accionesFin .btn{flex:1 1 auto;min-height:44px}
+    .resumen table{font-size:13.5px}
+    .puntaje{font-size:34px}
+  }
+
+  /* --- EL ARREGLO PRINCIPAL EN MOBILE ---
+     Antes el boton Siguiente era un recuadro fijo a media altura y en pantallas
+     angostas caia justo encima del enunciado. Ahora es una barra al pie: nunca
+     tapa texto y queda siempre al alcance del pulgar. */
+  @media (max-width:760px){
+    .flot{
+      position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;
+      width:100%;border-radius:0;flex-direction:row;justify-content:center;
+      align-items:center;gap:10px;
+      padding:15px 16px calc(15px + env(safe-area-inset-bottom));
+      box-shadow:0 -2px 16px rgba(26,26,26,.18);
+    }
+    .flot.visible{display:flex}
+    .flot b{font-size:18px}
+    .flot span{font-size:15px}
+    .flot small{display:none}
+  }
+  /* En escritorio se queda al costado, pero sin pisar la columna de texto. */
+  @media (min-width:761px){
+    .flot{right:max(18px,calc((100vw - 1080px)/2 - 96px))}
+  }
+  @media (min-width:1025px){
+    body.fijo .flot{right:max(18px,calc((100vw - 340px - 900px)/2 - 96px))}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Aprender en el Siglo XXI · Parcial 1</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 01 y 02</p>
+</header>
+
+<div class="barraStick">
+  <div class="barraSup">
+    <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span class="burgerTxt">Temas</span></button>
+    <div class="estado">
+      <span id="posicion"></span>
+      <span id="marcador"></span>
+    </div>
+  </div>
+  <div class="progreso"><div id="barra"></div></div>
+</div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido tomado del paquete de estudio del Parcial 1 de Aprender en el Siglo XXI, secciones 2, 4, 6, 7, 8 y 9, y del TP online del módulo 02. Más 28 preguntas rescatadas de un preguntero de agosto de 2026, verificadas una por una contra el material.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 40 preguntas</button>
+  <button class="modo" data-modo="tps" aria-pressed="false">Ya tomadas · 10 preguntas</button>
+  <button class="modo" data-modo="preg">Preguntero · 28 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1: autoevaluación, sección 9 del paquete ---------- */
+const QUIZ = [
+
+{n:1,mod:"01",lec:"L1",tema:"Planificación del estudio",nivel:"recordar",tipo:"mc",
+ q:"Las tres etapas de la autorregulación del aprendizaje, en orden, son:",
+ op:["Ejecución, planificación, monitoreo","Planificación, ejecución, monitoreo","Monitoreo, planificación, ejecución","Planificación, monitoreo, ejecución"],ok:1,
+ just:"Bandura ordena planificación, ejecución y monitoreo. El monitoreo retroalimenta a las otras dos.",
+ dist:"Los tres distractores cambian el orden, no los nombres. Lo evaluable es la secuencia, así que memorizar la lista suelta no alcanza.",ref:"M01 L1"},
+
+{n:2,mod:"01",lec:"L1",tema:"Planificación del estudio",nivel:"recordar",tipo:"mc",
+ q:"Las cuatro propiedades de una buena meta son factible, centrada en acciones, medible y:",
+ op:["Ambiciosa","Compartida","Temporal","Flexible"],ok:2,
+ just:"Las cuatro son factible, centrada en acciones, temporal y medible.",
+ dist:"Ambiciosa y flexible suenan bien pero no están en la lista. La cátedra evalúa la enumeración exacta, no la idea de meta bien formulada.",ref:"M01 L1"},
+
+{n:3,mod:"01",lec:"L1",tema:"Planificación del estudio",nivel:"comprender",tipo:"mc",
+ q:"Aprobar Matemática Discreta es un ejemplo de:",
+ op:["Meta de proceso","Meta de resultado","Bloque de tiempo","Señal de advertencia"],ok:1,
+ just:"Es la intención, el qué se quiere lograr.",
+ dist:"La meta de proceso serían las acciones concretas: dos bloques de una hora los martes y jueves. Resultado contra proceso es el par que la cátedra usa en esta lección.",ref:"M01 L1"},
+
+{n:4,mod:"01",lec:"L1",tema:"Planificación del estudio",nivel:"recordar",tipo:"mc",
+ q:"El bloque de tiempo de la agenda diaria está compuesto por:",
+ op:["Una tarea y su descanso","Tres tareas consecutivas","Una hora exacta de estudio","La meta y su fecha"],ok:0,
+ just:"El bloque es tarea más descanso. El descanso está incluido, no es lo que sobra.",
+ dist:"Tomar el descanso como lo que queda después de estudiar es el error registrado. La agenda se arma en tres niveles: mensual, semanal y diaria.",ref:"M01 L1"},
+
+{n:5,mod:"01",lec:"L2",tema:"Estilos de aprendizaje",nivel:"recordar",tipo:"mc",
+ q:"El modelo VAK fue desarrollado por:",
+ op:["Robert Dilts","Albert Bandura","Bandler y Grinder","Daniel Goleman"],ok:2,
+ just:"El modelo es de Richard Bandler y John Grinder, en el marco de la programación neurolingüística.",
+ dist:"Dilts es el autor del test de doce ítems, no del modelo. Es el par de nombres más preguntable del módulo 01, porque es la única lección con autores que no son Bandura.",ref:"M01 L2"},
+
+{n:6,mod:"01",lec:"L2",tema:"Estilos de aprendizaje",nivel:"recordar",tipo:"mc",
+ q:"El test de doce ítems que usa la lección para identificar el estilo de aprendizaje es de:",
+ op:["Robert Dilts","John Grinder","Albert Bandura","Paul Ekman"],ok:0,
+ just:"El test de doce ítems es de Robert Dilts, año 2004.",
+ dist:"Es la mitad complementaria de la pregunta anterior. Modelo VAK es Bandler y Grinder, test de doce ítems es Dilts.",ref:"M01 L2"},
+
+{n:7,mod:"01",lec:"L2",tema:"Estilos de aprendizaje",nivel:"comprender",tipo:"mc",
+ q:"Un estudiante que memoriza por secuencias y aprende explicando en voz alta responde al estilo:",
+ op:["Visual","Auditivo","Kinestésico","Mixto"],ok:1,
+ just:"Memorizar por secuencias y hablar en voz alta es el canal auditivo.",
+ dist:"El disparador está en el verbo: si el ítem habla de imágenes o esquemas es visual, si habla de escuchar o explicar es auditivo, si habla de hacer o moverse es kinestésico.",ref:"M01 L2"},
+
+{n:8,mod:"01",lec:"L3",tema:"Ejecución y técnicas de estudio",nivel:"recordar",tipo:"texto",
+ q:"Completar. La procrastinación es postergar actividades que deben atenderse, sustituyéndolas por otras más __________ o agradables.",
+ acepta:["irrelevantes","mas irrelevantes"],sol:"irrelevantes",
+ just:"La definición textual dice más irrelevantes o agradables.",
+ dist:"Era de completar, así que la cátedra espera la palabra exacta del material. Fáciles o cómodas no sirven.",ref:"M01 L3"},
+
+{n:9,mod:"01",lec:"L3",tema:"Ejecución y técnicas de estudio",nivel:"comprender",tipo:"mc",
+ q:"La procrastinación ansiosa se asocia a pensamientos:",
+ op:["Permisivos","Amenazantes","Antídoto","Circadianos"],ok:1,
+ just:"La ansiosa nace del miedo al fracaso y catastrofiza, con pensamientos amenazantes.",
+ dist:"Los permisivos son de la hedonista. El antídoto no es un tipo de procrastinación sino el remedio contra las dos. Circadiano pertenece a la gestión de la energía.",ref:"M01 L3"},
+
+{n:10,mod:"01",lec:"L3",tema:"Ejecución y técnicas de estudio",nivel:"aplicar",tipo:"mc",
+ q:"Total, mañana lo hago con más ganas y me rinde el doble. Ese es un pensamiento:",
+ op:["Amenazante, propio de la procrastinación ansiosa","Permisivo, propio de la procrastinación hedonista","Antídoto","Señal de advertencia"],ok:1,
+ just:"Minimiza la consecuencia de postergar, que es el patrón permisivo.",
+ dist:"El amenazante haría lo contrario: agrandar la consecuencia y anticipar el fracaso, del tipo no voy a aprobar. Minimizar contra agrandar es la clave para separarlos.",ref:"M01 L3"},
+
+{n:11,mod:"01",lec:"L3",tema:"Ejecución y técnicas de estudio",nivel:"comprender",tipo:"vf",
+ q:"Las técnicas de estudio superficiales producen aprendizaje significativo.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Las superficiales producen aprendizaje memorístico y conocimiento inerte, en memoria a corto plazo. El significativo viene de las técnicas en profundidad.",
+ dist:"El par técnica y resultado se cruza en las dos direcciones. En profundidad da significativo y memoria a largo plazo; superficial da memorístico y corto plazo.",ref:"M01 L3"},
+
+{n:12,mod:"01",lec:"L3",tema:"Ejecución y técnicas de estudio",nivel:"recordar",tipo:"mc",
+ q:"Los ritmos circadianos se definen como cambios físicos, mentales y conductuales en ciclos de:",
+ op:["Doce horas","Veinticuatro horas","Siete días","Veintiún días"],ok:1,
+ just:"Ciclos de veinticuatro horas.",
+ dist:"Los veintiún días son del desafío de formación de hábitos, que pertenece a la lección 4. La cátedra mezcla los dos números a propósito.",ref:"M01 L3"},
+
+{n:13,mod:"01",lec:"L4",tema:"Monitoreo del aprendizaje",nivel:"recordar",tipo:"mc",
+ q:"Los tres tipos de apoyo que menciona la etapa de monitoreo son informativo, práctico y:",
+ op:["Económico","Institucional","Socioemocional","Académico"],ok:2,
+ just:"Los tres son informativo, socioemocional y práctico.",
+ dist:"Los tres distractores son tipos de apoyo plausibles en la vida real, y ninguno está en el material. Acá se evalúa la lista textual.",ref:"M01 L4"},
+
+{n:14,mod:"01",lec:"L4",tema:"Monitoreo del aprendizaje",nivel:"comprender",tipo:"mc",
+ q:"La autoeficacia, según Bandura, se define como:",
+ op:["La capacidad de gestionar las emociones propias y ajenas","Las creencias sobre las propias capacidades","El resultado obtenido en una evaluación","El hábito consolidado tras veintiún días"],ok:1,
+ just:"Autoeficacia son las creencias sobre las propias capacidades.",
+ dist:"La opción a es la definición de inteligencia emocional, que es de Goleman y del módulo 02. La autoeficacia es creencia, no resultado: por eso la c también falla.",ref:"M01 L4"},
+
+{n:15,mod:"01",lec:"L4",tema:"Monitoreo del aprendizaje",nivel:"aplicar",tipo:"mc",
+ q:"Un estudiante elige una carrera porque quiere entender a fondo la matemática que hoy usa de manera instrumental. Esa expectativa es:",
+ op:["Extrínseca, porque el conocimiento tiene valor de mercado","Intrínseca, porque la recompensa es interna","Una meta de resultado","Una señal de advertencia"],ok:1,
+ just:"La recompensa es interna, del orden de la autorrealización.",
+ dist:"La opción a es la trampa: agrega un razonamiento económico que el enunciado no trae. Lo que decide es de dónde viene la recompensa, no si el conocimiento sirve para trabajar.",ref:"M01 L4"},
+
+{n:16,mod:"01",lec:"L4",tema:"Monitoreo del aprendizaje",nivel:"comprender",tipo:"vf",
+ q:"La formación de un hábito consiste en pasar de un proceso automático a uno controlado.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"El sentido es el inverso: de proceso controlado a proceso automático.",
+ dist:"Es una trampa de dirección, igual que la de los filtros y los canales sensoriales en el módulo 02. La frase suena bien hasta que te fijás para qué lado va la flecha.",ref:"M01 L4"},
+
+{n:17,mod:"02",lec:"L1",tema:"Propósito y oficio de estudiante",nivel:"recordar",tipo:"mc",
+ q:"La palabra ikigai se compone de dos sílabas cuyo significado es:",
+ op:["<i>Iki</i> lograr lo que se desea, <i>kai</i> vida","<i>Iki</i> vida, <i>kai</i> lograr lo que se desea","<i>Iki</i> propósito, <i>kai</i> trabajo","<i>Iki</i> camino, <i>kai</i> destino"],ok:1,
+ just:"<i>Iki</i> es vida y <i>kai</i> es lograr lo que se desea.",
+ dist:"La opción a es la misma respuesta con las sílabas cruzadas. La cátedra presenta el ikigai como herramienta de origen japonés, sin atribuirla a un autor.",ref:"M02 L1"},
+
+{n:18,mod:"02",lec:"L1",tema:"Propósito y oficio de estudiante",nivel:"comprender",tipo:"mc",
+ q:"La intersección entre lo que amas y aquello en lo que eres bueno se denomina:",
+ op:["Misión","Vocación","Pasión","Profesión"],ok:2,
+ just:"Pasión cruza lo que amás con lo que sabés hacer.",
+ dist:"Dos reglas resuelven las cuatro intersecciones: pasión y misión comparten lo que amás, vocación y profesión comparten aquello por lo que pueden pagarte.",ref:"M02 L1"},
+
+{n:19,mod:"02",lec:"L1",tema:"Propósito y oficio de estudiante",nivel:"comprender",tipo:"mc",
+ q:"La intersección entre lo que el mundo necesita y aquello por lo que pueden pagarte se denomina:",
+ op:["Vocación","Profesión","Misión","Pasión"],ok:0,
+ just:"Vocación cruza lo que el mundo necesita con lo que te pagan.",
+ dist:"Profesión también toca el dinero, pero del otro lado: lo cruza con aquello en lo que sos bueno. Si la opción menciona dinero y talento, es profesión.",ref:"M02 L1"},
+
+{n:20,mod:"02",lec:"L1",tema:"Propósito y oficio de estudiante",nivel:"recordar",tipo:"mc",
+ q:"El doble desafío del estudiante universitario consiste en aprender la carrera en sí misma y además:",
+ op:["Trabajar mientras estudia","Aprender el oficio de alumno universitario","Definir su propósito individual","Desarrollar inteligencia emocional"],ok:1,
+ just:"El doble desafío separa la carrera del oficio de alumno.",
+ dist:"Ese oficio se compone de siete competencias, y la lista completa es material de pregunta del tipo cuál no pertenece.",ref:"M02 L1"},
+
+{n:21,mod:"02",lec:"L1",tema:"Propósito y oficio de estudiante",nivel:"recordar",tipo:"texto",
+ q:"Completar. El contexto en el que se encuadra la flexibilidad cognitiva se denomina con la sigla __________, que significa volátil, incierto, complejo y ambiguo.",
+ acepta:["vica"],sol:"VICA",
+ just:"Es la castellanización de VUCA, y la cátedra usa la sigla en español.",
+ dist:"Responder VUCA es el error registrado. En el examen va la sigla en castellano.",ref:"M02 L1"},
+
+{n:22,mod:"02",lec:"L1",tema:"Propósito y oficio de estudiante",nivel:"aplicar",tipo:"mc",
+ q:"El ejercicio de <i>color splash</i>, en el que hay que decir el color con el que está escrita la palabra sin leer la palabra, trabaja:",
+ op:["Creatividad","Motivación","Flexibilidad cognitiva","Autogestión académica"],ok:2,
+ just:"<i>Color splash</i> es una variante del efecto Stroop y trabaja flexibilidad cognitiva.",
+ dist:"La creatividad se trabaja con la lluvia de ideas, no con el color splash. Es el cruce de ejercicios que la cátedra usa para armar la opción incorrecta.",ref:"M02 L1"},
+
+{n:23,mod:"02",lec:"L2",tema:"Autoconocimiento",nivel:"comprender",tipo:"mc",
+ q:"Según Echeverría, cambiar los resultados que obtenemos exige:",
+ op:["Aumentar el esfuerzo en la acción","Modificar el tipo de observador que somos","Ampliar los canales sensoriales","Sostener las verdades propias con más firmeza"],ok:1,
+ just:"La transformación pasa por el observador y su sistema de creencias, no por la acción.",
+ dist:"La opción a es la lectura intuitiva y es justo la que la lección descarta: el bucle se rompe en la interpretación, que es el paso dos, no en la acción.",ref:"M02 L2"},
+
+{n:24,mod:"02",lec:"L2",tema:"Autoconocimiento",nivel:"recordar",tipo:"mc",
+ q:"Los tres filtros perceptuales que menciona la figura de modelos mentales son generalización, distorsión y:",
+ op:["Interpretación","Eliminación","Proyección","Selección"],ok:1,
+ just:"Generalización, eliminación y distorsión.",
+ dist:"Selección y proyección son términos vecinos que no están en el material. Interpretación es lo que hace el conjunto de los filtros, no uno de ellos.",ref:"M02 L2"},
+
+{n:25,mod:"02",lec:"L2",tema:"Autoconocimiento",nivel:"comprender",tipo:"vf",
+ q:"En el esquema de modelos mentales, los filtros perceptuales operan antes que los canales sensoriales.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"El orden es territorio, canales sensoriales, filtros perceptuales y mapa mental.",
+ dist:"Otra trampa de dirección. Primero se capta y después se filtra, no al revés.",ref:"M02 L2"},
+
+{n:26,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"recordar",tipo:"mc",
+ q:"Los cuatro atributos de las emociones según la cátedra son inevitables, inconscientes, efímeras y:",
+ op:["Controlables","Universales","Aprendidas","Voluntarias"],ok:1,
+ just:"Inevitables, inconscientes, universales y efímeras.",
+ dist:"Controlables y voluntarias contradicen a inevitables e inconscientes, que están en la misma lista. Aprendidas describe a las secundarias, no a las emociones en general.",ref:"M02 L3"},
+
+{n:27,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"recordar",tipo:"mc",
+ q:"La cantidad de emociones primarias que reconoce Ekman es:",
+ op:["Cuatro","Cinco","Seis","Ocho"],ok:2,
+ just:"Seis: sorpresa, miedo, aversión, ira, tristeza y alegría.",
+ dist:"Contar siete u ocho básicas es el error registrado. La cátedra sigue a Ekman con seis, y el número es dato duro.",ref:"M02 L3"},
+
+{n:28,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"comprender",tipo:"mc",
+ q:"La vergüenza, la culpa y el orgullo se clasifican como emociones:",
+ op:["Primarias, porque tienen expresión facial universal","Secundarias, porque se aprenden en la cultura","Primarias, porque son inconscientes","Ninguna de las dos, son estados de ánimo"],ok:1,
+ just:"Son secundarias, producto de la cultura y de la combinación de primarias.",
+ dist:"Meter vergüenza, culpa u orgullo entre las primarias es el error que la cátedra registra. Las primarias son biológicas, innatas y con expresión facial universal.",ref:"M02 L3"},
+
+{n:29,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"recordar",tipo:"mc",
+ q:"La principal manifestación de la inteligencia emocional, según Goleman, es:",
+ op:["El autocontrol","La perseverancia","La empatía","La motivación"],ok:2,
+ just:"La empatía permite relacionarse asertivamente con los demás.",
+ dist:"Los otros tres están dentro del conjunto de características que Goleman agrupa, pero la principal manifestación es la empatía. La pregunta discrimina entre la lista y su elemento destacado.",ref:"M02 L3"},
+
+{n:30,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"comprender",tipo:"mc",
+ q:"La cita cualquiera puede enfadarse, eso es algo muy sencillo pertenece a:",
+ op:["Daniel Goleman","Aristóteles","Rafael Echeverría","Martin Seligman"],ok:1,
+ just:"Es de Aristóteles. Goleman la retoma para abrir su planteo.",
+ dist:"Atribuirla a Goleman es el error esperado, porque llega a la lección a través suyo. La cita es del original.",ref:"M02 L3"},
+
+{n:31,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"recordar",tipo:"mc",
+ q:"Los dos síntomas del estrés crónico son:",
+ op:["Ansiedad y rumiación","Agotamiento y cinismo","Tensión y recuperación","Catastrofización y culpa"],ok:1,
+ just:"Agotamiento en el cuerpo, cinismo en la mente. Los dos son reversibles.",
+ dist:"Tensión y recuperación son las dos fases del estrés saludable, no los síntomas del crónico. Rumiación y catastrofización son los patrones que interrumpen la recuperación.",ref:"M02 L3"},
+
+{n:32,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"comprender",tipo:"mc",
+ q:"Pensar una y otra vez en un evento negativo, alargando la duración de la ansiedad, se denomina:",
+ op:["Catastrofización","Rumiación","Cinismo","Distorsión"],ok:1,
+ just:"Rumiación es el pensamiento repetitivo.",
+ dist:"Rumiar es repetir el pensamiento, catastrofizar es agrandar la consecuencia. Es el par que la cátedra cruza con más frecuencia en esta lección.",ref:"M02 L3"},
+
+{n:33,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"recordar",tipo:"mc",
+ q:"En el modelo ABC, la letra B corresponde a:",
+ op:["<i>Behaviour</i>, conducta","<i>Believe</i>, creencias","<i>Balance</i>, equilibrio","<i>Barrier</i>, obstáculo"],ok:1,
+ just:"La B viene del inglés <i>believe</i>, las creencias.",
+ dist:"<i>Behaviour</i> es el distractor fuerte, porque la conducta sí está en el modelo pero es parte de la C, las consecuencias. El origen inglés de la B es exactamente el tipo de dato que la cátedra pregunta.",ref:"M02 L3"},
+
+{n:34,mod:"02",lec:"L3",tema:"Emociones y estrés",nivel:"aplicar",tipo:"mc",
+ q:"Un estudiante desaprueba un parcial, concluye que no sirve para la carrera y abandona sus bloques de estudio. Según el modelo ABC, la conclusión sobre su capacidad corresponde a:",
+ op:["A","B","C","Es una consecuencia conductual"],ok:1,
+ just:"La interpretación sobre lo que pasa es la B, y es el punto de intervención.",
+ dist:"El parcial desaprobado es la A y abandonar los bloques es la C. La opción d describe justamente la C, así que es la trampa: mezcla el hecho con su consecuencia.",ref:"M02 L3"},
+
+{n:35,mod:"02",lec:"L4",tema:"Ecosistemas de bienestar",nivel:"recordar",tipo:"mc",
+ q:"El modelo PERMA fue creado por:",
+ op:["Daniel Goleman","Martin Seligman","Albert Bandura","Paul Ekman"],ok:1,
+ just:"PERMA es de Martin Seligman.",
+ dist:"Goleman es el distractor esperable porque aparece en la lección anterior con inteligencia emocional. Bandura es del módulo 01 y Ekman es emociones.",ref:"M02 L4"},
+
+{n:36,mod:"02",lec:"L4",tema:"Ecosistemas de bienestar",nivel:"comprender",tipo:"mc",
+ q:"El estado de flujo, definido como una tarea de absorción y concentración alta, corresponde a la variable:",
+ op:["<i>Positive emotion</i>","<i>Engagement</i>","<i>Meaning</i>","<i>Accomplishment</i>"],ok:1,
+ just:"El flujo es <i>engagement</i>, aunque genere emociones agradables.",
+ dist:"Ese aunque es la trampa: como fluir se siente bien, la respuesta intuitiva es <i>positive emotion</i>. Si el enunciado habla de absorción y concentración alta, va <i>engagement</i>.",ref:"M02 L4"},
+
+{n:37,mod:"02",lec:"L4",tema:"Ecosistemas de bienestar",nivel:"aplicar",tipo:"mc",
+ q:"El ejercicio de los círculos de las relaciones, con un diagrama de personas cercanas y lejanas, trabaja la variable:",
+ op:["<i>Relationships</i>","<i>Meaning</i>","<i>Positive emotion</i>","<i>Accomplishment</i>"],ok:0,
+ just:"Los círculos trabajan las relaciones sanas.",
+ dist:"La correspondencia entre variable y miniactividad es el contenido más preguntable de la lección. Conviene tener las cinco parejas cerradas, no solo los nombres de las variables.",ref:"M02 L4"},
+
+{n:38,mod:"02",lec:"L4",tema:"Ecosistemas de bienestar",nivel:"comprender",tipo:"vf",
+ q:"Según la cátedra, la felicidad se define como la ausencia de emociones desagradables.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Se define como balance con saldo mayormente positivo, no como ausencia.",
+ dist:"La definición completa es sentir muchas emociones agradables y pocas desagradables, y sentirse satisfecho con la vida. Pocas no es ninguna.",ref:"M02 L4"},
+
+{n:39,mod:"02",lec:"L4",tema:"Ecosistemas de bienestar",nivel:"recordar",tipo:"mc",
+ q:"Los tres efectos que la educación positiva potencia en los estudiantes son desempeño académico, permanencia en los estudios y:",
+ op:["Empleabilidad","Vínculos sociales","Promedio general","Autonomía económica"],ok:1,
+ just:"Desempeño académico, vínculos sociales y permanencia en los estudios.",
+ dist:"Los tres suelen aparecer juntos en las opciones. Empleabilidad y autonomía económica son consecuencias plausibles que el material no enumera.",ref:"M02 L4"},
+
+{n:40,mod:"02",lec:"L4",tema:"Ecosistemas de bienestar",nivel:"comprender",tipo:"mc",
+ q:"Los dos pilares que la lección señala en la concreción de logros y metas son la gratitud y:",
+ op:["La disciplina","La narrativa","El flujo","La empatía"],ok:1,
+ just:"La narrativa, trabajada en la L2, junto con la gratitud.",
+ dist:"Es una pregunta que cruza dos lecciones: el concepto de narrativa viene del checklist del autoconocimiento de la L2 y reaparece acá.",ref:"M02 L4"}
+];
+
+/* ---------- Banco 2: las instancias ya tomadas ---------- */
+const TPS = [
+
+/* ===== TP online del módulo 02 · 100 sobre 100 ===== */
+
+{n:1001,orig:1,inst:"TP online M02",tema:"Ecosistemas de bienestar",tipo:"texto",fid:"catedra",
+ q:"Caso de Lola. En la frase <i>ejercitar la __________ con sus actividades</i>, el término que la cátedra dio por correcto es:",
+ acepta:["conexion"],sol:"Conexión",
+ just:"En el caso aplicado la cátedra traduce <i>engagement</i> como Conexión, aunque el material de estudio hable de flujo y absorción.",
+ dist:"Es el hueco que costó puntos en el primer intento. Vinculación y Abstracción eran los distractores. Regla práctica: en caso aplicado va Conexión, en definición va estado de flujo.",ref:"M02 L4"},
+
+{n:1002,orig:2,inst:"TP online M02",tema:"Ejecución y técnicas de estudio",tipo:"vf",fid:"catedra",
+ q:"La gestión inadecuada de la energía lleva a un comportamiento caótico y desordenado, y hacer muchas actividades a la vez equivale a no hacer ninguna.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Es la formulación del módulo sobre gestión de la energía y bloques de tiempo. La dispersión anula el rendimiento.",
+ dist:"Contenido del módulo 01 que apareció en el TP del módulo 02. La gestión de la energía se apoya en los ritmos circadianos y en ubicar las tareas exigentes en el pico personal.",ref:"M01 L3"},
+
+{n:1003,orig:3,inst:"TP online M02",tema:"Emociones y estrés",tipo:"ms",fid:"catedra",
+ q:"Marcá todas las pautas que colaboran a regular emociones y pensamientos.",
+ op:["Descargar o ventilar","Distraerse","Dormir correctamente","Alimentarse saludablemente","Dormir poco"],ok:[0,1,2,3],
+ just:"Son los cuatro hábitos de autorregulación emocional que evaluó el TP.",
+ dist:"Dormir poco era el único distractor, y conecta con el segundo motivo por el que se interrumpe el ciclo del estrés: no dormir lo suficiente impide la fase de recuperación.",ref:"M02 L3"},
+
+{n:1004,orig:4,inst:"TP online M02",tema:"Emociones y estrés",tipo:"ms",fid:"mixto",
+ q:"Marcá todas las que son emociones básicas según Ekman.",
+ op:["Ira","Alegría","Asco","Miedo","Vergüenza","Competitividad"],ok:[0,1,2,3],
+ just:"Las seis primarias son sorpresa, miedo, aversión o asco, ira, tristeza y alegría. De la lista, las básicas son ira, alegría, asco y miedo.",
+ dist:"En el original era una categorización en tres columnas y valía cero por un solo término mal ubicado. Vergüenza es secundaria y Competitividad no es una emoción: es un rasgo, y era el distractor que el TP puso junto con Flexibilidad e Intensidad.",ref:"M02 L3"},
+
+{n:1005,orig:5,inst:"TP online M02",tema:"Ecosistemas de bienestar",tipo:"mc",fid:"mixto",
+ q:"El orden correcto de las cinco variables del modelo PERMA es:",
+ op:["<i>Meaning, Positive emotions, Engagement, Relationship, Accomplishment</i>","<i>Positive emotions, Engagement, Relationship, Meaning, Accomplishment</i>","<i>Positive emotions, Relationship, Engagement, Meaning, Accomplishment</i>","<i>Engagement, Positive emotions, Meaning, Relationship, Accomplishment</i>"],ok:1,
+ just:"El orden es el de la sigla: P, E, R, M, A.",
+ dist:"En el original era una actividad de ordenar y la pantalla los presentaba desordenados, arrancando por <i>Meaning</i>, que es la opción a. PERMA apareció dos veces en el mismo TP, en la actividad 1 y en la 5.",ref:"M02 L4"},
+
+/* ===== Actividades de repaso del propio material ===== */
+
+{n:1011,orig:1,inst:"Repaso del material",tema:"Planificación del estudio",tipo:"texto",fid:"catedra",
+ q:"Completar. La __________ es la etapa donde se establecen las metas claras y se organiza una agenda.",
+ acepta:["planificacion"],sol:"planificación",
+ just:"Es la primera de las tres etapas de la autorregulación.",
+ dist:"Si la consigna describe establecer metas y organizar la agenda, la respuesta es planificación. Ejecutar es regular el comportamiento, monitorear es evaluar los resultados.",ref:"M01 L1"},
+
+{n:1012,orig:2,inst:"Repaso del material",tema:"Ejecución y técnicas de estudio",tipo:"mc",fid:"catedra",
+ q:"No voy a aprobar el trabajo práctico es un tipo de pensamiento:",
+ op:["Amenazante","Permisivo","Limitante"],ok:0,
+ just:"Anticipa el fracaso y descalifica la propia capacidad, que es el patrón de la procrastinación ansiosa.",
+ dist:"El distractor limitante no pertenece a la clasificación de la lección: suena a vocabulario de coaching pero no está en el material. Los tipos son amenazante, permisivo y antídoto.",ref:"M01 L3"},
+
+{n:1013,orig:3,inst:"Repaso del material",tema:"Autoconocimiento",tipo:"mc",fid:"catedra",
+ q:"Implica acceder a aquella noción en la cual sé que no sé y me abro al aprendizaje. El concepto es:",
+ op:["La importancia del no saber","La importancia del error","La importancia de la narrativa"],ok:0,
+ just:"Declarar no sé es el primer paso del proceso de aprendizaje.",
+ dist:"Era un ejercicio de unir columnas con los tres puntos del checklist del autoconocimiento. El error es la oportunidad frente a la frustración, y la narrativa es cómo nos hablamos a nosotros mismos.",ref:"M02 L2"},
+
+{n:1014,orig:4,inst:"Repaso del material",tema:"Emociones y estrés",tipo:"texto",fid:"catedra",
+ q:"Completar. La inteligencia __________ es la inteligencia de mayor importancia para el futuro éxito profesional.",
+ acepta:["emocional"],sol:"emocional",
+ just:"Es la frase que la cátedra destaca en recuadro y toma como respuesta de la actividad de completar.",
+ dist:"Choque de vocabulario: cuando la cátedra dice inteligencia sin apellido, habla de la emocional, no de <i>business intelligence</i> ni de la artificial.",ref:"M02 L3"},
+
+{n:1015,orig:5,inst:"Repaso del material",tema:"Ecosistemas de bienestar",tipo:"mc",fid:"catedra",
+ q:"El fluir es un estado psicológico universal que mezcla una tarea de absorción y concentración alta. Según PERMA corresponde a:",
+ op:["<i>Positive emotion</i>","<i>Engagement</i>","<i>Relationship</i>","<i>Meaning</i>","<i>Accomplishment</i>"],ok:1,
+ just:"El fluir es <i>engagement</i>.",
+ dist:"Los cuatro distractores son los del enunciado original: las otras cuatro variables del modelo. La confusión esperada es con <i>positive emotion</i>, porque fluir se siente bien.",ref:"M02 L4"}
+];
+
+/* ---------- Definición en castellano, por concepto ---------- */
+const D_AUTORREG=`<b>Autorregular el aprendizaje</b> es hacerse cargo del propio estudio en vez de esperar que alguien te lo organice. Tiene tres momentos y siempre van en el mismo orden: primero <b>planificás</b>, decidís qué querés lograr y cuándo lo vas a hacer; después <b>ejecutás</b>, te sentás a estudiar aunque no tengas ganas; y por último <b>monitoreás</b>, mirás qué resultado diste y ajustás. El tercero alimenta a los dos primeros, así que el circuito no se cierra nunca del todo.`;
+
+const D_METAS=`<b>Una meta de resultado</b> dice adónde querés llegar: aprobar la materia. <b>Una meta de proceso</b> dice qué vas a hacer para llegar: dos bloques de una hora los martes y jueves. La primera es la intención, la segunda son las acciones. Una meta sirve cuando es <b>factible, centrada en acciones, temporal y medible</b>: si no tiene fecha ni forma de saber si la cumpliste, no es meta, es un deseo.`;
+
+const D_BLOQUE=`<b>Un bloque de tiempo</b> es la unidad de la agenda diaria y son dos cosas juntas: la tarea <b>más</b> su descanso. El descanso está adentro del bloque, no es lo que sobra si te queda tiempo. La agenda se arma en tres niveles: mensual, semanal y diaria.`;
+
+const D_VAK=`<b>El modelo VAK</b> dice que cada persona aprende mejor por un canal: <b>visual</b>, mirando imágenes y esquemas; <b>auditivo</b>, escuchando y explicando en voz alta, con memoria por secuencias; o <b>kinestésico</b>, haciendo y moviéndose. Ojo con los nombres: el modelo es de <b>Bandler y Grinder</b>, y el test de doce ítems que usa la lección es de <b>Dilts</b>. Son dos autorías distintas y la cátedra las cruza.`;
+
+const D_PROCRAST=`<b>Procrastinar</b> es postergar lo que hay que hacer y reemplazarlo por algo más irrelevante o agradable. Hay dos clases y se distinguen por el motivo. La <b>ansiosa</b> viene del miedo a fracasar y habla con pensamientos <b>amenazantes</b>, del tipo no voy a poder: agranda la consecuencia. La <b>hedonista</b> viene de la falta de ganas y habla con pensamientos <b>permisivos</b>, del tipo mañana lo hago mejor: achica la consecuencia. Contra las dos está el <b>pensamiento antídoto</b>, que empuja a la acción.`;
+
+const D_TECNICAS=`<b>Las técnicas de estudio se dividen por lo que dejan.</b> Las <b>superficiales</b>, como leer y subrayar, dejan aprendizaje memorístico y conocimiento inerte, que dura poco. Las <b>en profundidad</b>, como los mapas conceptuales, el glosario, la lluvia de ideas y la infografía, dejan aprendizaje significativo y memoria a largo plazo. La diferencia no es cuánto tiempo le pusiste sino qué tuviste que hacer con el material.`;
+
+const D_CIRCADIANO=`<b>Los ritmos circadianos</b> son los cambios físicos, mentales y conductuales que el cuerpo repite en ciclos de <b>veinticuatro horas</b>. Por eso hay horas en las que rendís y otras en las que no, y la recomendación es poner lo difícil en tu pico de energía. No confundir con los veintiún días del desafío de hábitos.`;
+
+const D_MONITOREO=`<b>Monitorear</b> es la etapa de mirar para atrás: evaluar los resultados, ver qué se puede mejorar y darse cuenta de si hace falta pedir ayuda. Las <b>señales de advertencia</b> son las conductas que avisan que algo se está desregulando. Y los <b>tres tipos de apoyo</b> a los que se puede recurrir son <b>informativo, socioemocional y práctico</b>.`;
+
+const D_AUTOEFICACIA=`<b>La autoeficacia</b> son las creencias que tenés sobre lo que sos capaz de hacer. No es lo que lograste, es lo que creés que podés lograr. Sirve para dos cosas: baja el estrés frente a las tareas y amplía los desafíos que te animás a elegir. Es de Bandura, igual que las tres etapas.`;
+
+const D_EXPECTATIVAS=`<b>Las expectativas intrínsecas</b> son los motivos que vienen de adentro: entender algo, crecer, sostener una disciplina. <b>Las extrínsecas</b> vienen de afuera: sueldo, título, reconocimiento. Lo que decide la clasificación es <b>de dónde viene la recompensa</b>, no si el resultado además sirve para trabajar.`;
+
+const D_HABITO=`<b>Formar un hábito</b> es pasar de un proceso <b>controlado</b>, en el que tenés que decidir cada vez, a uno <b>automático</b>, en el que sale solo. La dirección es esa y no la inversa. El desafío de veintiún días que propone la lección tiene cuatro pasos: identificar el hábito, asignarle momento, lugar y horario fijos, registrarlo a diario, y evaluar al cumplirse las tres semanas.`;
+
+const D_IKIGAI=`<b>El ikigai</b> es una herramienta japonesa para encontrar el propósito. Son cuatro círculos que se cruzan: lo que amás, aquello en lo que sos bueno, lo que el mundo necesita y aquello por lo que te pueden pagar. Donde se superponen dos, aparece un nombre; donde se superponen los cuatro, aparece el ikigai. <i>Iki</i> es vida y <i>kai</i> es lograr lo que se desea. La cátedra no le atribuye autor.`;
+
+const D_OFICIO=`<b>El doble desafío</b> es que en la universidad no alcanza con aprender la materia: hay que aprender además <b>el oficio de ser alumno universitario</b>, que es otra cosa. Ese oficio son siete competencias: motivación, pensamiento creativo, flexibilidad cognitiva, autorregulación del aprendizaje, autogestión emocional, autoliderazgo y autogestión académica.`;
+
+const D_OBSERVADOR=`<b>La idea del observador</b> es que no vemos el mundo como es, lo vemos como somos. Entre lo que pasa afuera y lo que hacés hay un circuito: percibís algo, lo interpretás según tus creencias, esa interpretación genera una emoción, la emoción condiciona lo que hacés, y lo que hacés termina confirmando la interpretación inicial. Para salir del bucle hay que intervenir en la <b>interpretación</b>, no en la acción. De ahí que cambiar los resultados exija cambiar el tipo de observador que uno es.`;
+
+const D_MAPA=`<b>El mapa no es el territorio.</b> El <b>territorio</b> es el mundo tal como es. Los <b>canales sensoriales</b> son los cinco sentidos, por donde entra. Los <b>filtros perceptuales</b> son lo que el sistema hace con eso: <b>generaliza, elimina y distorsiona</b>. Y el <b>mapa mental</b> es la representación interna que queda. El orden importa: primero se capta, después se filtra.`;
+
+const D_CHECKLIST=`<b>El checklist del autoconocimiento</b> son tres cosas con las que conviene reconciliarse. El <b>no saber</b>, porque declarar que no sabés es lo que abre el aprendizaje, y el problema es cuando ni siquiera sabés que no sabés. El <b>error</b>, que se vive como frustración cuando en realidad es la oportunidad de aprender de verdad. Y la <b>narrativa</b>, que es cómo te hablás a vos mismo: hablarte bien abre conducta, hablarte mal la cierra.`;
+
+const D_EMOCIONES=`<b>Las emociones</b> son inevitables, inconscientes, universales y efímeras: aparecen sin permiso, no las elegís, le pasan a cualquiera y se van. Las <b>primarias</b> son biológicas y tienen la misma cara en todo el mundo, y son <b>seis</b>: sorpresa, miedo, aversión, ira, tristeza y alegría. Las <b>secundarias</b> se aprenden en la cultura y salen de combinar primarias: vergüenza, culpa, orgullo, entusiasmo.`;
+
+const D_INTELIGENCIA=`<b>La inteligencia emocional</b> es la capacidad de reconocer y manejar las emociones propias y las de los demás. Goleman agrupa ahí varias cosas: motivarse solo, controlar impulsos, perseverar, regular el ánimo, postergar la gratificación y empatizar. De todas, la <b>empatía</b> es la principal manifestación, porque es la que permite relacionarse bien con otros.`;
+
+const D_ESTRES=`<b>El estrés</b> arranca cuando sentís que la situación te supera. No es malo por definición: el <b>saludable</b> tiene dos fases, tensión y recuperación, y es indispensable. Se vuelve <b>crónico</b> cuando el ciclo se interrumpe, sea por demasiadas exigencias seguidas o porque la recuperación no llega. Ahí aparecen dos síntomas: <b>agotamiento</b>, que se apodera del cuerpo, y <b>cinismo</b>, que se apodera de la mente. Los dos son reversibles.`;
+
+const D_ABC=`<b>El modelo ABC</b> separa tres cosas que solemos vivir como una sola. <b>A</b> es lo que pasó, el hecho pelado. <b>B</b> viene de <i>believe</i> y son las creencias, lo que vos interpretaste sobre ese hecho. <b>C</b> son las consecuencias, lo que sentiste y lo que hiciste. La clave práctica es que la A no se puede cambiar y la C es el resultado, así que el único lugar donde se puede intervenir es la <b>B</b>.`;
+
+const D_PERMA=`<b>PERMA</b> es el modelo de bienestar de Martin Seligman, y son cinco variables cuyas iniciales forman la palabra: <b>P</b>ositive emotion, emociones agradables; <b>E</b>ngagement, el estado de flujo; <b>R</b>elationships, vínculos sanos; <b>M</b>eaning, sentido y aporte a otros; <b>A</b>ccomplishment, sensación de logro. Cada una tiene su ejercicio asociado, y esa correspondencia es lo más preguntable de la lección.`;
+
+const D_FELICIDAD=`<b>La felicidad</b>, para la cátedra, no es la ausencia de emociones desagradables: es un <b>balance</b>. Sentir muchas agradables y pocas desagradables, y estar satisfecho con la vida. Pocas no es ninguna. Se construye con micromomentos que se van acumulando.`;
+
+const D_EDUPOSITIVA=`<b>La educación positiva</b> es un modelo que mira al estudiante entero, no solo su rendimiento: enseña habilidades socioemocionales junto con los contenidos de la carrera. Sus tres efectos son mejor <b>desempeño académico</b>, mejores <b>vínculos sociales</b> y mayor <b>permanencia en los estudios</b>.`;
+
+const D_FLEX=`<b>La flexibilidad cognitiva</b> es poder mirar una misma situación desde otro ángulo y adaptarse cuando las cosas cambian. Se vuelve necesaria en un contexto <b>VICA</b>: volátil, incierto, complejo y ambiguo. El ejercicio que la entrena es el <b>color splash</b>, donde tenés que decir el color de la tinta y no leer la palabra: el cerebro quiere leer, y frenarlo es justamente el músculo que se ejercita.`;
+
+const DEF={
+ 1:D_AUTORREG,2:D_METAS,3:D_METAS,4:D_BLOQUE,
+ 5:D_VAK,6:D_VAK,7:D_VAK,
+ 8:D_PROCRAST,9:D_PROCRAST,10:D_PROCRAST,11:D_TECNICAS,12:D_CIRCADIANO,
+ 13:D_MONITOREO,14:D_AUTOEFICACIA,15:D_EXPECTATIVAS,16:D_HABITO,
+ 17:D_IKIGAI,18:D_IKIGAI,19:D_IKIGAI,20:D_OFICIO,21:D_FLEX,22:D_FLEX,
+ 23:D_OBSERVADOR,24:D_MAPA,25:D_MAPA,
+ 26:D_EMOCIONES,27:D_EMOCIONES,28:D_EMOCIONES,29:D_INTELIGENCIA,30:D_INTELIGENCIA,
+ 31:D_ESTRES,32:D_ESTRES,33:D_ABC,34:D_ABC,
+ 35:D_PERMA,36:D_PERMA,37:D_PERMA,38:D_FELICIDAD,39:D_EDUPOSITIVA,40:D_CHECKLIST,
+ 1001:D_PERMA,1002:D_CIRCADIANO,1003:D_ESTRES,1004:D_EMOCIONES,1005:D_PERMA,
+ 1011:D_AUTORREG,1012:D_PROCRAST,1013:D_CHECKLIST,1014:D_INTELIGENCIA,1015:D_PERMA};
+
+/* ---------- Teoría completa por pregunta ---------- */
+const T_ETAPAS=`<p><b>Las tres etapas de la autorregulación (Bandura, 1987), en orden:</b></p>
+<ol><li><b>Planificación.</b> Se establecen las metas y se organiza la agenda.</li>
+<li><b>Ejecución.</b> Se regula el propio comportamiento para cumplir lo planificado, incluso sin ganas.</li>
+<li><b>Monitoreo.</b> Se evalúan los resultados, se detecta qué mejorar y si hace falta pedir ayuda.</li></ol>
+<p>El monitoreo <b>retroalimenta</b> a las otras dos, así que el orden es secuencial pero el circuito es cerrado. La base teórica es la proactividad: podemos dirigir nuestras acciones hacia propósitos determinados. La autorregulación no ocurre sola, es una capacidad que se desarrolla.</p>`;
+
+const T_METAS=`<table><tr><th>Tipo de meta</th><th>Qué define</th><th>Ejemplo</th></tr>
+<tr><td>De resultado</td><td>Qué quiero lograr, la intención</td><td>Aprobar Matemática Discreta</td></tr>
+<tr><td>De proceso o de acción</td><td>Qué acciones concretas hago para lograrlo</td><td>Dos bloques de una hora los martes y jueves</td></tr></table>
+<p><b>Las cuatro propiedades de una buena meta:</b> factible, centrada en acciones, temporal y medible.</p>
+<p><b>La agenda</b> se arma en tres niveles: mensual, semanal y diaria. La unidad de la diaria es el <b>bloque de tiempo</b>, que es tarea más descanso.</p>
+<p>Caso mínimo de la cátedra: <em class="dato">voy a estudiar más</em> falla en las cuatro propiedades; <em class="dato">voy a hacer dos bloques de una hora de Discreta los martes y jueves durante agosto</em> las cumple.</p>`;
+
+const T_VAK=`<table><tr><th>Estilo</th><th>Sentido</th><th>Cómo aprende</th></tr>
+<tr><td>Visual</td><td>Vista</td><td>Imágenes, esquemas, mapas</td></tr>
+<tr><td>Auditivo</td><td>Audición</td><td>Escuchar y hablar, memoriza por secuencias</td></tr>
+<tr><td>Kinestésico</td><td>Corporalidad</td><td>Haciendo, moviéndose, practicando</td></tr></table>
+<p><b>Las dos autorías, que la cátedra cruza:</b> el modelo VAK es de <b>Richard Bandler y John Grinder</b>, en el marco de la programación neurolingüística. El test de doce ítems que usa la lección es de <b>Robert Dilts (2004)</b>.</p>
+<p>La función de la lección es instrumental: conocer el propio VAK sirve para elegir qué técnicas aplicar en la etapa de ejecución.</p>`;
+
+const T_PROCRAST=`<p>La fórmula del problema, según la figura de la lección: procrastinación más técnicas de estudio superficiales da problemas en la ejecución del aprendizaje.</p>
+<p><b>Procrastinación:</b> postergar actividades que deben atenderse, sustituyéndolas por otras más irrelevantes o agradables.</p>
+<table><tr><th>Criterio</th><th>Ansiosa</th><th>Hedonista</th></tr>
+<tr><td>Causa</td><td>Miedo al fracaso, perfeccionismo</td><td>Falta de ganas, búsqueda de placer</td></tr>
+<tr><td>Pensamiento asociado</td><td><b>Amenazantes</b></td><td><b>Permisivos</b></td></tr>
+<tr><td>Mecanismo</td><td>Catastrofizar, transformar pequeñas fallas en grandes problemas</td><td>Minimizar las consecuencias de postergar</td></tr></table>
+<p>El <b>pensamiento antídoto</b> es la respuesta propositiva que invita a la acción y frena la postergación. Es el remedio contra las dos clases anteriores, no un tercer tipo de procrastinación.</p>`;
+
+const T_TECNICAS=`<table><tr><th>Tipo de técnica</th><th>Resultado</th><th>Alcance de la memoria</th></tr>
+<tr><td>En profundidad</td><td>Aprendizaje significativo</td><td>Memoria a largo plazo</td></tr>
+<tr><td>Superficial</td><td>Aprendizaje memorístico, conocimiento inerte</td><td>Memoria a corto plazo</td></tr></table>
+<p>Entre las técnicas en profundidad la lección desarrolla los <b>esquemas y mapas conceptuales</b>, el <b>glosario terminológico</b>, la <b>lluvia de ideas</b> y la <b>infografía</b>.</p>
+<p>El glosario tiene definición propia: se ordena alfabéticamente y, a diferencia del diccionario, es <b>específico de una disciplina</b>.</p>
+<p><b>Gestión de la energía.</b> Se apoya en los ritmos circadianos, cambios físicos, mentales y conductuales en ciclos de <em class="dato">veinticuatro horas</em>. La recomendación operativa es ubicar las tareas más exigentes en el pico de energía personal.</p>`;
+
+const T_MONITOREO=`<p>En el monitoreo se evalúa y se reflexiona sobre los resultados alcanzados, se analizan los aspectos que pueden mejorarse y se detecta la necesidad de pedir ayuda.</p>
+<p>Las <b>señales de advertencia</b> son las conductas que indican fallas en la autorregulación. Ante una señal, la lección propone preguntarse si se está planificando bien, si se está procrastinando, en qué fase ocurren las fallas y si corresponde pedir ayuda.</p>
+<p><b>Los tres tipos de apoyo:</b> informativo, socioemocional y práctico.</p>
+<p><b>Formación de hábitos.</b> Es el pasaje de un proceso <b>controlado</b> a uno <b>automático</b>. El desafío de veintiún días tiene cuatro pasos: identificar el hábito, asignarle momento, lugar y horario fijos, registrarlo a diario, y evaluar al cumplirse las tres semanas.</p>
+<p><b>Autoeficacia</b> (Bandura, 1999): las creencias sobre las propias capacidades. Su efecto se mide en dos frentes, baja el estrés frente a las tareas y amplía los desafíos que la persona elige.</p>
+<p><b>Expectativas.</b> Las <b>intrínsecas</b> son motivos internos, del orden de la autorrealización. Las <b>extrínsecas</b> son externas, salario y reconocimiento.</p>`;
+
+const T_IKIGAI=`<table><tr><th>Pilar</th><th>Pregunta guía</th></tr>
+<tr><td>Lo que amas</td><td>¿Qué amo? ¿Cuándo pierdo la noción del tiempo?</td></tr>
+<tr><td>Aquello en lo que eres bueno</td><td>¿En qué soy bueno?</td></tr>
+<tr><td>Lo que el mundo necesita</td><td>¿Qué necesita el mundo?</td></tr>
+<tr><td>Aquello por lo que pueden pagarte</td><td>¿Por qué me pueden pagar ahora o en el futuro?</td></tr></table>
+<p><b>Las cuatro intersecciones</b>, que son el contenido de múltiple choice más previsible de toda la materia:</p>
+<table><tr><th>Intersección</th><th>Pilares que cruza</th></tr>
+<tr><td><b>Pasión</b></td><td>Lo que amas + aquello en lo que eres bueno</td></tr>
+<tr><td><b>Misión</b></td><td>Lo que amas + lo que el mundo necesita</td></tr>
+<tr><td><b>Vocación</b></td><td>Lo que el mundo necesita + aquello por lo que pueden pagarte</td></tr>
+<tr><td><b>Profesión</b></td><td>Aquello en lo que eres bueno + aquello por lo que pueden pagarte</td></tr></table>
+<p>Dos reglas para no dudar: pasión y misión comparten <b>lo que amás</b>; vocación y profesión comparten <b>aquello por lo que pueden pagarte</b>. Si la opción menciona dinero y talento, es profesión.</p>
+<p>El centro, donde se superponen los cuatro círculos, es el ikigai propiamente dicho: la actividad que permite fluir felizmente y sentirse útil en el mundo.</p>`;
+
+const T_OFICIO=`<p><b>El doble desafío:</b> aprender la carrera en sí misma y además aprender el oficio de alumno universitario. La carrera es el <b>vehículo</b> del propósito, no el propósito.</p>
+<p><b>Las siete competencias del oficio de estudiante</b>, en orden. La lista completa es material de pregunta del tipo cuál no pertenece:</p>
+<ol><li>Motivación para el estudio</li><li>Pensamiento creativo</li><li>Flexibilidad cognitiva</li>
+<li>Autorregulación del aprendizaje</li><li>Autogestión emocional</li><li>Autoliderazgo</li>
+<li>Autogestión académica</li></ol>
+<p>La lección solo profundiza tres: motivación, flexibilidad y creatividad.</p>
+<p>La flexibilidad se encuadra en el contexto <b>VICA</b>, castellanización de VUCA: volátil, incierto, complejo y ambiguo. El ejercicio propuesto es el <b>color splash</b>, variante del efecto Stroop. La creatividad se trabaja con la <b>lluvia de ideas</b>, que consiste en lanzar ideas al azar y después clasificarlas en brillantes, innovadoras, creativas o sencillas.</p>`;
+
+const T_MAPA=`<p>La figura de Azarak organiza el proceso en cuatro columnas que van del mundo a la conducta. <b>El orden es preguntable.</b></p>
+<table><tr><th>Etapa</th><th>Contenido</th></tr>
+<tr><td>1. Territorio</td><td>El mundo tal como es, antes de cualquier interpretación</td></tr>
+<tr><td>2. Canales sensoriales</td><td>Vista, oído, tacto, gusto, olfato</td></tr>
+<tr><td>3. Filtros perceptuales</td><td><b>Generalización, eliminación y distorsión</b>, más metaprogramas, valores y creencias, historia personal, entorno, educación, lenguaje y expectativas</td></tr>
+<tr><td>4. Mapa mental</td><td>Representación interna, estado emocional, fisiología, lenguaje</td></tr></table>
+<p>El circuito se cierra con la conducta y la comunicación, que vuelven sobre el territorio. <b>El mapa nunca es el territorio.</b></p>
+<p>Echeverría (2010) sostiene que no sabemos cómo son las cosas, solo cómo las observamos, e invita a soltar la <b>presunción de verdad</b>.</p>
+<blockquote>Dime lo que observas y te diré quién eres.</blockquote>
+<table><tr><th>Verdad dogmática</th><th>Supuesto cuestionable</th></tr>
+<tr><td>Se sostiene como certeza, no admite revisión</td><td>Se formula como hipótesis, admite ser puesta a prueba</td></tr>
+<tr><td>Cierra alternativas de acción</td><td>Abre alternativas de acción</td></tr>
+<tr><td>Opera de manera inconsciente</td><td>Se hace explícita para poder examinarla</td></tr></table>
+<p>El ejercicio del <b>pato y el conejo</b>, tomado de iProfesional (2020), muestra que una misma imagen admite dos percepciones válidas. El test no es de Echeverría: él aporta el marco del observador.</p>`;
+
+const T_CHECKLIST=`<p><b>El checklist del autoconocimiento</b> tiene tres puntos, y las tres descripciones son las que la actividad de repaso pide unir con su concepto:</p>
+<ul>
+<li><b>No saber.</b> Declarar no sé es el primer paso del proceso de aprendizaje. El problema que señala Echeverría es que frecuentemente no sabemos que no sabemos, y ahí nos cerramos a aprender.</li>
+<li><b>Error.</b> Suele relacionarse con la frustración cuando en realidad es una oportunidad para el aprendizaje significativo. Se magnifica cuando se lo toma de manera personal y cuando acertar es la única opción disponible.</li>
+<li><b>Narrativa.</b> Cómo nos hablamos a nosotros mismos le da sentido a nuestras vidas. Hablarse bien produce emociones agradables y conducta expansiva, hablarse mal produce emociones desagradables y conducta restrictiva.</li>
+</ul>
+<p>Echeverría atribuye al lenguaje un <b>poder generativo</b>: la palabra genera acción, crea mundos o los cierra, y genera posibilidades.</p>
+<p>La narrativa reaparece en la L4 como uno de los dos pilares de la concreción de logros, junto con la gratitud.</p>`;
+
+const T_EMOCIONES=`<p><b>Los cuatro atributos de las emociones, en orden:</b> inevitables, inconscientes, universales y efímeras. Su función principal es la organización de toda nuestra actividad.</p>
+<p>Los tres sistemas que afectan son el fisiológico, el motor o conductual, y el cognitivo o experiencial.</p>
+<table><tr><th>Criterio</th><th>Primarias o básicas</th><th>Secundarias</th></tr>
+<tr><td>Origen</td><td>Biológicas, universales</td><td>Se aprenden en la cultura</td></tr>
+<tr><td>Formación</td><td>Innatas</td><td>Crecimiento, interacción y combinación de primarias</td></tr>
+<tr><td>Expresión facial</td><td>Con expresión facial universal</td><td>Sin correspondencia facial universal</td></tr></table>
+<p><b>Las seis primarias</b>, y el número es dato duro: sorpresa, miedo, aversión o asco, ira, tristeza y alegría.</p>
+<p><b>Secundarias</b> que enumera la lección: culpa, bochorno, desprecio, complacencia, entusiasmo, orgullo, placer o satisfacción, y vergüenza.</p>
+<p>Cuidado con los rasgos disfrazados de emoción: competitividad, flexibilidad e intensidad no son emociones, y el TP del módulo 02 las puso juntas como distractores.</p>`;
+
+const T_INTELIGENCIA=`<p><b>La inteligencia emocional</b> es la capacidad de reconocer y gestionar emociones propias y ajenas.</p>
+<blockquote>Es la inteligencia de mayor importancia para el futuro éxito profesional.</blockquote>
+<p>Goleman (1995) agrupa bajo el término un conjunto de características: motivarnos a nosotros mismos, controlar los impulsos, perseverar pese a las frustraciones, regular los estados de ánimo, diferir las gratificaciones y empatizar. La <b>empatía</b> es la principal manifestación.</p>
+<p>La cita del enfado es de <b>Aristóteles</b> y llega a la lección a través de Goleman:</p>
+<blockquote>Cualquiera puede enfadarse, eso es algo muy sencillo. Pero enfadarse con la persona adecuada, en el grado exacto, en el momento oportuno, con el propósito justo y del modo correcto, eso, ciertamente, no resulta tan sencillo.</blockquote>
+<p>Choque de vocabulario: cuando la cátedra dice inteligencia sin apellido, habla de la emocional.</p>`;
+
+const T_ESTRES=`<p><b>El estrés</b> se inicia cuando percibimos que una situación desborda los recursos que tenemos para afrontarla. El estrés intenso libera niveles altos de <b>cortisol</b>, con efecto nocivo sobre el aprendizaje y la memoria.</p>
+<table><tr><th>Tipo</th><th>Estructura</th><th>Consecuencias</th></tr>
+<tr><td>Saludable</td><td>Dos fases, tensión y recuperación</td><td>Mecanismo indispensable para afrontar situaciones desafiantes</td></tr>
+<tr><td>Crónico</td><td>Se interrumpe el ciclo natural</td><td><b>Agotamiento y cinismo</b>, con efecto sobre salud, motivación y desempeño</td></tr></table>
+<p>El <b>agotamiento</b> es sentirse cansado sin lograr recuperarse y se apodera del cuerpo. El <b>cinismo</b> es la pérdida de interés y se apodera de la mente. Los dos son reversibles.</p>
+<p><b>Los dos motivos por los que se interrumpe el ciclo:</b> exceso de demandas, que lleva de una fase de tensión a otra sin recuperación intermedia; e interrupción de la fase de recuperación, cuando no se resuelve el tema, cuando se sigue pensando en él, cuando uno se preocupa más de lo debido, cuando no se duerme lo suficiente o cuando el cuerpo está cansado.</p>
+<table><tr><th>Patrón</th><th>Definición</th><th>Efecto</th></tr>
+<tr><td>Rumiación</td><td>Pensamiento repetitivo, pensar una y otra vez en el evento negativo</td><td>Alarga la ansiedad y dificulta relajarse</td></tr>
+<tr><td>Catastrofización</td><td>Agrandar de forma desproporcionada las consecuencias negativas</td><td>Distorsiona la evaluación de la amenaza</td></tr></table>`;
+
+const T_ABC=`<p><b>El modelo ABC</b> regula los patrones de rumiación y catastrofización.</p>
+<table><tr><th>Letra</th><th>Qué es</th><th>Ejemplo</th></tr>
+<tr><td>A</td><td>Algo que pasa, un hecho puntual</td><td>Desaprobar un parcial</td></tr>
+<tr><td><b>B</b></td><td>Del inglés <i>believe</i>. Las creencias, la interpretación sobre lo que está pasando</td><td>No doy para esta carrera</td></tr>
+<tr><td>C</td><td>Las consecuencias, emocionales y conductuales</td><td>Abandonar los bloques de estudio</td></tr></table>
+<p>El <b>punto de intervención es siempre la B</b>: la A ya ocurrió y la C es el resultado.</p>
+<p>La lección cierra corrigiendo cualquier lectura ingenua del pensamiento positivo: pensar positivamente frente a cualquier situación, en todo momento y lugar, no es una solución adecuada.</p>`;
+
+const T_PERMA=`<p><b>PERMA</b> fue creado por <b>Martin Seligman</b>. El distractor esperable es Goleman, que aparece en la lección anterior.</p>
+<table><tr><th>Letra</th><th>Variable</th><th>Contenido</th><th>Miniactividad asociada</th></tr>
+<tr><td>P</td><td><i>Positive emotion</i></td><td>Emociones positivas</td><td>Agenda de bienestar con día y horario</td></tr>
+<tr><td>E</td><td><i>Engagement</i></td><td>Estado de flujo, absorción y concentración alta</td><td>Agenda semanal con un disparador de flujo antes de cada bloque</td></tr>
+<tr><td>R</td><td><i>Relationships</i></td><td>Relaciones sanas</td><td>Círculos de las relaciones, diagrama con personas cercanas y lejanas</td></tr>
+<tr><td>M</td><td><i>Meaning</i></td><td>Sentido de la vida, qué aporto a mi comunidad</td><td>Lluvia de ideas sobre el propio papel y aporte</td></tr>
+<tr><td>A</td><td><i>Accomplishment</i></td><td>Sentido de logro</td><td>Listado de logros pasados, presentes y pendientes</td></tr></table>
+<p><b>La correspondencia entre variable y miniactividad es el contenido más preguntable de la lección.</b> La cátedra remarca que la narrativa, trabajada en la L2, y la gratitud son los dos pilares en la concreción de logros y metas.</p>
+<p>Choque de vocabulario: <i>engagement</i> acá no es una métrica de uso de producto, es el estado de flujo. Y en el caso aplicado del TP la cátedra lo tradujo como <b>Conexión</b>.</p>`;
+
+const T_FELICIDAD=`<p><b>La felicidad</b> es el bienestar subjetivo que se experimenta cuando sentimos muchas emociones agradables y pocas desagradables, y cuando nos sentimos satisfechos con la vida. La formulación que se presta a pregunta es el <b>balance con saldo mayormente positivo</b>.</p>
+<blockquote>La acumulación de micromomentos nos dará como resultado macromomentos positivos y, con ello, la sensación de bienestar.</blockquote>
+<p><b>La educación positiva</b> tiene una definición que el material repite dos veces, señal de que espera esas palabras:</p>
+<blockquote>Un modelo educativo basado en un ecosistema de educación positiva mira a sus estudiantes con una perspectiva integral orientada al aprendizaje de habilidades socioemocionales y de saberes disciplinares.</blockquote>
+<p><b>Sus tres efectos sobre el estudiante</b>, que suelen aparecer juntos en las opciones: potencia el <b>desempeño académico</b>, los <b>vínculos sociales</b> y la <b>permanencia en los estudios</b>.</p>`;
+
+const AMP={
+ 1:T_ETAPAS,2:T_METAS,3:T_METAS,4:T_METAS,
+ 5:T_VAK,6:T_VAK,7:T_VAK,
+ 8:T_PROCRAST,9:T_PROCRAST,10:T_PROCRAST,11:T_TECNICAS,12:T_TECNICAS,
+ 13:T_MONITOREO,14:T_MONITOREO,15:T_MONITOREO,16:T_MONITOREO,
+ 17:T_IKIGAI,18:T_IKIGAI,19:T_IKIGAI,20:T_OFICIO,21:T_OFICIO,22:T_OFICIO,
+ 23:T_MAPA,24:T_MAPA,25:T_MAPA,
+ 26:T_EMOCIONES,27:T_EMOCIONES,28:T_EMOCIONES,29:T_INTELIGENCIA,30:T_INTELIGENCIA,
+ 31:T_ESTRES,32:T_ESTRES,33:T_ABC,34:T_ABC,
+ 35:T_PERMA,36:T_PERMA,37:T_PERMA,38:T_FELICIDAD,39:T_FELICIDAD,40:T_CHECKLIST,
+ 1001:T_PERMA,1002:T_TECNICAS,1003:T_ESTRES,1004:T_EMOCIONES,1005:T_PERMA,
+ 1011:T_ETAPAS,1012:T_PROCRAST,1013:T_CHECKLIST,1014:T_INTELIGENCIA,1015:T_PERMA};
+
+
+/* ---------- Banco 3: preguntero, verificado y contrastado ---------- */
+const PREG = [
+
+/* ===== Inteligencias y cerebro ===== */
+
+{n:2001,orig:1,inst:"Inteligencias y cerebro",tema:"Inteligencias múltiples",tipo:"mc",fid:"preguntero",
+ q:"La inteligencia <b>intrapersonal</b>, según Gardner, es:",
+ op:["La habilidad para comprender y relacionarse con otras personas de manera empática","La habilidad de reconocer las emociones propias y gestionarlas","La habilidad de entender el sistema ecológico","La capacidad de razonar de forma lógica y deductiva"],ok:1,
+ just:"Intra es hacia adentro: reconocer y regular lo propio. Inter es hacia afuera: entender y vincularse con otros.",
+ dist:"El preguntero tiene esta pareja <b>invertida</b> en la pregunta de interpersonal, donde da como correcta la definición de la intrapersonal. Acá va la versión corregida. La regla del prefijo resuelve las dos.",
+ ref:"Fuera del material"},
+
+{n:2002,orig:2,inst:"Inteligencias y cerebro",tema:"Inteligencias múltiples",tipo:"mc",fid:"preguntero",
+ q:"¿Contra qué fue Howard Gardner al proponer las inteligencias múltiples en 1983?",
+ op:["Contra la forma tradicional de medir la inteligencia basada en el coeficiente intelectual","Contra la existencia de las emociones secundarias","Contra el uso de la tecnología en el aula","Contra la teoría de la inteligencia emocional"],ok:0,
+ just:"Su planteo es que no hay una sola inteligencia medible con un número, sino varias e independientes entre sí.",
+ dist:"Gardner y Goleman se cruzan seguido en las opciones. Gardner es inteligencias <b>múltiples</b>, 1983. Goleman es inteligencia <b>emocional</b>, 1995, y es el que sí está en tu material.",
+ ref:"Fuera del material"},
+
+{n:2003,orig:3,inst:"Inteligencias y cerebro",tema:"Inteligencias múltiples",tipo:"mc",fid:"preguntero",
+ q:"La inteligencia naturalista, según Gardner, se define como:",
+ op:["La habilidad de entender el sistema ecológico","La habilidad de moverse en el espacio de forma fluida","La capacidad de utilizar correctamente el lenguaje","La habilidad para expresarse a través de las artes"],ok:0,
+ just:"Es la que se ocupa de observar, distinguir y clasificar los elementos del entorno natural.",
+ dist:"Las ocho de Gardner son lingüística, matemática, espacial, musical, kinésica, interpersonal, intrapersonal y naturalista. Ninguna está en tus lecturas: el preguntero les dedica un bloque entero.",
+ ref:"Fuera del material"},
+
+{n:2004,orig:4,inst:"Inteligencias y cerebro",tema:"Hemisferios cerebrales",tipo:"ms",fid:"preguntero",
+ q:"Marcá las cuatro características que corresponden al hemisferio derecho.",
+ op:["Global","Creativo","Imaginativo","Intuitivo","Analítico y secuencial"],ok:[0,1,2,3],
+ just:"El derecho u holístico va por lo global y lo creativo. El izquierdo o lógico va por lo analítico, secuencial, realista, temporal y cuantitativo.",
+ dist:"Analítico y secuencial es la marca del hemisferio <b>lógico</b>, y es el único distractor de la lista. El preguntero pregunta las dos mitades por separado.",
+ ref:"Fuera del material"},
+
+{n:2005,orig:5,inst:"Inteligencias y cerebro",tema:"Neuropedagogía",tipo:"mc",fid:"preguntero",
+ q:"La neuropedagogía surge de los aportes de tres ciencias. ¿Cuáles son?",
+ op:["La neurociencia, la psicología cognitiva y la pedagogía","La neurología, la sociología y la didáctica","La biología, la psicología social y la comunicación","La medicina, la filosofía y la educación"],ok:0,
+ just:"Cruza cómo funciona el cerebro, cómo se procesa la información y cómo se enseña.",
+ dist:"El distractor cambia neurociencia por neurología y psicología cognitiva por sociología, que suenan parecido y no son lo mismo. Tema entero fuera de tus lecturas.",
+ ref:"Fuera del material"},
+
+{n:2006,orig:6,inst:"Inteligencias y cerebro",tema:"Neuropedagogía",tipo:"ms",fid:"preguntero",
+ q:"Marcá las cuatro recomendaciones que da la neuropedagogía para mejorar el desempeño académico.",
+ op:["Ambiente agradable","Fomentar la curiosidad y la incertidumbre","Utilizar recursos multimedia","Trabajo en equipo","Reducir la interacción entre alumnos para evitar distracciones"],ok:[0,1,2,3],
+ just:"Van todas en la misma dirección: más estímulo, más curiosidad y más interacción.",
+ dist:"El distractor es el único que va en contra, y esa es la pista: propone aislar cuando todo el resto propone conectar.",
+ ref:"Fuera del material"},
+
+{n:2007,orig:7,inst:"Inteligencias y cerebro",tema:"Neuropedagogía",tipo:"ms",fid:"preguntero",
+ q:"En el procesamiento de un estímulo y la respuesta del cuerpo, marcá los dos caminos que reconoce la neurociencia.",
+ op:["Un camino corto, talámico amigdalino","Un camino largo, por los lóbulos prefrontales","Un camino directo por la corteza cerebral prefrontal","Un camino inverso por el tronco encefálico"],ok:[0,1],
+ just:"El corto reacciona rápido y sin filtro, el largo pasa por la corteza y permite pensar antes de actuar. El secuestro emocional es cuando gana el corto.",
+ dist:"Este bloque trae también el <b>período refractario</b>, que es quedar de mal humor el resto del día después de una discusión. Nada de esto está en tus lecturas.",
+ ref:"Fuera del material"},
+
+{n:2008,orig:8,inst:"Inteligencias y cerebro",tema:"Inteligencia emocional",tipo:"ms",fid:"preguntero",
+ q:"Marcá los cuatro tipos de empatía que enumera el material.",
+ op:["Cognitiva, entender al otro como distinto de mí","Emocional, ligada a las neuronas espejo y al aprendizaje por imitación","Compasiva, la que pasa por la acción","Desvinculada, reconocer la emoción ajena sin contagiarse el daño","Competitiva, comparar las propias emociones con las de los demás"],ok:[0,1,2,3],
+ just:"El distractor es la competitiva, que no figura en ninguna clasificación.",
+ dist:"Ojo: Goleman describe <b>tres</b> tipos, cognitiva, emocional y compasiva. La desvinculada es un agregado del preguntero. Si el enunciado pide cuatro, marcá las cuatro; si pide tres, dejá afuera la desvinculada.",
+ ref:"Fuera del material"},
+
+/* ===== Cultura digital ===== */
+
+{n:2021,orig:9,inst:"Cultura digital",tema:"Cibercultura",tipo:"mc",fid:"preguntero",
+ q:"¿Qué es la cibercultura, según Lévy?",
+ op:["El conjunto de normas que regulan el uso ético de las tecnologías en educación","El conjunto de técnicas, prácticas, actitudes, modos de pensamiento y valores que se desarrollan junto con el crecimiento del ciberespacio","El conjunto de dispositivos que permiten el acceso a internet","La cultura de los nativos digitales nacidos después del año 2000"],ok:1,
+ just:"No es la tecnología sino todo lo que se construye alrededor de ella: prácticas, actitudes y valores.",
+ dist:"Lévy aporta además que las comunidades virtuales se construyen sobre un <b>proyecto e intereses en común</b>, y no sobre la cercanía geográfica.",
+ ref:"Fuera del material"},
+
+{n:2022,orig:10,inst:"Cultura digital",tema:"Cibercultura",tipo:"ms",fid:"preguntero",
+ q:"Según White y Le Cornu, marcá las cuatro características de los <b>residentes digitales</b>.",
+ op:["Manejan los códigos de cómo, cuándo y qué publicar","Son muy activos en sus redes, que son parte de sus vidas","Generan una red de contactos y se los identifica por sus posteos","Usan la web y las herramientas digitales como una extensión de su cuerpo","Usan la tecnología únicamente para actividades académicas y laborales"],ok:[0,1,2,3],
+ just:"El residente habita la red. El distractor describe al <b>visitante</b>, que entra, hace la tarea y se va.",
+ dist:"La clasificación de White y Le Cornu reemplaza a la vieja de nativos e inmigrantes digitales: ya no se trata de la edad sino de cómo se habita el espacio.",
+ ref:"Fuera del material"},
+
+{n:2023,orig:11,inst:"Cultura digital",tema:"Cibercultura",tipo:"mc",fid:"preguntero",
+ q:"Según Domínguez, la cultura maker está basada en:",
+ op:["La idea de que cualquier persona puede realizar sus propios proyectos y productos con la ayuda de la tecnología","La idea de que solo los expertos en tecnología pueden crear soluciones innovadoras","La producción industrial en serie","El consumo responsable de contenidos digitales"],ok:0,
+ just:"Es la idea del hágalo usted mismo llevada a lo digital: la tecnología baja la barrera de entrada a fabricar cosas.",
+ dist:"El distractor invierte el sentido y le pone un absoluto, <b>solo los expertos</b>, que es justo lo contrario del movimiento maker.",
+ ref:"Fuera del material"},
+
+/* ===== Organizaciones y futuro ===== */
+
+{n:2041,orig:12,inst:"Organizaciones y futuro",tema:"Liderazgo",tipo:"mc",fid:"preguntero",
+ q:"¿En qué consiste la teoría U, postulada por Otto Scharmer?",
+ op:["En un proceso de transformación organizacional y del liderazgo que considera fundamental cambiar el espacio interior desde el que se opera","En una metodología de evaluación del desempeño basada en indicadores","En un modelo de organización jerárquica por niveles","En una técnica de gestión del tiempo por bloques"],ok:0,
+ just:"La idea es que para cambiar lo que una organización produce hay que cambiar antes el lugar interno desde el cual sus personas actúan.",
+ dist:"Conecta con Echeverría y el observador, que sí está en tu material: los dos dicen que la transformación arranca adentro y no en la acción.",
+ ref:"Fuera del material"},
+
+{n:2042,orig:13,inst:"Organizaciones y futuro",tema:"Liderazgo",tipo:"mc",fid:"preguntero",
+ q:"Las organizaciones hoy deben tener en cuenta el <i>futuring</i>. ¿En qué consiste?",
+ op:["En la capacidad de adaptarse a los cambios una vez que ya se produjeron","En el arte de explorar y anticipar el futuro organizacional y personal","En proyectar los resultados financieros del próximo ejercicio","En digitalizar los procesos existentes"],ok:1,
+ just:"Es mirar hacia adelante para anticiparse, no para reaccionar después.",
+ dist:"El distractor describe una actitud <b>reactiva</b>, que es exactamente lo contrario de la <b>preactiva</b> que propone el futuring. El preguntero pregunta ese par por separado.",
+ ref:"Fuera del material"},
+
+{n:2043,orig:14,inst:"Organizaciones y futuro",tema:"Liderazgo",tipo:"mc",fid:"preguntero",
+ q:"¿Con relación a qué se habla de liderazgo resonante?",
+ op:["A la capacidad técnica y operativa del líder en entornos digitales","A las competencias emocionales del líder","A la cantidad de personas a cargo","A la antigüedad en el puesto"],ok:1,
+ just:"Resonar es sintonizar con el estado emocional del equipo. Es inteligencia emocional aplicada al liderazgo.",
+ dist:"Se apoya en Goleman, que sí está en tu material: es el puente entre la lección de emociones y este bloque de organizaciones.",
+ ref:"Fuera del material"},
+
+{n:2044,orig:15,inst:"Organizaciones y futuro",tema:"Liderazgo",tipo:"ms",fid:"preguntero",
+ q:"Según Maurer, marcá los cuatro aspectos de la filosofía Kaizen.",
+ op:["Realizar acciones pequeñas","Tener pensamientos pequeños","Hacer preguntas pequeñas","Resolver problemas pequeños","Establecer metas ambiciosas y a largo plazo desde el inicio"],ok:[0,1,2,3],
+ just:"Kaizen es mejora continua a pasos mínimos. Todo el método está en achicar.",
+ dist:"El distractor es el único que propone algo grande, y por eso canta. Conecta con la propiedad <b>factible</b> de una buena meta, que sí está en tu material.",
+ ref:"Fuera del material"},
+
+/* ===== Herramientas y método ===== */
+
+{n:2061,orig:16,inst:"Herramientas y método",tema:"Técnicas de estudio",tipo:"mc",fid:"preguntero",
+ q:"¿Para qué se utiliza la matriz de Eisenhower?",
+ op:["Para organizar las metas del semestre según las fechas de evaluación","Para identificar las tareas según su importancia y su grado de urgencia","Para clasificar el estilo de aprendizaje","Para registrar los hábitos diarios"],ok:1,
+ just:"Cruza dos ejes, importante y urgente, y de ahí salen cuatro cuadrantes: hacer, agendar, delegar y descartar.",
+ dist:"Es una herramienta de la etapa de <b>planificación</b> que tu material no nombra. El preguntero también pregunta por Trello como tablero de gestión de proyectos, y por Canva, Genially, Mentimeter y Miro.",
+ ref:"Fuera del material"},
+
+{n:2062,orig:17,inst:"Herramientas y método",tema:"Técnicas de estudio",tipo:"mc",fid:"preguntero",
+ q:"El programa Trello funciona como:",
+ op:["Un cuadro comparativo","Un mapa mental","Un tablero de gestión de proyectos","Una base de datos científica"],ok:2,
+ just:"Sirve para organizar tareas en columnas y seguir su avance.",
+ dist:"<b>Acá el preguntero se contradice a sí mismo.</b> En una pregunta responde tablero de gestión, y en otra ofrece solo cuadros comparativos y mapas mentales, que son las dos incorrectas. Si te aparece esa versión, ninguna opción sirve.",
+ ref:"Fuera del material"},
+
+{n:2063,orig:18,inst:"Herramientas y método",tema:"Búsqueda de información",tipo:"ms",fid:"preguntero",
+ q:"Marcá las cuatro características de la metodología cuantitativa.",
+ op:["Prueba hipótesis","Mide fenómenos","Hace análisis de causa y efecto","Utiliza estadísticas","Se basa en la interpretación subjetiva de los datos"],ok:[0,1,2,3],
+ just:"Lo cuantitativo mide, contrasta y generaliza. Lo cualitativo interpreta y comprende.",
+ dist:"El distractor es la definición de lo <b>cualitativo</b>. Es contenido de metodología de la investigación que aparece en el parcial sin estar en tus lecturas.",
+ ref:"Fuera del material"},
+
+{n:2064,orig:19,inst:"Herramientas y método",tema:"Búsqueda de información",tipo:"mc",fid:"preguntero",
+ q:"¿Qué son las bases científicas?",
+ op:["Publicaciones impresas especializadas en distintas ramas del conocimiento","Un conjunto de información en soporte electrónico que facilita la recuperación de información científica","Los fundamentos teóricos de una disciplina","Las normas de citación académica"],ok:1,
+ just:"Son repositorios electrónicos donde se busca con palabras clave y descriptores.",
+ dist:"El distractor juega con el doble sentido de bases: acá no son los fundamentos de una ciencia sino bases de datos. El bloque incluye también lenguaje documental y descriptores.",
+ ref:"Fuera del material"},
+
+/* ===== Datos finos sobre temas que sí tenés ===== */
+
+{n:2081,orig:20,inst:"Datos finos",tema:"Ejecución y técnicas de estudio",tipo:"mc",fid:"preguntero",
+ q:"¿Cuánto más probable es desaprobar si solo se usan estrategias simples de estudio, comparado con quienes usan estrategias en profundidad?",
+ op:["33 por ciento más probable","50 por ciento más probable","20 por ciento más probable","El doble"],ok:0,
+ just:"Es la cifra que da el material para contrastar técnicas superficiales contra técnicas en profundidad.",
+ dist:"Tu paquete tiene la distinción conceptual entre superficial y en profundidad, pero <b>no la cifra</b>. El preguntero también trae que mejorar la planificación lleva la probabilidad de aprobar a <em class=\"dato\">0,76</em>.",
+ ref:"M01 L3"},
+
+{n:2082,orig:21,inst:"Datos finos",tema:"Monitoreo del aprendizaje",tipo:"mc",fid:"preguntero",
+ q:"¿Cuánto tiempo demanda generar un nuevo hábito, según el material?",
+ op:["Exactamente 21 días","Entre 21 y 60 días","Tres meses","Una semana"],ok:1,
+ just:"El desafío de la lección se plantea a veintiún días, pero el rango que el material reconoce llega hasta los sesenta.",
+ dist:"Tu paquete solo menciona el desafío de <b>veintiún días</b>. El preguntero pide el rango completo, así que si la opción dice exactamente 21 puede ser el distractor.",
+ ref:"M01 L4"},
+
+{n:2083,orig:22,inst:"Datos finos",tema:"Planificación del estudio",tipo:"mc",fid:"preguntero",
+ q:"¿Cuál sería un buen ejemplo de bloque de tiempo?",
+ op:["Bloques de 90 minutos de estudio continuo seguidos de 30 de descanso","Bloques de 60 minutos, con 40 de estudio y 20 de descanso","Bloques de 120 minutos sin descanso","Bloques de 30 minutos de estudio y 30 de descanso"],ok:1,
+ just:"El bloque incluye el descanso adentro, y la proporción deja más tiempo de estudio que de pausa.",
+ dist:"Confirma con números lo que tu material dice en palabras: el bloque es tarea <b>más</b> descanso, no tarea y después lo que sobre.",
+ ref:"M01 L1"},
+
+{n:2084,orig:23,inst:"Datos finos",tema:"Ecosistemas de bienestar",tipo:"ms",fid:"preguntero",
+ q:"Según Emily Esfahani, marcá los cuatro elementos que dan sentido a la vida.",
+ op:["El propósito","La trascendencia","La pertenencia","La narrativa","La resiliencia"],ok:[0,1,2,3],
+ just:"Los cuatro pilares del sentido. La resiliencia es el distractor.",
+ dist:"Esfahani no aparece en tu paquete, pero la <b>narrativa</b> sí: es uno de los tres puntos del checklist del autoconocimiento y uno de los dos pilares en la concreción de logros. Este bloque la conecta con el propósito de la L1.",
+ ref:"M02 L4"},
+
+{n:2085,orig:24,inst:"Datos finos",tema:"Autoconocimiento",tipo:"mc",fid:"preguntero",
+ q:"Un estudiante tiene armada su agenda y sus metas, pero no las cumple porque prioriza otras actividades. La falla está en la fase de:",
+ op:["Planificación","Ejecución","Monitoreo","Ninguna, es un problema de motivación"],ok:1,
+ just:"Si no hay agenda ni metas, la falla es de planificación. Si están hechas y no se cumplen, es de ejecución.",
+ dist:"Es la distinción más fina de todo el preguntero y la que más se repite en casos. Ojo con la trampa: la sola mención de la agenda tienta a responder planificación.",
+ ref:"M01 L3"},
+
+/* ===== Donde el preguntero falla ===== */
+
+{n:2101,orig:25,inst:"Donde el preguntero falla",tema:"Ejecución y técnicas de estudio",tipo:"mc",fid:"errado",
+ q:"¿Qué tipos de procrastinación reconoce el material?",
+ op:["Amenazante y hedonista","Ansiosa y hedonista","Activa y pasiva","Consciente e inconsciente"],ok:1,
+ just:"Los dos tipos son <b>ansiosa</b> y <b>hedonista</b>. Amenazante es el adjetivo de los <b>pensamientos</b> de la ansiosa, no el nombre del tipo.",
+ dist:"<b>El preguntero responde amenazante y hedonista, mezclando los dos niveles.</b> El resto de sus propias preguntas usa ansiosa, así que se contradice. Tu material es claro: tipos ansiosa y hedonista, pensamientos amenazantes y permisivos.",
+ ref:"M01 L3"},
+
+{n:2102,orig:26,inst:"Donde el preguntero falla",tema:"Emociones y estrés",tipo:"mc",fid:"errado",
+ q:"El distrés escolar puede tener varios motivos. ¿Cuál de estos lo explica?",
+ op:["El placer en el estudio y el conocimiento","La ausencia de motivación intrínseca hacia la materia cursada","El exceso de descanso entre bloques","La planificación excesiva"],ok:1,
+ just:"El distrés es el estrés que daña. La falta de motivación interna hacia lo que se cursa es uno de sus motivos.",
+ dist:"<b>El preguntero da como correcta la primera</b>, que es absurda: el placer en el estudio no produce distrés. Probablemente el enunciado original preguntaba por el <b>eustrés</b> y se copió mal. Es un ejemplo de por qué no conviene memorizar de ahí sin pensar.",
+ ref:"M02 L3"},
+
+{n:2103,orig:27,inst:"Donde el preguntero falla",tema:"Emociones y estrés",tipo:"mc",fid:"errado",
+ q:"La inteligencia <b>interpersonal</b>, según Gardner, es:",
+ op:["La habilidad de reconocer las emociones propias y gestionarlas","La habilidad para comprender y relacionarse con otras personas de manera empática","La capacidad de razonar de forma lógica","La habilidad de entender el sistema ecológico"],ok:1,
+ just:"Inter es entre personas. Lo de reconocer y gestionar lo propio es la intrapersonal.",
+ dist:"<b>El preguntero marca la primera como correcta y está mal</b>, porque en otra de sus preguntas define esa misma frase como intrapersonal. Se contradice consigo mismo. Regla del prefijo: intra hacia adentro, inter hacia afuera.",
+ ref:"Fuera del material"},
+
+{n:2104,orig:28,inst:"Donde el preguntero falla",tema:"Vida institucional",tipo:"mc",fid:"errado",
+ q:"¿Qué implica haber promocionado una materia?",
+ op:["Rendir solamente un examen final oral","Acceder a promoción directa, es decir no rendir examen final","Rendir el final con una nota mínima más baja","Recursar la materia el semestre siguiente"],ok:1,
+ just:"Promocionar es justamente no tener que rendir el final.",
+ dist:"<b>El preguntero tiene las dos versiones y se contradice</b>: en una responde que hay que rendir un final oral y en otra que no se rinde final. La segunda es la correcta. Todo el bloque de reglamento institucional, unas cuarenta preguntas, conviene chequearlo contra el aula virtual antes que contra el preguntero.",
+ ref:"Fuera del material"}
+];
+
+/* Teoría y definición del banco del preguntero */
+const D_GARDNER=`<b>Las inteligencias múltiples de Gardner</b> parten de una idea simple: no hay una sola inteligencia que se mide con un número. Hay varias y son independientes, así que alguien puede ser brillante en una y flojo en otra. Son ocho: lingüística, matemática, espacial, musical, kinésica, interpersonal, intrapersonal y naturalista. Las dos que más se confunden son las últimas dos con nombre parecido: <b>intra</b>personal es hacia adentro, conocerse y regularse; <b>inter</b>personal es hacia afuera, entender y vincularse con otros.`;
+const D_HEMISFERIOS=`<b>Los dos hemisferios cerebrales</b> se reparten estilos de procesamiento. El <b>izquierdo o lógico</b> es analítico, secuencial, realista, temporal y cuantitativo: va por partes y en orden. El <b>derecho u holístico</b> es global, creativo, imaginativo e intuitivo: capta el conjunto. La idea de tener un hemisferio dominante es un mito: los dos trabajan juntos todo el tiempo.`;
+const D_NEURO=`<b>La neuropedagogía</b> es lo que sale de cruzar tres cosas: la neurociencia, que estudia cómo funciona el cerebro; la psicología cognitiva, que estudia cómo se procesa la información; y la pedagogía, que estudia cómo se enseña. De ahí salen recomendaciones concretas para el aula, como fomentar la curiosidad, usar recursos variados y trabajar en equipo.`;
+const D_EMPATIA=`<b>La empatía</b> tiene capas. La <b>cognitiva</b> es entender qué le pasa al otro, sin sentirlo. La <b>emocional</b> es sentirlo con él, y funciona por neuronas espejo. La <b>compasiva</b> agrega el paso siguiente, hacer algo al respecto. Y la <b>desvinculada</b> es reconocer la emoción ajena sin dejar que te arrastre, que es lo que necesita alguien que trabaja con el dolor de otros todo el día.`;
+const D_CIBER=`<b>La cibercultura</b> no son los aparatos: son las prácticas, actitudes, modos de pensar y valores que crecieron junto con internet. En esa cultura, Lévy dice que las comunidades se arman por <b>proyecto e interés compartido</b> y no por vivir cerca. Y White y Le Cornu separan a los <b>residentes</b>, que habitan la red como una extensión de su vida, de los <b>visitantes</b>, que entran, resuelven algo y se van.`;
+const D_FUTURO=`<b>Anticipar en vez de reaccionar.</b> El <i>futuring</i> es el trabajo de explorar futuros posibles antes de que pasen, para llegar preparado. Va de la mano de la <b>teoría U</b> de Scharmer, que dice que para cambiar lo que una organización produce hay que cambiar primero el lugar interno desde el que sus personas operan. Y del <b>Kaizen</b> de Maurer, que propone lo contrario a los grandes saltos: acciones, preguntas, pensamientos y problemas chicos, sostenidos en el tiempo.`;
+const D_HERRAM=`<b>Herramientas concretas de organización.</b> La <b>matriz de Eisenhower</b> cruza importante con urgente y da cuatro cuadrantes, que sirven para decidir qué hacer, qué agendar, qué delegar y qué descartar. <b>Trello</b> es un tablero donde las tareas se mueven entre columnas según su avance. Las dos pertenecen a la etapa de planificación, aunque tu material no las nombre.`;
+const D_METODO=`<b>Cuantitativo y cualitativo</b> son dos formas de investigar. Lo <b>cuantitativo</b> mide, prueba hipótesis, busca causa y efecto y usa estadística: quiere generalizar. Lo <b>cualitativo</b> interpreta, describe y busca comprender un caso en profundidad. Y las <b>bases científicas</b> son los repositorios electrónicos donde se busca ese material, con palabras clave y descriptores.`;
+
+Object.assign(DEF,{
+ 2001:D_GARDNER,2002:D_GARDNER,2003:D_GARDNER,2004:D_HEMISFERIOS,
+ 2005:D_NEURO,2006:D_NEURO,2007:D_NEURO,2008:D_EMPATIA,
+ 2021:D_CIBER,2022:D_CIBER,2023:D_CIBER,
+ 2041:D_FUTURO,2042:D_FUTURO,2043:D_FUTURO,2044:D_FUTURO,
+ 2061:D_HERRAM,2062:D_HERRAM,2063:D_METODO,2064:D_METODO,
+ 2081:DEF[11],2082:DEF[16],2083:DEF[4],2084:DEF[35],2085:DEF[1],
+ 2101:DEF[9],2102:DEF[31],2103:D_GARDNER,2104:D_HERRAM});
+
+Object.assign(AMP,{
+ 2081:AMP[11],2082:AMP[16],2083:AMP[4],2084:AMP[35],2085:AMP[1],
+ 2101:AMP[9],2102:AMP[31]});
+
+/* ---------- Estado ---------- */
+const HKEY="s21.aprender.parcial1.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"sección 9 del paquete",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  preguntero:"preguntero, verificada contra el material",
+  errado:"el preguntero se equivoca acá"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["preguntero","errado"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Solo las del paquete":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué instancia" : "Elegí qué bloque del preguntero";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel()};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+function pregunta(p){
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      "abcde"[k]+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):"abcde"[k])+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  } else if(p.tipo==="texto"){
+    cuerpo='<div class="texto-libre"><input id="in1" placeholder="Escribí la respuesta" autocomplete="off"><button class="btn" id="chk">Comprobar</button></div>';
+  } else {
+    cuerpo='<div class="texto-libre"><input id="in1" placeholder="Primer valor" autocomplete="off"><input id="in2" placeholder="Segundo valor" autocomplete="off"><button class="btn" id="chk">Comprobar</button></div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  } else {
+    const go=()=>{
+      let ok=p.acepta.map(norm).includes(norm($("in1").value));
+      if(p.tipo==="texto2") ok = ok && p.acepta2.map(norm).includes(norm($("in2").value));
+      responder(p, ok?"OK":"NO");
+    };
+    $("chk").onclick=go;
+    $("in1").onkeydown=e=>{if(e.key==="Enter")go()};
+    if($("in2")) $("in2").onkeydown=e=>{if(e.key==="Enter")go()};
+    $("in1").focus({preventScroll:true});
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : (p.tipo==="mc"||p.tipo==="vf") ? elegido===p.ok : elegido==="OK";
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll("input").forEach(x=>x.disabled=true);
+    $("chk").disabled=true;
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(k=>"abcde"[k]).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? "abcde"[p.ok]+") "+p.op[p.ok]
+                 : (p.tipo==="vf") ? p.op[p.ok]
+                 : p.sol;
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de la sección 9 del paquete más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de pregunteros de circulación libre, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período. El enunciado y la respuesta correcta salen del registro de cada trabajo práctico; parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+
+/* El menú solo puede quedar anclado al costado si hay ancho de sobra. Por debajo
+   de 1024 px siempre se comporta como cajón: se abre encima y se puede cerrar. */
+const ANCHO_ANCLABLE=window.matchMedia("(min-width:1025px)");
+function anclable(){return ANCHO_ANCLABLE.matches}
+function anclado(){return fijo && anclable()}
+
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function pintarBurger(){
+  const abierto=panel.classList.contains("abierto") && !anclado();
+  btnAbrir.setAttribute("aria-expanded",abierto?"true":"false");
+  btnAbrir.title=abierto?"Ocultar el índice de temas":"Ver el índice de temas";
+}
+/* Con el cajón abierto en pantallas chicas, el fondo no debe seguir haciendo scroll. */
+function trabarScroll(){
+  document.body.classList.toggle("sinScroll",
+    panel.classList.contains("abierto") && !anclable());
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(anclado()){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  else{panel.classList.remove("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();pintarBurger();trabarScroll();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){
+  panel.classList.add("abierto");
+  if(!anclado())fondo.classList.add("abierto");
+  pintarBurger();trabarScroll();
+}
+function cerrarPanel(){
+  if(anclado()) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  pintarBurger();trabarScroll();
+}
+function alternarPanel(){
+  if(panel.classList.contains("abierto")) cerrarPanel(); else abrirPanel();
+}
+
+btnAbrir.onclick=alternarPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{if(anclable()){fijo=false;aplicarFijo(true)}else cerrarPanel()};
+fondo.onclick=cerrarPanel;
+/* Al cruzar el punto de corte, el menú se reacomoda en vez de quedar a medio camino. */
+const alCambiarAncho=()=>aplicarFijo(false);
+if(ANCHO_ANCLABLE.addEventListener) ANCHO_ANCLABLE.addEventListener("change",alCambiarAncho);
+else if(ANCHO_ANCLABLE.addListener) ANCHO_ANCLABLE.addListener(alCambiarAncho);
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();cerrarPanel();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>

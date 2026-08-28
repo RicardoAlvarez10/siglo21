@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2D4A3E">
+<meta name="color-scheme" content="light">
+<title>Siglo 21 · Inicio</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --tenue:#6B6B6B; --ambar:#7A5A22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 24px 70px}
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+  header{text-align:center;margin-bottom:30px}
+  header h1{font-size:27px;color:var(--titulo);margin:0 0 6px;font-weight:normal}
+  header p{margin:0;color:var(--tenue);font-size:14px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+  .rot{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
+    font-weight:600;margin:34px 0 12px}
+  .rot:first-of-type{margin-top:0}
+
+  .materia{background:var(--panel);border:1px solid var(--borde);border-radius:5px;
+    padding:20px 22px;margin-bottom:16px}
+  .materia h2{font-size:19px;color:var(--titulo);margin:0 0 3px;font-weight:normal}
+  .materia .sub{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);margin:0 0 15px}
+
+  .destacado{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:#F3F6F4;border:1px solid #D6E0D9;border-radius:4px;
+    padding:13px 16px;text-decoration:none;color:var(--texto);margin-bottom:14px;flex-wrap:wrap}
+  .destacado:hover{border-color:var(--acento)}
+  .destacado .txt{min-width:0}
+  .destacado b{font-family:'Segoe UI',sans-serif;font-size:14px;color:var(--acento);display:block}
+  .destacado span{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .marcador{font-family:'Segoe UI',sans-serif;font-size:11.5px;color:var(--tenue);
+    text-align:right;flex-shrink:0}
+  .marcador b{font-size:17px;color:var(--acento);display:block;font-family:'Segoe UI',sans-serif}
+
+  .modulos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .modulo{border:1px solid var(--borde);border-radius:4px;padding:12px 14px}
+  .modulo h3{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 8px;font-weight:600}
+  .modulo ol{margin:0 0 10px 17px;padding:0;font-size:13.5px}
+  .modulo li{margin-bottom:3px}
+  .enlaces{display:flex;flex-wrap:wrap;gap:7px}
+  .enlaces a{font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:none;
+    border:1px solid var(--borde);border-radius:12px;padding:4px 10px;color:var(--titulo)}
+  .enlaces a:hover{border-color:var(--acento);color:var(--acento)}
+
+  .pendiente{opacity:.62}
+  .pendiente .modulo{border-style:dashed}
+  .nota{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);margin:11px 0 0}
+
+  .flujo{background:var(--panel);border:1px solid var(--borde);border-radius:5px;padding:20px 22px}
+  .flujo ol{margin:0 0 0 18px;padding:0;font-size:14.5px}
+  .flujo li{margin-bottom:7px}
+  .flujo code{font-family:Consolas,monospace;font-size:13px;background:#F0EDE7;
+    padding:1px 5px;border-radius:2px}
+
+  footer{margin-top:34px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue);
+    border-top:1px solid var(--borde);padding-top:14px}
+  @media (max-width:620px){.wrap{padding:24px 16px 60px}}
+  /* ================================================================
+     Ajustes de interfaz - se agregan al final para pisar lo anterior
+     ================================================================ */
+  header h1{font-size:clamp(21px,5.6vw,29px);line-height:1.22}
+  header p{font-size:clamp(12.5px,3.2vw,14px)}
+
+  .destacado{min-height:56px;transition:border-color .15s ease,background .15s ease}
+  .destacado:hover{background:#EDF3EF}
+  .destacado:focus-visible,.enlaces a:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  .marcador:empty{display:none}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 16px 56px}
+    header{text-align:left;margin-bottom:24px}
+    .materia{padding:16px 15px;border-radius:6px}
+    .materia h2{font-size:18px}
+    .destacado{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px}
+    .marcador{text-align:left}
+    .marcador b{display:inline;font-size:15px;margin-right:6px}
+    .modulos{grid-template-columns:1fr;gap:10px}
+    .enlaces a{min-height:36px;display:inline-flex;align-items:center;padding:6px 12px;font-size:12px}
+    .rot{margin:26px 0 10px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Universidad Siglo 21</h1>
+  <p>Licenciatura en Inteligencia Artificial y Robótica</p>
+</header>
+
+<div class="rot">Materias en curso · agosto a octubre de 2026</div>
+
+<div class="materia">
+  <h2>Introducción a la Inteligencia Artificial</h2>
+  <p class="sub">4 módulos · 16 lecturas · módulos 01 y 02 procesados</p>
+
+  <a class="destacado" href="ia.html">
+    <span class="txt">
+      <b>Autoevaluación del Parcial 1</b>
+      <span>71 de estudio, 28 ya tomadas y 15 del preguntero</span>
+    </span>
+    <span class="marcador" data-clave="s21.ia.parcial1.v1" data-total="114"></span>
+  </a>
+
+  <div class="modulos">
+    <div class="modulo">
+      <h3>Módulo 01 · Introducción a la IA</h3>
+      <ol>
+        <li>Inteligencia artificial</li>
+        <li>Big data</li>
+        <li>Machine y deep learning</li>
+        <li>Visión e iluminación artificial</li>
+      </ol>
+    </div>
+    <div class="modulo">
+      <h3>Módulo 02 · Evolución de la IA</h3>
+      <ol>
+        <li>Fundamentos de la IA</li>
+        <li>Orígenes de la IA</li>
+        <li>Áreas de aplicación</li>
+        <li>Agentes inteligentes</li>
+      </ol>
+    </div>
+    <div class="modulo pendiente">
+      <h3>Módulo 03 · Data Mining y Bots</h3>
+      <ol><li>Sin procesar</li></ol>
+    </div>
+    <div class="modulo pendiente">
+      <h3>Módulo 04 · Impacto cultural</h3>
+      <ol><li>Sin procesar</li></ol>
+    </div>
+  </div>
+
+  <p class="nota">Huecos declarados del material: la iluminación artificial no se desarrolla en M01 L4, y el PDF de M02 L3 es un escaneo sin capa de texto.</p>
+</div>
+
+<div class="materia">
+  <h2>Matemática Discreta</h2>
+  <p class="sub">Módulos 01 y 02 procesados · evaluada con demostraciones escritas</p>
+
+  <a class="destacado" href="discreta.html">
+    <span class="txt">
+      <b>Autoevaluación del Parcial 1</b>
+      <span>65 de estudio, 40 de los TPs y 27 del preguntero</span>
+    </span>
+    <span class="marcador" data-clave="s21.discreta.parcial1.v1" data-total="132"></span>
+  </a>
+
+  <div class="modulos">
+    <div class="modulo">
+      <h3>Módulo 01 · Teoría de números</h3>
+      <ol>
+        <li>Divisibilidad</li>
+        <li>Números primos</li>
+        <li>Máximo común divisor</li>
+        <li>Inducción matemática</li>
+      </ol>
+    </div>
+    <div class="modulo">
+      <h3>Módulo 02 · Funciones y conteo</h3>
+      <ol>
+        <li>Funciones</li>
+        <li>Principio de casillas</li>
+        <li>Permutaciones</li>
+        <li>Combinaciones</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="enlaces" style="margin-top:12px"><a href="formulas-conteo.png">Las cuatro fórmulas de conteo</a></div>
+  <p class="nota">La autoevaluación mide identificación de conceptos y ejecución de fórmulas. La redacción de una demostración por inducción se practica aparte, con la sección 5 del paquete.</p>
+</div>
+
+<div class="materia">
+  <h2>Aprender en el Siglo XXI</h2>
+  <p class="sub">Módulos 01 y 02 procesados</p>
+
+  <a class="destacado" href="aprender.html">
+    <span class="txt">
+      <b>Autoevaluación del Parcial 1</b>
+      <span>40 de estudio, 10 ya tomadas y 28 del preguntero</span>
+    </span>
+    <span class="marcador" data-clave="s21.aprender.parcial1.v1" data-total="78"></span>
+  </a>
+
+  <div class="modulos">
+    <div class="modulo">
+      <h3>Módulo 01 · Autorregulación</h3>
+      <ol>
+        <li>Planificación de tu estudio</li>
+        <li>Cómo receptamos la información</li>
+        <li>Ejecución y técnicas de estudio</li>
+        <li>Monitoreo del aprendizaje</li>
+      </ol>
+    </div>
+    <div class="modulo">
+      <h3>Módulo 02 · Propósito y bienestar</h3>
+      <ol>
+        <li>Propósito y oficio de estudiante</li>
+        <li>Autoconocimiento</li>
+        <li>Emociones y gestión del estrés</li>
+        <li>Ecosistemas de bienestar</li>
+      </ol>
+    </div>
+  </div>
+
+  <p class="nota">El TP online del módulo 02 cerró en 100. Los PDF de cátedra del módulo 01 están, pero solo la lección 1 tiene resumen en .md.</p>
+</div>
+
+<footer>
+  Todo el contenido sale de los PDF de cátedra y de los paquetes de estudio. Donde el material declara un hueco, la página lo dice.
+</footer>
+</div>
+
+<script>
+/* Si el navegador comparte el almacenamiento entre archivos locales, se muestra
+   el avance de cada autoevaluación. Si no, la etiqueta queda vacía y no molesta. */
+document.querySelectorAll(".marcador").forEach(el=>{
+  let hist=null;
+  try{hist=JSON.parse(localStorage.getItem(el.dataset.clave)||"null")}catch(e){}
+  if(!hist||!Object.keys(hist).length) return;
+  const ns=Object.keys(hist);
+  const bien=ns.filter(n=>hist[n].u===1).length;
+  const pct=Math.round(bien/ns.length*100);
+  el.innerHTML='<b>'+pct+'%</b>'+ns.length+' de '+el.dataset.total+' respondidas';
+});
+</script>
+</body>
+</html>

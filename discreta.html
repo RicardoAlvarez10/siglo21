@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2D4A3E">
+<meta name="color-scheme" content="light">
+<title>Discreta · Parcial 1 · Autoevaluación interactiva</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --ok:#2D4A3E; --okBg:#EAF1ED;
+    --mal:#8C2F2F; --malBg:#F7EBEB; --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap}
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:24px 24px 20px}
+  .meta{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px}
+  .enunciado{font-size:17px;margin:0 0 18px}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start}
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .texto-libre{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .texto-libre input{font-family:Georgia,serif;font-size:15.5px;padding:10px 13px;
+    border:1px solid var(--borde);border-radius:3px;background:#fff;color:var(--texto);
+    min-width:190px;flex:1}
+  .texto-libre input:focus{outline:2px solid var(--acento);outline-offset:-1px}
+  .btn{font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;border-radius:3px;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px}
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600}
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600}
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic}
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .amp code{font-family:Consolas,monospace;font-size:13.5px;background:#F0EDE7;padding:1px 4px;border-radius:2px}
+
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0}
+  .aviso{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px}
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  /* ================================================================
+     Ajustes de interfaz - se agregan al final para pisar lo anterior
+     ================================================================ */
+
+  /* --- Titulos que respiran en pantallas chicas --- */
+  header h1{font-size:clamp(20px,5.2vw,29px);line-height:1.22}
+  header p{font-size:clamp(12.5px,3.2vw,14px)}
+  @media (max-width:760px){
+    header{margin-bottom:16px;text-align:left}
+    .wrap{padding:18px 16px 124px}
+  }
+
+  /* --- Barra de estado pegada arriba, para no volver al inicio a cambiar de tema --- */
+  .barraStick{margin-bottom:20px}
+  .barraStick .progreso{margin-bottom:0}
+  @media (max-width:760px){
+    .barraStick{position:sticky;top:0;z-index:22;background:var(--fondo);
+      margin:0 -16px 18px;padding:8px 16px 0}
+    .barraSup{margin-bottom:8px;gap:10px}
+    .estado{margin-bottom:0;font-size:12.5px;gap:10px}
+  }
+
+  /* --- El boton de temas ahora alterna, y se nota cuando el panel esta abierto --- */
+  .burger{min-height:40px;transition:background .15s ease,border-color .15s ease,color .15s ease}
+  .burger[aria-expanded="true"]{background:var(--acento);border-color:var(--acento);color:#fff}
+  .burger .ham{position:relative;transition:box-shadow .18s ease,transform .18s ease}
+  .burger[aria-expanded="true"] .ham{transform:rotate(45deg);box-shadow:none}
+  .burger[aria-expanded="true"] .ham::after{content:"";position:absolute;inset:0;
+    background:currentColor;border-radius:1px;transform:rotate(90deg)}
+
+  /* --- Foco visible para teclado, sin ensuciar el clic con el mouse --- */
+  .burger:focus-visible,.modo:focus-visible,.opcion:focus-visible,.btn:focus-visible,
+  .flot:focus-visible,.flag:focus-visible,.arbol button:focus-visible,
+  .cerrarPanel:focus-visible,.fijarPanel:focus-visible{
+    outline:2px solid var(--acento);outline-offset:2px}
+
+  /* --- Choque de nombres de clase ---
+     El estado "no hay preguntas" usa .vacio con 30px de padding vertical, y las
+     insignias del indice se llaman .est.vacio, asi que heredaban ese padding y
+     pasaban de 18 a 62 px de alto. Cada leccion sin responder estiraba su fila y
+     alargaba el indice, sobre todo en el telefono. */
+  .est.vacio{padding:0 7px;font-style:normal;text-align:center}
+
+  /* --- Panel lateral: mas comodo de tocar y con respiro abajo --- */
+  .panel{padding-bottom:calc(26px + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  body.sinScroll{overflow:hidden}
+  @media (max-width:760px){
+    .panel{width:min(88vw,330px);max-width:none}
+    .arbol button{min-height:40px;padding:9px 10px}
+    .modo{min-height:42px;padding:10px 12px}
+    .panelTop{margin-bottom:14px}
+    .cerrarPanel{font-size:20px;padding:6px 10px;min-height:40px}
+  }
+
+  /* --- Con el menu anclado, el texto no queda pegado al borde derecho --- */
+  @media (min-width:1025px){
+    body.fijo .wrap{max-width:900px;padding-left:34px;padding-right:34px}
+  }
+
+  /* --- Preguntas y respuestas: objetivos de toque mas grandes --- */
+  @media (max-width:760px){
+    .tarjeta,.resumen{padding:18px 16px 16px;border-radius:6px}
+    .enunciado{font-size:16.5px}
+    .opcion{padding:13px 14px;font-size:15.5px;min-height:48px;align-items:center}
+    .metaFila{gap:10px}
+    .meta{font-size:11px;letter-spacing:.04em}
+    .flag{min-height:36px;padding:6px 12px}
+    .texto-libre{flex-direction:column;align-items:stretch}
+    .texto-libre input{min-width:0;width:100%}
+    .texto-libre .btn{width:100%;min-height:46px}
+    .pie{flex-direction:column;align-items:stretch;gap:10px}
+    .pie .btn{width:100%;min-height:46px}
+    .pie .ref{order:2;text-align:center}
+    .accionesFin .btn{flex:1 1 auto;min-height:44px}
+    .resumen table{font-size:13.5px}
+    .puntaje{font-size:34px}
+  }
+
+  /* --- EL ARREGLO PRINCIPAL EN MOBILE ---
+     Antes el boton Siguiente era un recuadro fijo a media altura y en pantallas
+     angostas caia justo encima del enunciado. Ahora es una barra al pie: nunca
+     tapa texto y queda siempre al alcance del pulgar. */
+  @media (max-width:760px){
+    .flot{
+      position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;
+      width:100%;border-radius:0;flex-direction:row;justify-content:center;
+      align-items:center;gap:10px;
+      padding:15px 16px calc(15px + env(safe-area-inset-bottom));
+      box-shadow:0 -2px 16px rgba(26,26,26,.18);
+    }
+    .flot.visible{display:flex}
+    .flot b{font-size:18px}
+    .flot span{font-size:15px}
+    .flot small{display:none}
+  }
+  /* En escritorio se queda al costado, pero sin pisar la columna de texto. */
+  @media (min-width:761px){
+    .flot{right:max(18px,calc((100vw - 1080px)/2 - 96px))}
+  }
+  @media (min-width:1025px){
+    body.fijo .flot{right:max(18px,calc((100vw - 340px - 900px)/2 - 96px))}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Matemática Discreta · Parcial 1</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 01 y 02</p>
+</header>
+
+<div class="barraStick">
+  <div class="barraSup">
+    <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span class="burgerTxt">Temas</span></button>
+    <div class="estado">
+      <span id="posicion"></span>
+      <span id="marcador"></span>
+    </div>
+  </div>
+  <div class="progreso"><div id="barra"></div></div>
+</div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido tomado del paquete de estudio del Parcial 1 de Matemática Discreta, secciones 4, 6, 7, 9 y 11. Más 27 preguntas rescatadas de dos pregunteros públicos, verificadas una por una contra el material.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 65 preguntas</button>
+  <button class="modo" data-modo="tps" aria-pressed="false">TPs ya tomados · 40 preguntas</button>
+  <button class="modo" data-modo="preg" aria-pressed="false">Preguntero · 27 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1: autoevaluación, sección 9 del paquete ---------- */
+const QUIZ = [
+
+{n:1,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"recordar",tipo:"mc",
+ q:"¿Cuántas operaciones se consideran en el conjunto de los números enteros?",
+ op:["Dos, la suma y el producto habitual","Tres, la suma, el producto y la división entera","Cuatro, las operaciones básicas","Dos, la suma y la división"],
+ ok:0,
+ just:"En Z solo se consideran la suma y el producto habitual. No existe la división como operación.",
+ dist:"Las opciones b y d meten la división. Que exista el algoritmo de la división no la convierte en operación de Z: el algoritmo produce dos enteros, cociente y resto, no un cociente único.",
+ ref:"M01 L1"},
+
+{n:2,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"recordar",tipo:"texto",
+ q:"Completar. Se dice que a divide a b, y se escribe a|b, si existe un entero q tal que __________.",
+ acepta:["b = qa","b=qa","b = q a","b = qa","b = a q","b = aq","b=aq","b = q · a","b = q*a"],
+ sol:"b = q·a",
+ just:"Es la definición literal de divisibilidad.",
+ dist:"El error de notación más caro es escribir 3|12 = 4. La expresión a|b es una proposición verdadera o falsa, no un número. a/b sí es un número.",
+ ref:"M01 L1"},
+
+{n:3,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"comprender",tipo:"vf",
+ q:"La afirmación a|0 es verdadera para todo entero a.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"0 = 0·a, con q = 0 entero. La definición se cumple para cualquier a.",
+ dist:"Lo que no vale en general es el caso dado vuelta, 0|a, que solo es cierto cuando a = 0. La cátedra arma opciones con ese par invertido.",
+ ref:"M01 L1"},
+
+{n:4,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"recordar",tipo:"mc",
+ q:"El algoritmo de la división afirma que, dados a y b, existen q y r tales que a = b·q + r. ¿Cuáles son las condiciones del enunciado?",
+ op:["b positivo, r mayor que cero y r menor que b","a y b positivos, y r menor que b","b positivo, r mayor o igual que cero y r menor que b","b positivo y r distinto de cero"],
+ ok:2,
+ just:"Las tres condiciones son b positivo, r mayor o igual que cero y r estrictamente menor que b.",
+ dist:"Las opciones a y d exigen r distinto de cero, y con eso dejan afuera justamente el caso de la divisibilidad, donde r = 0. El propio material tiene la errata: dice que el resto siempre debe ser positivo, cuando debe ser no negativo.",
+ ref:"M01 L1"},
+
+{n:5,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"aplicar",tipo:"mc",
+ q:"Al aplicar el algoritmo de la división con a = −47 y b = 5, los valores de q y de r son:",
+ op:["q = −9 y r = −2","q = −10 y r = 3","q = −9 y r = 2","q = −10 y r = −3"],
+ ok:1,
+ just:"−47 = 5·(−10) + 3, y 3 está entre 0 y 5.",
+ dist:"La opción a da resto negativo, que es el error típico de truncar hacia cero. Con a negativo el cociente va hacia abajo, no hacia cero.",
+ ref:"M01 L1"},
+
+{n:6,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"comprender",tipo:"vf",
+ q:"El algoritmo de la división exige que a sea un entero positivo.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"El teorema solo exige que b sea positivo. El ejemplo del material usa a = −35.",
+ dist:"Confundir la condición sobre b con una condición sobre a es lo que hace fallar los ítems con dividendo negativo.",
+ ref:"M01 L1"},
+
+{n:7,mod:"01",lec:"L2",tema:"Números primos",nivel:"recordar",tipo:"mc",
+ q:"¿Cuál de las siguientes afirmaciones sobre el número 1 es correcta según la convención vigente?",
+ op:["Es primo, porque sus únicos divisores son 1 y él mismo","Es compuesto, porque no es primo","No es primo ni compuesto","Es el primer número primo"],
+ ok:2,
+ just:"El 1 no es primo porque la definición exige P mayor o igual que 2, ni compuesto porque no admite m = a·b con ambos factores estrictamente entre 1 y m.",
+ dist:"La opción b usa una dicotomía falsa: no todo número es primo o compuesto. El primer primo es el 2, que además es el único primo par.",
+ ref:"M01 L2"},
+
+{n:8,mod:"01",lec:"L2",tema:"Números primos",nivel:"recordar",tipo:"mc",
+ q:"Un número m es compuesto si y solo si:",
+ op:["m = a·b con 1 ≤ a ≤ m y 1 ≤ b ≤ m","m = a·b con 1 &lt; a &lt; m y 1 &lt; b &lt; m","m es par y mayor que 2","m tiene más de dos divisores positivos y es mayor que 2"],
+ ok:1,
+ just:"Las desigualdades son estrictas. Con desigualdades no estrictas la definición se rompe.",
+ dist:"Con la opción a cualquier número cumpliría, tomando a = 1 y b = m. La d es cierta en el fondo pero no es la formulación de la cátedra, y en Discreta se evalúa la formulación exacta.",
+ ref:"M01 L2"},
+
+{n:9,mod:"01",lec:"L2",tema:"Números primos",nivel:"recordar",tipo:"texto",
+ q:"Completar. Al aplicar la criba de Eratóstenes hasta 100 quedan sin tachar __________ números primos.",
+ acepta:["25","veinticinco"],
+ sol:"25",
+ just:"Son los 25 primos menores que 100, de 2 a 97.",
+ dist:"El propio material tiene la errata: escribe nuestros primeros 100 números primos, cuando lista 25 y se contradice solo. Los primeros 100 primos llegan hasta el 541.",
+ ref:"M01 L2"},
+
+{n:10,mod:"01",lec:"L2",tema:"Números primos",nivel:"aplicar",tipo:"mc",
+ q:"Para probar que 211 es primo mediante el teorema de la raíz, los divisores que hay que ensayar son:",
+ op:["Todos los enteros de 2 a 210","Todos los enteros de 2 a 14","Los primos 2, 3, 5, 7, 11 y 13","Los primos 2, 3, 5, 7, 11, 13 y 17"],
+ ok:2,
+ just:"La raíz de 211 es aproximadamente 14,5, así que los primos con p² ≤ 211 son 2, 3, 5, 7, 11 y 13.",
+ dist:"La opción d agrega el 17, que ya se pasa porque 17² = 289. La a desperdicia el teorema entero. La b prueba enteros y no solo primos, que es el segundo ahorro del teorema.",
+ ref:"M01 L2"},
+
+{n:11,mod:"01",lec:"L2",tema:"Números primos",nivel:"comprender",tipo:"vf",
+ q:"El Teorema fundamental de la aritmética garantiza una factorización en primos que es única incluso considerando el orden de los factores.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La unicidad vale salvo el orden de los factores. Sin esa cláusula el enunciado es falso, porque 12 = 2·2·3 y 12 = 3·2·2.",
+ dist:"Es una trampa de cláusula omitida: el enunciado es casi textual pero le sacan las tres palabras que lo hacen verdadero.",
+ ref:"M01 L2"},
+
+{n:12,mod:"01",lec:"L2",tema:"Números primos",nivel:"aplicar",tipo:"mc",
+ q:"La descomposición en factores primos de 504 es:",
+ op:["2³ · 3² · 7","2² · 3³ · 7","2³ · 3 · 21","2⁴ · 3² · 5"],
+ ok:0,
+ just:"504 = 8 · 63 = 2³ · 3² · 7.",
+ dist:"La opción c no está factorizada del todo, porque 21 no es primo. Es el distractor clásico: da el número correcto pero no cumple la consigna de descomponer en primos.",
+ ref:"M01 L2"},
+
+{n:13,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"aplicar",tipo:"mc",
+ q:"Aplicando el algoritmo de Euclides, MCD(1071, 462) es igual a:",
+ op:["3","7","21","42"],
+ ok:2,
+ just:"1071 = 462·2 + 147, después 462 = 147·3 + 21, y por último 147 = 21·7 + 0. El MCD es 21, el resto del paso anterior.",
+ dist:"El 42 es el error de tomar el resto de un paso de más, o de multiplicar por el cociente. El MCD nunca es el cero final ni el cociente.",
+ ref:"M01 L3"},
+
+{n:14,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"comprender",tipo:"texto",
+ q:"Completar. Dentro del algoritmo de Euclides, el MCD es el __________ del paso anterior a aquel en que el resto se anula.",
+ acepta:["resto","el resto","resto no nulo","ultimo resto no nulo"],
+ sol:"resto",
+ just:"El MCD es el resto del paso anterior, nunca el cero.",
+ dist:"Último resto y anteúltimo resto es un par que la cátedra usa para armar opciones incorrectas. El cero no es el MCD.",
+ ref:"M01 L3"},
+
+{n:15,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"recordar",tipo:"mc",
+ q:"¿Cuál de estas condiciones <b>no</b> forma parte de la definición de MCD que da la cátedra?",
+ op:["d|a y d|b","Si c|a y c|b entonces c|d","d ≥ 0","d es mayor que cualquier otro divisor común de a y b"],
+ ok:3,
+ just:"Es cierto pero no es la condición que da la cátedra. La definición usa que todo divisor común divide a d.",
+ dist:"MCD como el divisor más grande contra la condición c|d es un par fijo. La segunda formulación es la que se usa en demostraciones, y es la que se evalúa.",
+ ref:"M01 L3"},
+
+{n:16,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"comprender",tipo:"vf",
+ q:"La ecuación 105x + 120y = 70 tiene solución entera.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"MCD(105, 120) = 15 y 15 no divide a 70. Sin esa condición no hay solución entera.",
+ dist:"El criterio de existencia es lo primero que hay que chequear en una diofántica. Si el MCD no divide al término independiente, el ejercicio termina ahí.",
+ ref:"M01 L3"},
+
+{n:17,mod:"01",lec:"L4",tema:"Inducción matemática",nivel:"comprender",tipo:"vf",
+ q:"Si se verifica que una propiedad se cumple para n = 1, n = 2, n = 3 y n = 4, la propiedad queda demostrada para todo natural.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"Es una verificación para valores particulares. La demostración requiere caso base y paso inductivo.",
+ dist:"Verificar y demostrar es la distinción que la cátedra evalúa con más frecuencia en esta lección. Ninguna cantidad finita de casos alcanza.",
+ ref:"M01 L4"},
+
+{n:18,mod:"01",lec:"L4",tema:"Inducción matemática",nivel:"comprender",tipo:"mc",
+ q:"En el razonamiento falso de que todas las mujeres tienen los ojos azules, el error está en:",
+ op:["El caso base, porque no se puede tomar una mujer cualquiera","El paso inductivo al pasar de n = 1 a n = 2, porque los dos subconjuntos son disjuntos","El paso inductivo para todo n, porque nunca se puede sacar un elemento","La conclusión, porque la propiedad es empíricamente falsa"],
+ ok:1,
+ just:"El caso base es correcto. El paso inductivo falla en n = 2 porque los dos subconjuntos de una mujer no comparten elementos.",
+ dist:"La opción d confunde falsedad empírica con error lógico: la demostración sería inválida aunque la propiedad fuera cierta. La c generaliza el error a todo n, cuando falla solo en el primer salto.",
+ ref:"M01 L4"},
+
+{n:19,mod:"02",lec:"L1",tema:"Funciones",nivel:"recordar",tipo:"mc",
+ q:"Las dos condiciones que una relación debe cumplir para ser función son:",
+ op:["Que sea inyectiva y suryectiva","Que f(x) esté definida para todo x del dominio y que sea única para cada x","Que el dominio y el codominio tengan la misma cantidad de elementos","Que exista la función inversa y que la composición esté definida"],
+ ok:1,
+ just:"Totalidad y unicidad. Son dos condiciones independientes y se preguntan por separado.",
+ dist:"La opción a mete propiedades de clasificación, que se aplican a algo que ya es función. Ser función es anterior a ser inyectiva o suryectiva.",
+ ref:"M02 L1"},
+
+{n:20,mod:"02",lec:"L1",tema:"Funciones",nivel:"comprender",tipo:"mc",
+ q:"La función f: Z ⟶ Z definida por f(z) = 3z + 2 es:",
+ op:["Inyectiva y suryectiva","Inyectiva y no suryectiva","Suryectiva y no inyectiva","Ni inyectiva ni suryectiva"],
+ ok:1,
+ just:"De 3a + 2 = 3b + 2 se deduce a = b, así que es inyectiva. No es suryectiva porque ningún entero que no sea de la forma múltiplo de 3 más dos tiene preimagen.",
+ dist:"Clasificar sobre R y sobre Z es el par decisivo. La misma fórmula sobre los reales sería biyectiva. Sobre los enteros la suryectividad se cae.",
+ ref:"M02 L1"},
+
+{n:21,mod:"02",lec:"L1",tema:"Funciones",nivel:"recordar",tipo:"texto",
+ q:"Completar. El criterio operativo que se usa para demostrar inyectividad establece que f es inyectiva si y solo si f(x) = f(x₀) implica __________.",
+ acepta:["x = x0","x=x0","x = x₀","x=x₀","x igual a x0"],
+ sol:"x = x₀",
+ just:"Es el criterio que el material marca en recuadro aparte.",
+ dist:"Un contraejemplo solo sirve para refutar inyectividad, nunca para confirmarla. Ese es el error de redacción que se paga en desarrollo.",
+ ref:"M02 L1"},
+
+{n:22,mod:"02",lec:"L1",tema:"Funciones",nivel:"aplicar",tipo:"mc",
+ q:"Con f(z) = 2z y g(z) = z − 3 definidas sobre los enteros, la composición (g ∘ f)(z) es:",
+ op:["2z − 6","2z − 3","2(z − 3) + 3","z − 3"],
+ ok:1,
+ just:"En g ∘ f actúa primero f, con lo cual g(2z) = 2z − 3.",
+ dist:"La opción a corresponde a f ∘ g, es decir 2(z − 3) = 2z − 6. Invertir el orden es el error más frecuente de la lección.",
+ ref:"M02 L1"},
+
+{n:23,mod:"02",lec:"L1",tema:"Funciones",nivel:"comprender",tipo:"vf",
+ q:"Una función tiene inversa solamente si es biyectiva.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Si no es inyectiva la inversa asignaría dos valores a un mismo y, y si no es suryectiva quedarían elementos de Y sin imagen.",
+ dist:"Es la excepción al patrón de los absolutos: acá solamente es correcto, porque la biyectividad es condición necesaria y suficiente. En Discreta el patrón de adverbios no funciona como en las materias teóricas.",
+ ref:"M02 L1"},
+
+{n:24,mod:"02",lec:"L1",tema:"Funciones",nivel:"aplicar",tipo:"mc",
+ q:"Con u(1) = 1, u(2) = 2 y u(n) = u(n−1) + u(n−2) para n ≥ 3, el valor de u(6) es:",
+ op:["8","13","11","21"],
+ ok:1,
+ just:"La sucesión es 1, 2, 3, 5, 8, 13. El sexto término es 13.",
+ dist:"El 8 es el quinto término y el 21 el séptimo, así que los dos distractores son correr un lugar. El PDF omite el 8 al listar la sucesión, lo que empuja justo a ese error.",
+ ref:"M02 L1"},
+
+{n:25,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"recordar",tipo:"mc",
+ q:"El principio de casillas fue enunciado por primera vez por:",
+ op:["Euclides, en el siglo III a. C.","Eratóstenes, en 240 a. C.","Johann Dirichlet, en 1834","Don Zagier, en 1975"],
+ ok:2,
+ just:"Johann Dirichlet, matemático alemán, 1834, con el nombre Schubfachprinzip.",
+ dist:"Euclides y Eratóstenes son del módulo 01 y aparecen acá como distractores cruzados. El material escribe mal el nombre: pone Joham en lugar de Johann.",
+ ref:"M02 L2"},
+
+{n:26,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"comprender",tipo:"vf",
+ q:"Si se distribuyen 9 objetos en 9 casillas, el principio de casillas asegura que alguna casilla recibe al menos dos objetos.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"El principio exige m mayor que n de forma estricta. Con m = n cada objeto puede ir a su propia casilla.",
+ dist:"m mayor que n contra m igual a n es la condición que más se pasa por alto. Con igualdad el principio no concluye nada.",
+ ref:"M02 L2"},
+
+{n:27,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"aplicar",tipo:"mc",
+ q:"En un grupo de 13 personas se puede asegurar que al menos dos cumplen años en el mismo mes. En este planteo, las casillas y las palomas son:",
+ op:["13 casillas y 12 palomas","12 casillas y 13 palomas","365 casillas y 13 palomas","13 casillas y 365 palomas"],
+ ok:1,
+ just:"Las casillas son los 12 meses y las palomas las 13 personas. Como 13 es mayor que 12, dos comparten mes.",
+ dist:"La opción a invierte los roles, que es el error clásico. Chequeo de sanidad: si el planteo da menos palomas que casillas, están invertidas.",
+ ref:"M02 L2"},
+
+{n:28,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"aplicar",tipo:"mc",
+ q:"Al elegir 5 números distintos del 1 al 8, se puede asegurar que dos de ellos suman 9. La cantidad de casillas del planteo es:",
+ op:["8","5","4","9"],
+ ok:2,
+ just:"Las parejas que suman 9 son {1,8}, {2,7}, {3,6} y {4,5}, que son 4 casillas para 5 palomas.",
+ dist:"El 8 toma los números como casillas, que es el error de no construir las casillas. Cuando el enunciado no las da, hay que armarlas a partir del atributo que se mira, en este caso la pareja que suma 9.",
+ ref:"M02 L2"},
+
+{n:29,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"comprender",tipo:"vf",
+ q:"El principio de casillas indica cuál es la casilla que recibe dos objetos.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"Es un resultado de existencia. Prueba que hay una casilla repetida sin identificarla.",
+ dist:"Existencia contra construcción. El principio da certeza deductiva de que existe, no una estimación ni una identificación.",
+ ref:"M02 L2"},
+
+{n:30,mod:"02",lec:"L3",tema:"Permutaciones",nivel:"recordar",tipo:"texto",
+ q:"Completar. La relación entre permutaciones y combinaciones de k elementos tomados de n es C(n, k) = __________.",
+ acepta:["p(n,k)/k!","p(n, k) / k!","p(n,k) / k!","pnk/k!","p(n,k)/k factorial"],
+ sol:"P(n, k) / k!",
+ just:"Equivalentemente, P(n, k) = k! · C(n, k).",
+ dist:"Dividir por 2 en lugar de dividir por k! es el error registrado. Da lo mismo solo cuando k = 2.",
+ ref:"M02 L3"},
+
+{n:31,mod:"02",lec:"L3",tema:"Permutaciones",nivel:"aplicar",tipo:"mc",
+ q:"La cantidad de números de tres cifras distintas que se pueden formar con los dígitos 1, 2, 3, 4, 5 y 6 es:",
+ op:["C(6, 3) = 20","P(6, 3) = 120","6³ = 216","3! = 6"],
+ ok:1,
+ just:"El orden importa, porque 123 y 321 son números distintos, y no hay repetición. P(6, 3) = 6·5·4 = 120.",
+ dist:"La opción a ignora el orden y la c permite repetir dígitos. Los dos ejes de decisión son justamente esos: importa el orden, y se puede repetir.",
+ ref:"M02 L3"},
+
+{n:32,mod:"02",lec:"L3",tema:"Permutaciones",nivel:"comprender",tipo:"mc",
+ q:"¿Cuál de estas situaciones es un problema de combinación?",
+ op:["Repartir tres cargos distintos entre siete personas","Ordenar cinco libros en un estante","Elegir un comité de tres personas entre siete","Formar números de cuatro cifras sin repetir dígitos"],
+ ok:2,
+ just:"El comité no tiene orden. Las otras tres son permutaciones, porque los cargos, las posiciones y las cifras sí lo tienen.",
+ dist:"Las opciones a y c tienen los mismos números, siete y tres, y se resuelven distinto. Lo decide el enunciado, nunca los números.",
+ ref:"M02 L3"},
+
+{n:33,mod:"02",lec:"L3",tema:"Permutaciones",nivel:"aplicar",tipo:"mc",
+ q:"Al arrojar cuatro dados indistinguibles, la cantidad de resultados posibles es:",
+ op:["6⁴ = 1296","C(6, 4) = 15","P(6, 4) = 360","C(9, 4) = 126"],
+ ok:3,
+ just:"Indistinguibles significa que no importa el orden, y las caras se repiten. Es combinación con repetición: C(6 + 4 − 1, 4) = C(9, 4) = 126.",
+ dist:"La opción b usa combinación sin repetición, que prohibiría que dos dados saquen lo mismo. Indistinguibles significa que no importa el orden, no que las caras no coincidan.",
+ ref:"M02 L3"},
+
+{n:34,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"aplicar",tipo:"mc",
+ q:"La cantidad de diagonales de un octógono regular es:",
+ op:["28","20","16","24"],
+ ok:1,
+ just:"Los pares de vértices son C(8, 2) = 28, y hay que restar los 8 lados, que no son diagonales. Quedan 20.",
+ dist:"El 28 es la trampa: es el conteo de segmentos entre vértices sin descontar los lados. La fórmula es C(n, 2) − n.",
+ ref:"M02 L4"},
+
+{n:35,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"comprender",tipo:"mc",
+ q:"Un local ofrece 7 sabores de helado y 4 tipos de cucurucho. La cantidad de formas de armar un helado de un sabor con un cucurucho es:",
+ op:["11, por el principio de adición","28, por el principio de multiplicación","21, por el número combinatorio C(7, 2)","7⁴, por permutación con repetición"],
+ ok:1,
+ just:"Se elige un sabor y un cucurucho, con lo cual las dos etapas se multiplican: 7 · 4 = 28.",
+ dist:"La opción a aplica adición, que corresponde a alternativas excluyentes, del tipo o una cosa o la otra. Acá las dos etapas ocurren, así que se multiplican.",
+ ref:"M02 L4"},
+
+{n:36,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"aplicar",tipo:"mc",
+ q:"Un conjunto de 6 elementos tiene:",
+ op:["6 subconjuntos","36 subconjuntos","64 subconjuntos, de los cuales 63 son no vacíos","720 subconjuntos"],
+ ok:2,
+ just:"Un conjunto de n elementos tiene 2ⁿ subconjuntos. Con n = 6 son 64, y 63 no vacíos.",
+ dist:"El 720 es 6!, y el 36 es 6². Los dos son distractores de fórmula cambiada. El cardinal del conjunto de partes es 2 elevado a n, no n factorial.",
+ ref:"M02 L4"},
+
+/* --- Preguntas escritas sobre el material, fuera de la sección 9 --- */
+
+{n:101,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"aplicar",tipo:"texto",src:"propia",
+ q:"El número 33 en base dos se representa como __________.",
+ acepta:["100001","1000012","100001 base 2"],
+ sol:"100001",
+ just:"33 = 2·16 + 1, 16 = 2·8 + 0, 8 = 2·4 + 0, 4 = 2·2 + 0, 2 = 2·1 + 0, 1 = 2·0 + 1. Leyendo los restos del último al primero queda 100001. Verificación: 32 + 1 = 33.",
+ dist:"El error más frecuente es leer los restos en el orden en que salieron. Se leen desde el último hacia el primero.",
+ ref:"M01 L1"},
+
+{n:102,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El número binario 10011101 en base diez es:",
+ op:["143","157","173","221"],
+ ok:1,
+ just:"128 + 16 + 8 + 4 + 1 = 157. Se suman las potencias de 2 correspondientes a los bits encendidos.",
+ dist:"Los tres distractores salen de contar mal las posiciones. La posición más a la derecha es 2⁰, no 2¹.",
+ ref:"M01 L1"},
+
+{n:103,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"La afirmación 0|a es verdadera para todo entero a.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"0|a exige que exista q con a = q·0, y q·0 siempre da 0. Solo se cumple cuando a = 0.",
+ dist:"Es el par invertido de a|0, que sí vale siempre. La cátedra arma opciones cruzando los dos, y se resuelven aplicando la definición literal, no la intuición.",
+ ref:"M01 L1"},
+
+{n:104,mod:"01",lec:"L1",tema:"Divisibilidad",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El axioma de la suma en Z que afirma la existencia de un neutro aditivo se escribe:",
+ op:["Para todo a existe 0 con a + 0 = a","Para todo a existe −a con a + (−a) = 0","Para todo a y b, a + b = b + a","Para todo a y b, a + b pertenece a Z"],
+ ok:0,
+ just:"El neutro aditivo es el 0, y la propiedad es que sumarlo no cambia el elemento.",
+ dist:"La opción b es el opuesto o inverso aditivo, la c es la conmutatividad y la d es el cierre. Los cuatro axiomas se preguntan cruzados entre sí. Este tema apareció en el TP del módulo 01 sin figurar en la lectura: el material remite a Espinosa Armenta.",
+ ref:"M01 L1"},
+
+{n:105,mod:"01",lec:"L2",tema:"Números primos",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Cuál de las siguientes afirmaciones es correcta para todos los enteros a, b y c?",
+ op:["Si a|b·c entonces a|b o a|c","Si a|b·c y a es primo, entonces a|b o a|c","Si a|b y a|c entonces a|b·c y nada más","Si a es primo y a|b entonces a|c"],
+ ok:1,
+ just:"Es el lema de Euclides, y la hipótesis de que a sea primo es imprescindible.",
+ dist:"La opción a saca la condición de primalidad, y con eso se vuelve falsa: 6 divide a 4·3 pero no divide ni a 4 ni a 3. Ese es exactamente el contraejemplo que hay que tener a mano.",
+ ref:"M01 L2"},
+
+{n:106,mod:"01",lec:"L2",tema:"Números primos",nivel:"recordar",tipo:"vf",src:"propia",
+ q:"La cantidad de números primos es infinita.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Es el teorema de Euclides.",
+ dist:"El paquete declara que la demostración de Euclides está mencionada pero sin la construcción completa. Es uno de los temas evaluados que la teoría del módulo no desarrolla.",
+ ref:"M01 L2"},
+
+{n:107,mod:"01",lec:"L2",tema:"Números primos",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Todos los números impares son primos.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"El contraejemplo mínimo es 9 = 3·3, que es impar y compuesto.",
+ dist:"El error simétrico es descartar el 2 por ser par. El 2 es primo, y es el único primo par.",
+ ref:"M01 L2"},
+
+{n:108,mod:"01",lec:"L2",tema:"Números primos",nivel:"recordar",tipo:"vf",src:"propia",
+ q:"Si t tiene sólo 2 divisores positivos distintos, entonces t es primo.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Es la definición de primo por cantidad de divisores: exactamente dos, el 1 y él mismo.",
+ dist:"Esa formulación es justamente la que deja afuera al 1, que tiene un solo divisor positivo. Por eso el 1 no es primo ni compuesto.",
+ ref:"M01 L2"},
+
+{n:109,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La definición de MCM que da la cátedra establece que m = MCM(a, b) si:",
+ op:["m|a, m|b, y todo divisor común divide a m","a|m, b|m, todo múltiplo común n cumple m|n, y m ≥ 0","m es el producto de a por b dividido el MCD, y nada más","m es el menor de los múltiplos de a"],
+ ok:1,
+ just:"En el MCM los números dividen a m. En el MCD, en cambio, d divide a los números.",
+ dist:"La opción a es la definición de MCD con las letras cambiadas, y es el distractor principal. La c es una consecuencia verdadera, la relación MCD·MCM = a·b, pero no es la definición.",
+ ref:"M01 L3"},
+
+{n:110,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Si a y b son coprimos, el MCM entre a y b es igual a:",
+ op:["1","a + b","a · b","El mayor de los dos"],
+ ok:2,
+ just:"De MCD(a, b) · MCM(a, b) = a·b, con MCD igual a 1, queda MCM = a·b.",
+ dist:"El 1 es el MCD de dos coprimos, no el MCM. Cruzar los dos resultados es el error del ítem.",
+ ref:"M01 L3"},
+
+{n:111,mod:"01",lec:"L3",tema:"Máximo común divisor",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Después de escribir d = MCD(a, b) como combinación lineal de a y b, para resolver la diofántica a·n + b·m = c falta:",
+ op:["Nada, la combinación lineal ya es la solución","Multiplicar los dos miembros por c/d","Dividir los dos miembros por d","Verificar que d sea primo"],
+ ok:1,
+ just:"La combinación lineal da d, no c. Hay que escalarla multiplicando por c/d.",
+ dist:"Entregar la combinación lineal del MCD como si fuera la solución de la ecuación es el error más frecuente de todo el módulo 01.",
+ ref:"M01 L3"},
+
+{n:112,mod:"01",lec:"L4",tema:"Inducción matemática",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El primer paso para demostrar por inducción una fórmula de sumatoria es:",
+ op:["Enunciar la hipótesis de inducción","Verificar el caso base en n = 1","Desarrollar la expresión para n + 1","Suponer que la propiedad es falsa y buscar el absurdo"],
+ ok:1,
+ just:"El orden es caso base, hipótesis de inducción, tesis inductiva, desarrollo y cierre.",
+ dist:"La opción d es demostración por el absurdo, que es la estructura de la prueba de primalidad, no de la inducción. Omitir el caso base es la trampa de redacción más cara en un parcial escrito.",
+ ref:"M01 L4"},
+
+{n:113,mod:"01",lec:"L4",tema:"Inducción matemática",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La suma 1² + 3² + 5² + … se simboliza con la sumatoria de:",
+ op:["i² desde i = 1","(2i − 1)² desde i = 1","(2i + 1)² desde i = 1","(i − 1)² desde i = 1"],
+ ok:1,
+ just:"Con i = 1 da 1, con i = 2 da 3, con i = 3 da 5. El término general de los impares es 2i − 1.",
+ dist:"La opción c arranca en 3 y se saltea el 1. Armar mal el término general por correrse un índice es el error típico.",
+ ref:"M01 L4"},
+
+{n:114,mod:"01",lec:"L4",tema:"Inducción matemática",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El principio de inducción se usa para probar que P(n) vale para cualquier número:",
+ op:["Real","Entero","Natural","Racional"],
+ ok:2,
+ just:"El principio se aplica sobre los naturales, porque se apoya en el buen orden.",
+ dist:"Los enteros no sirven porque no tienen primer elemento hacia abajo, y sin primer elemento no hay caso base del que arrancar.",
+ ref:"M01 L4"},
+
+{n:115,mod:"02",lec:"L1",tema:"Funciones",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"La función f: Z ⟶ Z definida por f(z) = z es biyectiva.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"La identidad es inyectiva, porque f(a) = f(b) da a = b de forma inmediata, y suryectiva, porque todo entero es imagen de sí mismo.",
+ dist:"Es el caso más simple y por eso se usa de control. Si el criterio operativo no da acá, está mal aplicado.",
+ ref:"M02 L1"},
+
+{n:116,mod:"02",lec:"L1",tema:"Funciones",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La diferencia entre codominio e imagen de una función es que:",
+ op:["Son sinónimos","El codominio es el conjunto Y de llegada y la imagen es el conjunto de los f(x) efectivamente alcanzados","La imagen es el conjunto de partida y el codominio el de llegada","El codominio solo existe en las funciones suryectivas"],
+ ok:1,
+ just:"La imagen está contenida en el codominio, y coinciden exactamente cuando la función es suryectiva.",
+ dist:"Confundir los dos es lo que lleva a dar por suryectiva una función que no lo es. En f(z) = 3z sobre Z el codominio es Z pero la imagen son solo los múltiplos de 3.",
+ ref:"M02 L1"},
+
+{n:117,mod:"02",lec:"L1",tema:"Funciones",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La función f(x) = 2x es biyectiva sobre los reales pero, definida sobre los enteros, resulta:",
+ op:["Biyectiva también","Inyectiva y no suryectiva","Suryectiva y no inyectiva","Ni inyectiva ni suryectiva"],
+ ok:1,
+ just:"Sobre Z ningún impar tiene preimagen, así que la suryectividad se pierde. La inyectividad se mantiene.",
+ dist:"Clasificar sobre R y sobre Z es un par fijo de la cátedra. Antes de responder hay que mirar el conjunto sobre el que está definida, no la fórmula.",
+ ref:"M02 L1"},
+
+{n:118,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La forma generalizada del principio de casillas afirma que, con m objetos en n casillas, alguna casilla recibe al menos:",
+ op:["Dos objetos","El techo de m/n objetos","m − n objetos","El piso de m/n objetos"],
+ ok:1,
+ just:"La forma generalizada usa el techo de m sobre n. El caso simple, con m mayor que n, es el que da al menos dos.",
+ dist:"El paquete declara que esta forma no está en el material: la lectura 2 solo da el caso de dos objetos, y el enunciado generalizado está tomado de Biggs. Conviene confirmarlo con la cátedra antes del parcial.",
+ ref:"M02 L2"},
+
+{n:119,mod:"02",lec:"L2",tema:"Principio de casillas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Si el atributo que se mira toma valores enteros de 0 a 200.000, la cantidad de casillas es:",
+ op:["200.000","200.001","199.999","200.002"],
+ ok:1,
+ just:"De 0 a k hay k + 1 valores. Contar el cero es lo que decide el ítem.",
+ dist:"Es el error que tiene el propio material en el ejercicio de los cabellos: plantea una ciudad de 200.001 habitantes cuando hacen falta 200.002 para superar las 200.001 casillas.",
+ ref:"M02 L2"},
+
+{n:120,mod:"02",lec:"L3",tema:"Permutaciones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La cantidad de formas de sentar ocho personas en ocho butacas es:",
+ op:["8! = 40.320","P(8, 2) = 56","C(8, 8) = 1","2⁸ = 256"],
+ ok:0,
+ just:"Es P(n, n) = n!, porque 0! = 1. Todas las posiciones se llenan y el orden importa.",
+ dist:"La opción c da 1 porque C(8, 8) ignora el orden, y acá el orden es todo el problema. Es permutación sin repetición con n igual a k.",
+ ref:"M02 L3"},
+
+{n:121,mod:"02",lec:"L3",tema:"Permutaciones",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Sentar ocho personas en diez butacas es el mismo problema que sentar ocho personas en ocho butacas.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"Con diez butacas hay que considerar cuáles dos quedan vacías. Es P(10, 8) y no 8!.",
+ dist:"Este ítem ya se tomó en el TP del módulo 02. El eje es si n es igual a k o si n es mayor que k: cuando sobran posiciones, elegir cuáles se usan forma parte del conteo.",
+ ref:"M02 L3"},
+
+{n:122,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Una tarea puede hacerse de la forma A, que admite 6 opciones, o de la forma B, que admite 5. La cantidad de maneras de realizarla es:",
+ op:["30, por el principio de multiplicación","11, por el principio de adición","C(11, 2) = 55","6⁵"],
+ ok:1,
+ just:"Las dos formas son alternativas excluyentes, así que se suman.",
+ dist:"El disparador es la o del enunciado. Alternativas excluyentes se suman, etapas que ocurren todas se multiplican. El helado con sabor y cucurucho es el caso contrario, y ahí van 7 · 4 = 28.",
+ ref:"M02 L4"},
+
+{n:123,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La cantidad de maneras de invitar a uno o más de 5 amigos es:",
+ op:["5","25","31","32"],
+ ok:2,
+ just:"Son todos los subconjuntos menos el vacío: 2⁵ − 1 = 31.",
+ dist:"El 32 es 2⁵ e incluye el conjunto vacío, que sería no invitar a nadie. El uno o más del enunciado es lo que obliga a restar 1.",
+ ref:"M02 L4"},
+
+{n:124,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Usando la simetría de los números combinatorios, C(15, 12) es igual a:",
+ op:["C(15, 3) = 455","C(15, 12) calculado como 15!/12! = 2.730","C(12, 3) = 220","C(15, 2) = 105"],
+ ok:0,
+ just:"C(n, r) = C(n, n − r), así que C(15, 12) = C(15, 3) = 455.",
+ dist:"La opción b es el error de olvidar el factorial de la diferencia en el denominador. La fórmula completa es n! dividido k!·(n − k)!.",
+ ref:"M02 L4"},
+
+{n:125,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Con k menor o igual que n, ¿cuál de estos símbolos representa siempre la mayor cantidad?",
+ op:["C(n, k)","P(n, k)","n!","Los tres son iguales"],
+ ok:2,
+ just:"La jerarquía es n! el mayor, después P(n, k), después C(n, k).",
+ dist:"P y C comparten el numerador, y C divide además por k!, así que C nunca supera a P. Y n! es P(n, n), el caso con más posiciones a llenar.",
+ ref:"M02 L4"},
+
+/* --- Respuestas múltiples, el formato que la sección 9 no cubre --- */
+
+{n:201,mod:"01",lec:"L2",tema:"Números primos",nivel:"aplicar",tipo:"ms",src:"propia",
+ q:"Marcá todos los números primos de la lista.",
+ op:["641","1999","517","1001"],
+ ok:[0,1],
+ just:"641 y 1999 son primos. 517 = 11 · 47 y 1001 = 7 · 11 · 13.",
+ dist:"Los dos compuestos están elegidos para que el teorema de la raíz sea imprescindible: sus factores más chicos son 11 y 7, y aparecen recién después de descartar 2, 3 y 5. Este ítem se tomó tal cual en el TP del módulo 01.",
+ ref:"M01 L2"},
+
+{n:202,mod:"01",lec:"L4",tema:"Inducción matemática",nivel:"comprender",tipo:"ms",src:"propia",
+ q:"Para probar por inducción que el producto de tres enteros consecutivos es divisible por 6, marcá todos los pasos que corresponden.",
+ op:["Verificar el caso base","Enunciar la hipótesis de inducción","Enunciar la tesis inductiva","Verificar la propiedad desde n = 1 hasta n = 10","Suponer que la propiedad es falsa y buscar una contradicción"],
+ ok:[0,1,2],
+ just:"Los tres pasos son caso base, hipótesis de inducción y tesis inductiva, en ese orden.",
+ dist:"La opción d es verificación y no demostración, por más casos que se agreguen. La e es demostración por el absurdo, que es la estructura de la prueba de primalidad del módulo 01, no la de la inducción.",
+ ref:"M01 L4"},
+
+{n:203,mod:"02",lec:"L1",tema:"Funciones",nivel:"comprender",tipo:"ms",src:"propia",
+ q:"Sobre f(z) = 3z y g(z) = 3z + 1, las dos definidas de Z en Z, marcá todas las afirmaciones correctas.",
+ op:["Las dos son funciones","Las dos son inyectivas","Ninguna de las dos es suryectiva","g es biyectiva","f no está definida para z negativo"],
+ ok:[0,1,2],
+ just:"Cumplen totalidad y unicidad, así que son funciones. De 3a = 3b sale a = b, así que las dos son inyectivas. Y ninguna cubre todo Z: la imagen de f son los múltiplos de 3.",
+ dist:"La d confunde inyectiva con biyectiva: para ser biyectiva le falta la suryectividad. La e inventa una restricción que la fórmula no tiene. Este ítem se tomó en el TP del módulo 02.",
+ ref:"M02 L1"},
+
+{n:204,mod:"02",lec:"L4",tema:"Combinaciones",nivel:"aplicar",tipo:"ms",src:"propia",
+ q:"Marcá todas las igualdades correctas.",
+ op:["C(5, 2) = 10","C(15, 12) = 455","C(4, 2) = 6","C(9, 5) = 126","C(10, 7) = 10! / 7!"],
+ ok:[0,1,2,3],
+ just:"Las primeras cuatro son las que el TP del módulo 02 dio por correctas. C(15, 12) se resuelve por simetría como C(15, 3).",
+ dist:"La e olvida el factorial de la diferencia en el denominador. 10!/7! es P(10, 3), la permutación, no la combinación. La fórmula completa es n! dividido k!·(n − k)!.",
+ ref:"M02 L4"}
+];
+
+/* ---------- Banco 2: las 40 preguntas de los TPs online del período ---------- */
+const TPS_VIEJO = [
+{n:1,inst:"TP M01",mod:"01",tema:"Sistemas de numeración",q:"El número 33 en base dos se representa",r:"100001"},
+{n:2,inst:"TP M01",mod:"01",tema:"Inducción",q:"La hipótesis de inducción es suponer que la propiedad vale para un n cualquiera",r:"Verdadero"},
+{n:3,inst:"TP M01",mod:"01",tema:"MCM",q:"El MCM de a y b es el mínimo entero positivo que tiene como factor a a y a b simultáneamente",r:"Verdadero"},
+{n:4,inst:"TP M01",mod:"01",tema:"MCM",q:"Si a y b son coprimos, el MCM entre a y b es igual a",r:"a·b"},
+{n:5,inst:"TP M01",mod:"01",tema:"MCD",q:"El MCD(315, 15) es igual a",r:"15"},
+{n:6,inst:"TP M01",mod:"01",tema:"Teorema fundamental",q:"Expresar 231 como producto de los primos 3, 7 y 11 corresponde al",r:"Teorema fundamental de la aritmética"},
+{n:7,inst:"TP M01",mod:"01",tema:"Inducción",q:"Primer paso para demostrar por inducción una fórmula de sumatoria",r:"Verificar el caso base en n = 1"},
+{n:8,inst:"TP M01",mod:"01",tema:"Inducción",q:"El principio de inducción se usa para probar P(n) para cualquier número",r:"Natural"},
+{n:9,inst:"TP M01",mod:"01",tema:"Números primos",q:"Todos los números impares son primos",r:"Falso, el contraejemplo es 9 = 3·3"},
+{n:10,inst:"TP M01",mod:"01",tema:"Sistemas de numeración",q:"La notación binaria tiene una desventaja",r:"Requiere mucho más espacio que la decimal"},
+{n:11,inst:"TP M01",mod:"01",tema:"Números primos",q:"Cuáles de los siguientes números son primos",r:"641 y 1999"},
+{n:12,inst:"TP M01",mod:"01",tema:"Sumatoria",q:"La sumatoria de 1/(i(i+1)) simboliza 1/2 + 1/6 + 1/12 + …",r:"Verdadero"},
+{n:13,inst:"TP M01",mod:"01",tema:"Inducción",q:"Pasos válidos para probar que el producto de tres consecutivos es divisible por 6",r:"Caso base, hipótesis y tesis inductiva, en ese orden"},
+{n:14,inst:"TP M01",mod:"01",tema:"Números primos",q:"Si t tiene sólo 2 divisores distintos entonces t es primo",r:"Verdadero"},
+{n:15,inst:"TP M01",mod:"01",tema:"Teorema fundamental",q:"Descomposición en factores primos de 630",r:"2 · 3² · 5 · 7"},
+{n:16,inst:"TP M01",mod:"01",tema:"Lema de Euclides",q:"Cuál afirmación es correcta para todo a, b, c enteros",r:"a|bc y a primo implica a|b o a|c"},
+{n:17,inst:"TP M01",mod:"01",tema:"Axiomas de Z",q:"Axioma que dice que existe un neutro aditivo en Z",r:"Para todo a existe 0 con a + 0 = a"},
+{n:18,inst:"TP M01",mod:"01",tema:"Números primos",q:"La cantidad de números primos es infinita",r:"Verdadero, teorema de Euclides"},
+{n:19,inst:"TP M01",mod:"01",tema:"Sumatoria",q:"Simbolización de 1² + 3² + 5² + …",r:"Sumatoria de (2i − 1)² desde i = 1"},
+{n:20,inst:"TP M01",mod:"01",tema:"Sistemas de numeración",q:"El binario 10011101 en base 10 es",r:"157"},
+
+{n:21,inst:"TP M02",mod:"02",tema:"Permutación y combinación",q:"Fórmula que relaciona permutación y combinación",r:"P(n, k) = k! · C(n, k)"},
+{n:22,inst:"TP M02",mod:"02",tema:"Funciones",q:"f(z) = z sobre Z es biyectiva",r:"Verdadero"},
+{n:23,inst:"TP M02",mod:"02",tema:"Composición",q:"Con f(z) = z² y g(z) = z + 1, la composición f ∘ g",r:"(z + 1)²"},
+{n:24,inst:"TP M02",mod:"02",tema:"Principio de casillas",q:"Personas a elegir entre 8 mujeres y sus esposos para garantizar un matrimonio",r:"9"},
+{n:25,inst:"TP M02",mod:"02",tema:"Adición y multiplicación",q:"Tarea de forma A con 6 opciones o de forma B con 5 opciones",r:"11, por el principio de adición"},
+{n:26,inst:"TP M02",mod:"02",tema:"Funciones",q:"f es inyectiva si f(a) = f(b) implica",r:"a = b"},
+{n:27,inst:"TP M02",mod:"02",tema:"Permutación y combinación",q:"Ocho personas en ocho butacas es permutación sin repetición",r:"Verdadero"},
+{n:28,inst:"TP M02",mod:"02",tema:"Permutación y combinación",q:"Números de 5 cifras con {1,2,3,4,5} sin repetir",r:"5!"},
+{n:29,inst:"TP M02",mod:"02",tema:"Funciones",q:"Afirmaciones correctas sobre f(z) = 3z y g(z) = 3z + 1 en Z",r:"Ambas son funciones, ambas inyectivas, ninguna suryectiva"},
+{n:30,inst:"TP M02",mod:"02",tema:"Funciones",q:"Diagrama con a y b apuntando ambos a x",r:"Es función, porque cumple totalidad y unicidad"},
+{n:31,inst:"TP M02",mod:"02",tema:"Combinaciones",q:"Contar subconjuntos de p elementos de un conjunto de t es una combinación",r:"Verdadero"},
+{n:32,inst:"TP M02",mod:"02",tema:"Conjunto de partes",q:"Maneras de invitar a uno o más de 5 amigos",r:"31, es decir 2⁵ − 1"},
+{n:33,inst:"TP M02",mod:"02",tema:"Permutación y combinación",q:"Cuál símbolo representa la mayor cantidad con k menor o igual que n",r:"n!"},
+{n:34,inst:"TP M02",mod:"02",tema:"Combinaciones",q:"Diagonales de un polígono regular de n lados",r:"C(n, 2) − n"},
+{n:35,inst:"TP M02",mod:"02",tema:"Combinaciones",q:"Igualdades correctas de números combinatorios",r:"C(5,2)=10, C(15,12)=455, C(4,2)=6, C(9,5)=126"},
+{n:36,inst:"TP M02",mod:"02",tema:"Combinaciones",q:"Formas de elegir cuatro pinturas distintas entre cinco tipos",r:"5, por la simetría C(5,4) = C(5,1)"},
+{n:37,inst:"TP M02",mod:"02",tema:"Combinaciones",q:"Comités de tres empleados entre 35",r:"6545"},
+{n:38,inst:"TP M02",mod:"02",tema:"Permutación y combinación",q:"Ocho personas en diez butacas equivale al problema de ocho butacas",r:"Falso, hay que considerar las 2 butacas vacías. Es P(10, 8)"},
+{n:39,inst:"TP M02",mod:"02",tema:"Adición y multiplicación",q:"Ordenaciones de las letras de lectura que empiecen por vocal",r:"La cuenta correcta es 3 · 6! = 2160"},
+{n:40,inst:"TP M02",mod:"02",tema:"Permutación y combinación",q:"Presidente, secretario y tesorero de un comité de siete",r:"P(7, 3) = 210"}
+];
+
+
+/* ---------- Tablas compartidas ---------- */
+const T_CONTEO=`<table><tr><th>Situación</th><th>Fórmula</th><th>Símbolos</th><th>Caso de uso</th></tr>
+<tr><td>Permutación sin repetición</td><td>P(n, k) = n! / (n − k)!</td><td>n elementos disponibles, k posiciones a llenar</td><td>Palabras de 4 letras sin repetir de un alfabeto de 10: P(10, 4) = 5.040</td></tr>
+<tr><td>Permutación con repetición</td><td>n elevado a k</td><td>n símbolos disponibles, k posiciones</td><td>PIN de 4 dígitos: 10⁴ = 10.000</td></tr>
+<tr><td>Combinación sin repetición</td><td>C(n, k) = n! / (k!·(n − k)!)</td><td>n elementos, k a elegir sin orden</td><td>Saludos entre 25 personas: C(25, 2) = 300</td></tr>
+<tr><td>Combinación con repetición</td><td>C(n + k − 1, k)</td><td>n categorías, k elementos a repartir</td><td>Tres dados indistinguibles: C(8, 3) = 56</td></tr></table>
+<p><b>Relaciones auxiliares que el examen puede tomar directamente:</b></p>
+<ul>
+<li>P(n, n) = n!, porque 0! = 1. Ocho personas en ocho butacas son 8!, no P(8, 2).</li>
+<li>C(n, k) = P(n, k) / k!, o equivalentemente P(n, k) = k! · C(n, k).</li>
+<li>C(n, r) = C(n, n − r), la simetría. C(15, 12) = C(15, 3) = 455.</li>
+<li>Un conjunto de n elementos tiene 2ⁿ subconjuntos y 2ⁿ − 1 no vacíos.</li>
+<li>Jerarquía de tamaño con k menor o igual que n: n! es el mayor, después P(n, k), después C(n, k).</li>
+<li>Las diagonales de un polígono de n lados son C(n, 2) − n.</li>
+</ul>`;
+
+const T_ELEGIR=`<p><b>Procedimiento para elegir la fórmula:</b></p>
+<ol>
+<li>Escribir <b>dos casos concretos</b> del problema.</li>
+<li>Preguntar si esos dos casos son el mismo resultado o dos distintos. Si son distintos, importa el orden.</li>
+<li>Preguntar si un mismo elemento puede aparecer dos veces. Ese es el segundo eje.</li>
+<li>Cruzar las dos respuestas con el cuadro de las cuatro fórmulas.</li>
+<li>Si el problema tiene varias partes: alternativas excluyentes se <b>suman</b>, etapas que ocurren todas se <b>multiplican</b>.</li>
+<li>Si aparece un <b>al menos</b>, desarmarlo en escenarios disjuntos y verificar que la suma de los escenarios más el complemento dé el total sin restricciones.</li>
+</ol>`;
+
+const T_CASILLAS=`<p><b>Procedimiento para aplicar el principio de casillas:</b></p>
+<ol>
+<li><b>Determinar las casillas.</b> Son las categorías posibles del atributo que se mira. Si el enunciado no las da, construirlas. Contarlas con cuidado cuando el rango arranca en cero.</li>
+<li><b>Determinar las palomas.</b> Son los objetos a repartir.</li>
+<li><b>Verificar m &gt; n estricto.</b></li>
+<li><b>Concluir</b> que al menos una casilla tiene al menos dos objetos.</li>
+<li><b>Si alguna casilla es unitaria o especial, descartarla explícitamente.</b></li>
+</ol>
+<p>Chequeo rápido de sanidad: si el planteo da m menor que n, palomas y casillas están invertidas.</p>`;
+
+const T_INDUCCION=`<p><b>Los ocho pasos de una demostración por inducción:</b></p>
+<ol>
+<li><b>Enunciar la propiedad P(n)</b> de forma explícita. Si es de divisibilidad, traducirla antes: k divide a E(n) se escribe E(n) = k·q para algún entero q.</li>
+<li><b>Caso base.</b> Evaluar P en el primer valor, que suele ser n = 1 pero puede ser 0 o 2. Mostrar la cuenta, no afirmar que se cumple.</li>
+<li><b>Enunciar la hipótesis de inducción</b> con esas palabras: supongamos que la propiedad vale para n, es decir …</li>
+<li><b>Enunciar la tesis inductiva</b>, lo que hay que probar para n + 1.</li>
+<li><b>Desarrollar un solo lado</b> de la expresión para n + 1 hasta hacer aparecer la expresión para n.</li>
+<li><b>Aplicar la hipótesis</b> y señalar el renglón donde se aplica.</li>
+<li><b>Reagrupar</b> hasta llegar a la forma de la tesis.</li>
+<li><b>Cerrar</b> aclarando que el factor obtenido es entero, si el ejercicio es de divisibilidad, y concluir que la propiedad vale para todo n natural.</li>
+</ol>
+<p>Los pasos 3, 6 y 8 son los que se pierden por redacción y no por álgebra.</p>`;
+
+const T_EUCLIDES=`<p><b>Procedimiento de Euclides y combinación lineal:</b></p>
+<p><b>Parte A, hallar el MCD.</b> Dividir el mayor por el menor y anotar la igualdad completa a = b·q + r. Repetir sobre el par (b, r). Detenerse cuando el resto sea 0. El MCD es el <b>resto del paso anterior</b>, nunca el cero.</p>
+<p><b>Parte B, escribir el MCD como combinación lineal.</b> Partir del anteúltimo paso y despejar el MCD como diferencia. Sustituir el resto más chico por su expresión del paso anterior. Sacar factor común de los dos números que quedan en cada línea. Repetir hasta llegar a los originales. <b>Verificar reemplazando los valores</b>: el error de signo es el más caro y no se detecta de otra forma.</p>
+<p><b>Parte C, resolver la diofántica a·n + b·m = c.</b> Calcular d = MCD(a, b). Comprobar que d divide a c; si no divide, no hay solución entera y el ejercicio termina ahí. Escribir d como combinación lineal. <b>Multiplicar los dos miembros por c/d.</b> Leer n y m del resultado.</p>`;
+
+/* ---------- Definición en castellano, por concepto ---------- */
+const D_DIV=`<b>Que un número divida a otro</b> significa que entra justo, sin que sobre nada. a divide a b cuando b se puede armar juntando montones iguales de tamaño a. Dicho de otra forma, cuando la división de b por a da resto cero. Por eso 3 divide a 12, porque 12 son cuatro montones de 3, y no divide a 13, porque siempre sobra 1.`;
+
+const D_ALGDIV=`<b>El algoritmo de la división</b> dice algo que ya sabés de la escuela: cuando dividís un número por otro, te queda un resultado entero y algo que sobra. El teorema le pone dos condiciones a eso que sobra. No puede ser negativo, porque no tiene sentido que sobre menos que nada. Y no puede llegar al tamaño del divisor, porque si sobrara tanto, entraría una vez más. Además dice que ese par de números, el cociente y el resto, es siempre el mismo: no hay dos formas de repartir.`;
+
+const D_PRIMO=`<b>Un número primo</b> es un número de 2 en adelante que no se puede partir. La única forma de escribirlo como una multiplicación es 1 por sí mismo. El 7 es primo porque no hay dos números más chicos que multiplicados den 7.`;
+
+const D_COMPUESTO=`<b>Un número compuesto</b> es un número que sí se puede partir: se arma multiplicando dos números más chicos que él y más grandes que 1. El 12 es compuesto porque 12 = 3 × 4, y tanto el 3 como el 4 están entre el 1 y el 12. El 7 no lo es, porque la única forma de escribirlo es 1 × 7 y ahí uno de los factores es el propio 7. Y el <b>1 no es ninguna de las dos cosas</b>: no es primo porque la definición de primo arranca en 2, y no es compuesto porque no hay dos números más chicos que multiplicados den 1.`;
+
+const D_MCD=`<b>El máximo común divisor</b> de dos números es el número más grande que entra justo en los dos. El de 12 y 18 es 6, porque 6 entra en los dos y ningún número mayor lo hace. La cátedra lo define de otra manera, que dice lo mismo pero sirve para demostrar: es el divisor común al que todos los otros divisores comunes dividen.`;
+
+const D_MCM=`<b>El mínimo común múltiplo</b> de dos números es el número más chico en el que entran los dos. El de 4 y 6 es 12, porque 12 es múltiplo de los dos y ninguno más chico lo es. Ojo con la dirección: en el MCD el resultado <b>entra en</b> los números, en el MCM el resultado <b>contiene a</b> los números.`;
+
+const D_EUCLIDES=`<b>El algoritmo de Euclides</b> es una forma de encontrar el máximo común divisor sin factorizar nada. Se divide el grande por el chico, se anota lo que sobra, y se repite usando el chico y lo que sobró. Cuando en algún paso no sobra nada, el máximo común divisor es lo que había sobrado en el paso anterior. Funciona porque dos números y su resto comparten exactamente los mismos divisores.`;
+
+const D_DIOFANTICA=`<b>Una ecuación diofántica</b> es una ecuación donde solo valen las soluciones enteras: no sirve que x sea 2,5. La de la forma a·x + b·y = c tiene solución entera solo cuando el máximo común divisor de a y b entra justo en c. La razón es simple: cualquier combinación de a y b siempre da un múltiplo de ese máximo común divisor, así que si c no lo es, no hay forma de llegar.`;
+
+const D_INDUCCION=`<b>La inducción</b> es la técnica del efecto dominó. Para probar que algo vale para todos los números naturales se hacen dos cosas: mostrar que la primera ficha cae, y mostrar que cada ficha que cae voltea a la siguiente. Con esas dos piezas caen todas, aunque sean infinitas. Verificar muchos casos sueltos no alcanza: es empujar fichas de a una y nunca terminás.`;
+
+const D_FUNCION=`<b>Una función</b> es una regla que a cada elemento del conjunto de partida le asigna exactamente un elemento del de llegada. Dos condiciones: que <b>ninguno</b> quede sin asignar, y que <b>ninguno</b> tenga dos destinos. Que dos elementos distintos vayan al mismo destino está permitido, eso no rompe nada.`;
+
+const D_INYSUR=`<b>Inyectiva</b> significa que nunca dos elementos distintos van a parar al mismo lugar: cada destino recibe como mucho una flecha. <b>Suryectiva</b> significa que no queda ningún destino vacío: todos reciben al menos una flecha. <b>Biyectiva</b> es cumplir las dos, o sea que cada destino recibe exactamente una flecha y hay un emparejamiento perfecto.`;
+
+const D_COMPOSICION=`<b>Componer dos funciones</b> es encadenarlas: aplicar una y meter el resultado en la otra. La notación engaña, porque en g ∘ f se aplica <b>primero f</b>, la que está escrita a la derecha, y recién después g. Se lee de derecha a izquierda, como si f estuviera más cerca del número.`;
+
+const D_INVERSA=`<b>La función inversa</b> es la que deshace lo que hizo la primera: si f te llevó de x a y, la inversa te trae de y de vuelta a x. Solo existe cuando el emparejamiento es perfecto, es decir cuando la función es biyectiva. Si dos elementos fueron al mismo destino, la vuelta no sabría a cuál de los dos volver, y si algún destino quedó vacío, no habría desde dónde volver.`;
+
+const D_CASILLAS=`<b>El principio de casillas</b> dice algo obvio y muy útil: si tenés más objetos que cajones donde meterlos, algún cajón termina con más de uno. Con 13 medias y 12 cajones, hay un cajón con dos. Lo importante son dos cosas. Tiene que haber <b>estrictamente</b> más objetos que cajones, porque si hay la misma cantidad cada uno puede ir solo. Y el principio dice que <b>existe</b> un cajón repetido, pero no dice cuál.`;
+
+const D_PERMCOMB=`<b>La diferencia entre permutación y combinación es si el orden importa.</b> Si armás un podio, primero y segundo no es lo mismo que segundo y primero: eso es permutación. Si armás un equipo, que entren Ana y Beto es lo mismo que Beto y Ana: eso es combinación. La prueba práctica es escribir dos casos concretos y preguntarse si son el mismo resultado o dos distintos.`;
+
+const D_REPETICION=`<b>Con repetición o sin repetición</b> es el segundo eje del conteo. Sin repetición significa que un elemento ya usado no vuelve a estar disponible, como al repartir cartas. Con repetición significa que sí, como al tirar dados: que un dado saque 4 no impide que otro también saque 4.`;
+
+const D_ADICMULT=`<b>Sumar o multiplicar</b> depende de la conjunción del enunciado. Si son caminos alternativos, del tipo <b>o</b> hacés esto <b>o</b> hacés aquello, se suman. Si son etapas que pasan todas, del tipo elegís esto <b>y</b> además aquello, se multiplican. Helado: elegís sabor y elegís cucurucho, las dos cosas, entonces se multiplica.`;
+
+const D_PARTES=`<b>Los subconjuntos de un conjunto</b> son todos los grupos que se pueden armar con sus elementos, incluido el grupo vacío y el conjunto entero. Son 2 elevado a n porque para cada elemento hay dos decisiones independientes, entra o no entra, y esas decisiones se multiplican entre sí.`;
+
+const D_BASES=`<b>Escribir un número en otra base</b> es contar con otra cantidad de dedos. En base 10 usamos diez símbolos y cada posición vale diez veces más que la anterior. En base 2 usamos dos símbolos y cada posición vale el doble. El número no cambia, cambia la forma de escribirlo: 33 y 100001 son el mismo número contado distinto.`;
+
+const D_TEOFUND=`<b>El teorema fundamental de la aritmética</b> dice que todo número de 2 en adelante se arma multiplicando primos, y que esa receta es única. No hay dos formas distintas de fabricar el 630 a partir de primos. Lo único que puede cambiar es el orden en que se escriben los factores, y por eso el enunciado lleva la cláusula salvo el orden.`;
+
+const D_LEMA=`<b>El lema de Euclides</b> dice que si un número primo divide a un producto, tiene que dividir a alguno de los dos factores. No puede repartirse entre los dos y quedarse con la mitad de cada uno, porque los primos no se pueden partir. Con un número no primo esto falla: el 6 divide a 4 × 3 = 12, pero no divide ni al 4 ni al 3, porque el 6 se armó tomando el 2 de un lado y el 3 del otro.`;
+
+const D_RAIZ=`<b>El teorema de la raíz</b> es un atajo para saber si un número es primo. Si un número se puede partir, uno de sus dos factores tiene que ser menor o igual que su raíz cuadrada, porque si los dos fueran más grandes su producto se pasaría del número. Por eso alcanza con probar divisores hasta la raíz, y solo primos.`;
+
+const D_SUMATORIA=`<b>La sumatoria</b> es una forma corta de escribir una suma larga. Se escribe el patrón que sigue cada término en función de un índice, y desde y hasta dónde corre ese índice. Para armar el patrón conviene evaluar los primeros valores del índice y comparar con la lista que te dan.`;
+
+const D_AXIOMAS=`<b>Los axiomas de la suma en Z</b> son las cuatro reglas básicas que se dan por ciertas sin demostrarlas. Que sumar dos enteros da un entero, que el orden no cambia el resultado, que existe el 0 que no altera nada, y que todo número tiene su opuesto con el que se cancela.`;
+
+const DEF = {
+1:`En los enteros hay <b>dos operaciones</b>, la suma y el producto. La división no está, porque dividir dos enteros no siempre da un entero: 7 dividido 2 no es un número entero. Lo que sí hay es un procedimiento, el algoritmo de la división, que en lugar de un resultado devuelve dos, cociente y resto.`,
+2:D_DIV, 3:D_DIV, 103:D_DIV,
+4:D_ALGDIV, 5:D_ALGDIV, 6:D_ALGDIV,
+7:D_COMPUESTO, 8:D_COMPUESTO, 107:D_PRIMO, 108:D_PRIMO,
+9:`<b>La criba de Eratóstenes</b> es un método para encontrar todos los primos hasta un número. Se escriben todos los números y se van tachando los múltiplos de cada primo, empezando por el 2. Lo que queda sin tachar son los primos. Solo hace falta tachar múltiplos de primos: los múltiplos de 4 ya se fueron cuando tachaste los de 2.`,
+10:D_RAIZ,
+11:D_TEOFUND, 12:D_TEOFUND,
+13:D_EUCLIDES, 14:D_EUCLIDES,
+15:D_MCD, 109:D_MCM, 110:D_MCM,
+16:D_DIOFANTICA, 111:D_DIOFANTICA,
+17:D_INDUCCION, 18:D_INDUCCION, 112:D_INDUCCION, 114:D_INDUCCION,
+101:D_BASES, 102:D_BASES,
+104:D_AXIOMAS,
+105:D_LEMA,
+106:`<b>Que los primos son infinitos</b> significa que por más que avances en la recta numérica nunca se acaban. Siempre hay uno más grande que el último que encontraste. Euclides lo probó por el absurdo: si fueran finitos, multiplicándolos todos y sumando 1 se obtiene un número que ninguno de ellos divide, así que aparece un primo nuevo que no estaba en la lista.`,
+113:D_SUMATORIA,
+19:D_FUNCION, 30:D_PERMCOMB,
+20:D_INYSUR, 21:D_INYSUR, 115:D_INYSUR, 117:D_INYSUR,
+22:D_COMPOSICION,
+23:D_INVERSA,
+24:`<b>Una sucesión recursiva</b> es una lista de números donde cada término se calcula a partir de los anteriores, en vez de tener una fórmula directa. Te dan los primeros a mano, que son el arranque, y una regla para seguir. Acá la regla es que cada término es la suma de los dos que vienen antes, así que hay que ir armando la lista en orden hasta llegar al que te piden.`,
+25:D_CASILLAS, 26:D_CASILLAS, 27:D_CASILLAS, 28:D_CASILLAS, 29:D_CASILLAS, 118:D_CASILLAS,
+119:`<b>Contar casillas cuando el rango arranca en cero.</b> De 0 a 200.000 no hay 200.000 valores sino 200.001, porque el cero también es un valor. Es el mismo error que contar postes de un alambrado: entre el primero y el último hay un poste más que tramos.`,
+31:D_PERMCOMB, 32:D_PERMCOMB, 120:D_PERMCOMB, 121:D_PERMCOMB, 125:D_PERMCOMB,
+33:D_REPETICION,
+34:`<b>Una diagonal</b> es un segmento que une dos vértices de un polígono <b>que no son vecinos</b>. Si unís todos los pares de vértices te salen todos los segmentos posibles, pero ahí adentro están también los lados, que unen vecinos. Restando los lados quedan las diagonales.`,
+35:D_ADICMULT, 122:D_ADICMULT,
+36:D_PARTES, 123:D_PARTES,
+116:`<b>Codominio</b> es el conjunto donde la función podría aterrizar, el que se declara al escribir f: X ⟶ Y. <b>Imagen</b> es donde efectivamente aterriza. La imagen siempre está dentro del codominio, y cuando coinciden exactamente la función es suryectiva. Es la diferencia entre los asientos que hay en la sala y los asientos que quedaron ocupados.`,
+124:`<b>La simetría de los números combinatorios</b> dice que elegir cuáles entran es lo mismo que elegir cuáles quedan afuera. Si de 15 personas tenés que armar un grupo de 12, es idéntico a decidir cuáles 3 no van. Por eso C(15, 12) y C(15, 3) dan lo mismo, y conviene calcular siempre por el lado del número más chico.`
+};
+
+/* ---------- Teoría completa por pregunta ---------- */
+const AMP = {
+
+1:`<p>En Z se consideran <b>dos operaciones</b>: la suma y el producto habitual. La división no es una operación de Z, porque el cociente de dos enteros no siempre es entero.</p>
+<p>Lo que sí existe es el <b>algoritmo de la división</b>, que no devuelve un número sino un par: cociente y resto.</p>
+<p><b>Los cuatro axiomas de la suma en Z</b>, que el TP del módulo 01 evaluó: cierre, es decir que a + b pertenece a Z; conmutatividad, a + b = b + a; neutro, para todo a existe 0 con a + 0 = a; y opuesto, para todo a existe −a con a + (−a) = 0.</p>
+<p>Hueco declarado: las propiedades algebraicas y de orden de Z no están desarrolladas en la lectura 1, que remite a Espinosa Armenta. Es uno de los temas evaluados sin cobertura en el material.</p>`,
+
+2:`<p><b>Divisibilidad.</b> a|b si y solo si existe un entero q tal que <b>b = q·a</b>. Se lee a divide a b, a es divisor de b, a es factor de b, o b es múltiplo de a.</p>
+<p>Caso de uso: 3|12 es verdadero porque 12 = 4·3.</p>
+<table><tr><th>Se confunde</th><th>Diferencia real</th></tr>
+<tr><td>a|b y a/b</td><td>La primera es una proposición verdadera o falsa, la segunda es un número. Escribir 3|12 = 4 está mal</td></tr>
+<tr><td>a|0 y 0|a</td><td>La primera vale siempre porque 0 = 0·a. La segunda solo cuando a = 0</td></tr></table>
+<p>Choque de vocabulario: en el trabajo con datos módulo o resto se usan como sinónimo del operador. Acá el <b>resto</b> es el r del algoritmo de la división, con la condición 0 ≤ r &lt; b, y la divisibilidad es el caso r = 0.</p>`,
+
+3:`<p><b>a|0 vale para todo entero a</b>, porque 0 = 0·a con q = 0, que es entero. La definición se cumple sin excepción.</p>
+<p><b>0|a solo vale cuando a = 0</b>, porque exigiría a = q·0 y ese producto siempre da 0.</p>
+<p>Los dos casos se resuelven aplicando la definición literal b = q·a y preguntándose quién hace de a y quién de b. La intuición de dividir por cero no interviene: acá no hay división.</p>`,
+
+4:`<p><b>Algoritmo de la división.</b> Dados a y b con b entero positivo, existen enteros q y r <b>únicos</b> tales que <b>a = b·q + r con 0 ≤ r &lt; b</b>.</p>
+<table><tr><th>Símbolo</th><th>Nombre</th></tr>
+<tr><td>a</td><td>Dividendo</td></tr><tr><td>b</td><td>Divisor</td></tr>
+<tr><td>q</td><td>Cociente</td></tr><tr><td>r</td><td>Resto</td></tr></table>
+<p>Las tres condiciones son <b>b positivo</b>, <b>r mayor o igual que cero</b> y <b>r estrictamente menor que b</b>. Sobre a no se pide nada.</p>
+<p>Caso de uso del material: con a = −35 y b = 4 queda q = −9 y r = 1, porque 4·(−9) + 1 = −35 y 1 está entre 0 y 4.</p>
+<p>Errata del material: el ejemplo de a = −35 dice que el resto siempre debe ser positivo. Corresponde <b>no negativo</b>, porque r = 0 es justamente el caso de la divisibilidad.</p>`,
+
+5:`<p>Con a negativo el cociente <b>va hacia abajo</b>, no hacia cero, para que el resto quede en el rango 0 ≤ r &lt; b.</p>
+<table><tr><th>Cuenta</th><th>Resultado</th><th>¿Válido?</th></tr>
+<tr><td>−47 = 5·(−10) + 3</td><td>q = −10, r = 3</td><td>Sí, 3 está entre 0 y 5</td></tr>
+<tr><td>−47 = 5·(−9) − 2</td><td>q = −9, r = −2</td><td>No, el resto es negativo</td></tr></table>
+<p>Receta: dividir el valor absoluto, y si sobra algo, restar uno al cociente negativo y compensar en el resto.</p>
+<p>Otro caso del material: a = −35 y b = 4 dan q = −9 y r = 1.</p>`,
+
+6:`<p>El algoritmo <b>solo exige que b sea positivo</b>. El dividendo a puede ser negativo, cero o positivo.</p>
+<p>El ejemplo del propio material usa a = −35 con b = 4, que ya alcanza para descartar cualquier exigencia sobre el signo de a.</p>
+<p>Lo que sí se rompe si b no es positivo: con b = 0 no hay cociente, y con b negativo la condición 0 ≤ r &lt; b no tiene sentido.</p>
+<p>Relacionado: el material tiene una errata en M01 L3, donde el teorema pide b ≥ 0. Con b = 0 el algoritmo de Euclides no arranca, así que la condición razonable es b &gt; 0.</p>`,
+
+7:`<p>La definición de primo exige <b>P mayor o igual que 2</b>, con exactamente dos divisores positivos: el 1 y él mismo.</p>
+<p>La definición de compuesto exige <b>m = a·b con 1 &lt; a &lt; m y 1 &lt; b &lt; m</b>, con desigualdades estrictas.</p>
+<p>El 1 no cumple ninguna de las dos: tiene un solo divisor positivo y no admite esa factorización. Por eso <b>no es primo ni compuesto</b>.</p>
+<table><tr><th>Se confunde</th><th>Diferencia real</th></tr>
+<tr><td>El 1 como primo</td><td>La convención actual lo excluye. El primer primo es el 2</td></tr>
+<tr><td>El 2 como no primo por ser par</td><td>Es primo, y es el único primo par</td></tr></table>
+<p>Errata del material: en la definición de compuestos escribe un entero m mayor que 2, cuando debe ser mayor o igual que 2 para ser coherente con la definición de primo.</p>`,
+
+8:`<p><b>m es compuesto si y solo si m = a·b con 1 &lt; a &lt; m y 1 &lt; b &lt; m.</b> Las desigualdades son estrictas y ahí está todo el peso de la definición.</p>
+<p>Si se relajan a 1 ≤ a ≤ m, cualquier número cumpliría tomando a = 1 y b = m, incluido cualquier primo. La definición se rompe.</p>
+<p>La formulación equivalente por cantidad de divisores, que el TP del módulo 01 usó: <b>si t tiene sólo 2 divisores positivos distintos, entonces t es primo</b>. Esa es verdadera, y es la que deja al 1 afuera.</p>
+<p>En Discreta se evalúa la formulación exacta, no la idea aproximada. Ocho de las 40 preguntas de los TPs pidieron reconocer o completar una definición literal.</p>`,
+
+9:`<p>La <b>criba de Eratóstenes</b> hasta 100 deja <b>25 primos</b>: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89 y 97.</p>
+<table><tr><th>Se confunde</th><th>Diferencia real</th></tr>
+<tr><td>Primos menores que 100</td><td>Son <b>25</b> números</td></tr>
+<tr><td>Los primeros 100 primos</td><td>Llegan hasta el <b>541</b></td></tr></table>
+<p>Dos erratas del material en esta misma sección. Dice nuestros primeros 100 números primos cuando lista 25 y se contradice solo. Y dice que se descartan los múltiplos de 2, de 3 y de 4, cuando la criba tacha múltiplos de <b>primos</b>: tachar los de 4 es redundante porque ya se fueron con los de 2.</p>`,
+
+10:`<p><b>Teorema de la raíz.</b> Si n ≥ 2 no es primo, existe un primo p con p|n y <b>p² ≤ n</b>.</p>
+<p>El teorema da dos ahorros a la vez: alcanza con probar hasta la raíz, y alcanza con probar <b>primos</b>, no todos los enteros.</p>
+<p><b>Procedimiento para probar primalidad:</b></p>
+<ol>
+<li>Calcular la raíz cuadrada de n.</li>
+<li>Listar los primos p con p² ≤ n.</li>
+<li>Suponer por el absurdo que n no es primo.</li>
+<li>Probar la divisibilidad por cada uno de esos primos.</li>
+<li>Si ninguno divide, no existe el p que el teorema garantiza, lo que es absurdo. Por lo tanto n es primo.</li>
+</ol>
+<p>La estructura por el absurdo es parte de lo que se corrige, no un adorno.</p>
+<p>Otros casos del material: con 101 alcanza con 2, 3, 5 y 7, porque 11² = 121 ya supera a 101. Con 467 la raíz es aproximadamente 21,6 y los candidatos son 2, 3, 5, 7, 11, 13, 17 y 19: ocho divisiones en lugar de 466.</p>`,
+
+11:`<p><b>Teorema fundamental de la aritmética.</b> Todo natural n ≥ 2 admite una única escritura n = p₁^a₁ · p₂^a₂ · … · p_r^a_r con los pᵢ primos y los aᵢ enteros positivos, <b>salvo el orden de los factores</b>.</p>
+<p>Esa cláusula final es lo que el ítem borra. Sin ella el enunciado es falso, porque 12 = 2·2·3 y 12 = 3·2·2 son la misma factorización escrita distinto.</p>
+<p>Caso de uso: 630 = 2 · 3² · 5 · 7, y no existe otra factorización en primos de 630.</p>
+<p><b>Lema de Euclides</b>, que va de la mano: si a es primo y a|b·c, entonces a|b o a|c. Caso de uso: 7 divide a 3·14, y como 7 es primo tiene que dividir a alguno de los dos, en este caso a 14.</p>`,
+
+12:`<p>Descomponer en primos significa que <b>todos</b> los factores del resultado sean primos.</p>
+<table><tr><th>Escritura</th><th>¿Es descomposición en primos?</th></tr>
+<tr><td>504 = 2³ · 3² · 7</td><td>Sí</td></tr>
+<tr><td>504 = 2³ · 3 · 21</td><td>No, 21 = 3·7 no es primo</td></tr>
+<tr><td>504 = 8 · 63</td><td>No, ninguno de los dos es primo</td></tr></table>
+<p>El camino: dividir por el primo más chico que entre, y repetir sobre el cociente. 504 / 2 = 252, / 2 = 126, / 2 = 63, / 3 = 21, / 3 = 7, y 7 es primo. Quedan tres doses, dos treses y un siete.</p>
+<p>Otro caso del material, que el TP tomó: 630 = 2 · 3² · 5 · 7.</p>
+<p>Errata de conversión: en M01 L2 los exponentes se perdieron en toda la lectura. Se lee 4 = 22 por 2², y 7000 = 23x53x7 por 2³·5³·7.</p>`,
+
+13:`<p><b>Propiedad de Euclides.</b> MCD(a, b) = MCD(b, r), con r el resto de dividir a por b. Eso es lo que permite iterar.</p>
+<p>La corrida completa del ejercicio:</p>
+<table><tr><th>Paso</th><th>División</th><th>Resto</th></tr>
+<tr><td>1</td><td>1071 = 462·2 + 147</td><td>147</td></tr>
+<tr><td>2</td><td>462 = 147·3 + 21</td><td><b>21</b></td></tr>
+<tr><td>3</td><td>147 = 21·7 + 0</td><td>0</td></tr></table>
+<p>El resto se anula en el paso 3, así que el MCD es el resto del paso 2: <b>21</b>.</p>`+T_EUCLIDES,
+
+14:`<p>El MCD es el <b>resto</b> del paso anterior a aquel en que el resto se anula. Nunca es el cero, nunca es un cociente.</p>
+<p><b>Definición de MCD.</b> d = MCD(a, b) si d|a, d|b, todo divisor común c de a y b cumple c|d, y d ≥ 0.</p>
+<p><b>Definición de MCM.</b> m = MCM(a, b) si a|m, b|m, todo múltiplo común n cumple m|n, y m ≥ 0.</p>
+<p>La diferencia estructural entre las dos: en el MCD, <b>d divide a los números</b>; en el MCM, <b>los números dividen a m</b>. Esa inversión es el par que la cátedra usa para armar opciones incorrectas.</p>
+<p><b>Relación entre ambos:</b> MCD(a, b) · MCM(a, b) = a · b, con a y b positivos. Si a y b son coprimos el MCD vale 1, y entonces MCM = a·b.</p>
+<p>Hueco de conversión: en M01 L3 la sección Relación entre el MCD y el MCM quedó vacía en el PDF. La relación está reconstruida en el paquete.</p>`,
+
+15:`<p><b>La definición de MCD que da la cátedra tiene cuatro condiciones:</b></p>
+<ol>
+<li>d|a y d|b, es decir que es divisor común</li>
+<li>Si c|a y c|b entonces <b>c|d</b>, es decir que todo divisor común divide a d</li>
+<li>d ≥ 0</li>
+</ol>
+<p>Que d sea el divisor común más grande es una <b>consecuencia</b>, no la definición. La condición operativa es la segunda, y es la que se usa en demostraciones.</p>
+<p><b>Teorema de la combinación lineal.</b> Si d = MCD(a, b) con b &gt; 0, existen enteros x e y tales que d = x·a + y·b. Caso de uso del material: 6 = 28·2406 + (−103)·654.</p>
+<p><b>Criterio de existencia de la diofántica.</b> a·n + b·m = c tiene solución entera <b>si y solo si MCD(a, b) divide a c</b>.</p>`,
+
+16:`<p><b>Criterio de existencia.</b> a·n + b·m = c tiene solución entera si y solo si MCD(a, b) divide a c.</p>
+<p>Acá MCD(105, 120) = 15. Como 15 no divide a 70, no hay solución entera y el ejercicio termina en ese chequeo.</p>
+<p>Caso de uso del material: 105x + 120y = c tiene solución exactamente cuando 15 divide a c. Con c = 60 sí, con c = 70 no.</p>`+T_EUCLIDES,
+
+17:`<p><b>Principio de inducción.</b> Si P(1) es verdadera y P(n) implica P(n + 1) para todo n, entonces P(n) es verdadera para todo natural n.</p>
+<p>Verificar cuatro casos, o cuarenta, es <b>verificación</b> y no demostración. Sin el paso inductivo no hay garantía para el caso siguiente, cualquiera sea la cantidad de casos comprobados.</p>
+<p>El principio se aplica sobre los <b>naturales</b>, no sobre los reales ni los complejos, porque se apoya en el buen orden.</p>`+T_INDUCCION,
+
+18:`<p>El razonamiento falso pretende probar que en todo conjunto de n mujeres todas tienen el mismo color de ojos, y de ahí concluye que todas las mujeres tienen los ojos azules.</p>
+<p><b>El caso base es correcto:</b> con n = 1 hay una sola mujer y trivialmente todas las de ese conjunto tienen el mismo color.</p>
+<p><b>El paso inductivo falla en el salto de n = 1 a n = 2.</b> El argumento saca un elemento del conjunto, aplica la hipótesis a los dos subconjuntos que quedan, y concluye porque los subconjuntos se superponen. Con n = 2 los dos subconjuntos tienen un elemento cada uno y <b>no comparten ningún elemento</b>, así que no hay nada que encadene los dos colores.</p>
+<p>Para todo n mayor o igual que 3 el paso sí funciona. El error está localizado en un único salto, y eso alcanza para que la cadena nunca arranque.</p>
+<p>Dos distinciones que el ítem evalúa: falsedad empírica no es error lógico, y el error está en el paso inductivo, no en el caso base.</p>`,
+
+101:`<p><b>Procedimiento de conversión entre bases:</b></p>
+<ol>
+<li>Dividir el número por la base y anotar el resto.</li>
+<li>Repetir sobre el cociente hasta que el cociente sea 0.</li>
+<li>Leer los restos <b>desde el último hacia el primero</b>.</li>
+<li>En base 16, reemplazar los restos 10 a 15 por A, B, C, D, E y F.</li>
+<li>Verificar con el desarrollo polinómico.</li>
+</ol>
+<p><b>Caso resuelto con 106 en base 2:</b> 106 = 2·53 + 0, 53 = 2·26 + 1, 26 = 2·13 + 0, 13 = 2·6 + 1, 6 = 2·3 + 0, 3 = 2·1 + 1, 1 = 2·0 + 1. Leyendo al revés queda <code>1101010</code>. Verificación: 64 + 32 + 8 + 2 = 106.</p>
+<p>Hueco declarado: sistemas de numeración y conversión entre bases no figuran en las ocho lecturas. Aparecieron en las preguntas 1, 10 y 20 del TP del módulo 01 y en la consigna 1 de la actividad práctica. Es uno de los temas de mayor riesgo.</p>`,
+
+102:`<p>Para pasar de binario a decimal se suman las potencias de 2 correspondientes a los bits encendidos, contando desde la derecha y arrancando en 2⁰.</p>
+<table><tr><th>Bit</th><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+<tr><th>Potencia</th><td>2⁷</td><td>2⁶</td><td>2⁵</td><td>2⁴</td><td>2³</td><td>2²</td><td>2¹</td><td>2⁰</td></tr>
+<tr><th>Valor</th><td>128</td><td>—</td><td>—</td><td>16</td><td>8</td><td>4</td><td>—</td><td>1</td></tr></table>
+<p>128 + 16 + 8 + 4 + 1 = <b>157</b>.</p>
+<p>La desventaja de la notación binaria que el TP evaluó: <b>requiere mucho más espacio que la decimal</b>.</p>`,
+
+103:`<p>Los dos casos, uno al lado del otro:</p>
+<table><tr><th>Afirmación</th><th>Qué exige la definición</th><th>Cuándo vale</th></tr>
+<tr><td>a|0</td><td>Que exista q con 0 = q·a</td><td><b>Siempre</b>, tomando q = 0</td></tr>
+<tr><td>0|a</td><td>Que exista q con a = q·0</td><td><b>Solo si a = 0</b>, porque q·0 siempre da 0</td></tr></table>
+<p>La receta es escribir la definición b = q·a y ubicar cuál de los dos números ocupa el lugar de a, el divisor, y cuál el de b, el dividendo.</p>`,
+
+104:`<p><b>Los cuatro axiomas de la suma en Z:</b></p>
+<table><tr><th>Axioma</th><th>Enunciado</th></tr>
+<tr><td>Cierre</td><td>Para todo a y b, a + b pertenece a Z</td></tr>
+<tr><td>Conmutatividad</td><td>Para todo a y b, a + b = b + a</td></tr>
+<tr><td><b>Neutro</b></td><td><b>Para todo a existe 0 con a + 0 = a</b></td></tr>
+<tr><td>Opuesto</td><td>Para todo a existe −a con a + (−a) = 0</td></tr></table>
+<p>Hueco declarado: los axiomas de la suma en Z aparecieron en la pregunta 17 del TP del módulo 01 sin figurar en la lectura. El paquete solo los menciona y remite a Espinosa Armenta. Las propiedades algebraicas y de orden de Z quedan sin cobertura y conviene llevarlas a la tutoría.</p>`,
+
+105:`<p><b>Lema de Euclides.</b> Si a es <b>primo</b> y a|b·c, entonces a|b o a|c.</p>
+<p>La hipótesis de primalidad es imprescindible. Sin ella el enunciado es falso, y el contraejemplo mínimo es 6, que divide a 4·3 = 12 pero no divide ni a 4 ni a 3.</p>
+<p>Caso de uso del material: 7 divide a 3·14, y como 7 es primo tiene que dividir a alguno de los dos, en este caso a 14.</p>
+<p>El lema es lo que sostiene la unicidad del <b>Teorema fundamental de la aritmética</b>: si la factorización no fuera única, algún primo dividiría un producto sin dividir a ninguno de sus factores.</p>
+<p>Hueco declarado: el lema apareció en la pregunta 16 del TP del módulo 01. El paquete lo enuncia pero sin demostración.</p>`,
+
+106:`<p>La <b>infinitud de los primos</b> es el teorema de Euclides.</p>
+<p>La idea de la demostración, por el absurdo: si los primos fueran finitos, se los podría listar todos, multiplicarlos y sumar 1. Ese número nuevo no es divisible por ninguno de los de la lista, porque siempre deja resto 1, así que o es primo o tiene un factor primo fuera de la lista. En los dos casos hay un primo que no estaba, y eso contradice la suposición.</p>
+<p>Hueco declarado: la demostración de Euclides está mencionada en el material pero sin la construcción completa. Apareció en la pregunta 18 del TP del módulo 01.</p>`,
+
+107:`<p>Los impares no son todos primos. El contraejemplo más chico es <b>9 = 3·3</b>, y siguen 15, 21, 25, 27.</p>
+<p>El error simétrico es descartar el 2 por ser par: <b>el 2 es primo, y es el único primo par</b>, porque cualquier otro par tiene al 2 como divisor propio.</p>
+<p>Un contraejemplo alcanza para refutar una afirmación universal, y es lo que hay que buscar apenas aparece un todos o un ningún en el enunciado. Para <b>confirmar</b> una afirmación universal, en cambio, los ejemplos no sirven.</p>`,
+
+108:`<p>La formulación por cantidad de divisores: <b>t es primo si y solo si tiene exactamente dos divisores positivos distintos</b>, el 1 y él mismo.</p>
+<p>Es equivalente a la definición con P ≥ 2 y sirve para ver por qué el 1 queda afuera: tiene un solo divisor positivo, así que no llega a dos.</p>
+<table><tr><th>Número</th><th>Divisores positivos</th><th>Clasificación</th></tr>
+<tr><td>1</td><td>1</td><td>Ni primo ni compuesto</td></tr>
+<tr><td>2</td><td>1, 2</td><td>Primo, y el único par</td></tr>
+<tr><td>9</td><td>1, 3, 9</td><td>Compuesto</td></tr></table>`,
+
+109:`<p><b>Definición de MCM.</b> m = MCM(a, b) si <b>a|m</b>, <b>b|m</b>, todo múltiplo común n cumple <b>m|n</b>, y m ≥ 0.</p>
+<p><b>Definición de MCD.</b> d = MCD(a, b) si <b>d|a</b>, <b>d|b</b>, todo divisor común c cumple <b>c|d</b>, y d ≥ 0.</p>
+<p>La inversión es lo evaluable: en el MCD el número chico divide a los grandes; en el MCM los números dividen al grande. Si en un ítem las barras de divisibilidad apuntan para el lado equivocado, esa opción es el distractor.</p>
+<p><b>Relación:</b> MCD(a, b) · MCM(a, b) = a · b, con a y b positivos. Caso de uso: MCD(105, 120) = 15 y MCM(105, 120) = 840, y en efecto 15 · 840 = 12.600 = 105 · 120.</p>
+<p>La formulación coloquial que el TP dio por verdadera: el MCM de a y b es el mínimo entero positivo que tiene como factor a a y a b simultáneamente.</p>`,
+
+110:`<p>De <b>MCD(a, b) · MCM(a, b) = a · b</b>, cuando a y b son coprimos el MCD vale 1, y entonces <b>MCM(a, b) = a · b</b>.</p>
+<p>Coprimos significa que no comparten ningún factor primo, es decir MCD igual a 1. No significa que alguno sea primo: 8 y 9 son coprimos y ninguno lo es.</p>
+<table><tr><th>Par</th><th>MCD</th><th>MCM</th></tr>
+<tr><td>8 y 9</td><td>1</td><td>72</td></tr>
+<tr><td>105 y 120</td><td>15</td><td>840</td></tr></table>`,
+
+111:`<p>Los tres pasos de una diofántica, y el que se olvida:</p>
+<ol>
+<li>Calcular d = MCD(a, b) por Euclides.</li>
+<li>Comprobar que <b>d divide a c</b>. Si no divide, no hay solución entera y el ejercicio termina.</li>
+<li>Escribir d como combinación lineal de a y b.</li>
+<li><b>Multiplicar los dos miembros por c/d.</b></li>
+<li>Leer n y m del resultado.</li>
+</ol>
+<p>Olvidar el paso 4 y entregar la combinación lineal del MCD como si fuera la solución de la ecuación es el <b>error más frecuente del módulo</b>.</p>
+<p>El motivo es aritmético: la combinación lineal da d, y la ecuación pide c. Escalar por c/d es lo que traslada la igualdad de un lado al otro, y funciona precisamente porque c/d es entero, que es lo que garantizó el chequeo del paso 2.</p>
+<p>Al verificar reemplazando, el error de signo es el más caro y no se detecta de otra forma.</p>`,
+
+112:`<p>El orden de los pasos es lo que el TP del módulo 01 evaluó, dos veces: <b>caso base, hipótesis de inducción, tesis inductiva</b>, y recién después el desarrollo.</p>`+T_INDUCCION+
+`<p>La estructura por el absurdo, que aparece como distractor, corresponde a la <b>prueba de primalidad</b> del módulo 01 lección 2, no a la inducción.</p>
+<p>El TP del módulo 01 preguntó por los pasos y su orden, no por la demostración escrita. Un parcial con desarrollo sube la exigencia, y ahí pesan las trampas de redacción: omitir el caso base, no nombrar la hipótesis ni señalar el renglón donde se aplica, trabajar los dos lados de la igualdad a la vez, y no aclarar que el factor obtenido es entero.</p>`,
+
+113:`<p>Para armar el término general de una sumatoria conviene evaluar los primeros índices y comparar con la lista dada.</p>
+<table><tr><th>i</th><th>2i − 1</th><th>(2i − 1)²</th></tr>
+<tr><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>2</td><td>3</td><td>9</td></tr>
+<tr><td>3</td><td>5</td><td>25</td></tr></table>
+<p>Coincide con 1² + 3² + 5² + …, así que el término general es <b>(2i − 1)²</b> desde i = 1.</p>
+<p>Con 2i + 1 la serie arrancaría en 3 y se saltearía el 1. Correrse un índice es el error típico.</p>
+<p>El otro ítem de sumatoria del TP: la sumatoria de 1/(i(i+1)) simboliza 1/2 + 1/6 + 1/12 + …, lo que se verifica evaluando i = 1, 2 y 3.</p>
+<p>Hueco declarado: la notación de sumatoria apareció en las preguntas 12 y 19 del TP del módulo 01. Además, en M01 L4 todas las fórmulas de sumatoria del ejercicio 1 estaban en imágenes y se perdieron en el PDF: los párrafos quedan hablando de expresiones que no se ven.</p>`,
+
+114:`<p>El principio de inducción se aplica sobre los <b>naturales</b>, porque se apoya en el <b>buen orden</b>: todo subconjunto no vacío de naturales tiene primer elemento.</p>
+<p>Sobre los enteros no funciona, porque no hay primer elemento hacia abajo y no habría caso base del cual arrancar. Sobre los reales o los racionales tampoco, porque entre dos elementos siempre hay otro y no existe el siguiente.</p>
+<p>El caso base suele ser n = 1 pero puede ser 0 o 2, según desde dónde valga la propiedad. Lo que importa es que exista un primer valor y que la cadena n implica n + 1 lo alcance todo desde ahí.</p>`,
+
+19:`<p><b>Definición de función.</b> f: X ⟶ Y es función si se cumplen dos condiciones independientes:</p>
+<table><tr><th>Condición</th><th>Qué exige</th></tr>
+<tr><td><b>Totalidad</b></td><td>f(x) está definida para <b>todo</b> x de X</td></tr>
+<tr><td><b>Unicidad</b></td><td>Hay un <b>único</b> f(x) para cada x</td></tr></table>
+<p>Ser función es anterior a ser inyectiva, suryectiva o biyectiva: esas son clasificaciones de algo que ya es función.</p>
+<p><b>Las tres clasificaciones:</b></p>
+<ul>
+<li><b>Suryectiva.</b> Para cada y de Y existe al menos un x de X con f(x) = y.</li>
+<li><b>Inyectiva.</b> Cada y de Y es imagen de a lo sumo un x de X. Criterio operativo: f(x) = f(x₀) implica x = x₀.</li>
+<li><b>Biyectiva.</b> Suryectiva e inyectiva a la vez. Cada y de Y es f(x) de exactamente un x de X.</li>
+</ul>
+<p>El caso del TP: un diagrama donde a y b apuntan ambos a x <b>sí es función</b>, porque cada elemento del dominio tiene una única imagen. Que dos elementos compartan destino rompe la inyectividad, no la condición de función.</p>`,
+
+20:`<p>Con f(z) = 3z + 2 sobre Z:</p>
+<p><b>Inyectividad.</b> De 3a + 2 = 3b + 2 se sigue 3a = 3b y por lo tanto a = b. Cumple el criterio operativo.</p>
+<p><b>Suryectividad.</b> Habría que encontrar, para cada entero y, un entero z con 3z + 2 = y, es decir z = (y − 2)/3. Ese cociente solo es entero cuando y − 2 es múltiplo de 3. Con y = 4, por ejemplo, z = 2/3 no es entero. No es suryectiva.</p>
+<table><tr><th>Función</th><th>Sobre Z</th><th>Sobre R</th></tr>
+<tr><td>f(z) = 3z + 2</td><td>Inyectiva, no suryectiva</td><td>Biyectiva</td></tr>
+<tr><td>f(z) = 2z</td><td>Inyectiva, no suryectiva</td><td>Biyectiva</td></tr>
+<tr><td>f(z) = z</td><td>Biyectiva</td><td>Biyectiva</td></tr></table>
+<p>El caso del TP del módulo 02: sobre f(z) = 3z y g(z) = 3z + 1 en Z, lo correcto es que ambas son funciones, ambas inyectivas y ninguna suryectiva.</p>
+<p>Errata de conversión: en M02 L1 el criterio de inyectividad quedó destruido en el PDF, con los subíndices caídos a otra línea, y los diagramas de función no suryectiva y no inyectiva no se recuperan.</p>`,
+
+21:`<p><b>Criterio operativo de inyectividad:</b> f es inyectiva si y solo si <b>f(x) = f(x₀) implica x = x₀</b>. El material lo marca en recuadro aparte.</p>
+<p>Se usa así: se plantea la igualdad de imágenes, se despeja, y si se llega a que los argumentos son iguales, la función es inyectiva.</p>
+<p><b>Dos trampas de redacción que cuestan puntos en desarrollo:</b></p>
+<ul>
+<li>Usar un contraejemplo para <b>confirmar</b> inyectividad. Solo sirve para refutarla.</li>
+<li>Dar por probada la suryectividad mostrando que algunos y tienen preimagen, en lugar de construir la preimagen de un y genérico.</li>
+</ul>
+<p>La versión que apareció en el TP del módulo 02: f es inyectiva si f(a) = f(b) implica a = b.</p>`,
+
+22:`<p><b>Composición.</b> (g ∘ f)(x) = g(f(x)). <b>Se aplica primero f</b>, la de la derecha.</p>
+<table><tr><th>Expresión</th><th>Qué actúa primero</th><th>Resultado con f(z) = 2z y g(z) = z − 3</th></tr>
+<tr><td>(g ∘ f)(z)</td><td>f</td><td>g(2z) = <b>2z − 3</b></td></tr>
+<tr><td>(f ∘ g)(z)</td><td>g</td><td>f(z − 3) = 2z − 6</td></tr></table>
+<p>Caso de uso del material, que también tomó el TP: con f(z) = z² y g(z) = z + 1, la composición f ∘ g da <b>(z + 1)²</b>, porque primero actúa g.</p>
+<p><b>Inversa.</b> g es inversa de f si (g ∘ f)(x) = x para todo x de X y (f ∘ g)(y) = y para todo y de Y. Existe si y solo si f es biyectiva.</p>`,
+
+23:`<p><b>Inversa.</b> g es inversa de f si (g ∘ f)(x) = x para todo x de X y (f ∘ g)(y) = y para todo y de Y.</p>
+<p>Existe <b>si y solo si f es biyectiva</b>, y las dos mitades hacen falta por motivos distintos:</p>
+<table><tr><th>Si falta</th><th>Qué se rompe</th></tr>
+<tr><td>Inyectividad</td><td>La inversa tendría que asignar dos valores distintos a un mismo y, y dejaría de ser función por unicidad</td></tr>
+<tr><td>Suryectividad</td><td>Quedarían elementos de Y sin imagen por la inversa, y dejaría de ser función por totalidad</td></tr></table>
+<p>Notar que las dos fallas rompen justamente las dos condiciones de la definición de función: unicidad y totalidad.</p>
+<p>Este ítem es la excepción al patrón de los absolutos. En Discreta un solamente puede ser correcto, porque los teoremas tienen condiciones necesarias y suficientes. El patrón de adverbios que sirve en las materias teóricas no se traslada acá.</p>`,
+
+24:`<p>La sucesión definida por u(1) = 1, u(2) = 2 y u(n) = u(n−1) + u(n−2):</p>
+<table><tr><th>n</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+<tr><th>u(n)</th><td>1</td><td>2</td><td>3</td><td>5</td><td>8</td><td><b>13</b></td><td>21</td></tr></table>
+<p>Cada término es la suma de los dos anteriores: 3 = 2 + 1, 5 = 3 + 2, 8 = 5 + 3, 13 = 8 + 5.</p>
+<p>Errata del material: la lectura lista 1, 2, 3, 5, 13, 21 y <b>falta el 8</b>. Quien estudie de esa lista contesta 8 o 21 en lugar de 13, porque quedan corridos los índices. Es una de las erratas más caras del módulo 02.</p>`,
+
+25:`<p>El <b>principio de casillas</b> lo enuncia por primera vez <b>Johann Dirichlet</b>, matemático alemán, en <em class="dato">1834</em>, con el nombre alemán <b>Schubfachprinzip</b>, que se traduce como principio de los cajones.</p>
+<p>Errata del material: escribe <b>Joham</b> en lugar de Johann.</p>
+<p>Los otros nombres del ítem vienen del módulo 01 y funcionan como distractores cruzados: <b>Euclides</b> es el teorema de la infinitud de los primos y el algoritmo del MCD, y <b>Eratóstenes</b> es la criba, hacia 240 antes de Cristo.</p>
+<p>Aplicaciones que nombra la lección: compresión de datos informáticos. El material escribe comprensión, que es un cambio de significado y no una falta menor.</p>`,
+
+26:`<p><b>Principio de casillas.</b> Con m objetos en n casillas y <b>m &gt; n</b>, por lo menos una casilla recibe al menos dos objetos.</p>
+<p>La desigualdad es estricta. Con m = n existe la distribución uno a uno, así que el principio no concluye nada: 9 objetos pueden ir a 9 casillas de a uno.</p>
+<p><b>Forma generalizada</b>, que el material no da y el paquete toma de Biggs: con m objetos en n casillas, alguna casilla recibe al menos el <b>techo de m/n</b> objetos. Con m = n el techo da 1, que es justamente no concluir nada.</p>`+T_CASILLAS,
+
+27:`<p>El planteo del problema de los cumpleaños por mes:</p>
+<table><tr><th>Rol</th><th>Qué son</th><th>Cuántos</th></tr>
+<tr><td><b>Casillas</b></td><td>Los meses del año, que son las categorías del atributo</td><td>12</td></tr>
+<tr><td><b>Palomas</b></td><td>Las personas, que son los objetos a repartir</td><td>13</td></tr></table>
+<p>Como 13 &gt; 12, al menos dos personas caen en el mismo mes.</p>
+<p>Chequeo de sanidad: si el planteo da menos palomas que casillas, están invertidas. Las casillas son siempre las <b>categorías finitas</b> del atributo, no los objetos.</p>`+T_CASILLAS,
+
+28:`<p>Acá el enunciado no da las casillas: hay que <b>construirlas</b>. El atributo que importa es la pareja que suma 9.</p>
+<table><tr><th>Casilla</th><th>Par</th></tr>
+<tr><td>1</td><td>{1, 8}</td></tr><tr><td>2</td><td>{2, 7}</td></tr>
+<tr><td>3</td><td>{3, 6}</td></tr><tr><td>4</td><td>{4, 5}</td></tr></table>
+<p>Son <b>4 casillas</b> y se eligen <b>5 números</b>, las palomas. Como 5 &gt; 4, dos caen en la misma casilla, y dos números de la misma casilla suman 9.</p>
+<p>Tomar los 8 números como casillas es el error de no construirlas. El paso 5 del procedimiento, descartar explícitamente las casillas unitarias o especiales, es el que aparece en el ejercicio del subconjunto que suma 10, donde hay que justificar por qué la casilla repetida no puede ser la del 5.</p>`,
+
+29:`<p>El principio de casillas es un <b>resultado de existencia</b>. Prueba que hay una casilla con al menos dos objetos, pero no dice cuál.</p>
+<table><tr><th>Se confunde</th><th>Diferencia real</th></tr>
+<tr><td>Es muy probable y podemos asegurar</td><td>El principio da <b>certeza deductiva</b>, no estimación probabilística</td></tr>
+<tr><td>Existencia y construcción</td><td>Garantiza que existe, sin identificarla</td></tr></table>
+<p>Las dos confusiones tiran para lados opuestos: una lo debilita a probabilidad, la otra lo fortalece a identificación. El enunciado está justo en el medio.</p>`,
+
+30:`<p><b>C(n, k) = P(n, k) / k!</b>, o equivalentemente <b>P(n, k) = k! · C(n, k)</b>, que es la forma que tomó el TP del módulo 02.</p>
+<p>El porqué: una combinación de k elementos se puede ordenar de k! maneras distintas, y todas esas ordenaciones cuentan como permutaciones diferentes pero como una sola combinación. Por eso se divide por k!.</p>
+<p>Dividir por 2 en lugar de por k! es el error registrado, y da lo mismo solo cuando k = 2.</p>`+T_CONTEO,
+
+31:`<p>Los dos ejes de decisión, aplicados a este problema:</p>
+<table><tr><th>Pregunta</th><th>Respuesta</th><th>Consecuencia</th></tr>
+<tr><td>¿Importa el orden?</td><td>Sí, 123 y 321 son números distintos</td><td>Permutación</td></tr>
+<tr><td>¿Se puede repetir?</td><td>No, las cifras son distintas</td><td>Sin repetición</td></tr></table>
+<p><b>P(6, 3) = 6·5·4 = 120.</b> Seis opciones para la primera cifra, cinco para la segunda, cuatro para la tercera.</p>
+<p>Los distractores cubren las otras tres celdas del cuadro: C(6,3) = 20 ignora el orden, y 6³ = 216 permite repetir.</p>`+T_CONTEO,
+
+32:`<p>La regla es que <b>lo decide el enunciado, nunca los números</b>. Las opciones a y c de este ítem tienen los mismos números, siete y tres, y se resuelven distinto.</p>
+<table><tr><th>Situación</th><th>¿Importa el orden?</th><th>Fórmula</th></tr>
+<tr><td>Tres cargos distintos entre siete personas</td><td>Sí, presidente y tesorero no son lo mismo</td><td>P(7, 3) = 210</td></tr>
+<tr><td><b>Comité de tres entre siete</b></td><td><b>No, el comité es un conjunto</b></td><td><b>C(7, 3) = 35</b></td></tr>
+<tr><td>Ordenar cinco libros en un estante</td><td>Sí, la posición define el resultado</td><td>5! = 120</td></tr>
+<tr><td>Números de cuatro cifras sin repetir</td><td>Sí, el orden de las cifras cambia el número</td><td>P(n, 4)</td></tr></table>
+<p>Trampa de idioma: la combinación de una caja fuerte es en realidad una <b>permutación</b>, porque el orden importa. El sentido coloquial va al revés del técnico.</p>`+T_ELEGIR,
+
+33:`<p>Los dos ejes, aplicados a los dados:</p>
+<table><tr><th>Pregunta</th><th>Respuesta</th></tr>
+<tr><td>¿Importa el orden?</td><td>No. Indistinguibles significa que no se puede decir cuál dado sacó qué</td></tr>
+<tr><td>¿Se puede repetir?</td><td>Sí. Dos dados pueden sacar la misma cara</td></tr></table>
+<p>Sin orden y con repetición es <b>combinación con repetición</b>: C(n + k − 1, k) con n = 6 categorías y k = 4 dados, es decir <b>C(9, 4) = 126</b>.</p>
+<p>Trampa central: <b>indistinguibles significa que no importa el orden, no que las caras no coincidan</b>. Elegir C(6, 4) prohibiría que dos dados sacaran lo mismo, que no es lo que dice el enunciado.</p>
+<p>Caso del material con tres dados: C(6 + 3 − 1, 3) = C(8, 3) = 56.</p>
+<p>Hueco declarado: permutación y combinación con repetición no están en el material. La lectura 3 dice literalmente que hay fórmulas que hay que buscar en la bibliografía. El paquete las reconstruye y las verifica contra ese resultado 56.</p>`+T_CONTEO,
+
+34:`<p><b>Diagonales de un polígono de n lados = C(n, 2) − n.</b></p>
+<p>El razonamiento: cada par de vértices define un segmento, y esos pares son C(n, 2). De esos segmentos, n son <b>lados</b> del polígono y no cuentan como diagonales. El resto son las diagonales.</p>
+<table><tr><th>Paso</th><th>Cuenta</th></tr>
+<tr><td>Pares de vértices</td><td>C(8, 2) = 28</td></tr>
+<tr><td>Menos los lados</td><td>− 8</td></tr>
+<tr><td><b>Diagonales</b></td><td><b>20</b></td></tr></table>
+<p>El 28 es el distractor: es el conteo correcto de segmentos, sin descontar los lados.</p>
+<p>Hueco declarado: las diagonales de un polígono aparecieron en la pregunta 14 del TP del módulo 02 sin figurar en las lecturas. El paquete solo enuncia la fórmula.</p>`,
+
+35:`<p>El disparador está en la conjunción del enunciado:</p>
+<table><tr><th>Si el enunciado dice</th><th>Principio</th><th>Operación</th></tr>
+<tr><td>Un sabor <b>y</b> un cucurucho, las dos etapas ocurren</td><td>Multiplicación</td><td>7 · 4 = 28</td></tr>
+<tr><td>De la forma A <b>o</b> de la forma B, alternativas excluyentes</td><td>Adición</td><td>6 + 5 = 11</td></tr></table>
+<p>Los dos casos aparecieron en el TP del módulo 02, uno en cada sentido, y se resuelven leyendo si las opciones se excluyen entre sí o si se encadenan.</p>`+T_ELEGIR,
+
+36:`<p>Un conjunto de n elementos tiene <b>2ⁿ subconjuntos</b> y <b>2ⁿ − 1</b> no vacíos.</p>
+<p>El porqué: para armar un subconjunto se decide, elemento por elemento, si entra o no entra. Son n decisiones binarias independientes, es decir 2ⁿ resultados. El conjunto vacío es el caso en que todas las decisiones fueron no entra.</p>
+<table><tr><th>n</th><th>Subconjuntos</th><th>No vacíos</th></tr>
+<tr><td>5</td><td>32</td><td>31</td></tr>
+<tr><td>6</td><td><b>64</b></td><td><b>63</b></td></tr></table>
+<p>Los distractores son fórmulas cambiadas: 720 es 6! y 36 es 6². El cardinal del conjunto de partes es 2 elevado a n, nunca n factorial.</p>
+<p>Hueco declarado: el cardinal del conjunto de partes apareció en la pregunta 12 del TP del módulo 02 sin figurar en las lecturas. El paquete lo enuncia sin demostración.</p>`,
+
+115:`<p>La <b>identidad</b> f(z) = z es el caso de control para verificar que el criterio esté bien aplicado.</p>
+<p><b>Inyectiva:</b> f(a) = f(b) da a = b de forma inmediata, sin despejar nada.</p>
+<p><b>Suryectiva:</b> dado cualquier entero y, su preimagen es el propio y, porque f(y) = y. Todo elemento del codominio se alcanza.</p>
+<p>Es <b>biyectiva</b>, y su inversa es ella misma: (f ∘ f)(z) = z.</p>
+<p>Comparada con las otras del material sobre Z: f(z) = 3z y f(z) = 3z + 2 son inyectivas pero no suryectivas, porque su imagen es un subconjunto propio de Z.</p>`,
+
+116:`<p><b>Codominio</b> es el conjunto Y de llegada, el que aparece en la notación f: X ⟶ Y. <b>Imagen</b> es el subconjunto de Y formado por los f(x) que efectivamente se alcanzan.</p>
+<table><tr><th>Función sobre Z</th><th>Codominio</th><th>Imagen</th><th>¿Suryectiva?</th></tr>
+<tr><td>f(z) = z</td><td>Z</td><td>Z</td><td>Sí</td></tr>
+<tr><td>f(z) = 3z</td><td>Z</td><td>Múltiplos de 3</td><td>No</td></tr>
+<tr><td>f(z) = 3z + 2</td><td>Z</td><td>Múltiplos de 3 más 2</td><td>No</td></tr></table>
+<p>La imagen siempre está contenida en el codominio, y <b>coinciden exactamente cuando la función es suryectiva</b>. Esa equivalencia es la forma corta de decidir suryectividad.</p>`,
+
+117:`<p>La misma fórmula cambia de clasificación según el conjunto sobre el que esté definida. Antes de responder hay que mirar el dominio y el codominio, no la expresión.</p>
+<table><tr><th>f(x) = 2x</th><th>Inyectiva</th><th>Suryectiva</th><th>Resultado</th></tr>
+<tr><td>Sobre R</td><td>Sí</td><td>Sí, la preimagen de y es y/2 y siempre es real</td><td>Biyectiva</td></tr>
+<tr><td>Sobre Z</td><td>Sí</td><td>No, ningún impar tiene preimagen entera</td><td>Solo inyectiva</td></tr></table>
+<p>La inyectividad se conserva al restringir el dominio, la suryectividad no. Es la asimetría que explica todos los casos de esta lección.</p>`,
+
+118:`<p><b>Forma simple.</b> Con m objetos en n casillas y m &gt; n, alguna casilla recibe al menos <b>dos</b> objetos.</p>
+<p><b>Forma generalizada.</b> Con m objetos en n casillas, alguna casilla recibe al menos el <b>techo de m/n</b> objetos.</p>
+<table><tr><th>m</th><th>n</th><th>Techo de m/n</th><th>Conclusión</th></tr>
+<tr><td>13</td><td>12</td><td>2</td><td>Alguna casilla con al menos 2</td></tr>
+<tr><td>25</td><td>12</td><td>3</td><td>Alguna casilla con al menos 3</td></tr>
+<tr><td>9</td><td>9</td><td>1</td><td>No concluye nada</td></tr></table>
+<p>El techo redondea hacia arriba, y el piso hacia abajo. Usar el piso daría 1 en el primer caso, que no concluye nada, y por eso la fórmula lleva techo.</p>
+<p>Hueco declarado: la lectura 2 solo da el caso de dos objetos. La forma generalizada está tomada de Biggs. Conviene confirmar con la cátedra si entra.</p>`,
+
+119:`<p>De 0 a k hay <b>k + 1</b> valores, porque el cero cuenta. De 0 a 200.000 hay <b>200.001</b> casillas.</p>
+<p>Para que el principio concluya hace falta m &gt; n estricto, así que con 200.001 casillas hacen falta <b>200.002</b> palomas.</p>
+<p>Errata del material: el ejercicio de los cabellos plantea una ciudad de 200.001 habitantes, que es exactamente el caso m = n donde el principio no concluye nada. Es el mismo error de conteo que el ítem evalúa.</p>
+<p>El paso 1 del procedimiento lo advierte: contar las casillas con cuidado cuando el rango arranca en cero.</p>`,
+
+120:`<p>Ocho personas en ocho butacas es <b>permutación sin repetición con n = k</b>, es decir P(n, n) = n!.</p>
+<p>La fórmula general P(n, k) = n! / (n − k)! con n = k da n! / 0!, y como <b>0! = 1</b> queda n!. Por eso P(8, 8) = 8! = 40.320.</p>
+<p>C(8, 8) = 1 porque la combinación ignora el orden: hay una sola forma de elegir a las ocho personas, pero muchas de sentarlas.</p>
+<p>El TP del módulo 02 tomó el caso equivalente: números de 5 cifras con {1,2,3,4,5} sin repetir son <b>5!</b>.</p>`+T_CONTEO,
+
+121:`<p>El eje es si n es igual a k o si n es mayor que k.</p>
+<table><tr><th>Situación</th><th>Fórmula</th><th>Por qué</th></tr>
+<tr><td>8 personas en 8 butacas</td><td>8! = 40.320</td><td>Todas las posiciones se llenan</td></tr>
+<tr><td><b>8 personas en 10 butacas</b></td><td><b>P(10, 8)</b></td><td>Hay que elegir además cuáles 2 butacas quedan vacías</td></tr></table>
+<p>Cuando sobran posiciones, decidir cuáles se usan forma parte del conteo. Por eso los dos problemas no son equivalentes, y esa fue la respuesta que el TP del módulo 02 dio por correcta.</p>
+<p>Otro caso del mismo TP, con la corrección del paquete: las ordenaciones de las letras de la palabra lectura que empiezan por vocal se cuentan en dos etapas, <b>3 · 6! = 2160</b>, tres opciones de vocal inicial por las permutaciones de las seis letras restantes.</p>`+T_CONTEO,
+
+122:`<p>Los dos principios y su disparador en el enunciado:</p>
+<table><tr><th>Principio</th><th>Cuándo aplica</th><th>Operación</th><th>Ejemplo del material</th></tr>
+<tr><td><b>Adición</b></td><td>Alternativas <b>excluyentes</b>, del tipo o una o la otra</td><td>Se suman</td><td>Forma A con 6 opciones o forma B con 5: 11</td></tr>
+<tr><td><b>Multiplicación</b></td><td>Etapas que ocurren <b>todas</b></td><td>Se multiplican</td><td>7 sabores y 4 cucuruchos: 28</td></tr></table>
+<p>Los dos casos aparecieron en el TP del módulo 02 y siete de sus veinte preguntas se resolvían eligiendo bien entre permutación y combinación o entre adición y multiplicación.</p>`+T_ELEGIR,
+
+123:`<p>Invitar a uno o más de 5 amigos es contar todos los subconjuntos <b>excepto el vacío</b>: 2⁵ − 1 = <b>31</b>.</p>
+<p>El vacío correspondería a no invitar a nadie, que el uno o más excluye.</p>
+<table><tr><th>Enunciado</th><th>Cuenta</th></tr>
+<tr><td>Cualquier grupo, incluido ninguno</td><td>2ⁿ</td></tr>
+<tr><td>Uno o más, al menos uno</td><td>2ⁿ − 1</td></tr></table>
+<p>Este ítem cayó en el TP del módulo 02. La palabra que decide es <b>uno o más</b>, y por eso conviene subrayar los al menos del enunciado antes de contar.</p>
+<p>Regla general para los al menos: desarmarlos en escenarios <b>disjuntos</b> y verificar que la suma de los escenarios más el complemento dé el total sin restricciones. Acá el complemento es un solo caso, el vacío.</p>`,
+
+124:`<p><b>Simetría.</b> C(n, r) = C(n, n − r). Elegir cuáles r entran es lo mismo que elegir cuáles n − r quedan afuera.</p>
+<p>C(15, 12) = C(15, 3) = <b>455</b>, y calcularlo por el lado del 3 es mucho más corto.</p>
+<p>El error de la opción b es escribir 15!/12! y olvidar el factorial de la diferencia. La fórmula completa es <b>C(n, k) = n! / (k!·(n − k)!)</b>. Sin el (n − k)! lo que queda es P(15, 3), la permutación.</p>
+<p>El otro caso de simetría del TP: elegir cuatro pinturas distintas entre cinco tipos son C(5, 4) = C(5, 1) = <b>5</b>.</p>
+<p><b>Valores que conviene tener de memoria porque aparecieron en el TP:</b> C(4,2)=6, C(5,2)=10, C(5,3)=10, C(5,4)=5, C(6,2)=15, C(8,3)=56, C(9,4)=126, C(9,5)=126, C(10,2)=45, C(10,7)=120, C(15,3)=455, C(25,2)=300, C(35,3)=6545.</p>`,
+
+125:`<p><b>Jerarquía de tamaño con k menor o igual que n:</b> n! es el mayor, después P(n, k), después C(n, k).</p>
+<table><tr><th>Símbolo</th><th>Fórmula</th><th>Relación</th></tr>
+<tr><td>n!</td><td>n · (n−1) · … · 1</td><td>Es P(n, n), el caso con todas las posiciones a llenar</td></tr>
+<tr><td>P(n, k)</td><td>n! / (n − k)!</td><td>Divide n! por el factorial de lo que sobra</td></tr>
+<tr><td>C(n, k)</td><td>n! / (k!·(n − k)!)</td><td>Divide además por k!, así que nunca supera a P</td></tr></table>
+<p>Con n = 6 y k = 3: 6! = 720, P(6, 3) = 120, C(6, 3) = 20.</p>
+<p>Hueco declarado: la jerarquía entre los tres símbolos apareció en la pregunta 13 del TP del módulo 02 y el paquete solo la enuncia.</p>`
+};
+
+/* Teoría y definición de las preguntas de respuestas múltiples */
+Object.assign(DEF,{201:DEF[10],202:DEF[112],203:DEF[20],204:DEF[124]});
+Object.assign(AMP,{201:AMP[10],202:AMP[112],203:AMP[20],204:AMP[124]});
+
+
+/* ---------- Banco 2: los trabajos prácticos ya tomados ---------- */
+const TPS = [
+
+/* ===== TP 1 · Módulo 01 · 96,67 sobre 100 ===== */
+
+{n:1001,orig:1,inst:"TP 1",tema:"Sistemas de numeración",tipo:"texto",fid:"catedra",
+ q:"El número 33 en base dos se representa como __________.",
+ acepta:["100001"],sol:"100001",
+ just:"33 = 32 + 1 = 2⁵ + 2⁰, así que los bits encendidos son el de posición 5 y el de posición 0.",
+ dist:"Era de completar, sin opciones. El error típico es leer los restos en el orden en que salieron: se leen del último al primero.",
+ ref:"M01 L1"},
+
+{n:1002,orig:2,inst:"TP 1",tema:"Inducción",tipo:"vf",fid:"catedra",
+ q:"La hipótesis de inducción es suponer que la propiedad vale para un n cualquiera.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"La hipótesis inductiva asume P(n) para un n genérico ya alcanzado, y desde ahí se prueba P(n+1).",
+ dist:"El adjetivo cualquiera es lo que la hace verdadera. Si dijera para todo n, sería la conclusión y no la hipótesis.",
+ ref:"M01 L4"},
+
+{n:1003,orig:3,inst:"TP 1",tema:"MCM",tipo:"vf",fid:"catedra",
+ q:"El MCM de a y b es el mínimo entero positivo que tiene como factor a a y a b simultáneamente.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Es la definición: el menor entero positivo que es múltiplo de los dos, es decir que los contiene como factores.",
+ dist:"La versión dada vuelta sería la del MCD, donde el resultado divide a los números en lugar de contenerlos.",
+ ref:"M01 L3"},
+
+{n:1004,orig:4,inst:"TP 1",tema:"MCM",tipo:"mc",fid:"propio",
+ q:"Si a y b son coprimos, el MCM entre a y b es igual a:",
+ op:["a · b","1","a + b","El mayor de los dos","(a · b) / 2"],ok:0,
+ just:"De MCD(a,b) · MCM(a,b) = a·b, con MCD igual a 1, queda MCM = a·b.",
+ dist:"El 1 es el MCD de dos coprimos, no el MCM. Cruzar los dos resultados es el error del ítem.",
+ ref:"M01 L3"},
+
+{n:1005,orig:5,inst:"TP 1",tema:"MCD",tipo:"mc",fid:"propio",
+ q:"El MCD(315, 15) es igual a:",
+ op:["15","5","21","3","315"],ok:0,
+ just:"315 = 15 · 21, así que 15 divide a 315 y no hay divisor común mayor que el propio 15.",
+ dist:"El 21 es el cociente, no el divisor común. Cuando uno de los dos números divide al otro, el MCD es directamente el más chico.",
+ ref:"M01 L3"},
+
+{n:1006,orig:6,inst:"TP 1",tema:"Teorema fundamental",tipo:"mc",fid:"propio",
+ q:"Expresar 231 como producto de los primos 3, 7 y 11 corresponde al:",
+ op:["Teorema fundamental de la aritmética","Lema de Euclides","Algoritmo de la división","Teorema de la raíz","Algoritmo de Euclides"],ok:0,
+ just:"Ese teorema garantiza que todo entero mayor que 1 se factoriza en primos de forma única, salvo el orden.",
+ dist:"El lema de Euclides habla de qué pasa cuando un primo divide a un producto, no de la factorización. El teorema de la raíz sirve para probar primalidad, no para descomponer.",
+ ref:"M01 L2"},
+
+{n:1007,orig:7,inst:"TP 1",tema:"Inducción",tipo:"mc",fid:"mixto",
+ q:"¿Cuál es el primer paso para demostrar por inducción la fórmula de una sumatoria?",
+ op:["Verificar la igualdad numérica en n = 1","Enunciar la hipótesis de inducción","Plantear la tesis para n + 1","Suponer que la propiedad es falsa y buscar la contradicción","Verificar la propiedad desde n = 1 hasta n = 5"],ok:0,
+ just:"El primer paso es el caso base: evaluar la fórmula en el primer valor y mostrar la cuenta.",
+ dist:"La opción d es demostración por el absurdo, que es la estructura de la prueba de primalidad. La e es verificación y no demostración, por más casos que se agreguen.",
+ ref:"M01 L4"},
+
+{n:1008,orig:8,inst:"TP 1",tema:"Inducción",tipo:"mc",fid:"mixto",
+ q:"El principio de inducción se usa para probar P(n) para cualquier número:",
+ op:["Natural","Entero","Real","Racional","Complejo"],ok:0,
+ just:"La inducción se apoya en el buen orden de los naturales. En los reales o los complejos no hay siguiente.",
+ dist:"Los enteros tampoco sirven: no tienen primer elemento hacia abajo, así que no habría caso base del cual arrancar.",
+ ref:"M01 L4"},
+
+{n:1009,orig:9,inst:"TP 1",tema:"Números primos",tipo:"vf",fid:"catedra",
+ q:"Todos los números impares son primos.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Contraejemplo inmediato: 9 = 3 · 3 es impar y compuesto.",
+ dist:"El error simétrico es descartar el 2 por ser par. El 2 es primo, y es el único primo par.",
+ ref:"M01 L2"},
+
+{n:1010,orig:10,inst:"TP 1",tema:"Sistemas de numeración",tipo:"mc",fid:"propio",
+ q:"La notación binaria tiene una desventaja. ¿Cuál es?",
+ op:["Requiere mucho más espacio que la notación decimal","No permite representar números negativos","No permite hacer operaciones aritméticas","Necesita más símbolos distintos que la decimal","Solo sirve dentro de una computadora"],ok:0,
+ just:"Con solo dos dígitos hacen falta muchas más posiciones para representar el mismo valor.",
+ dist:"La opción d dice justo lo contrario: el binario usa menos símbolos, dos en lugar de diez. Esa es la causa de la desventaja, no otra desventaja.",
+ ref:"M01 L1"},
+
+{n:1011,orig:11,inst:"TP 1",tema:"Números primos",tipo:"ms",fid:"catedra",
+ q:"¿Cuáles de los siguientes números son primos?",
+ op:["641","1999","989","8400"],ok:[0,1],
+ just:"989 = 23 · 43 y 8400 es par. Ni 641 ni 1999 tienen divisores primos hasta su raíz cuadrada.",
+ dist:"Los distractores son los que puso la cátedra. El 989 es el peligroso: su factor más chico es 23, así que aparece recién después de descartar todos los primos hasta ahí. El 8400 se descarta de un vistazo por par.",
+ ref:"M01 L2"},
+
+{n:1012,orig:12,inst:"TP 1",tema:"Sumatoria",tipo:"vf",fid:"catedra",
+ q:"La sumatoria de 1/(i(i+1)) desde i = 1 hasta n simboliza 1/2 + 1/6 + 1/12 + … + 1/(n(n+1)).",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Reemplazando i = 1, 2 y 3 se obtienen 1/2, 1/6 y 1/12, y el último término coincide con i = n.",
+ dist:"La forma de resolver estos ítems es evaluar los primeros índices y comparar contra la lista, no intentar reconocer la fórmula de memoria.",
+ ref:"M01 L4"},
+
+{n:1013,orig:13,inst:"TP 1",tema:"Inducción",tipo:"ms",fid:"catedra",
+ q:"Marcá los pasos válidos para probar por inducción que el producto de tres enteros consecutivos es divisible por 6.",
+ op:["Verificar que 6 divide a 1·2·3","Suponer válido que 6 divide a n·(n+1)·(n+2)","Demostrar que 6 divide a (n+1)·(n+2)·(n+3)","Suponer válido que n·(n+1)·(n+2) divide a 6","Demostrar que (n+1)·(n+2)·(n+3) divide a 6"],ok:[0,1,2],
+ just:"Son caso base, hipótesis inductiva y tesis inductiva, en ese orden.",
+ dist:"Las dos falsas son las de la cátedra y las dos invierten la relación de divisibilidad. La barra tiene dirección: 6 divide al producto, no al revés. Es el error más fácil de cometer leyendo rápido.",
+ ref:"M01 L4"},
+
+{n:1014,orig:14,inst:"TP 1",tema:"Números primos",tipo:"vf",fid:"catedra",
+ q:"Si t tiene sólo 2 divisores distintos, entonces t es primo.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Como 1 y t siempre son divisores, tener exactamente dos obliga a que sean esos y ningún otro.",
+ dist:"Esta formulación es justo la que deja al 1 afuera: tiene un solo divisor positivo, así que no llega a dos.",
+ ref:"M01 L2"},
+
+{n:1015,orig:15,inst:"TP 1",tema:"Teorema fundamental",tipo:"mc",fid:"propio",
+ q:"La descomposición en factores primos de 630 es:",
+ op:["2 · 3² · 5 · 7","2² · 3 · 5 · 7","2 · 3 · 5 · 7","2 · 3² · 35","6 · 105"],ok:0,
+ just:"630 = 2 · 315 = 2 · 3 · 105 = 2 · 3 · 3 · 35 = 2 · 3² · 5 · 7.",
+ dist:"Las opciones d y e no están factorizadas del todo, porque 35 y 105 no son primos. La c pierde un 3 y da 210.",
+ ref:"M01 L2"},
+
+{n:1016,orig:16,inst:"TP 1",tema:"Lema de Euclides",tipo:"mc",fid:"mixto",
+ q:"¿Cuál afirmación es correcta para todos los enteros a, b y c?",
+ op:["Si a divide a b·c y a es primo, entonces a divide a b o a divide a c","Si a divide a b·c, entonces a divide a b o a divide a c","Si a divide a b, entonces b divide a a","Si a divide a b y a divide a c, entonces a divide a b + c solo cuando a es primo","Si a es primo y a divide a b, entonces a divide a c"],ok:0,
+ just:"Es el lema de Euclides, y la hipótesis de primalidad es imprescindible.",
+ dist:"La opción b saca esa hipótesis y con eso se vuelve falsa: 6 divide a 4 · 3 pero no divide ni a 4 ni a 3. Ese es el contraejemplo que registra la cátedra.",
+ ref:"M01 L2"},
+
+{n:1017,orig:17,inst:"TP 1",tema:"Axiomas de Z",tipo:"mc",fid:"catedra",
+ q:"¿Cuál de estos axiomas dice que existe un neutro aditivo en Z?",
+ op:["Para todo a existe 0 tal que a + 0 = a","Para todo a existe −a tal que a + (−a) = 0","Para todo a y b vale a + b = b + a","Para todo a y b, a + b pertenece a Z","Para todo a vale a · 1 = a"],ok:0,
+ just:"El neutro es el elemento que deja invariante a cualquier a.",
+ dist:"Las tres primeras descartadas son las que puso la cátedra: opuesto, conmutatividad y cierre. La e es el neutro del producto, no el de la suma.",
+ ref:"M01 L1"},
+
+{n:1018,orig:18,inst:"TP 1",tema:"Números primos",tipo:"vf",fid:"catedra",
+ q:"La cantidad de números primos que hay es infinita.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Teorema de Euclides. Suponer una lista finita de primos lleva a construir N = p₁···pₖ + 1 y a una contradicción.",
+ dist:"Ese número nuevo no es divisible por ninguno de la lista, porque siempre deja resto 1, así que o es primo o tiene un factor primo que no estaba.",
+ ref:"M01 L2"},
+
+{n:1019,orig:19,inst:"TP 1",tema:"Sumatoria",tipo:"mc",fid:"propio",
+ q:"La suma 1² + 3² + 5² + … se simboliza con la sumatoria desde i = 1 de:",
+ op:["(2i − 1)²","i²","(2i + 1)²","(i − 1)²","(2i)²"],ok:0,
+ just:"2i − 1 genera los impares 1, 3, 5, … arrancando en i = 1.",
+ dist:"La opción c arranca en 3 y se saltea el 1. Correrse un índice al armar el término general es el error típico.",
+ ref:"M01 L4"},
+
+{n:1020,orig:20,inst:"TP 1",tema:"Sistemas de numeración",tipo:"texto",fid:"catedra",
+ q:"El número binario 10011101 en base diez es __________.",
+ acepta:["157"],sol:"157",
+ just:"128 + 0 + 0 + 16 + 8 + 4 + 0 + 1 = 157.",
+ dist:"Era de completar, sin opciones. La posición más a la derecha vale 2⁰, no 2¹: ahí se pierde el punto.",
+ ref:"M01 L1"},
+
+/* ===== TP 2 · Módulo 02 · 95 sobre 100 ===== */
+
+{n:1051,orig:1,inst:"TP 2",tema:"Permutación y combinación",tipo:"mc",fid:"propio",
+ q:"¿Qué fórmula relaciona la permutación y la combinación de k elementos de un conjunto de n?",
+ op:["C(n, k) = k! · P(n, k)","P(n, k) = C(n, k) / k!","C(n, k) = n! · P(n, k)","P(n, k) = k! · C(n, k)","P(n, k) = C(n, k) · n!"],ok:3,
+ just:"La lección da C(n, k) = P(n, k) / k!. Despejando queda P(n, k) = k! · C(n, k). Es la misma relación escrita al revés.",
+ dist:"Las opciones a y b son la misma relación con la división para el lado equivocado. Una permutación es una combinación ordenada, así que P siempre es mayor o igual que C.",
+ ref:"M02 L3"},
+
+{n:1052,orig:2,inst:"TP 2",tema:"Funciones",tipo:"vf",fid:"catedra",
+ q:"La función f: Z ⟶ Z definida por f(z) = z es biyectiva.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"La identidad es inyectiva, porque de f(a) = f(b) sale a = b, y suryectiva, porque cada y tiene preimagen y.",
+ dist:"Es el caso de control: si el criterio operativo no da acá, está mal aplicado.",
+ ref:"M02 L1"},
+
+{n:1053,orig:3,inst:"TP 2",tema:"Composición",tipo:"mc",fid:"propio",
+ q:"Con f(z) = z² y g(z) = z + 1, la composición f ∘ g es:",
+ op:["z² + 1","(z + 1)²","z² · (z + 1)","z + 1","(z² + 1)²"],ok:1,
+ just:"En f ∘ g se aplica primero g, la de la derecha. Se obtiene f(z + 1) = (z + 1)².",
+ dist:"La opción a es g ∘ f, es decir aplicar primero f. Invertir el orden es el error más frecuente de la lección.",
+ ref:"M02 L1"},
+
+{n:1054,orig:4,inst:"TP 2",tema:"Principio de casillas",tipo:"mc",fid:"propio",
+ q:"¿Cuántas personas hay que elegir entre 8 mujeres y sus esposos para garantizar que quede al menos un matrimonio completo?",
+ op:["9","8","16","17","2"],ok:0,
+ just:"Las 8 parejas son las casillas y las personas elegidas son las palomas. Con 9 se supera el 8 y alguna pareja queda completa.",
+ dist:"El 8 es el caso m = n, donde el principio no concluye nada: podrían salir los 8 maridos. Las casillas hay que construirlas, y acá son las parejas, no las personas.",
+ ref:"M02 L2"},
+
+{n:1055,orig:5,inst:"TP 2",tema:"Adición y multiplicación",tipo:"mc",fid:"propio",
+ q:"Una tarea puede hacerse de la forma A, con 6 opciones, o de la forma B, con 5 opciones. ¿De cuántas maneras puede realizarse?",
+ op:["30","11","6","5","15"],ok:1,
+ just:"Principio de adición. Las dos formas son excluyentes y la palabra que lo delata es la o.",
+ dist:"El 30 aplica multiplicación, que corresponde a etapas que ocurren todas. Acá se elige un camino o el otro, no los dos.",
+ ref:"M02 L4"},
+
+{n:1056,orig:6,inst:"TP 2",tema:"Funciones",tipo:"texto",fid:"catedra",
+ q:"Completar. f es inyectiva si f(a) = f(b) implica __________.",
+ acepta:["a = b","a=b"],sol:"a = b",
+ just:"Es el criterio operativo de inyectividad que la lección marca en recuadro aparte.",
+ dist:"Era de completar. Un contraejemplo solo sirve para refutar inyectividad, nunca para confirmarla.",
+ ref:"M02 L1"},
+
+{n:1057,orig:7,inst:"TP 2",tema:"Permutación y combinación",tipo:"vf",fid:"catedra",
+ q:"Sentar ocho personas en ocho butacas es un problema de permutación sin repetición.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Importa el orden y una persona no ocupa dos butacas. Es P(8, 8) = 8!.",
+ dist:"Es el ejemplo de butacas de la lección 4, con 8! y no 7!.",
+ ref:"M02 L3"},
+
+{n:1058,orig:8,inst:"TP 2",tema:"Permutación y combinación",tipo:"mc",fid:"propio",
+ q:"¿Qué fórmula cuenta los números de 5 cifras que se pueden formar con {1, 2, 3, 4, 5} sin repetir?",
+ op:["5!","5⁵","C(5, 5)","P(5, 4)","4!"],ok:0,
+ just:"Se usan los 5 elementos en los 5 lugares, así que es P(5, 5) = 5! / 0! = 5!.",
+ dist:"C(5, 5) da 1 porque ignora el orden, y acá el orden es todo el problema. 5⁵ permitiría repetir cifras.",
+ ref:"M02 L3"},
+
+{n:1059,orig:9,inst:"TP 2",tema:"Funciones",tipo:"ms",fid:"mixto",
+ q:"Sobre f(z) = 3z y g(z) = 3z + 1, las dos de Z en Z, marcá todas las afirmaciones correctas.",
+ op:["Ni f ni g son suryectivas","f es biyectiva","Tanto f como g son funciones en Z","g no es función porque suma 1","Las dos son inyectivas"],ok:[0,2,4],
+ just:"Están definidas para todo entero y con valor único, así que son funciones. De 3a = 3b sale a = b en las dos. Y ninguna alcanza los enteros que no son múltiplos de 3, o de 3 más uno.",
+ dist:"Las tres correctas son las que marcó la cátedra, en las mismas posiciones A, C y E. La opción b confunde inyectiva con biyectiva: le falta la suryectividad.",
+ ref:"M02 L1"},
+
+{n:1060,orig:10,inst:"TP 2",tema:"Funciones",tipo:"mc",fid:"propio",
+ q:"En un diagrama donde los elementos a y b del conjunto de partida apuntan los dos al mismo elemento x, la relación:",
+ op:["No es función, porque x recibe dos flechas","Es función","Es función inyectiva","Es función suryectiva","Es biyectiva"],ok:1,
+ just:"Cada elemento del conjunto de partida tiene una única flecha, así que se cumplen totalidad y unicidad.",
+ dist:"La opción a mira el conjunto equivocado: la unicidad se exige sobre el que sale, no sobre el que llega. Que x reciba dos flechas rompe la inyectividad, no la condición de función.",
+ ref:"M02 L1"},
+
+{n:1061,orig:11,inst:"TP 2",tema:"Combinaciones",tipo:"mc",fid:"propio",
+ q:"Contar los subconjuntos de p elementos de un conjunto de t elementos, sin importar el orden, es C(t, p).",
+ op:["Falso, porque los subconjuntos se cuentan con permutaciones","Verdadero, porque si no importa el orden estamos hablando de combinaciones","Falso, porque en un subconjunto sí importa el orden","Verdadero, pero solo si p es menor que t","Falso, porque habría que dividir además por t!"],ok:1,
+ just:"La combinación es la selección desordenada y sin repetición, que es exactamente la definición de subconjunto.",
+ dist:"La opción d agrega una condición que no existe: con p igual a t da C(t, t) = 1, que es correcto, el conjunto entero.",
+ ref:"M02 L4"},
+
+{n:1062,orig:12,inst:"TP 2",tema:"Conjunto de partes",tipo:"mc",fid:"propio",
+ q:"¿De cuántas maneras se puede invitar a uno o más de 5 amigos?",
+ op:["32","5","31","25","120"],ok:2,
+ just:"Es la suma de todos los subconjuntos no vacíos: 2⁵ − 1 = 31. Equivale a C(5,1) + C(5,2) + C(5,3) + C(5,4) + C(5,5).",
+ dist:"El 32 es 2⁵ e incluye el conjunto vacío, que sería no invitar a nadie. El uno o más del enunciado es lo que obliga a restar 1.",
+ ref:"M02 L4"},
+
+{n:1063,orig:13,inst:"TP 2",tema:"Permutación y combinación",tipo:"mc",fid:"propio",
+ q:"Con k menor o igual que n, ¿cuál símbolo representa la mayor cantidad?",
+ op:["n!","P(n, k)","C(n, k)","C(n, k) · k!","Los tres primeros son iguales"],ok:0,
+ just:"n! es P(n, n), el caso máximo de permutación, y toda combinación es una permutación dividida por k!.",
+ dist:"La opción d es exactamente P(n, k), así que no puede superar a n!. La jerarquía es n!, después P, después C.",
+ ref:"M02 L3"},
+
+{n:1064,orig:14,inst:"TP 2",tema:"Combinaciones",tipo:"mc",fid:"propio",
+ q:"La cantidad de diagonales de un polígono regular de n lados es:",
+ op:["C(n, 2) − n","C(n, 2)","C(n, 2) + n","n! / 2","n · (n − 1)"],ok:0,
+ just:"Los pares de vértices son C(n, 2), y a ese total hay que restarle los n lados, que no cuentan como diagonales.",
+ dist:"La opción b es la trampa: cuenta bien los segmentos entre vértices, pero se olvida de descontar los lados.",
+ ref:"M02 L4"},
+
+{n:1065,orig:15,inst:"TP 2",tema:"Combinaciones",tipo:"ms",fid:"catedra",
+ q:"Marcá todas las igualdades correctas.",
+ op:["C(5, 2) = 10","C(15, 12) = 455","C(6, 2) = 20","C(4, 2) = 6","C(9, 5) = 126"],ok:[0,1,3,4],
+ just:"La única falsa es C(6, 2), que da 15 y no 20. En la segunda conviene usar la simetría: C(15, 12) = C(15, 3) = 455.",
+ dist:"La falsa es la que puso la cátedra. C(6, 2) = 6·5/2 = 15. El 20 sale de olvidarse de dividir por 2, que es contar pares ordenados en lugar de pares.",
+ ref:"M02 L4"},
+
+{n:1066,orig:16,inst:"TP 2",tema:"Combinaciones",tipo:"mc",fid:"propio",
+ q:"¿De cuántas formas se pueden elegir cuatro pinturas distintas entre cinco tipos?",
+ op:["20","120","5","625","24"],ok:2,
+ just:"C(5, 4) = C(5, 1) = 5. No importa el orden de elección.",
+ dist:"El 120 es P(5, 4), que sí ordena. Por simetría conviene pensarlo al revés: elegir cuáles cuatro entran es lo mismo que elegir cuál queda afuera, y hay cinco candidatas.",
+ ref:"M02 L4"},
+
+{n:1067,orig:17,inst:"TP 2",tema:"Combinaciones",tipo:"mc",fid:"propio",
+ q:"¿Cuántos comités de tres empleados se pueden formar entre 35?",
+ op:["39270","105","6545","595","1225"],ok:2,
+ just:"C(35, 3) = (35 · 34 · 33) / 6 = 6545. El comité no tiene orden.",
+ dist:"El 39270 es P(35, 3), que ordena a los tres integrantes como si fueran cargos distintos. Es el mismo par que la pregunta de presidente, secretario y tesorero, resuelto al revés.",
+ ref:"M02 L4"},
+
+{n:1068,orig:18,inst:"TP 2",tema:"Permutación y combinación",tipo:"mc",fid:"propio",
+ q:"Sentar ocho personas en diez butacas es equivalente al problema de ocho personas en ocho butacas.",
+ op:["Verdadero, porque las personas son las mismas","Falso, porque ahora hay que considerar en el ordenamiento las 2 butacas vacías","Falso, porque cambia la cantidad de personas","Verdadero, porque el orden no importa","Falso, porque habría que usar una combinación"],ok:1,
+ just:"Con 10 lugares y 8 personas la cuenta pasa a P(10, 8), que no es 8!. Las butacas vacías agregan posiciones posibles.",
+ dist:"El eje del ítem es si n es igual a k o si n es mayor que k. Cuando sobran posiciones, decidir cuáles se usan forma parte del conteo.",
+ ref:"M02 L3"},
+
+{n:1069,orig:19,inst:"TP 2",tema:"Adición y multiplicación",tipo:"mc",fid:"mixto",
+ q:"¿Cuántas ordenaciones de las letras de la palabra <i>lectura</i> empiezan por vocal?",
+ op:["3 · 6! = 2160","P(3,3) · P(6,6) = 4320","C(3,3) · P(6,6) = 720","7! = 5040","P(7,3) = 210"],ok:0,
+ just:"Se elige una de las tres vocales para la primera posición y se permutan las seis letras restantes: 3 · 6! = 2160.",
+ dist:"Ojo con esta, es la que perdiste. En el TP la marcaste como P(3,3) · P(6,6), y de hecho <b>ninguna de las opciones que ofrecía la cátedra daba 2160</b>: esa cuenta da 4320 porque permuta las tres vocales entre sí cuando solo hay que elegir una. Acá la opción correcta sí está.",
+ ref:"M02 L3"},
+
+{n:1070,orig:20,inst:"TP 2",tema:"Permutación y combinación",tipo:"mc",fid:"propio",
+ q:"¿De cuántas formas se pueden elegir presidente, secretario y tesorero en un comité de siete personas?",
+ op:["C(7, 3) = 35","P(7, 3) = 210","7³ = 343","7! = 5040","3! = 6"],ok:1,
+ just:"Los tres cargos son distintos, así que importa el orden. P(7, 3) = 7 · 6 · 5 = 210.",
+ dist:"C(7, 3) = 35 sería el comité sin cargos, y es exactamente la otra pregunta del mismo TP. Los mismos números se resuelven distinto según lo que diga el enunciado.",
+ ref:"M02 L3"}
+];
+
+/* Teoría y definición de las preguntas de los TPs */
+Object.assign(DEF,{
+ 1001:DEF[101],1002:DEF[112],1003:DEF[109],1004:DEF[110],1005:DEF[13],1006:DEF[11],
+ 1007:DEF[112],1008:DEF[114],1009:DEF[107],1010:DEF[101],1011:DEF[10],1012:DEF[113],
+ 1013:DEF[112],1014:DEF[108],1015:DEF[12],1016:DEF[105],1017:DEF[104],1018:DEF[106],
+ 1019:DEF[113],1020:DEF[102],
+ 1051:DEF[30],1052:DEF[115],1053:DEF[22],1054:DEF[27],1055:DEF[35],1056:DEF[21],
+ 1057:DEF[120],1058:DEF[120],1059:DEF[20],1060:DEF[19],1061:DEF[36],1062:DEF[123],
+ 1063:DEF[125],1064:DEF[34],1065:DEF[124],1066:DEF[124],1067:DEF[32],1068:DEF[121],
+ 1069:DEF[35],1070:DEF[32]});
+Object.assign(AMP,{
+ 1001:AMP[101],1002:AMP[112],1003:AMP[109],1004:AMP[110],1005:AMP[13],1006:AMP[11],
+ 1007:AMP[112],1008:AMP[114],1009:AMP[107],1010:AMP[102],1011:AMP[10],1012:AMP[113],
+ 1013:AMP[112],1014:AMP[108],1015:AMP[12],1016:AMP[105],1017:AMP[104],1018:AMP[106],
+ 1019:AMP[113],1020:AMP[102],
+ 1051:AMP[30],1052:AMP[115],1053:AMP[22],1054:AMP[27],1055:AMP[35],1056:AMP[21],
+ 1057:AMP[120],1058:AMP[120],1059:AMP[20],1060:AMP[19],1061:AMP[36],1062:AMP[123],
+ 1063:AMP[125],1064:AMP[34],1065:AMP[124],1066:AMP[124],1067:AMP[32],1068:AMP[121],
+ 1069:AMP[35],1070:AMP[32]});
+
+
+/* ---------- Banco 3: preguntero, verificado contra el material ---------- */
+const PREG = [
+
+/* ===== Contenido que el material no desarrolla ===== */
+
+{n:2001,orig:1,inst:"Fuera del material",tema:"Conteo",tipo:"mc",fid:"preguntero",
+ q:"Si el cardinal de la unión de dos conjuntos A y B es igual al cardinal de A más el cardinal de B, ¿para qué sirve el principio de tamiz?",
+ op:["Para evitar sumar repetidas veces los elementos que están simultáneamente en A y en B","Para sumar repetidas veces los elementos comunes","Para contar los elementos del producto cartesiano","Para ordenar los elementos de la unión"],ok:0,
+ just:"El tamiz, o inclusión y exclusión, resta la intersección para no contarla dos veces. Cuando los conjuntos son disjuntos la intersección es vacía y ahí sí vale la suma directa.",
+ dist:"El principio de tamiz <b>no está en tus ocho lecturas</b>. Aparece en los dos pregunteros y con la misma respuesta, así que conviene tenerlo. Es el complemento del principio de adición, que solo vale para conjuntos sin elementos en común.",
+ ref:"Fuera del material"},
+
+{n:2002,orig:2,inst:"Fuera del material",tema:"Conteo",tipo:"mc",fid:"preguntero",
+ q:"¿Qué dice el principio de multiplicación?",
+ op:["Que el cardinal de la unión de dos conjuntos disjuntos es la suma de sus cardinales","Que para contar los elementos del producto cartesiano de dos conjuntos A y B se multiplican los cardinales de ambos","Que toda combinación es una permutación dividida por k factorial","Que el cardinal de un conjunto de n elementos es 2 elevado a n"],ok:1,
+ just:"Es la formulación en términos de cardinales y producto cartesiano.",
+ dist:"La opción a es el principio de <b>adición</b>, con su condición de conjuntos sin elementos en común. Tu material los presenta como alternativas se suman y etapas se multiplican; el preguntero los toma con la formulación conjuntista, que es la misma idea escrita con cardinales.",
+ ref:"Fuera del material"},
+
+{n:2003,orig:3,inst:"Fuera del material",tema:"Números enteros",tipo:"mc",fid:"preguntero",
+ q:"El axioma del buen orden de los enteros afirma que:",
+ op:["Todo subconjunto de Z tiene un mínimo","Si X es un subconjunto de Z no vacío y tiene cota inferior, entonces X tiene mínimo","Todo entero tiene un siguiente y un anterior","Entre dos enteros siempre hay otro entero"],ok:1,
+ just:"Las dos condiciones son no vacío y acotado inferiormente. Sin cota inferior no hay mínimo: el conjunto de los enteros negativos no lo tiene.",
+ dist:"Es el axioma sobre el que se apoya la <b>inducción</b>, y por eso el principio vale sobre los naturales y no sobre los enteros, los reales ni los racionales. Tu material lo menciona al pasar; el preguntero lo pregunta con el enunciado completo.",
+ ref:"Fuera del material"},
+
+{n:2004,orig:4,inst:"Fuera del material",tema:"Números enteros",tipo:"ms",fid:"preguntero",
+ q:"Marcá las cuatro afirmaciones correctas sobre los axiomas de orden y producto en Z.",
+ op:["a · 0 = 0","Si a ≤ b, entonces a + c ≤ b + c","Si a ≤ b y 0 ≤ c, entonces a·c ≤ b·c","Si a ≤ b y c ≤ 0, entonces b·c ≤ a·c","Si a ≤ b y c ≤ 0, entonces a·c ≤ b·c"],ok:[0,1,2,3],
+ just:"Multiplicar por un número negativo invierte la desigualdad, por eso la cuarta va con b·c ≤ a·c y la quinta es falsa.",
+ dist:"Las propiedades algebraicas y de orden de Z son uno de los <b>huecos declarados</b> en la sección 11.3 de tu paquete: se evalúan y la lectura 1 no las desarrolla, remite a Espinosa Armenta. El preguntero las trae, y aparecen dos veces en la misma lista.",
+ ref:"Fuera del material"},
+
+{n:2005,orig:5,inst:"Fuera del material",tema:"Conjuntos",tipo:"mc",fid:"preguntero",
+ q:"Dado un conjunto X no vacío, ¿cuándo se puede decir que es infinito?",
+ op:["Si tiene más de mil elementos","Si y sólo si existe una inyección de los naturales en X","Si y sólo si existe una inyección de X en los naturales","Si no se puede escribir por extensión"],ok:1,
+ just:"Que los naturales entren dentro de X, sin repetir destino, es lo que garantiza que X no se agote.",
+ dist:"Ojo con la dirección de la flecha: la opción c invierte la inyección y es la trampa. Y un conjunto infinito es <b>contable</b> cuando existe una <b>biyección</b> entre él y los naturales, no una inyección.",
+ ref:"Fuera del material"},
+
+{n:2006,orig:6,inst:"Fuera del material",tema:"Conjuntos",tipo:"mc",fid:"preguntero",
+ q:"Un conjunto infinito X es contable si:",
+ op:["Existe una función biyectiva entre X y los naturales","No existe una función biyectiva entre X y los naturales","Existe una función inyectiva entre X y los reales","X tiene un número finito de elementos"],ok:0,
+ just:"Contable significa que se pueden numerar uno por uno sin saltearse ninguno ni repetir, que es exactamente lo que hace una biyección con los naturales.",
+ dist:"La b es la definición de <b>no</b> contable. La d contradice el enunciado, que ya dice infinito.",
+ ref:"Fuera del material"},
+
+{n:2007,orig:7,inst:"Fuera del material",tema:"Inducción matemática",tipo:"mc",fid:"preguntero",
+ q:"¿A qué se llama definición recursiva?",
+ op:["A la forma en la cual se especifica un proceso basado en su propia definición","A la forma de demostrar una propiedad para todos los naturales","A la descomposición de un número en factores primos","Al procedimiento para hallar el máximo común divisor"],ok:0,
+ just:"Se dan uno o más casos iniciales y una regla que define cada término a partir de los anteriores.",
+ dist:"Es el concepto que está atrás de la sucesión con u(1) = 1, u(2) = 2 y u(n) = u(n−1) + u(n−2). Tu material usa el ejemplo pero no da la definición; el preguntero pregunta la definición.",
+ ref:"Fuera del material"},
+
+{n:2008,orig:8,inst:"Fuera del material",tema:"Inducción matemática",tipo:"mc",fid:"preguntero",
+ q:"La suma de los n primeros cuadrados es igual a:",
+ op:["n(n+1)/2","n(n+1)(2n+1)/6","n²(n+1)²/4","n(2n−1)/3"],ok:1,
+ just:"Con n = 3 da 3·4·7/6 = 14, y en efecto 1 + 4 + 9 = 14.",
+ dist:"La opción a es la suma de los n primeros naturales y la c es la suma de los n primeros <b>cubos</b>. El propio TP del módulo 01 traía esa confusión: enunciaba la fórmula de los cubos diciendo que era la de los cuadrados.",
+ ref:"Fuera del material"},
+
+{n:2009,orig:9,inst:"Fuera del material",tema:"Números enteros",tipo:"mc",fid:"preguntero",
+ q:"¿Cuál de las siguientes afirmaciones es verdadera en Z?",
+ op:["Si a + b = 1 entonces a = b = 1","Si a · b = 1 entonces a = b = 1 o a = b = −1","Si a · b = 0 entonces a = 0 y b = 0","Si a · b = 1 entonces a = 1 y b = 1"],ok:1,
+ just:"En los enteros los únicos elementos con inverso multiplicativo son el 1 y el −1, y tienen que ir de a pares: 1·1 y (−1)·(−1).",
+ dist:"La opción d se olvida del caso negativo y la c cambia la conjunción: de a·b = 0 se deduce que <b>alguno</b> de los dos es cero, no los dos.",
+ ref:"Fuera del material"},
+
+/* ===== Métodos alternativos a los del material ===== */
+
+{n:2021,orig:10,inst:"Métodos alternativos",tema:"Máximo común divisor",tipo:"ms",fid:"preguntero",
+ q:"Marcá los cuatro pasos para conseguir el <b>máximo común divisor</b> por factorización.",
+ op:["Descomponer cada número en sus factores primos","Agrupar los factores en potencias","Multiplicar los factores comunes a la mínima potencia","Verificar que sea divisor de ambos números","Multiplicar los factores a la máxima potencia"],ok:[0,1,2,3],
+ just:"Para el MCD se toman los factores <b>comunes</b> elevados al exponente <b>más chico</b>.",
+ dist:"La opción e es el paso del MCM, no del MCD. Los dos procedimientos comparten los pasos 1, 2 y 4 y se diferencian solo en mínima contra máxima potencia, por eso se cruzan.",
+ ref:"M01 L3"},
+
+{n:2022,orig:11,inst:"Métodos alternativos",tema:"Máximo común divisor",tipo:"ms",fid:"preguntero",
+ q:"Marcá los cuatro pasos para conseguir el <b>mínimo común múltiplo</b> por factorización.",
+ op:["Descomponer cada número en sus factores primos","Agrupar los factores en potencias","Multiplicar los factores a la máxima potencia","Verificar que sea múltiplo de ambos números","Multiplicar los factores comunes a la mínima potencia"],ok:[0,1,2,3],
+ just:"Para el MCM se toman <b>todos</b> los factores, comunes y no comunes, elevados al exponente <b>más grande</b>.",
+ dist:"Tu material resuelve el MCD por <b>Euclides</b> y avisa que la cátedra a veces pide expresamente ese algoritmo. El preguntero evalúa el camino por factorización, que es el que se usa para el MCM. Conviene tener los dos.",
+ ref:"M01 L3"},
+
+{n:2023,orig:12,inst:"Métodos alternativos",tema:"Máximo común divisor",tipo:"mc",fid:"preguntero",
+ q:"¿Cuál es el mínimo común múltiplo de 72 y 50?",
+ op:["3600","1800","900","360"],ok:1,
+ just:"72 = 2³ · 3² y 50 = 2 · 5². Tomando cada primo a su máxima potencia queda 2³ · 3² · 5² = 8 · 9 · 25 = 1800.",
+ dist:"El 3600 sale de multiplicar 72 por 50 sin dividir por el MCD, que es 2. Recordá la relación MCD · MCM = a · b: 2 · 1800 = 3600 = 72 · 50.",
+ ref:"M01 L3"},
+
+{n:2024,orig:13,inst:"Métodos alternativos",tema:"Máximo común divisor",tipo:"mc",fid:"preguntero",
+ q:"Para hallar el máximo común divisor entre 12378 y 3054 con el algoritmo de Euclides, ¿cuántas veces hay que aplicar el algoritmo de la división?",
+ op:["3","6","9","10"],ok:1,
+ just:"12378 = 3054·4 + 162; 3054 = 162·18 + 138; 162 = 138·1 + 24; 138 = 24·5 + 18; 24 = 18·1 + 6; 18 = 6·3 + 0. Son seis divisiones y el MCD es 6.",
+ dist:"Es la única pregunta del preguntero que obliga a correr Euclides entero en lugar de reconocer una definición. Vale hacerla a mano una vez: es exactamente lo que se pide en un parcial de desarrollo.",
+ ref:"M01 L3"},
+
+{n:2025,orig:14,inst:"Métodos alternativos",tema:"Máximo común divisor",tipo:"mc",fid:"preguntero",
+ q:"El MCD(49, 14) = 7. ¿Qué valores de x e y satisfacen 14x + 49y = 7?",
+ op:["x = 3, y = −1","x = −3, y = 1","x = 3, y = 1","x = 7, y = −2"],ok:1,
+ just:"14·(−3) + 49·1 = −42 + 49 = 7.",
+ dist:"<b>Acá el preguntero se equivoca.</b> Da como correcta x = 3, y = −1, que produce 42 − 49 = −7, o sea el resultado con el signo cambiado. Es el error de signo que tu material marca como el más caro de la combinación lineal, y por eso el procedimiento termina en verificar reemplazando los valores.",
+ ref:"M01 L3"},
+
+{n:2026,orig:15,inst:"Métodos alternativos",tema:"Máximo común divisor",tipo:"mc",fid:"preguntero",
+ q:"¿Qué números resuelven la ecuación diofántica 49x + 17y = 1?",
+ op:["x = 8, y = −23","x = −8, y = 23","x = 49, y = 17","x = 23, y = −8"],ok:0,
+ just:"49·8 = 392 y 17·(−23) = −391. La diferencia es 1.",
+ dist:"Como MCD(49, 17) = 1 y 1 divide a 1, la ecuación tiene solución. Verificá siempre reemplazando: la opción b da −1 y la d da 1127 − 136, que no es 1.",
+ ref:"M01 L3"},
+
+{n:2027,orig:16,inst:"Métodos alternativos",tema:"Divisibilidad",tipo:"mc",fid:"errado",
+ q:"La representación del número 623 de base 10 en base 3 es:",
+ op:["211201","212002","220112","201122"],ok:1,
+ just:"623 = 2·243 + 137; 137 = 1·81 + 56; 56 = 2·27 + 2; después 0·9, 0·3 y 2·1. Leyendo de arriba hacia abajo queda <b>212002</b>. Verificación: 486 + 81 + 54 + 2 = 623.",
+ dist:"<b>Los dos pregunteros dan 211201, y está mal.</b> Ese número vale 486 + 81 + 27 + 18 + 1 = 613, no 623. Es el ejemplo perfecto de por qué conviene verificar con el desarrollo polinómico, que es el paso 5 del procedimiento de conversión entre bases.",
+ ref:"M01 L1"},
+
+/* ===== Conteo aplicado ===== */
+
+{n:2041,orig:17,inst:"Conteo aplicado",tema:"Permutaciones",tipo:"ms",fid:"preguntero",
+ q:"Un puerto tiene diez banderas diferentes y cada señal se forma colocando banderas en un mástil. Marcá las dos cantidades correctas: señales con 4 banderas, y señales con 3 banderas.",
+ op:["5040","720","210","120"],ok:[0,1],
+ just:"Importa el orden en el mástil y no se repite bandera. P(10,4) = 10·9·8·7 = 5040 y P(10,3) = 10·9·8 = 720.",
+ dist:"El 210 es C(10,4) y el 120 es C(10,3), que ignoran el orden. En un mástil la posición cambia la señal, así que van permutaciones.",
+ ref:"M02 L3"},
+
+{n:2042,orig:18,inst:"Conteo aplicado",tema:"Combinaciones",tipo:"mc",fid:"preguntero",
+ q:"¿Cuántos comités pueden formarse de un grupo de 6 mujeres y 4 hombres, si el comité debe tener 3 mujeres y 2 hombres?",
+ op:["C(6,3) · C(4,2)","C(6,3) + C(4,2)","C(10,5)","P(6,3) · P(4,2)"],ok:0,
+ just:"Se elige el subgrupo de mujeres y además el de hombres, así que las dos etapas se multiplican: 20 · 6 = 120.",
+ dist:"La opción b suma en lugar de multiplicar, y la suma corresponde a alternativas excluyentes. La c ignora la restricción de composición y la d ordena a los integrantes, que en un comité no tienen cargo.",
+ ref:"M02 L4"},
+
+{n:2043,orig:19,inst:"Conteo aplicado",tema:"Combinaciones",tipo:"mc",fid:"preguntero",
+ q:"Una compañía va a distribuir tres premios <b>iguales</b> entre sus 5 gerentes zonales. ¿De cuántas maneras distintas puede hacerlo?",
+ op:["60","10","125","15"],ok:1,
+ just:"Los premios son iguales, así que no importa el orden: C(5,3) = 10.",
+ dist:"El 60 es P(5,3), que es la respuesta si los premios fueran distintos, como en el caso de presidente, secretario y tesorero. La palabra <b>iguales</b> es la que decide entre permutación y combinación.",
+ ref:"M02 L4"},
+
+{n:2044,orig:20,inst:"Conteo aplicado",tema:"Combinaciones",tipo:"mc",fid:"preguntero",
+ q:"¿Cuál es el valor de C(18, 4)?",
+ op:["73440","3060","1224","4896"],ok:1,
+ just:"18·17·16·15 dividido 4! = 73440 / 24 = 3060.",
+ dist:"El 73440 es P(18,4), es decir el numerador sin dividir por k factorial. Dividir por 2 en lugar de por 4! es el otro error registrado.",
+ ref:"M02 L4"},
+
+{n:2045,orig:21,inst:"Conteo aplicado",tema:"Funciones",tipo:"mc",fid:"preguntero",
+ q:"Si X tiene n elementos e Y tiene m elementos, con n menor que m, la cantidad de funciones inyectivas que se pueden construir de X en Y es:",
+ op:["mⁿ","m! / (m − n)!","C(m, n)","n! / (m − n)!"],ok:1,
+ just:"Es P(m, n): al primer elemento de X le quedan m destinos, al segundo m−1, y así. Como no se puede repetir destino, es una permutación de m tomados de a n.",
+ dist:"La opción a cuenta <b>todas</b> las funciones, inyectivas o no. La c ignora que el orden en que se asignan los destinos importa, porque asignar el destino 1 a <i>a</i> y el 2 a <i>b</i> es otra función que al revés.",
+ ref:"M02 L1"},
+
+{n:2046,orig:22,inst:"Conteo aplicado",tema:"Principio de casillas",tipo:"mc",fid:"preguntero",
+ q:"En un parque hay 32 juegos diferentes. Para que un juego arranque hacen falta dos personas dispuestas a usarlo. ¿Cuántas personas deben ingresar para asegurar que un juego esté activo?",
+ op:["32","33","64","31"],ok:1,
+ just:"Los 32 juegos son las casillas. Con 32 personas puede haber una en cada juego y ninguno arranca. Con 33 alguna casilla recibe dos.",
+ dist:"Es el mismo esqueleto que el de los 13 cumpleaños en 12 meses: hace falta m mayor que n de forma <b>estricta</b>. El 64 sale de pensar dos personas por juego, que no es lo que pide asegurar.",
+ ref:"M02 L2"},
+
+{n:2047,orig:23,inst:"Conteo aplicado",tema:"Principio de casillas",tipo:"mc",fid:"preguntero",
+ q:"Una bolsa contiene bolas de dos colores, blanco y negro. ¿Cuál es el mínimo número de bolas que hay que extraer, sin ver el color, para garantizar que hay dos del mismo color?",
+ op:["2","3","4","5"],ok:1,
+ just:"Dos colores son dos casillas. Con dos bolas puede salir una de cada color; con tres, alguna casilla repite.",
+ dist:"Es el caso más chico posible del principio, con n = 2, y sirve de control: si tu planteo no da 3 acá, están invertidas las palomas y las casillas.",
+ ref:"M02 L2"},
+
+/* ===== Donde el preguntero se equivoca ===== */
+
+{n:2061,orig:24,inst:"Donde el preguntero falla",tema:"Combinaciones",tipo:"mc",fid:"errado",
+ q:"¿A qué nos referimos cuando hablamos de combinaciones?",
+ op:["A todas las formas de ordenar un conjunto de elementos","A las formas de elegir k elementos de n cuando el orden no importa","A las formas de repartir n elementos en k cajas","A las formas de ordenar k elementos de un total de n"],ok:1,
+ just:"Combinación es selección sin orden. Si el orden importa, es permutación.",
+ dist:"<b>Los dos pregunteros dan como correcta la opción a, y es la definición de permutación.</b> Es el error más peligroso de todo el archivo, porque toca el concepto que la cátedra evalúa en siete de las veinte preguntas del TP del módulo 02. Si estudiás de ahí sin verificar, te llevás el par invertido.",
+ ref:"M02 L4"},
+
+{n:2062,orig:25,inst:"Donde el preguntero falla",tema:"Funciones",tipo:"mc",fid:"errado",
+ q:"Caracterizá la función de Z en Z definida por f(x) = −4x³ + 5.",
+ op:["Es biyectiva","Es inyectiva y no suryectiva","No es inyectiva ni suryectiva","Es suryectiva y no inyectiva"],ok:1,
+ just:"Es estrictamente decreciente, así que nunca repite imagen y es inyectiva. Pero su imagen son solo los enteros de la forma 5 − 4x³, y el 6 por ejemplo no tiene preimagen entera. No es suryectiva.",
+ dist:"<b>Uno de los pregunteros la da como biyectiva.</b> Es el mismo error que cometen con f(x) = 2x sobre Z, que también dan como biyectiva cuando tu material dice expresamente que sobre los enteros es solo inyectiva. Clasificar sobre R y sobre Z es un par fijo de la cátedra: sobre los reales estas dos sí son biyectivas.",
+ ref:"M02 L1"},
+
+{n:2063,orig:26,inst:"Donde el preguntero falla",tema:"Combinaciones",tipo:"mc",fid:"errado",
+ q:"¿Cómo se escribe el número combinatorio C(n, r)?",
+ op:["n! / (n! · (n − r)!)","n! / (r! · (n − r)!)","n! / (r! · n!)","(n − r)! / r!"],ok:1,
+ just:"En el denominador van el factorial de los que se eligen y el factorial de los que quedan afuera.",
+ dist:"<b>Uno de los pregunteros escribe n! en el denominador en lugar de r!</b>, lo que da siempre un número menor que 1. El otro preguntero lo tiene bien. Es un buen ejemplo de por qué conviene cruzar dos fuentes antes de darle crédito a una.",
+ ref:"M02 L4"},
+
+{n:2064,orig:27,inst:"Donde el preguntero falla",tema:"Números primos",tipo:"mc",fid:"errado",
+ q:"Se sabe que un factor primo de 7031 es 79. ¿Cuál es el otro factor primo?",
+ op:["7","79","89","No tiene otro factor primo"],ok:2,
+ just:"7031 dividido 79 da 89, y 89 es primo. La factorización es 7031 = 79 · 89.",
+ dist:"<b>En el preguntero esta pregunta está rota</b>: ninguna de las opciones que ofrece es 89, y da como correcta la misma que trae el enunciado. La incluyo con la opción correcta agregada porque el ejercicio en sí es bueno, obliga a dividir y después probar primalidad sobre el cociente.",
+ ref:"M01 L2"}
+];
+
+/* Teoría y definición del banco del preguntero */
+const D_TAMIZ=`<b>El principio de tamiz</b>, o de inclusión y exclusión, resuelve un problema simple: si contás los elementos de A y después los de B y los sumás, los que están en los dos los contaste dos veces. Entonces hay que restar la intersección una vez. Cuando A y B no comparten nada, la intersección es cero y la suma directa alcanza: ese caso particular es el principio de adición.`;
+const D_BUENORDEN=`<b>El axioma del buen orden</b> dice que todo conjunto de enteros que no esté vacío y que tenga un piso, tiene un elemento mínimo. Es lo que hace posible la inducción: si una propiedad fallara para algún natural, existiría un primer natural donde falla, y eso es lo que lleva a la contradicción. Sobre los reales no funciona, porque un intervalo abierto tiene piso pero no tiene mínimo.`;
+const D_INFINITO=`<b>Un conjunto es infinito</b> cuando podés meter a todos los naturales adentro sin repetir destino, es decir cuando existe una inyección de los naturales en él: por más que le saques elementos nunca se agota. Y es <b>contable</b> cuando además podés numerarlo entero, uno por uno y sin saltearte ninguno, que es lo que hace una biyección con los naturales.`;
+const D_RECURSIVA=`<b>Una definición recursiva</b> define algo en términos de sí mismo, pero apoyándose en casos más chicos que ya están definidos. Necesita dos partes: uno o más casos iniciales dados a mano, y una regla para construir el siguiente a partir de los anteriores. Sin el caso inicial la definición no arranca nunca.`;
+const D_FACTORIZACION=`<b>MCD y MCM por factorización</b> se calculan igual hasta la mitad. Se descompone cada número en primos y se agrupan en potencias. Ahí se separan: para el <b>MCD</b> se toman solo los primos que están en los dos, cada uno con el exponente <b>más chico</b>; para el <b>MCM</b> se toman <b>todos</b> los primos que aparezcan, cada uno con el exponente <b>más grande</b>. Regla para no equivocarse: el MCD tiene que entrar en los dos números, así que es chico; el MCM tiene que contener a los dos, así que es grande.`;
+
+Object.assign(DEF,{
+ 2001:D_TAMIZ,2002:D_TAMIZ,2003:D_BUENORDEN,2004:DEF[104],2005:D_INFINITO,2006:D_INFINITO,
+ 2007:D_RECURSIVA,2008:DEF[113],2009:DEF[104],
+ 2021:D_FACTORIZACION,2022:D_FACTORIZACION,2023:DEF[109],2024:DEF[13],2025:DEF[111],2026:DEF[16],
+ 2027:DEF[101],
+ 2041:DEF[31],2042:DEF[35],2043:DEF[32],2044:DEF[124],2045:DEF[19],2046:DEF[27],2047:DEF[26],
+ 2061:DEF[32],2062:DEF[20],2063:DEF[124],2064:DEF[10]});
+
+Object.assign(AMP,{
+ 2001:AMP[35],2002:AMP[35],2003:AMP[114],2004:AMP[104],2005:AMP[19],2006:AMP[19],
+ 2007:AMP[24],2008:AMP[113],2009:AMP[104],
+ 2021:AMP[14],2022:AMP[109],2023:AMP[109],2024:AMP[13],2025:AMP[111],2026:AMP[16],
+ 2027:AMP[101],
+ 2041:AMP[31],2042:AMP[35],2043:AMP[32],2044:AMP[124],2045:AMP[19],2046:AMP[27],2047:AMP[26],
+ 2061:AMP[32],2062:AMP[20],2063:AMP[124],2064:AMP[10]});
+
+/* ---------- Estado ---------- */
+const HKEY="s21.discreta.parcial1.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"sección 9 del paquete",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  preguntero:"preguntero, verificada contra el material",
+  errado:"el preguntero se equivoca acá"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["preguntero","errado"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Solo las del paquete":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué trabajo práctico" : "Elegí qué bloque del preguntero";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel()};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+function pregunta(p){
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      "abcde"[k]+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):"abcde"[k])+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  } else if(p.tipo==="texto"){
+    cuerpo='<div class="texto-libre"><input id="in1" placeholder="Escribí la respuesta" autocomplete="off"><button class="btn" id="chk">Comprobar</button></div>';
+  } else {
+    cuerpo='<div class="texto-libre"><input id="in1" placeholder="Primer valor" autocomplete="off"><input id="in2" placeholder="Segundo valor" autocomplete="off"><button class="btn" id="chk">Comprobar</button></div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  } else {
+    const go=()=>{
+      let ok=p.acepta.map(norm).includes(norm($("in1").value));
+      if(p.tipo==="texto2") ok = ok && p.acepta2.map(norm).includes(norm($("in2").value));
+      responder(p, ok?"OK":"NO");
+    };
+    $("chk").onclick=go;
+    $("in1").onkeydown=e=>{if(e.key==="Enter")go()};
+    if($("in2")) $("in2").onkeydown=e=>{if(e.key==="Enter")go()};
+    $("in1").focus({preventScroll:true});
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : (p.tipo==="mc"||p.tipo==="vf") ? elegido===p.ok : elegido==="OK";
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll("input").forEach(x=>x.disabled=true);
+    $("chk").disabled=true;
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(k=>"abcde"[k]).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? "abcde"[p.ok]+") "+p.op[p.ok]
+                 : (p.tipo==="vf") ? p.op[p.ok]
+                 : p.sol;
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de la sección 9 del paquete más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de dos pregunteros de circulación libre, de 2023 y 2024, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período. El enunciado y la respuesta correcta salen del registro de cada trabajo práctico; parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+
+/* El menú solo puede quedar anclado al costado si hay ancho de sobra. Por debajo
+   de 1024 px siempre se comporta como cajón: se abre encima y se puede cerrar. */
+const ANCHO_ANCLABLE=window.matchMedia("(min-width:1025px)");
+function anclable(){return ANCHO_ANCLABLE.matches}
+function anclado(){return fijo && anclable()}
+
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function pintarBurger(){
+  const abierto=panel.classList.contains("abierto") && !anclado();
+  btnAbrir.setAttribute("aria-expanded",abierto?"true":"false");
+  btnAbrir.title=abierto?"Ocultar el índice de temas":"Ver el índice de temas";
+}
+/* Con el cajón abierto en pantallas chicas, el fondo no debe seguir haciendo scroll. */
+function trabarScroll(){
+  document.body.classList.toggle("sinScroll",
+    panel.classList.contains("abierto") && !anclable());
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(anclado()){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  else{panel.classList.remove("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();pintarBurger();trabarScroll();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){
+  panel.classList.add("abierto");
+  if(!anclado())fondo.classList.add("abierto");
+  pintarBurger();trabarScroll();
+}
+function cerrarPanel(){
+  if(anclado()) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  pintarBurger();trabarScroll();
+}
+function alternarPanel(){
+  if(panel.classList.contains("abierto")) cerrarPanel(); else abrirPanel();
+}
+
+btnAbrir.onclick=alternarPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{if(anclable()){fijo=false;aplicarFijo(true)}else cerrarPanel()};
+fondo.onclick=cerrarPanel;
+/* Al cruzar el punto de corte, el menú se reacomoda en vez de quedar a medio camino. */
+const alCambiarAncho=()=>aplicarFijo(false);
+if(ANCHO_ANCLABLE.addEventListener) ANCHO_ANCLABLE.addEventListener("change",alCambiarAncho);
+else if(ANCHO_ANCLABLE.addListener) ANCHO_ANCLABLE.addListener(alCambiarAncho);
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();cerrarPanel();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>
