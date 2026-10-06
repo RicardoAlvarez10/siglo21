@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cálculo · Parcial 2 · Autoevaluación interactiva</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --ok:#2D4A3E; --okBg:#EAF1ED;
+    --mal:#8C2F2F; --malBg:#F7EBEB; --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap}
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:24px 24px 20px}
+  .meta{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px}
+  .enunciado{font-size:17px;margin:0 0 18px}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start}
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .btn{font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;border-radius:3px;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px}
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600}
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600}
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic}
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .amp code{font-family:Consolas,monospace;font-size:13.5px;background:#F0EDE7;padding:1px 4px;border-radius:2px}
+  .amp .tabla{overflow-x:auto;margin:9px 0;-webkit-overflow-scrolling:touch}
+  .amp p.choque{background:#F2EFE9;border-left:3px solid var(--tenue);padding:8px 12px;font-size:13.5px;margin:10px 0}
+  .amp p.alerta{background:#F7F0E6;border-left:3px solid #B07A32;padding:8px 12px;font-size:13.5px;margin:10px 0}
+
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .nota100{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0}
+  .aviso{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px}
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Cálculo Avanzado · Parcial 2</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 03 y 04 · Ricardo Alvarez · Legajo VROB003882</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido tomado de los ocho resúmenes de teoría de los módulos 03 y 04 de Cálculo Avanzado: integrales dobles, coordenadas polares, integrales triples, centro de masa, transformaciones del plano, jacobiano, coordenadas cilíndricas y esféricas, y cambio de variables en R³. Estas lecturas no traen preguntas de repaso y la materia no tiene trabajos prácticos archivados de estos módulos, así que todas las preguntas están escritas para practicar sobre el material. Cuando una pregunta toca una errata del PDF, la respuesta usa el valor correcto y la teoría completa lo avisa. Esta página mide identificación de conceptos y resolución de ejercicios cortos, no reemplaza haber resuelto a mano los casos de cada lección.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 100 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1 · Autoevaluación ---------- */
+const QUIZ=[
+/* ===== M03 L1 · Integrales dobles ===== */
+{n:101,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La integral doble de f sobre el rectángulo R se define como __________.",
+ op:["la suma doble de Riemann con una partición de 10 por 10 subrectángulos","el producto de la integral de f en x por la integral de f en y","el límite de las sumas dobles de Riemann cuando m y n tienden a infinito, si ese límite existe","el área de R multiplicada por el valor máximo de f en R"],ok:2,
+ just:"La definición de Stewart (2018, p. 990) es un límite de sumas dobles, y la cátedra subraya la condición «si el límite existe». La integral no es una suma finita.",
+ dist:"La suma con una partición fija es una aproximación, no la integral. El producto de dos integrales simples solo funciona cuando f se separa como g(x)·h(y), y el área por el máximo es una cota superior, no el valor.",
+ ref:"M03 L1"},
+{n:102,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Si f cambia de signo sobre R, la integral ∬_R f dA sigue midiendo el volumen del sólido comprendido entre la superficie z = f(x,y) y el plano xy.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Falso. La lectura como volumen exige f ≥ 0. Si f cambia de signo, la integral da un volumen neto: lo que queda arriba del plano xy menos lo que queda abajo.",
+ dist:"La afirmación omite la hipótesis f ≥ 0, que es justamente la que la cátedra pone en el enunciado del volumen. Es una de las trampas frecuentes del resumen.",
+ ref:"M03 L1"},
+{n:103,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Si f(x,y) = 1 en todo R, la integral ∬_R 1 dA representa __________.",
+ op:["el área de R","el volumen de un cubo de lado 1","el perímetro de R","el valor 1, cualquiera sea R"],ok:0,
+ just:"Es el volumen de un sólido de altura 1 sobre R, y numéricamente coincide con el área de la base.",
+ dist:"El cubo confunde altura 1 con base de lado 1. La opción del valor 1 olvida que se integra sobre toda la región, no se evalúa f en un punto.",
+ ref:"M03 L1"},
+{n:104,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El teorema de Fubini, aplicado a una función continua sobre un rectángulo, garantiza que __________.",
+ op:["el orden de integración da igual en cualquier región del plano","la integral doble es el producto de dos integrales simples","la integral doble solo existe si f ≥ 0","el orden dy dx o dx dy da el mismo resultado"],ok:3,
+ just:"Sobre un rectángulo y con f continua, la integral doble se calcula con dos integrales iteradas en cualquiera de los dos órdenes (Stewart, 2018, p. 994).",
+ dist:"Extenderlo a cualquier región es la trampa que el resumen registra: en regiones generales hay que reescribir los límites antes de cambiar el orden. El producto de integrales es un caso particular de funciones separables.",
+ ref:"M03 L1"},
+{n:105,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En la versión general de Fubini que cita la cátedra, además de que las integrales iteradas existan, se pide que f __________.",
+ op:["sea derivable en todo R","sea positiva y continua en todo R","esté acotada sobre R y sea discontinua solo en un número finito de curvas suaves","sea un polinomio en x y en y"],ok:2,
+ just:"Es la extensión que Stewart (2018, p. 994) agrega al enunciado: f acotada, con discontinuidades solo en finitas curvas suaves, e iteradas existentes.",
+ dist:"Pedir derivabilidad o positividad es exigir de más: el teorema no necesita ninguna de las dos. La positividad pertenece a la lectura como volumen, no a Fubini.",
+ ref:"M03 L1"},
+{n:106,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Caso de la tornería. El volumen de la pieza bajo z = 16 − x² − 2y² sobre R = [0,2] × [0,2] es __________.",
+ op:["160/3","48","112/3","64"],ok:1,
+ just:"Integral interior en x: [16x − x³/3 − 2y²x] de 0 a 2 = 88/3 − 4y². Integral exterior en y: [88y/3 − 4y³/3] de 0 a 2 = 176/3 − 32/3 = 48.",
+ dist:"160/3 sale de integrar 2y² en x como si quedara 2y², sin multiplicar por x. 112/3 sale de olvidar el 1/3 al integrar x². 64 es integrar solo el 16 sobre un área de 4, sin restar nada.",
+ ref:"M03 L1"},
+{n:107,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular ∫₀² ∫₀¹ x·y² dx dy.",
+ op:["4/3","2/3","8/3","1/6"],ok:0,
+ just:"Interior en x entre 0 y 1: y²·[x²/2] = y²/2. Exterior en y entre 0 y 2: [y³/6] = 8/6 = 4/3.",
+ dist:"2/3 sale de cruzar los límites (x de 0 a 2 e y de 0 a 1), el error de evaluar la interior con los límites de la otra variable. 8/3 olvida el 1/2 de x²/2. 1/6 usa 0 a 1 en las dos variables.",
+ ref:"M03 L1"},
+{n:108,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular ∬_R y·sen x dA con R = [0, π/2] × [0, 1].",
+ op:["1","−1/2","π/4","1/2"],ok:3,
+ just:"El integrando se separa: ∫ sen x dx de 0 a π/2 = 1 y ∫ y dy de 0 a 1 = 1/2. El producto da 1/2.",
+ dist:"1 olvida el 1/2 de y²/2. −1/2 usa cos x como primitiva de sen x, con el signo cambiado. π/4 integra sen x como si valiera 1 en todo el intervalo.",
+ ref:"M03 L1"},
+{n:109,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Se aproxima ∬_R (x + y) dA con R = [0,2] × [0,2], con m = n = 2 y tomando como punto de muestra la esquina superior derecha de cada subrectángulo. La suma de Riemann vale __________.",
+ op:["8","48","12","3"],ok:2,
+ just:"Cada subrectángulo mide 1 × 1, así que ΔA = 1. Las esquinas son (1,1), (1,2), (2,1) y (2,2), con valores 2, 3, 3 y 4. La suma da 12.",
+ dist:"8 es el valor exacto de la integral, no la aproximación pedida: una suma de Riemann no es la integral. 48 usa como ΔA el área de R entera (4) en lugar de la de cada subrectángulo. 3 es el promedio de los valores, sin multiplicar por las áreas.",
+ ref:"M03 L1"},
+{n:110,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Al calcular ∫_c^d [∫_a^b f(x,y) dx] dy, durante la integral interior la variable y se trata como __________.",
+ op:["una variable que depende de x","una constante","cero","la variable de integración"],ok:1,
+ just:"La integral interior es en x, y la y queda fija. Recién después de evaluar entre a y b se integra en y.",
+ dist:"Tratar y como función de x es el error de mezclar las dos integrales. Anularla es el error que lleva a perder el término 2y² en el caso de la tornería.",
+ ref:"M03 L1"},
+{n:111,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular ∬_R (6 − x − y) dA con R = [0,1] × [0,1].",
+ op:["5","6","4","11/2"],ok:0,
+ just:"Por linealidad: ∬ 6 dA = 6, ∬ x dA = 1/2 y ∬ y dA = 1/2. Queda 6 − 1/2 − 1/2 = 5.",
+ dist:"6 olvida restar. 4 toma ∬ x dA como 1 en vez de 1/2, sin integrar. 11/2 resta solo uno de los dos términos.",
+ ref:"M03 L1"},
+{n:112,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Si [a,b] se divide en m subintervalos de igual ancho, el ancho Δxᵢ de cada uno es __________.",
+ op:["(d − c)/n","(b − a)/n","m/(b − a)","(b − a)/m"],ok:3,
+ just:"El ancho es el largo del intervalo dividido por la cantidad de partes. Para [c,d] en n partes es (d − c)/n.",
+ dist:"(d − c)/n es lo que el PDF escribe en la viñeta de [a,b], una errata que repite la fórmula de la viñeta siguiente. (b − a)/n cruza el número de partes de la otra variable.",
+ ref:"M03 L1"},
+{n:113,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"El valor exacto de una integral doble es el límite de las sumas de Riemann cuando m y n tienden a infinito.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Es la definición. Una partición finita, por fina que sea, da una aproximación.",
+ dist:"Marcar Falso es confundir una buena aproximación con el valor exacto. Refinar la partición acerca el resultado, y el límite es lo que lo vuelve exacto.",
+ ref:"M03 L1"},
+/* ===== M03 L2 · Coordenadas polares ===== */
+{n:114,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El punto de coordenadas polares (r, θ) = (2, π/3) tiene coordenadas cartesianas __________.",
+ op:["(√3, 1)","(1, √3)","(1/2, √3/2)","(−1, √3)"],ok:1,
+ just:"x = r cos θ = 2 · 1/2 = 1 e y = r sen θ = 2 · √3/2 = √3.",
+ dist:"(√3, 1) intercambia coseno y seno. (1/2, √3/2) olvida multiplicar por r. (−1, √3) usa el coseno de 2π/3 en lugar del de π/3.",
+ ref:"M03 L2"},
+{n:115,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El punto cartesiano (−1, −1) en coordenadas polares, con r ≥ 0 y 0 ≤ θ ≤ 2π, es __________.",
+ op:["(√2, 5π/4)","(√2, π/4)","(2, 5π/4)","(√2, 3π/4)"],ok:0,
+ just:"r = √(1 + 1) = √2. arctan(−1/−1) = arctan 1 = π/4, pero el punto está en el tercer cuadrante, así que hay que sumar π: θ = 5π/4.",
+ dist:"(√2, π/4) usa el arcotangente sin corregir el cuadrante, que es la trampa que el resumen marca y que el PDF no advierte. (2, 5π/4) olvida la raíz en r. 3π/4 corrige hacia el segundo cuadrante.",
+ ref:"M03 L2"},
+{n:116,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Al pasar una integral doble a coordenadas polares, el elemento de área dA se reemplaza por __________.",
+ op:["dr dθ","r² dr dθ","(1/r) dr dθ","r dr dθ"],ok:3,
+ just:"dA = r dr dθ. Ese factor r es el jacobiano del cambio a polares, que el módulo 4 formaliza.",
+ dist:"Escribir dr dθ sin la r es el error número uno de la lección. r² dr dθ confunde con el factor de las esféricas del módulo 4.",
+ ref:"M03 L2"},
+{n:117,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El área del disco de radio 3 calculada en polares, ∫₀^{2π} ∫₀³ r dr dθ, vale __________.",
+ op:["6π","18π","9π","9π/2"],ok:2,
+ just:"Interior: [r²/2] de 0 a 3 = 9/2. Exterior: 9/2 · 2π = 9π, que coincide con πr².",
+ dist:"6π sale de olvidar la r de dA (se integra 1 en r y da 3). 18π olvida el 1/2 de r²/2. 9π/2 recorre θ solo de 0 a π, medio disco.",
+ ref:"M03 L2"},
+{n:118,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular ∬_D (x² + y²) dA, con D el disco de radio 2 centrado en el origen.",
+ op:["16π/3","8π","32π","4π"],ok:1,
+ just:"En polares x² + y² = r², y con dA = r dr dθ el integrando queda r³. ∫₀² r³ dr = 4, y por 2π da 8π.",
+ dist:"16π/3 olvida la r de dA e integra solo r². 32π olvida el 1/4 de r⁴/4. 4π recorre θ de 0 a π.",
+ ref:"M03 L2"},
+{n:119,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La curva polar r = cos 2θ es __________.",
+ op:["una rosa de 4 pétalos","una rosa de 2 pétalos","una cardioide","una circunferencia de radio 1"],ok:0,
+ just:"Es el primer ejemplo de la lección (Stewart, 2013, p. 658). La curva se arma en 8 tramos y cada tramo dibuja medio pétalo, con pétalos centrados en 0, π/2, π y 3π/2.",
+ dist:"Dos pétalos es lo que queda si se descartan los valores negativos de r, como sugiere literalmente la restricción r > 0 del PDF. La cardioide y la circunferencia son otras curvas de la lista de la lección.",
+ ref:"M03 L2"},
+{n:120,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Caso del artista gráfico. El área total de la rosa r = cos 2θ es __________.",
+ op:["π/8","π/4","π","π/2"],ok:3,
+ just:"Un pétalo: (1/2) ∫ cos² 2θ dθ entre −π/4 y π/4 = π/8. Son 4 pétalos, así que el área es 4 · π/8 = π/2.",
+ dist:"π/8 es el área de un solo pétalo, donde el PDF se detiene sin multiplicar por 4. π/4 cuenta solo los 2 pétalos que salen con r positivo. π olvida el 1/2 de r²/2.",
+ ref:"M03 L2"},
+{n:121,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La curva polar r = 2 cos θ es __________.",
+ op:["la circunferencia de radio 2 con centro en el origen","la circunferencia de radio 1 con centro en (0, 1)","la circunferencia de radio 1 con centro en (1, 0)","la circunferencia de radio 2 con centro en (2, 0)"],ok:2,
+ just:"Multiplicando por r: r² = 2r cos θ, o sea x² + y² = 2x, que es (x − 1)² + y² = 1.",
+ dist:"Radio 2 y centro en el origen confunde con r = 2. El centro (0, 1) corresponde a r = 2 sen θ.",
+ ref:"M03 L2"},
+{n:122,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En una región polar general D = {α ≤ θ ≤ β, h₁(θ) ≤ r ≤ h₂(θ)}, el orden de integración correcto es __________.",
+ op:["θ adentro y r afuera, porque r se integra último","r adentro con límites en función de θ, y θ afuera con límites constantes","cualquiera, porque Fubini lo permite siempre","r afuera con límites h₁ y h₂, y θ adentro"],ok:1,
+ just:"Los límites de r dependen de θ, así que r tiene que ir adentro. La integral de afuera siempre lleva límites constantes.",
+ dist:"Invocar Fubini es la trampa: vale para rectángulos, y esta región no es un rectángulo polar. Poner límites que dependen de θ en la integral de afuera deja un resultado que todavía depende de θ.",
+ ref:"M03 L2"},
+{n:123,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El área de la región 1 ≤ r ≤ 2, 0 ≤ θ ≤ π/2 (un cuarto de corona) es __________.",
+ op:["3π/4","π/2","3π/2","3π"],ok:0,
+ just:"∫₀^{π/2} ∫₁² r dr dθ = [r²/2] de 1 a 2 · π/2 = (3/2)(π/2) = 3π/4.",
+ dist:"π/2 olvida la r de dA. 3π/2 olvida el 1/2 de r²/2. 3π recorre la corona completa, con θ de 0 a 2π.",
+ ref:"M03 L2"},
+{n:124,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El factor r de dA = r dr dθ aparece porque __________.",
+ op:["r es la distancia al origen y siempre multiplica a cualquier integral","la integral en θ de 1 da r","las funciones trigonométricas se derivan y aparece r","un rectángulo polar pequeño tiene lados Δr y r Δθ, y su área es aproximadamente r Δr Δθ"],ok:3,
+ just:"El lado curvo es un arco de radio r y ángulo Δθ, que mide r Δθ. Por eso el área crece con la distancia al origen. Es el jacobiano del cambio a polares.",
+ dist:"Las otras opciones dan una razón que suena plausible pero no explica nada. El argumento geométrico es el que la cátedra retoma en el módulo 4 con el jacobiano.",
+ ref:"M03 L2"},
+{n:125,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Para un punto del segundo o del tercer cuadrante hay que sumarle π al resultado de arctan(y/x) para obtener el ángulo polar.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"El arcotangente devuelve ángulos entre −π/2 y π/2, así que nunca cae en esos dos cuadrantes por sí solo.",
+ dist:"Marcar Falso es confiar en la calculadora sin mirar dónde está el punto. Es el error más caro al pasar a polares.",
+ ref:"M03 L2"},
+/* ===== M03 L3 · Integrales triples ===== */
+{n:126,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En la definición de integral triple sobre una caja B, cada término de la suma es f evaluada en un punto de muestra multiplicada por __________.",
+ op:["ΔA = Δx Δy","ΔV = Δx Δy Δz","Δx + Δy + Δz","el volumen total de B"],ok:1,
+ just:"La suma triple recorre las subcajas Bᵢⱼₖ, cada una de volumen ΔV = Δx Δy Δz, y la integral es su límite «si este límite existe».",
+ dist:"ΔA es el elemento de la integral doble. La suma de los pasos no es un volumen. Usar el volumen de toda la caja es el mismo error que en una suma de Riemann doble tomar el área de R.",
+ ref:"M03 L3"},
+{n:127,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Para una función continua sobre una caja, ¿cuántos órdenes de integración iterada hay, y qué dice Fubini de ellos?",
+ op:["6, y todos dan el mismo resultado","3, y todos dan el mismo resultado","6, y solo el dx dy dz es válido","9, y dependen de la forma de f"],ok:0,
+ just:"Hay 3! = 6 formas de ordenar dx, dy y dz. Sobre una caja todas dan lo mismo (Stewart, 2018, p. 1030).",
+ dist:"3 cuenta las variables, no sus permutaciones. Restringir a un solo orden contradice lo que el teorema garantiza.",
+ ref:"M03 L3"},
+{n:128,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Una región sólida de tipo I es la que __________.",
+ op:["se proyecta sobre el plano yz y tiene x acotada entre dos superficies","se proyecta sobre el plano xz y tiene y acotada entre dos superficies","es una caja rectangular","se proyecta sobre el plano xy y tiene z acotada entre dos superficies u₁(x,y) y u₂(x,y)"],ok:3,
+ just:"Tipo I proyecta en xy y acota z, tipo II proyecta en yz y acota x, tipo III proyecta en xz y acota y. El orden de los tipos es preguntable.",
+ dist:"Las otras dos definiciones corresponden a los tipos II y III, y la cátedra arma el distractor cruzándolos.",
+ ref:"M03 L3"},
+{n:129,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En una región de tipo II, la variable que queda acotada entre dos superficies es __________.",
+ op:["z","y","x","ninguna, es una caja"],ok:2,
+ just:"Tipo II proyecta sobre el plano yz, así que la variable que queda entre u₁(y,z) y u₂(y,z) es x.",
+ dist:"z es lo que escribe el PDF en la figura del tipo II, una errata que repite el texto del tipo I. y corresponde al tipo III.",
+ ref:"M03 L3"},
+{n:130,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Caso de la obra de arte en Córdoba. El volumen de la pieza E = {−1 ≤ y ≤ 1, y² ≤ x ≤ 1, 0 ≤ z ≤ x} es __________.",
+ op:["0,75","4/5","2/5","4/3"],ok:1,
+ just:"∫ dz de 0 a x = x. ∫ x dx de y² a 1 = (1 − y⁴)/2. (1/2) ∫ (1 − y⁴) dy de −1 a 1 = ∫ (1 − y⁴) dy de 0 a 1 = 1 − 1/5 = 4/5.",
+ dist:"0,75 es lo que concluye el texto del PDF, en contradicción con su propia figura, que llega a 4/5. 2/5 integra y solo de 0 a 1 sin multiplicar por la simetría. 4/3 olvida la integral en z y calcula el área de la sombra D.",
+ ref:"M03 L3"},
+{n:131,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular ∭_B xyz dV con B = [0,1] × [0,2] × [0,3].",
+ op:["9/2","6","36","9"],ok:0,
+ just:"El integrando se separa: ∫ x dx = 1/2, ∫ y dy = 2 y ∫ z dz = 9/2. El producto es 9/2.",
+ dist:"6 es el volumen de B, que sale de integrar 1 en lugar de xyz. 36 olvida los tres denominadores 2 de las primitivas. 9 olvida solo el de x.",
+ ref:"M03 L3"},
+{n:132,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El tetraedro limitado por los planos coordenados y el plano x + y + z = 1 se describe como región de tipo I con el planteo __________.",
+ op:["∫₀¹ ∫₀¹ ∫₀^{1−x−y} dz dy dx","∫₀^{1−x} ∫₀¹ ∫₀^{1−x−y} dz dx dy","∫₀¹ ∫₀¹ ∫₀¹ dz dy dx","∫₀¹ ∫₀^{1−x} ∫₀^{1−x−y} dz dy dx"],ok:3,
+ just:"z va del piso 0 al plano z = 1 − x − y. La sombra en xy es el triángulo 0 ≤ x ≤ 1, 0 ≤ y ≤ 1 − x.",
+ dist:"La segunda describe la sombra como un cuadrado y no como un triángulo. La tercera pone límites variables en la integral de afuera, que siempre debe tener límites constantes. La cuarta es el cubo unitario.",
+ ref:"M03 L3"},
+{n:133,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El volumen del tetraedro limitado por los planos coordenados y x + y + z = 1 es __________.",
+ op:["1/2","1/3","1/6","1"],ok:2,
+ just:"∫₀^{1−x} (1 − x − y) dy = (1 − x)²/2, y ∫₀¹ (1 − x)²/2 dx = 1/6.",
+ dist:"1/2 es el área de la base triangular, sin integrar la altura. 1/3 aplica la fórmula de la pirámide con una base cuadrada de área 1, cuando la base es un triángulo de área 1/2. 1 es el cubo unitario.",
+ ref:"M03 L3"},
+{n:134,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En una integral triple iterada sobre una región general, los límites de la integral de más afuera __________.",
+ op:["pueden depender de las otras dos variables","son siempre constantes","dependen solo de la variable de adentro","son siempre 0 y 1"],ok:1,
+ just:"La integral de adentro puede tener límites que dependen de las otras dos variables, la del medio de una, y la de afuera ninguna. Si no, el resultado no sería un número.",
+ dist:"Poner límites variables afuera es una de las trampas frecuentes de la lección, y deja una expresión que todavía depende de una variable.",
+ ref:"M03 L3"},
+{n:135,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"El tipo de una región sólida (I, II o III) lo define la forma del sólido: esfera, cilindro, cono.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Falso. Lo define el plano sobre el que se proyecta y cuál de las variables queda atrapada entre dos superficies. Un mismo sólido puede ser de los tres tipos a la vez.",
+ dist:"Es la confusión que el resumen registra entre las trampas: el tipo lo fija el plano de proyección, no la forma.",
+ ref:"M03 L3"},
+{n:136,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el caso de la obra de arte, la descripción correcta del sólido es __________.",
+ op:["0 ≤ y ≤ 1, y² ≤ x ≤ 1, 0 ≤ z ≤ x","−1 ≤ y ≤ 1, y² ≤ x ≤ 1, x ≤ z ≤ 1","−1 ≤ x ≤ 1, x² ≤ y ≤ 1, 0 ≤ z ≤ y","−1 ≤ y ≤ 1, y² ≤ x ≤ 1, 0 ≤ z ≤ x"],ok:3,
+ just:"La parábola x = y² y la recta x = 1 se cortan en y = ±1. El piso es z = 0 y el techo el plano z = x.",
+ dist:"La segunda pierde la mitad y negativa. La tercera no tiene el piso z = 0, que el enunciado del PDF omite aunque la descripción de E lo usa. La cuarta intercambia x con y.",
+ ref:"M03 L3"},
+{n:137,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El volumen de E = {0 ≤ x ≤ 1, 0 ≤ y ≤ x, 0 ≤ z ≤ y} es __________.",
+ op:["1/2","1/3","1/6","1"],ok:2,
+ just:"∫ dz de 0 a y = y. ∫ y dy de 0 a x = x²/2. ∫ x²/2 dx de 0 a 1 = 1/6.",
+ dist:"1/2 es el área del triángulo de la base. 1/3 usa x como techo en lugar de y. 1 ignora todos los límites variables.",
+ ref:"M03 L3"},
+{n:138,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En el caso, (1/2) ∫ (1 − y⁴) dy entre −1 y 1 se reemplaza por ∫ (1 − y⁴) dy entre 0 y 1 porque __________.",
+ op:["el integrando es impar, así que la mitad negativa se anula","el integrando es par en y y el intervalo es simétrico","cualquier integral entre −1 y 1 vale el doble de la de 0 a 1","el PDF lo decide así por comodidad, sin justificación"],ok:1,
+ just:"Si g(−y) = g(y), la integral entre −1 y 1 es el doble de la de 0 a 1. El 2 se cancela con el 1/2 que había adelante.",
+ dist:"Si fuera impar, la integral entre −1 y 1 daría 0, que es otra propiedad. Generalizar a cualquier integrando es aplicar la simetría sin chequear la paridad, una trampa del resumen.",
+ ref:"M03 L3"},
+/* ===== M03 L4 · Centro de masa ===== */
+{n:139,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Si ρ(x,y,z) es la densidad del cuerpo E, su masa es __________.",
+ op:["∭_E ρ dV","∭_E dV","∭_E x ρ dV","ρ dividido el volumen de E"],ok:0,
+ just:"La masa es la integral de la densidad. Con densidad constante queda m = ρV.",
+ dist:"∭ dV es el volumen. ∭ x ρ dV es el momento M_yz. Dividir por el volumen invierte la relación masa igual densidad por volumen.",
+ ref:"M03 L4"},
+{n:140,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El momento M_yz respecto del plano yz es __________.",
+ op:["∭_E y ρ dV","∭_E z ρ dV","∭_E (y² + z²) ρ dV","∭_E x ρ dV"],ok:3,
+ just:"El subíndice nombra el plano y la variable que multiplica es la que falta en el subíndice: x es la distancia (con signo) al plano yz.",
+ dist:"Poner y en M_yz es cruzar subíndices, la trampa principal de la lección. La última es el momento de inercia I_x, que es respecto de un eje y lleva cuadrados.",
+ ref:"M03 L4"},
+{n:141,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La coordenada x̄ del centro de masa es __________.",
+ op:["M_xy / m","M_yz / V","M_yz / m","m / M_yz"],ok:2,
+ just:"Cada coordenada es el momento correspondiente dividido por la masa: x̄ = M_yz/m, ȳ = M_xz/m, z̄ = M_xy/m.",
+ dist:"M_xy/m es z̄. Dividir por el volumen solo coincide si la densidad es constante e igual a 1. m/M_yz invierte el cociente.",
+ ref:"M03 L4"},
+{n:142,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El momento de inercia respecto del eje z es __________.",
+ op:["∭_E z² ρ dV","∭_E (x² + y²) ρ dV","∭_E (y² + z²) ρ dV","∭_E z ρ dV"],ok:1,
+ just:"El momento de inercia pondera la densidad por el cuadrado de la distancia al eje. La distancia de (x,y,z) al eje z es √(x² + y²).",
+ dist:"z² es la distancia al cuadrado al plano xy, no al eje z. (y² + z²) corresponde a I_x. ∭ z ρ dV es el momento M_xy, de primer orden.",
+ ref:"M03 L4"},
+{n:143,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Caso de la obra de arte con densidad constante ρ. La masa de la pieza es __________.",
+ op:["4ρ/5","4/5","2ρ/5","0,75ρ"],ok:0,
+ just:"m = ρ ∭ dV = ρ · V, y el volumen de la lección 3 es 4/5. Queda 4ρ/5.",
+ dist:"4/5 es el volumen, sin la densidad. 2ρ/5 integra y solo de 0 a 1 y no multiplica por la simetría. 0,75ρ arrastra la errata del texto de la lección 3.",
+ ref:"M03 L4"},
+{n:144,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el mismo caso, el momento M_yz vale __________.",
+ op:["2ρ/7","4ρ/5","6ρ/7","4ρ/7"],ok:3,
+ just:"M_yz = ρ ∫∫ x² dx dy = ρ ∫ (1 − y⁶)/3 dy entre −1 y 1 = (2ρ/3)(6/7) = 4ρ/7.",
+ dist:"2ρ/7 es M_xy. 4ρ/5 es la masa. 6ρ/7 olvida el factor 2/3 que sale del 1/3 de x³/3 y de la simetría.",
+ ref:"M03 L4"},
+{n:145,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el mismo caso, el momento M_xy vale __________.",
+ op:["4ρ/7","ρ/7","2ρ/7","0"],ok:2,
+ just:"∫ z dz de 0 a x = x²/2. Después ∫ x²/2 dx de y² a 1 = (1 − y⁶)/6, y (ρ/6) ∫ (1 − y⁶) dy entre −1 y 1 = (ρ/3)(6/7) = 2ρ/7.",
+ dist:"4ρ/7 es lo que muestra la figura 10 del PDF, que es una copia de la figura de M_yz: el cálculo de M_xy no aparece en el material. ρ/7 no multiplica por la simetría. 0 aplica al plano xy una simetría que el sólido no tiene.",
+ ref:"M03 L4"},
+{n:146,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El centro de masa de la pieza es __________.",
+ op:["(4/7, 0, 2/7)","(5/7, 0, 5/14)","(5/14, 0, 5/7)","(7/5, 0, 14/5)"],ok:1,
+ just:"x̄ = (4ρ/7)/(4ρ/5) = 5/7, ȳ = 0 por simetría y z̄ = (2ρ/7)/(4ρ/5) = 5/14. La densidad se cancela.",
+ dist:"(4/7, 0, 2/7) son los momentos sin dividir por la masa. (5/14, 0, 5/7) intercambia x̄ con z̄. (7/5, 0, 14/5) divide la masa por el momento.",
+ ref:"M03 L4"},
+{n:147,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En el caso, M_xz = 0 porque __________.",
+ op:["la región es simétrica respecto del plano xz, la densidad es constante y el integrando y ρ es impar en y","la pieza no tiene altura en y","el plano xz no toca a la pieza","todo momento respecto de un plano coordenado vale 0"],ok:0,
+ just:"Si (x,y,z) está en E también lo está (x,−y,z), y con ρ constante las contribuciones de y y de −y se cancelan.",
+ dist:"Las otras opciones no usan la simetría. Hace falta que la densidad también sea simétrica: con una densidad que dependa de y, el momento no se anula.",
+ ref:"M03 L4"},
+{n:148,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Si la región es simétrica respecto del plano xz, entonces M_xz = 0 para cualquier densidad.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Falso. También la densidad tiene que ser simétrica respecto de ese plano. Con ρ = 1 + y, por ejemplo, la mitad con y positiva pesa más y el momento no se anula.",
+ dist:"Afirmar M_xz = 0 por simetría sin chequear la densidad es una de las trampas frecuentes del resumen.",
+ ref:"M03 L4"},
+{n:149,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Un cubo [0,1] × [0,1] × [0,1] tiene densidad ρ(x,y,z) = x. La coordenada x̄ de su centro de masa es __________.",
+ op:["1/2","1/3","2/3","3/2"],ok:2,
+ just:"m = ∭ x dV = 1/2 y M_yz = ∭ x · x dV = 1/3. Entonces x̄ = (1/3)/(1/2) = 2/3. La densidad mayor hacia x = 1 corre el centro hacia ese lado.",
+ dist:"1/2 es el centroide con densidad constante, ignorando ρ. 1/3 es el momento sin dividir por la masa. 3/2 invierte el cociente.",
+ ref:"M03 L4"},
+{n:150,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El momento de inercia I_z del cubo [0,1]³ con densidad constante 1 es __________.",
+ op:["1/3","2/3","1","2"],ok:1,
+ just:"I_z = ∭ (x² + y²) dV = 1/3 + 1/3 = 2/3.",
+ dist:"1/3 usa solo x². 1 usa x² + y² + z², que es la distancia al origen y no al eje z. 2 olvida el 1/3 de las primitivas.",
+ ref:"M03 L4"},
+{n:201,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"recordar",tipo:"ms",src:"propia",
+ q:"¿Cuáles son los ejemplos de equilibrio que da la cátedra para motivar el centro de masa?",
+ op:["Un barco en el mar","Un puente colgante","Un avión en el aire","Una grúa torre","Un dron en suspensión","Un auto en una curva"],ok:[0,2,4],
+ just:"La revisión del módulo nombra un barco en el mar, un avión en el aire y un dron en suspensión, como casos de equilibrio estático o dinámico.",
+ dist:"Puente, grúa y auto son ejemplos razonables de ingeniería, pero no son los que trae el material. La lista es preguntable tal cual.",
+ ref:"M03 L4"},
+/* ===== M04 L1 · Transformaciones del plano ===== */
+{n:202,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"recordar",tipo:"ms",src:"propia",
+ q:"Según la definición de la cátedra, un cambio de variables T: R² → R² exige que __________.",
+ op:["x(u,v) e y(u,v) tengan derivadas parciales continuas de primer orden","T sea inyectiva","T sea lineal","el jacobiano sea positivo","T sea sobreyectiva sobre R²"],ok:[0,1],
+ just:"Son las dos exigencias de la definición: derivadas parciales continuas de primer orden (T de clase C¹) e inyectividad.",
+ dist:"Linealidad y sobreyectividad no se piden. El jacobiano aparece recién en la lección 2, y el teorema pide que sea no nulo, no positivo.",
+ ref:"M04 L1"},
+{n:151,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La inyectividad de T se pide porque __________.",
+ op:["garantiza que exista la inversa T⁻¹: cada punto de llegada viene de un solo punto de partida","asegura que T sea derivable","hace que T conserve las áreas","garantiza que la región de llegada sea un rectángulo"],ok:0,
+ just:"Si dos puntos distintos fueran al mismo lugar, no habría forma de volver de R a S y la región se contaría dos veces.",
+ dist:"La derivabilidad es la otra condición, independiente de esta. Conservar áreas no es algo que T haga en general, y el caso de la mancha lo muestra.",
+ ref:"M04 L1"},
+{n:152,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Las coordenadas polares envían un rectángulo polar [a,b] × [α,β] del plano rθ en __________.",
+ op:["un círculo","un rectángulo del plano xy","una corona circular completa","una cuña circular, el sector de corona entre los radios a y b y los ángulos α y β"],ok:3,
+ just:"Los lados r = a y r = b van a arcos de circunferencia y los lados θ = α y θ = β van a segmentos de semirrecta (Stewart, 2013, p. 1044).",
+ dist:"«Un círculo» es lo que escribe el PDF, una errata que su propia figura 2 contradice. La corona completa solo sale si β − α = 2π.",
+ ref:"M04 L1"},
+{n:153,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Para hallar la región T(S) alcanza con __________.",
+ op:["transformar los cuatro vértices de S y unirlos con rectas","transformar el centro de S","transformar la frontera de S, porque T lleva borde en borde","calcular el jacobiano en cada punto de S"],ok:2,
+ just:"El método de la lección parte la frontera en tramos donde una variable queda fija, reemplaza, elimina el parámetro y traduce los rangos.",
+ dist:"Unir los vértices con rectas supone que T manda segmentos en segmentos, y en el caso los lados u = 1 y v = 1 van a parábolas.",
+ ref:"M04 L1"},
+{n:154,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con T(u,v) = (u² − v², 2uv), el lado u = 1, 0 ≤ v ≤ 1 del cuadrado unitario va a __________.",
+ op:["x = y²/4 − 1, con −1 ≤ x ≤ 0","x = 1 − y²/4, con 0 ≤ x ≤ 1","x = 1 − y², con 0 ≤ x ≤ 1","y = 0, con 0 ≤ x ≤ 1"],ok:1,
+ just:"Con u = 1: x = 1 − v² e y = 2v. De la segunda, v = y/2, y reemplazando x = 1 − y²/4. Es el arco de parábola de (1,0) a (0,2).",
+ dist:"x = y²/4 − 1 es la imagen del lado v = 1. x = 1 − y² olvida elevar al cuadrado el 1/2 de v = y/2. y = 0 es la imagen de la base v = 0.",
+ ref:"M04 L1"},
+{n:155,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con la misma T, el lado v = 1, 0 ≤ u ≤ 1 va a __________.",
+ op:["x = y²/4 − 1, con −1 ≤ x ≤ 0","x = 1 − y²/4, con 0 ≤ x ≤ 1","x = y²/4 − 1, con 0 ≤ x ≤ 1","x = y² − 1, con −1 ≤ x ≤ 0"],ok:0,
+ just:"Con v = 1: x = u² − 1 e y = 2u, así que u = y/2 y x = y²/4 − 1. Como u² va de 0 a 1, x va de −1 a 0.",
+ dist:"La segunda es la imagen de u = 1. La tercera tiene la ecuación bien y el rango mal: no traducir el rango del parámetro es una trampa del resumen. La cuarta pierde el 1/4.",
+ ref:"M04 L1"},
+{n:156,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con la misma T, el lado u = 0, 0 ≤ v ≤ 1 va a __________.",
+ op:["el segmento y = 0 con 0 ≤ x ≤ 1","el segmento x = 0 con 0 ≤ y ≤ 2","el origen solamente","el segmento y = 0 con −1 ≤ x ≤ 0"],ok:3,
+ just:"Con u = 0: x = −v² e y = 0. Como v² va de 0 a 1, x va de 0 a −1, del lado negativo del eje.",
+ dist:"Suponer que u = 0 va a la misma semirrecta que v = 0 es una trampa registrada del resumen. El segmento x = 0 confunde qué coordenada queda fija.",
+ ref:"M04 L1"},
+{n:157,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La región T(S) de la mancha de petróleo tiene vértices __________.",
+ op:["(0, 0), (1, 0) y (0, 2)","(−1, 0), (1, 0) y (0, 1)","(−1, 0), (1, 0) y (0, 2)","(0, 0), (1, 0), (1, 1) y (0, 1)"],ok:2,
+ just:"T(1,0) = (1,0), T(1,1) = (0,2) y T(0,1) = (−1,0). T(0,0) = (0,0) queda sobre el lado inferior, entre (−1,0) y (1,0).",
+ dist:"(0,0) como vértice sale de pensar que T conserva las esquinas del cuadrado. (0,1) toma y = 2uv como uv. La cuarta es el cuadrado S sin transformar.",
+ ref:"M04 L1"},
+{n:158,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Control propio del resumen. El área de la región R = T(S) de la mancha es __________.",
+ op:["1","8/3","4/3","16/3"],ok:1,
+ just:"Por franjas horizontales: ∫₀² [(1 − y²/4) − (y²/4 − 1)] dy = ∫₀² (2 − y²/2) dy = 4 − 4/3 = 8/3. Con el jacobiano de la lección 2 da lo mismo.",
+ dist:"1 es el área del cuadrado S, suponiendo que T conserva el área. 4/3 integra solo la mitad derecha, hasta una de las parábolas. 16/3 duplica, como si la región siguiera por debajo del eje x.",
+ ref:"M04 L1"},
+{n:159,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Un cambio de variables conserva el área de las regiones que transforma.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Falso. En el caso, el cuadrado unitario de área 1 se convierte en una región de área 8/3. El factor que explica la diferencia es el jacobiano de la lección 2.",
+ dist:"Es la trampa de pensar el cambio de variables como un renombrado de columnas, que en datos no deforma nada. Acá la región se deforma.",
+ ref:"M04 L1"},
+{n:160,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con T(u,v) = (u² − v², 2uv), la imagen del punto (u,v) = (1,1) es __________.",
+ op:["(2, 0)","(0, 1)","(1, 2)","(0, 2)"],ok:3,
+ just:"x = 1 − 1 = 0 e y = 2 · 1 · 1 = 2.",
+ dist:"(2, 0) intercambia las fórmulas de x e y. (0, 1) olvida el 2 de 2uv. (1, 2) toma x = u².",
+ ref:"M04 L1"},
+{n:161,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La definición del PDF pide que T sea inyectiva en todo R². Con la T del caso, T(u,v) = T(−u,−v). ¿Cómo se resuelve?",
+ op:["La T del caso no es un cambio de variables válido y el ejercicio está mal","Se agrega la condición de que el jacobiano sea negativo","Basta con que T sea inyectiva sobre la región de trabajo, salvo quizás en su frontera, como pide el teorema de la lección 2","Se usan solo valores negativos de u y v"],ok:2,
+ just:"El teorema de Stewart relaja la condición: T inyectiva sobre S salvo quizás en el borde. Sobre el cuadrado [0,1] × [0,1] la T del caso cumple eso.",
+ dist:"Descartar el ejercicio es tomar al pie de la letra una definición que el propio material corrige después. Tampoco las polares son inyectivas en todo R², porque θ y θ + 2π dan el mismo punto.",
+ ref:"M04 L1"},
+/* ===== M04 L2 · Jacobiano y cambio de variables ===== */
+{n:162,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El jacobiano de T dada por x = x(u,v), y = y(u,v) es ∂(x,y)/∂(u,v) = __________.",
+ op:["x_u · y_v + x_v · y_u","x_u · y_v − x_v · y_u","x_u · x_v − y_u · y_v","x_u · y_u − x_v · y_v"],ok:1,
+ just:"Es el determinante de la matriz con las parciales de x en la primera fila y las de y en la segunda, con la primera columna respecto de u (Stewart, 2013, p. 1043).",
+ dist:"La suma en lugar de la resta es un error de determinante. Las otras dos combinan mal filas y columnas.",
+ ref:"M04 L2"},
+{n:163,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El teorema del cambio de variables en una integral doble dice que ∬_R f(x,y) dA = __________.",
+ op:["∬_S f(x(u,v), y(u,v)) |∂(x,y)/∂(u,v)| du dv","∬_S f(x(u,v), y(u,v)) ∂(x,y)/∂(u,v) du dv","∬_S f(u,v) |∂(x,y)/∂(u,v)| du dv","∬_S f(x(u,v), y(u,v)) du dv"],ok:0,
+ just:"Tres detalles del enunciado se evalúan: el valor absoluto del jacobiano, f evaluada en x(u,v) e y(u,v), y el jacobiano presente (Stewart, 2013, p. 1044).",
+ dist:"Cada distractor quita uno de los tres: el valor absoluto, la composición de f o el jacobiano entero.",
+ ref:"M04 L2"},
+{n:203,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"recordar",tipo:"ms",src:"propia",
+ q:"Marcá las hipótesis del teorema del cambio de variables en integrales dobles.",
+ op:["T de clase C¹","Jacobiano no nulo","Jacobiano positivo","f continua sobre R","R y S regiones de tipo I o tipo II","T inyectiva, salvo quizás en la frontera de S","T lineal"],ok:[0,1,3,4,5],
+ just:"Son las cinco del enunciado de Stewart (2013, p. 1044), en ese orden.",
+ dist:"Jacobiano positivo es la condición que el PDF confunde en el título de su figura 9. El teorema pide no nulo, y el valor absoluto se ocupa del signo. La linealidad no se pide.",
+ ref:"M04 L2"},
+{n:164,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para x = u² − v², y = 2uv, el jacobiano ∂(x,y)/∂(u,v) es __________.",
+ op:["4u² − 4v²","2u² + 2v²","8uv","4u² + 4v²"],ok:3,
+ just:"x_u = 2u, x_v = −2v, y_u = 2v, y_v = 2u. Determinante: 2u · 2u − (−2v)(2v) = 4u² + 4v².",
+ dist:"4u² − 4v² pierde el signo del menos por menos. 2u² + 2v² deriva mal los cuadrados. 8uv multiplica en diagonal equivocada.",
+ ref:"M04 L2"},
+{n:165,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el caso de la mancha, ∬_R y dA calculada con el cambio x = u² − v², y = 2uv sobre S = [0,1] × [0,1] vale __________.",
+ op:["1/2","5/3","2","8/3"],ok:2,
+ just:"∬_S 2uv · (4u² + 4v²) du dv = 8 ∬ (u³v + uv³) du dv = ∫₀¹ (2v + 4v³) dv = 1 + 1 = 2 (Stewart, 2013, p. 1045).",
+ dist:"1/2 olvida el jacobiano, el error más común del tema. 5/3 reemplaza y por v en lugar de por 2uv. 8/3 es el área de R, que sale de integrar 1 en lugar de y.",
+ ref:"M04 L2"},
+{n:166,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La altura de la mancha es h(x,y) = y/10 metros. El volumen de petróleo es __________.",
+ op:["2 m³","0,2 m³","0,05 m³","20 m³"],ok:1,
+ just:"V = ∬_R (y/10) dA = (1/10) · 2 = 0,2 m³.",
+ dist:"2 m³ es lo que concluye el PDF: pierde el factor 1/10 al escribir ∭ dV = ∬ y dA. 0,05 m³ olvida además el jacobiano. 20 m³ multiplica por 10 en lugar de dividir.",
+ ref:"M04 L2"},
+{n:167,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El jacobiano de las polares, x = r cos θ, y = r sen θ, es __________.",
+ op:["r","1","r²","−r"],ok:0,
+ just:"x_r = cos θ, x_θ = −r sen θ, y_r = sen θ, y_θ = r cos θ. Determinante: r cos²θ + r sen²θ = r. Es el r de dA = r dr dθ del módulo 3.",
+ dist:"1 es lo que se obtiene si se olvida la r de las parciales respecto de θ. r² es el factor de otra transformación. −r sale de restar mal el producto cruzado.",
+ ref:"M04 L2"},
+{n:168,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para x = u + v, y = u − v, el valor que entra en el teorema, |∂(x,y)/∂(u,v)|, es __________.",
+ op:["−2","1/2","0","2"],ok:3,
+ just:"El determinante es 1 · (−1) − 1 · 1 = −2. El teorema usa el valor absoluto: 2.",
+ dist:"−2 es el determinante sin valor absoluto, que daría áreas negativas. 1/2 es el jacobiano de la transformación inversa. 0 sale de sumar en lugar de restar.",
+ ref:"M04 L2"},
+{n:169,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con x = u + v, y = u − v, el cuadrado S = [0,1] × [0,1] del plano uv va a una región R. El área de R es __________.",
+ op:["1","−2","2","1/2"],ok:2,
+ just:"Área(R) = ∬_S |J| du dv = 2 · 1 = 2. R es el cuadrado de vértices (0,0), (1,1), (2,0) y (1,−1), de lado √2.",
+ dist:"1 supone que T conserva el área. −2 usa el jacobiano con signo. 1/2 divide por el jacobiano.",
+ ref:"M04 L2"},
+{n:170,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El valor absoluto del jacobiano, en un punto, se interpreta como __________.",
+ op:["el área total de R","el factor local de escala de áreas: cuántas veces se agranda o achica un rectángulo chico de S al pasar por T","la pendiente de T","la distancia entre S y R"],ok:1,
+ just:"ΔA ≈ |∂(x,y)/∂(u,v)| Δu Δv. El factor cambia de punto a punto, por eso es local.",
+ dist:"El área total es la integral de ese factor, no el factor. Pendiente y distancia no tienen relación con el determinante.",
+ ref:"M04 L2"},
+{n:171,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En la construcción del teorema, el área de la imagen de un rectángulo chico de lados Δu y Δv se aproxima por __________.",
+ op:["|r_u × r_v| Δu Δv, el área del paralelogramo generado por los vectores tangentes","|r_u| + |r_v|","Δu Δv, el área original","(r_u · r_v) Δu Δv, el producto escalar de los tangentes"],ok:0,
+ just:"La imagen se parece al paralelogramo generado por Δu r_u y Δv r_v, y su área es la norma del producto vectorial (Stewart, 2013, p. 1042).",
+ dist:"El producto escalar mide proyección y no área. Tomar Δu Δv es suponer que T no deforma. El PDF titula ese paralelogramo «rectángulo tangente», que es otra errata.",
+ ref:"M04 L2"},
+{n:172,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Para la cátedra, el jacobiano es el determinante de la matriz de derivadas parciales de T, es decir un número o una función escalar.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Esa es la convención del material, y hay que usarla aunque otros textos llamen jacobiano a la matriz entera.",
+ dist:"Marcar Falso es traer la convención de otra bibliografía. En el cambio de variables lo que multiplica es un escalar, no una matriz.",
+ ref:"M04 L2"},
+/* ===== M04 L3 · Cilíndricas y esféricas ===== */
+{n:173,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En coordenadas cilíndricas, el elemento de volumen es dV = __________.",
+ op:["dz dr dθ","r² dz dr dθ","r dz dr dθ","ρ² sen φ dz dr dθ"],ok:2,
+ just:"Las cilíndricas son polares en xy más la altura z, y el jacobiano es el mismo r (Stewart, 2013, p. 1029).",
+ dist:"Olvidar la r es la trampa principal. ρ² sen φ es el factor de las esféricas.",
+ ref:"M04 L3"},
+{n:174,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En coordenadas esféricas, z = __________.",
+ op:["ρ sen φ","ρ cos φ","ρ sen φ cos θ","ρ cos θ"],ok:1,
+ just:"φ se mide desde el semieje z positivo: en el polo norte φ = 0 y z = ρ (Stewart, 2013, p. 1033).",
+ dist:"ρ sen φ es la distancia al eje z, no la altura, y escribirla como z es una trampa registrada. ρ sen φ cos θ es la coordenada x.",
+ ref:"M04 L3"},
+{n:175,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En coordenadas esféricas, dV = __________.",
+ op:["ρ² sen φ dρ dθ dφ","ρ sen φ dρ dθ dφ","ρ² cos φ dρ dθ dφ","ρ² dρ dθ dφ"],ok:0,
+ just:"El factor ρ² sen φ es el valor absoluto del jacobiano (Stewart, 2013, p. 1035). Como sen φ ≥ 0 en [0, π], no hace falta cuidar el signo.",
+ dist:"ρ sen φ pierde una potencia de ρ. cos φ cambia la función. ρ² solo olvida el sen φ, que es el error más frecuente.",
+ ref:"M04 L3"},
+{n:176,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En la convención de Stewart, el ángulo φ de las esféricas __________.",
+ op:["se mide desde el ecuador y va de −π/2 a π/2","se mide en el plano xy desde el eje x y va de 0 a 2π","se mide desde el semieje z positivo y va de 0 a 2π","se mide desde el semieje z positivo y va de 0 a π"],ok:3,
+ just:"φ es el ángulo entre el semieje z positivo y el segmento OP, con 0 ≤ φ ≤ π. El PDF no escribe este rango y el resumen lo agrega.",
+ dist:"Medir desde el ecuador es la latitud geográfica, que es 90° − φ. El ángulo en el plano xy es θ. Con φ hasta 2π se recorre la esfera dos veces.",
+ ref:"M04 L3"},
+{n:177,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el caso de la petrolera, la densidad es proporcional a la distancia al eje del cilindro. En cilíndricas se escribe __________.",
+ op:["K √(x² + y² + z²)","K z","K r","K r²"],ok:2,
+ just:"La distancia de un punto al eje z es √(x² + y²) = r.",
+ dist:"√(x² + y² + z²) es la distancia al origen, no al eje, y es una trampa registrada. K r² toma el cuadrado de la distancia.",
+ ref:"M04 L3"},
+{n:178,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La masa de la pieza del caso, con E = {0 ≤ θ ≤ 2π, 0 ≤ r ≤ 1, 1 − r² ≤ z ≤ 4} y densidad K r, es __________.",
+ op:["7πK/2","12πK/5","8πK/5","6πK/5"],ok:1,
+ just:"∫ K r · r dz de 1 − r² a 4 = K r²(3 + r²). ∫₀¹ (3r² + r⁴) dr = 1 + 1/5 = 6/5. Por 2π: 12πK/5 (Stewart, 2013, p. 1030).",
+ dist:"7πK/2 olvida el jacobiano r. 8πK/5 simplifica 4 − (1 − r²) como 3 − r². 6πK/5 recorre θ solo hasta π.",
+ ref:"M04 L3"},
+{n:179,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El volumen de la pieza del caso (sin densidad) es __________.",
+ op:["7π/2","20π/3","5π/2","3π"],ok:0,
+ just:"∫₀^{2π} ∫₀¹ r (3 + r²) dr dθ = 2π (3/2 + 1/4) = 7π/2.",
+ dist:"20π/3 olvida la r de dV. 5π/2 simplifica mal 4 − (1 − r²). 3π ignora el paraboloide y toma el cilindro entre z = 1 y z = 4.",
+ ref:"M04 L3"},
+{n:180,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En cilíndricas, el paraboloide z = 1 − x² − y² se escribe __________.",
+ op:["z = 1 − r","r = 1 − z²","z = 1 − r² cos²θ","z = 1 − r²"],ok:3,
+ just:"x² + y² = r² cos²θ + r² sen²θ = r².",
+ dist:"z = 1 − r olvida que x² + y² es r² y no r. La última reemplaza solo la x.",
+ ref:"M04 L3"},
+{n:181,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El volumen de la esfera de radio 2 calculado en esféricas es __________.",
+ op:["16π²/3","8π","32π/3","16π/3"],ok:2,
+ just:"∫₀² ρ² dρ = 8/3, ∫₀^π sen φ dφ = 2 y ∫₀^{2π} dθ = 2π. Producto: 32π/3 = (4/3)π · 2³.",
+ dist:"16π²/3 olvida el sen φ. 8π olvida el ρ². 16π/3 integra φ solo hasta π/2, el hemisferio norte.",
+ ref:"M04 L3"},
+{n:182,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular ∭_E (x² + y² + z²) dV con E la bola de radio 1 centrada en el origen.",
+ op:["4π/3","4π/5","2π²/5","2π/5"],ok:1,
+ just:"En esféricas x² + y² + z² = ρ². El integrando con el jacobiano queda ρ⁴ sen φ. ∫₀¹ ρ⁴ dρ = 1/5, por 2 y por 2π da 4π/5.",
+ dist:"4π/3 es el volumen de la bola: integra 1 en vez de ρ². 2π²/5 olvida el sen φ. 2π/5 recorre φ solo hasta π/2.",
+ ref:"M04 L3"},
+{n:183,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El punto de coordenadas esféricas (ρ, θ, φ) = (2, 0, π/2) tiene coordenadas cartesianas __________.",
+ op:["(2, 0, 0)","(0, 0, 2)","(0, 2, 0)","(2, 0, 2)"],ok:0,
+ just:"x = 2 sen(π/2) cos 0 = 2, y = 2 sen(π/2) sen 0 = 0 y z = 2 cos(π/2) = 0. φ = π/2 es el plano del ecuador.",
+ dist:"(0, 0, 2) usa z = ρ sen φ, la trampa de las fórmulas. (0, 2, 0) intercambia seno y coseno de θ.",
+ ref:"M04 L3"},
+{n:184,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Cuándo conviene cada sistema?",
+ op:["Cilíndricas con esferas. Esféricas con cilindros","Cilíndricas siempre que haya z. Esféricas siempre que haya θ","Da igual, los dos simplifican lo mismo","Cilíndricas con cilindros, paraboloides o x² + y². Esféricas con esferas, conos o x² + y² + z²"],ok:3,
+ just:"La conveniencia la dicta la geometría: simetría alrededor del eje z para cilíndricas, simetría alrededor del origen para esféricas.",
+ dist:"La opción «Cilíndricas siempre que haya z. Esféricas siempre…» cruza los sistemas. La tercera elige por las letras presentes y no por la forma de la región.",
+ ref:"M04 L3"},
+{n:185,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"El ángulo φ de las coordenadas esféricas se mide desde el polo norte, así que la latitud geográfica equivale a 90° − φ.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"La longitud sí coincide con θ, pero φ y la latitud se miden desde puntos distintos.",
+ dist:"Marcar Falso es suponer que φ y la latitud son lo mismo por describir las dos una posición norte sur. El origen de medición es el que cambia.",
+ ref:"M04 L3"},
+/* ===== M04 L4 · Cambio de variables en R³ ===== */
+{n:186,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En el jacobiano ∂(x,y,z)/∂(u,v,w), cada fila y cada columna del determinante corresponden a __________.",
+ op:["filas a u, v, w y columnas a x, y, z","filas a x, y, z y columnas a u, v, w","filas a las derivadas segundas y columnas a las primeras","filas y columnas a x, y, z"],ok:1,
+ just:"La primera fila son las tres parciales de x respecto de u, v y w, y así con y y z. Es el mismo esquema del 2 × 2.",
+ dist:"La trasposición no cambia el determinante, pero la definición de la cátedra fija filas por funciones y columnas por variables nuevas, y así se evalúa.",
+ ref:"M04 L4"},
+{n:187,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"En el teorema del cambio de variables para integrales triples, dV se reemplaza por __________.",
+ op:["|∂(x,y,z)/∂(u,v,w)| du dv dw","∂(x,y,z)/∂(u,v,w) du dv dw","du dv dw","|∂(x,y)/∂(u,v)| du dv dw"],ok:0,
+ just:"Siempre con valor absoluto. Su valor es el factor local de escala de volúmenes.",
+ dist:"Sin valor absoluto, un determinante negativo (como el de las esféricas en el orden ρ, θ, φ) daría volumen negativo. La última usa un jacobiano de 2 × 2.",
+ ref:"M04 L4"},
+{n:188,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para el cambio x = a r sen φ cos θ, y = b r sen φ sen θ, z = c r cos φ, el factor |J| es __________.",
+ op:["r² sen φ","a b c r sen φ","a b c r² cos φ","a b c r² sen φ"],ok:3,
+ just:"Es el jacobiano de las esféricas multiplicado por abc. En el orden (r, θ, φ) el determinante da −abc r² sen φ, y el valor absoluto lo deja positivo.",
+ dist:"r² sen φ olvida multiplicar por abc, una trampa registrada. El PDF además escribe un paso intermedio con un factor r² sen φ de más, pero su resultado final es el correcto.",
+ ref:"M04 L4"},
+{n:189,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El volumen del elipsoide de semiejes a, b y c es __________.",
+ op:["(4/3)π a² b² c²","π a b c","(4/3)π a b c","(4/3)π a³"],ok:2,
+ just:"∫₀¹ r² dr = 1/3, ∫₀^π sen φ dφ = 2, ∫₀^{2π} dθ = 2π. Por abc: (4/3)π abc. Con a = b = c se recupera la esfera.",
+ dist:"Con los cuadrados se confunden semiejes con denominadores. π abc olvida el 4/3. (4/3)π a³ es la esfera, que solo coincide si los tres semiejes son iguales.",
+ ref:"M04 L4"},
+{n:190,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Caso de las sandías. El volumen de una sandía con forma x²/10² + y²/20² + z²/15² ≤ 1 (en cm) es __________.",
+ op:["12 000 000π cm³","4 000π ≈ 12 566 cm³","500π cm³","4 000 cm³"],ok:1,
+ just:"V = (4/3)π · 10 · 20 · 15 = (4/3)π · 3 000 = 4 000π ≈ 12 566,37 cm³. El PDF deja la expresión sin evaluar.",
+ dist:"12 000 000π usa los denominadores 100, 400 y 225 como semiejes. 500π divide los semiejes por 2, como si fueran diámetros. 4 000 olvida el π.",
+ ref:"M04 L4"},
+{n:191,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El lote de 100 sandías ocupa un volumen aproximado de __________.",
+ op:["1,26 m³","12,57 m³","0,0126 m³","1 257 m³"],ok:0,
+ just:"100 · 4 000π = 400 000π ≈ 1 256 637 cm³. Un metro cúbico son 10⁶ cm³, así que da 1,26 m³.",
+ dist:"12,57 m³ divide por 10⁵. 0,0126 m³ es una sola sandía, cuando la pregunta es por el lote: el PDF tampoco multiplica por 100. 1 257 m³ divide por 10³.",
+ ref:"M04 L4"},
+{n:192,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El volumen del elipsoide x²/4 + y²/9 + z² ≤ 1 es __________.",
+ op:["48π","6π","4π/3","8π"],ok:3,
+ just:"Los semiejes son a = 2, b = 3 y c = 1. V = (4/3)π · 6 = 8π.",
+ dist:"48π toma 4 y 9 como semiejes. 6π olvida el 4/3. 4π/3 es la bola unitaria, sin el factor abc.",
+ ref:"M04 L4"},
+{n:193,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para x = u + w, y = v, z = u − w, el factor |∂(x,y,z)/∂(u,v,w)| es __________.",
+ op:["−2","0","2","1/2"],ok:2,
+ just:"Matriz con filas (1, 0, 1), (0, 1, 0) y (1, 0, −1). Desarrollando por la segunda fila: 1 · (1 · (−1) − 1 · 1) = −2. El valor absoluto es 2.",
+ dist:"−2 es el determinante sin valor absoluto. 1/2 es el de la inversa. 0 sale de sumar los productos cruzados en lugar de restarlos.",
+ ref:"M04 L4"},
+{n:194,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Con el orden de variables (r, θ, φ), el determinante del cambio elipsoidal da −abc r² sen φ. ¿Qué se hace con el signo?",
+ op:["Se deja negativo y el volumen da negativo","Se toma el valor absoluto, que da abc r² sen φ, porque el teorema lo pide y sen φ ≥ 0 en [0, π]","Se cambia el orden de integración hasta que dé positivo, sin tomar valor absoluto","Se descarta el cambio porque el teorema exige jacobiano positivo"],ok:1,
+ just:"El signo depende del orden en que se escriben las variables. El teorema usa |J|, así que el orden no afecta el resultado.",
+ dist:"El PDF presenta el jacobiano positivo sin aclarar este punto. El teorema pide jacobiano no nulo, no positivo.",
+ ref:"M04 L4"},
+{n:195,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La ventaja del cambio elipsoidal en el caso es que la región nueva S es __________.",
+ op:["una caja: 0 ≤ r ≤ 1, 0 ≤ θ ≤ 2π, 0 ≤ φ ≤ π","una esfera de radio abc","el mismo elipsoide con otras letras","un cilindro de radio 1"],ok:0,
+ just:"Al reemplazar, x²/a² + y²/b² + z²/c² = r², y la condición del elipsoide pasa a ser r ≤ 1. Sobre una caja las tres integrales se separan.",
+ dist:"Las otras opciones no simplifican nada: el objetivo del cambio es justamente llevar la región curva a una caja.",
+ ref:"M04 L4"},
+{n:204,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"recordar",tipo:"ms",src:"propia",
+ q:"Marcá los pares sistema y jacobiano (en valor absoluto) que son correctos.",
+ op:["Polares: r","Cilíndricas: r²","Cilíndricas: r","Esféricas: ρ² sen φ","Esféricas: ρ sen φ","Elipsoidales: a b c r² sen φ","Polares: 1"],ok:[0,2,3,5],
+ just:"Polares y cilíndricas comparten r, esféricas lleva ρ² sen φ y el cambio elipsoidal lo multiplica por abc.",
+ dist:"r² en cilíndricas y ρ sen φ en esféricas cambian una potencia. Polares 1 es olvidar el jacobiano.",
+ ref:"M04 L4"},
+{n:196,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En la tabla del módulo que compara dimensiones, en dimensión 3 el valor absoluto del jacobiano es el factor local de escala de __________.",
+ op:["áreas","longitudes","densidades","volúmenes"],ok:3,
+ just:"En dimensión 1 el factor es g′(u) y mide longitudes, en dimensión 2 es el determinante 2 × 2 y mide áreas, en dimensión 3 el 3 × 3 y mide volúmenes.",
+ dist:"Áreas corresponde a la dimensión 2 y longitudes a la 1. Densidades es el uso del mismo factor en normalizing flows, no lo que mide en la cátedra.",
+ ref:"M04 L4"}
+];
+
+/* Sin trabajos prácticos ni preguntas de repaso de cátedra en M03 y M04: no hay segundo banco */
+const TPS=[];
+
+/* ---------- Definiciones en castellano ---------- */
+const D_DOBLE=`<b>Una integral doble</b> suma una cantidad sobre toda una región del plano, igual que la integral de una variable suma sobre un intervalo.
+Si f es la altura de un techo sobre un piso rectangular, la integral doble da el volumen de aire que queda entre el piso y el techo.
+Para calcularla se corta el piso en baldosas chicas, se multiplica el área de cada baldosa por la altura del techo encima y se suma todo. Con baldosas cada vez más chicas, esa suma se acerca al valor exacto.
+En la práctica se resuelve como <b>dos integrales comunes, una adentro de la otra</b>: primero en una variable, con la otra quieta como si fuera un número, y después en la que quedó.
+Si el piso es un rectángulo, el orden da igual. Eso es el teorema de Fubini.`;
+
+const D_POLAR=`<b>Las coordenadas polares</b> ubican un punto del plano por su distancia al origen, r, y por el ángulo θ que forma con el eje x, en lugar de por su x y su y.
+Es como dar una dirección diciendo «a 3 cuadras, hacia el noreste» en vez de «2 al este y 2 al norte».
+Sirven cuando la región es redonda: un disco, una corona, una flor. En cartesianas esas regiones tienen límites feos y en polares tienen límites constantes.
+El detalle que no se puede olvidar: al integrar, el pedacito de área no es dr dθ sino <b>r dr dθ</b>. Los pedacitos lejos del centro son más grandes que los cercanos,
+igual que una porción de pizza es más ancha en el borde que en la punta.`;
+
+const D_TRIPLE=`<b>Una integral triple</b> suma una cantidad sobre un sólido, cortándolo en cubitos chicos en lugar de baldosas.
+Si lo que se integra es 1, el resultado es el volumen del sólido. Si lo que se integra es la densidad del material, el resultado es la masa.
+Se calcula como <b>tres integrales comunes, una dentro de otra</b>. La de adentro es la de la variable que queda atrapada entre dos superficies, un piso y un techo, y sus límites pueden depender de las otras dos variables.
+Lo que queda después es una integral doble sobre la sombra del sólido en uno de los planos coordenados. Según sobre qué plano se proyecte, la región se llama de tipo I, II o III.`;
+
+const D_CMASA=`<b>El centro de masa</b> es el punto donde el objeto se equilibra. Si se lo apoya justo debajo de ese punto, no se cae para ningún lado.
+Se calcula como un <b>promedio ponderado</b>: cada coordenada es la suma de la posición de cada pedacito multiplicada por su masa, dividida por la masa total.
+Ese numerador se llama <b>momento</b>. Hay uno por cada plano coordenado, y lleva la variable que mide la distancia a ese plano.
+Si el material es parejo, la densidad se cancela y el punto depende solo de la forma. Si la pieza es simétrica, el centro cae sobre el plano de simetría.
+El <b>momento de inercia</b> es otra cosa: mide cuánto cuesta hacer girar el objeto alrededor de un eje, y usa la distancia al eje elevada al cuadrado.`;
+
+const D_TRANSF=`<b>Un cambio de variables</b> es una regla T que toma cada punto (u, v) de un plano y lo manda a un punto (x, y) de otro.
+La idea es trabajar con una región cómoda, por ejemplo un cuadrado, y dejar que T la convierta en la región complicada donde hay que integrar.
+La cátedra pide dos cosas a T: que sus fórmulas tengan derivadas continuas y que sea <b>inyectiva</b>, o sea que dos puntos distintos nunca caigan en el mismo lugar.
+Para saber en qué se convierte una región alcanza con transformar su borde: se toma cada lado, se reemplaza la variable que queda fija y se ve qué curva sale.
+Un cambio de variables deforma la región, y en general no conserva el área.`;
+
+const D_JACOB=`<b>El jacobiano</b> es un número que dice cuánto estira o encoge una transformación el área en cada punto.
+Si en un lugar vale 3, un cuadradito de área 0,01 en el plano uv se convierte en una manchita de área 0,03 en el plano xy.
+Se calcula como un <b>determinante</b> de 2 × 2 con las derivadas parciales de x y de y.
+Al cambiar de variables en una integral doble hay que multiplicar por el <b>valor absoluto</b> del jacobiano, porque si no las áreas quedarían mal medidas, o incluso negativas.
+Las polares son un caso: su jacobiano es r, y de ahí sale el r dr dθ del módulo 3.`;
+
+const D_CILESF=`<b>Las coordenadas cilíndricas</b> son las polares con una altura agregada: un punto se ubica por su distancia al eje z, su ángulo y su altura. Sirven para cilindros, paraboloides y todo lo que gira alrededor del eje z.
+<b>Las coordenadas esféricas</b> ubican el punto por su distancia al origen, ρ, por el ángulo θ en el plano del piso y por el ángulo φ que forma con la vertical hacia arriba. Sirven para esferas y conos.
+Cada sistema trae su factor de corrección del volumen: <b>r</b> en cilíndricas y <b>ρ² sen φ</b> en esféricas. Olvidarlo es el error más común.
+Ojo con φ: se mide desde el polo norte, no desde el ecuador como la latitud de un mapa.`;
+
+const D_JAC3=`<b>El jacobiano en tres dimensiones</b> es la misma idea que en el plano, pero para volúmenes: dice cuánto se agranda o se achica un cubito al pasar por la transformación.
+Se calcula con un determinante de 3 × 3: cada fila es una de las funciones x, y, z y cada columna una de las variables nuevas.
+Cilíndricas y esféricas son casos particulares. El caso de la lección estira las esféricas con un factor distinto en cada eje, y así una pelota se convierte en una sandía con forma de elipsoide.
+Siempre se usa el <b>valor absoluto</b>: según el orden en que se escriben las variables el determinante puede salir negativo, y un volumen no puede ser negativo.`;
+
+const DEF={};
+QUIZ.forEach(q=>{DEF[q.n]={"03L1":D_DOBLE,"03L2":D_POLAR,"03L3":D_TRIPLE,"03L4":D_CMASA,
+  "04L1":D_TRANSF,"04L2":D_JACOB,"04L3":D_CILESF,"04L4":D_JAC3}[q.mod+q.lec]});
+
+/* ---------- Teoría completa ---------- */
+const T_DOBLE=`
+<p><b>Definición.</b> Para f continua en R = [a,b] × [c,d], se parte [a,b] en m subintervalos de ancho Δx = (b − a)/m y [c,d] en n subintervalos de ancho Δy = (d − c)/n. En cada subrectángulo Rᵢⱼ, de área ΔA = Δx Δy, se elige un punto de muestra.</p>
+<blockquote>∬_R f(x,y) dA = lím(m,n → ∞) Σᵢ Σⱼ f(x*ᵢⱼ, y*ᵢⱼ) ΔA, si el límite existe. Stewart (2018), p. 990.</blockquote>
+<p><b>Volumen y área.</b> Si f ≥ 0, V = ∬_R f dA es el volumen bajo la superficie. Si f cambia de signo, la integral es un volumen neto. Con f = 1, ∬_R dA es el área de R.</p>
+<p><b>Propiedades</b> (la cátedra la presenta como transformación lineal):</p>
+<div class="tabla"><table>
+<thead><tr><th>Propiedad</th><th>Enunciado</th></tr></thead>
+<tbody>
+<tr><td>Suma</td><td>∬ (f + g) dA = ∬ f dA + ∬ g dA</td></tr>
+<tr><td>Constante</td><td>∬ c·f dA = c ∬ f dA</td></tr>
+<tr><td>Monotonía</td><td>f ≥ g en R implica ∬ f dA ≥ ∬ g dA</td></tr>
+</tbody></table></div>
+<blockquote><b>Teorema de Fubini.</b> Si f es continua en R = [a,b] × [c,d], entonces ∬_R f dA = ∫_a^b ∫_c^d f dy dx = ∫_c^d ∫_a^b f dx dy. Vale también si f está acotada, es discontinua solo en un número finito de curvas suaves y las iteradas existen. Stewart (2018), p. 994.</blockquote>
+<p><b>Caso de la tornería, paso a paso.</b> Pieza bajo z = 16 − x² − 2y² sobre [0,2] × [0,2].</p>
+<ol>
+<li>Interior en x, con y constante: [16x − x³/3 − 2y²x] de 0 a 2 = 88/3 − 4y².</li>
+<li>Exterior en y: [88y/3 − 4y³/3] de 0 a 2 = 176/3 − 32/3 = <b>48</b>.</li>
+</ol>
+<p>Verificado en los dos órdenes: da 48 en ambos, como garantiza Fubini.</p>
+<p><b>Trampas.</b> Integrar 2y² en x y dejar 2y² en lugar de 2y²x. Evaluar la interior con los límites de la otra variable. Cambiar el orden en una región que no es rectángulo. Tomar una suma de Riemann como valor exacto.</p>
+<p class="alerta"><b>Erratas del PDF.</b> Escribe R = [a,b] × [b,c] en lugar de [a,b] × [c,d]. En la viñeta de [a,b] muestra Δy = (d − c)/n cuando correspondía Δx = (b − a)/m. Escribe Δyᵢ con subíndice i en lugar de j. Dice que al refinar la partición «la aproximación al volumen es mayor» cuando quiso decir mejor. En la figura 5 los límites se leen x − 2 y x − 0 en lugar de x = 2 y x = 0. El resultado 48 del caso es correcto.</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> Una suma de Riemann es literalmente un GROUP BY i, j con SUM(f * dA), y Fubini es la versión continua de que sumar primero por filas o por columnas da el mismo total. La partición del dominio no es la partición de una tabla en BigQuery, y el punto de muestra no es una muestra estadística: es un punto cualquiera dentro de cada celda.</p>`;
+
+const T_POLAR=`
+<p><b>Conversiones.</b> x = r cos θ, y = r sen θ. En sentido inverso, r = √(x² + y²) y θ = arctan(y/x), sumando π en el segundo y el tercer cuadrante.</p>
+<blockquote><b>Rectángulo polar.</b> Si f es continua en 0 ≤ a ≤ r ≤ b, α ≤ θ ≤ β, con 0 ≤ β − α ≤ 2π, entonces ∬_R f dA = ∫_α^β ∫_a^b f(r cos θ, r sen θ) r dr dθ. Stewart (2013).</blockquote>
+<blockquote><b>Región polar general.</b> Si D = {α ≤ θ ≤ β, h₁(θ) ≤ r ≤ h₂(θ)}, entonces ∬_D f dA = ∫_α^β ∫_{h₁(θ)}^{h₂(θ)} f(r cos θ, r sen θ) r dr dθ. Con f = 1 se obtiene el área de D.</blockquote>
+<p><b>El factor r.</b> Un rectángulo polar chico tiene un lado Δr y otro lado curvo r Δθ, así que su área es aproximadamente r Δr Δθ. Es el jacobiano del cambio a polares, que el módulo 4 formaliza.</p>
+<div class="tabla"><table>
+<thead><tr><th>Curva</th><th>Forma</th><th>Dato</th></tr></thead>
+<tbody>
+<tr><td>r = cos 2θ</td><td>Rosa de 4 pétalos</td><td>Pétalo sobre el eje x: −π/4 ≤ θ ≤ π/4. Stewart (2013), p. 658</td></tr>
+<tr><td>r = 2 cos θ</td><td>Circunferencia de radio 1 y centro (1, 0)</td><td>x² + y² = 2x. Se recorre entera con θ en [0, π). Stewart (2013), p. 657</td></tr>
+</tbody></table></div>
+<p>Curvas que la cátedra menciona como difíciles en cartesianas: circunferencias, cardioides, lemniscatas y rosas. Para graficar recomienda la calculadora de GeoGebra «Plotting Polar Coordinates».</p>
+<p><b>Caso del artista gráfico.</b></p>
+<ol>
+<li>Pétalo: A = ∫_{−π/4}^{π/4} ∫₀^{cos 2θ} r dr dθ = (1/2) ∫ cos² 2θ dθ.</li>
+<li>Ángulo doble: cos² 2θ = (1 + cos 4θ)/2, así que queda (1/4) ∫ (1 + cos 4θ) dθ.</li>
+<li>Barrow: (1/4)[θ + (1/4) sen 4θ] de −π/4 a π/4 = π/8.</li>
+<li>Rosa completa: 4 · π/8 = <b>π/2</b> ≈ 1,5708.</li>
+</ol>
+<p class="alerta"><b>Erratas del PDF.</b> El caso termina en π/8 sin multiplicar por 4, aunque el propio planteo lo anuncia: el área de la rosa es π/2. La definición exige r &gt; 0 y el texto dice que los valores negativos «desaparecen», pero dos de los cuatro pétalos de r = cos 2θ salen justamente de r negativos, y la tabla de r = 2 cos θ también los usa. θ = arctan(y/x) aparece sin la corrección de cuadrante. Escribe «cardiodes».</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> ATAN(y/x) en SQL tiene el mismo problema de cuadrante, y en BigQuery se evita con ATAN2(y, x). SQRT(x*x + y*y) es exactamente r. Latitud y longitud también son ángulos, pero sobre una esfera, y las funciones trigonométricas trabajan en radianes.</p>`;
+
+const T_TRIPLE=`
+<p><b>Definición.</b> Para f continua en la caja B = [a,b] × [c,d] × [e,f] se parten los tres intervalos, cada subcaja tiene volumen ΔV = Δx Δy Δz y se elige un punto de muestra en cada una.</p>
+<blockquote>∭_B f dV = lím(l,m,n → ∞) Σᵢ Σⱼ Σₖ f(x*ᵢⱼₖ, y*ᵢⱼₖ, z*ᵢⱼₖ) ΔV, si este límite existe. Stewart (2013).</blockquote>
+<blockquote><b>Fubini para cajas.</b> Si f es continua sobre B = [a,b] × [c,d] × [r,s], entonces ∭_B f dV = ∫_r^s ∫_c^d ∫_a^b f dx dy dz. Stewart (2018), p. 1030. Hay 3! = 6 órdenes y todos dan lo mismo.</blockquote>
+<p><b>Regiones generales.</b> Se proyecta E sobre un plano coordenado y se acota la tercera variable entre dos superficies. La cátedra pide dominios conexos, que define informalmente como «sin huecos».</p>
+<div class="tabla"><table>
+<thead><tr><th>Tipo</th><th>Proyección D en</th><th>Variable acotada</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td>I</td><td>plano xy</td><td>z</td><td>(x,y) en D, u₁(x,y) ≤ z ≤ u₂(x,y)</td></tr>
+<tr><td>II</td><td>plano yz</td><td>x</td><td>(y,z) en D, u₁(y,z) ≤ x ≤ u₂(y,z)</td></tr>
+<tr><td>III</td><td>plano xz</td><td>y</td><td>(x,z) en D, u₁(x,z) ≤ y ≤ u₂(x,z)</td></tr>
+</tbody></table></div>
+<p>La integral de adentro es en la variable atrapada y sus límites pueden depender de las otras dos. La de afuera siempre tiene límites constantes. Con f = 1 la integral da el volumen de E.</p>
+<p><b>Caso de la obra de arte en Córdoba.</b> Sólido limitado por x = y², x = 1, z = x y z = 0.</p>
+<ol>
+<li>E = {−1 ≤ y ≤ 1, y² ≤ x ≤ 1, 0 ≤ z ≤ x}, región de tipo I.</li>
+<li>∫₀^x dz = x.</li>
+<li>∫_{y²}^1 x dx = (1 − y⁴)/2.</li>
+<li>Integrando par: (1/2) ∫_{−1}^1 (1 − y⁴) dy = ∫₀¹ (1 − y⁴) dy = 1 − 1/5 = <b>4/5</b>.</li>
+</ol>
+<p class="alerta"><b>Erratas del PDF.</b> El texto concluye «0.75 unidades cúbicas», en contradicción con su propia figura 8, que llega a 4/5 = 0,8. El enunciado omite el plano z = 0, que la descripción de E usa. En las figuras del tipo II y del tipo III dice «z queda limitado», cuando las variables acotadas son x e y. Dice que Fubini sirve «sobre un rectángulo» cuando es sobre una caja. «Sin huecos» es impreciso: un anillo es conexo y tiene un hueco.</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> La caja es un cubo OLAP en versión continua y las iteradas son agregaciones anidadas por dimensión. Proyectar no es hacer un SELECT de columnas: acá es la sombra del sólido. Los límites u₁(x,y) ≤ z ≤ u₂(x,y) se parecen a un BETWEEN cuyo rango depende de otras columnas de la misma fila. Conexo no significa lo mismo que en un grafo.</p>`;
+
+const T_CMASA=`
+<p><b>Volumen y masa.</b> V = ∭_E dV y m = ∭_E ρ(x,y,z) dV. Con densidad constante, m = ρV.</p>
+<div class="tabla"><table>
+<thead><tr><th>Magnitud</th><th>Fórmula</th><th>Respecto de</th></tr></thead>
+<tbody>
+<tr><td>M_yz</td><td>∭ x ρ dV</td><td>plano yz</td></tr>
+<tr><td>M_xz</td><td>∭ y ρ dV</td><td>plano xz</td></tr>
+<tr><td>M_xy</td><td>∭ z ρ dV</td><td>plano xy</td></tr>
+<tr><td>x̄, ȳ, z̄</td><td>M_yz/m, M_xz/m, M_xy/m</td><td>centro de masa</td></tr>
+<tr><td>I_x</td><td>∭ (y² + z²) ρ dV</td><td>eje x</td></tr>
+<tr><td>I_y</td><td>∭ (x² + z²) ρ dV</td><td>eje y</td></tr>
+<tr><td>I_z</td><td>∭ (x² + y²) ρ dV</td><td>eje z</td></tr>
+</tbody></table></div>
+<p>Fórmulas en Stewart (2013), p. 1023. Regla: el subíndice del momento nombra el plano y la variable que multiplica es la que falta. Los momentos son de primer orden y respecto de planos. Los de inercia son de segundo orden y respecto de ejes.</p>
+<blockquote>El centro de masa es el punto en el espacio que dinámicamente se comporta como si en él estuviera aplicada la resultante de las fuerzas externas al cuerpo. Universidad Siglo 21 (s. f.).</blockquote>
+<p>Ejemplos de la cátedra para el equilibrio: un barco en el mar, un avión en el aire y un dron en suspensión.</p>
+<p><b>Caso de la obra de arte, con densidad constante ρ</b> (Stewart, 2013, p. 1024).</p>
+<ol>
+<li>m = ρ · 4/5 = 4ρ/5.</li>
+<li>M_xz = 0 por simetría respecto del plano xz con densidad constante, así que ȳ = 0.</li>
+<li>M_yz = ρ ∫∫ x² dx dy = (2ρ/3) ∫₀¹ (1 − y⁶) dy = 4ρ/7.</li>
+<li>M_xy = ρ ∫∫ x²/2 dx dy = (ρ/3) ∫₀¹ (1 − y⁶) dy = 2ρ/7.</li>
+<li>Centro de masa: (5/7, 0, 5/14) ≈ (0,714; 0; 0,357). La base va bajo (5/7, 0), la proyección en el plano xy.</li>
+</ol>
+<p>Como práctica, el resumen calcula para el mismo sólido I_x = 64ρ/189, I_y = 16ρ/27 e I_z = 40ρ/63. Esos valores no están en el PDF.</p>
+<p class="alerta"><b>Erratas del PDF.</b> La figura 10 dice mostrar M_xy pero es una copia de la figura 9 (M_yz = 4ρ/7): el cálculo de M_xy = 2ρ/7 no aparece en el material, aunque el z̄ = 5/14 final es correcto. El enunciado vuelve a omitir el plano z = 0. Los títulos «momento respecto de x» y «respecto de z» deberían nombrar planos. El video conceptual no está disponible en el PDF.</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> El centro de masa es un promedio ponderado, SUM(x*w)/SUM(w), con peso ρ. El momento de primer orden es la media sin normalizar y el de inercia se parece a la varianza. El centroide de k-means y ST_CENTROID son centros de masa con densidad constante. El momentum de los optimizadores solo comparte el nombre.</p>`;
+
+const T_TRANSF=`
+<blockquote>Un cambio de variables en R² está dado por una función T: R² → R², T(u,v) = (x(u,v), y(u,v)), donde x(u,v) e y(u,v) poseen derivadas parciales continuas de primer orden y, además, T es inyectiva. Universidad Siglo 21 (s. f.), a partir de Stewart (2013).</blockquote>
+<p>Las dos exigencias se preguntan: clase C¹ e inyectividad. La inyectividad asegura que existe T⁻¹.</p>
+<p><b>Polares como cambio de variables.</b> T(r,θ) = (r cos θ, r sen θ) manda el rectángulo polar [a,b] × [α,β] en una cuña circular (Stewart, 2013, p. 1044).</p>
+<div class="tabla"><table>
+<thead><tr><th>Borde en rθ</th><th>Imagen en xy</th></tr></thead>
+<tbody>
+<tr><td>r = a</td><td>Arco de circunferencia de radio a</td></tr>
+<tr><td>r = b</td><td>Arco de circunferencia de radio b</td></tr>
+<tr><td>θ = α</td><td>Segmento sobre la semirrecta de ángulo α</td></tr>
+<tr><td>θ = β</td><td>Segmento sobre la semirrecta de ángulo β</td></tr>
+</tbody></table></div>
+<p><b>Método para hallar T(S).</b> T lleva la frontera de S en la frontera de T(S). Se parte el borde en tramos con una variable fija, se reemplaza, se elimina el parámetro y se traducen los rangos.</p>
+<p><b>Caso de la mancha de petróleo.</b> T(u,v) = (u² − v², 2uv) sobre S = [0,1] × [0,1].</p>
+<div class="tabla"><table>
+<thead><tr><th>Tramo</th><th>Sustitución</th><th>Imagen</th></tr></thead>
+<tbody>
+<tr><td>S₁: v = 0</td><td>x = u², y = 0</td><td>y = 0, 0 ≤ x ≤ 1</td></tr>
+<tr><td>S₂: u = 1</td><td>x = 1 − v², y = 2v</td><td>x = 1 − y²/4, 0 ≤ x ≤ 1</td></tr>
+<tr><td>S₃: v = 1</td><td>x = u² − 1, y = 2u</td><td>x = y²/4 − 1, −1 ≤ x ≤ 0</td></tr>
+<tr><td>S₄: u = 0</td><td>x = −v², y = 0</td><td>y = 0, −1 ≤ x ≤ 0</td></tr>
+</tbody></table></div>
+<p>La región final tiene vértices (−1,0), (1,0) y (0,2) (Stewart, 2013, p. 1041). Control propio del resumen: su área es 8/3, mientras que la del cuadrado es 1. El factor que explica la diferencia es el jacobiano 4u² + 4v² de la lección 2.</p>
+<p class="alerta"><b>Erratas del PDF.</b> Pide inyectividad en todo R², y ni las polares ni la T del caso lo son (T(u,v) = T(−u,−v)). Lo correcto, como dice el teorema de la lección 2, es inyectiva sobre la región salvo quizás en su frontera. Dice que las polares envían un rectángulo «en un círculo», cuando es una cuña circular. Los tramos S₃ y S₄ aparecen sin desarrollo y con superíndice. El título dice «Integrables dobles».</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> La T de ETL es un paso de pipeline y acá es una función entre regiones. Inyectiva es la misma idea que una relación uno a uno, un JOIN sin fan out. Renombrar o castear columnas no deforma nada, y este cambio de variables sí deforma la región.</p>`;
+
+const T_JACOB=`
+<p><b>Construcción.</b> Un rectángulo chico de lados Δu y Δv se transforma en una región curva que se parece al paralelogramo generado por Δu r_u y Δv r_v. Su área es |r_u × r_v| Δu Δv (Stewart, 2013, p. 1042).</p>
+<blockquote><b>Jacobiano.</b> ∂(x,y)/∂(u,v) = determinante de la matriz con filas (∂x/∂u, ∂x/∂v) y (∂y/∂u, ∂y/∂v) = x_u y_v − x_v y_u. Stewart (2013), p. 1043.</blockquote>
+<p>Con esa notación, ΔA ≈ |∂(x,y)/∂(u,v)| Δu Δv. El valor absoluto del jacobiano es el factor local de escala de áreas.</p>
+<blockquote><b>Teorema.</b> Si T es C¹ con jacobiano no nulo, relaciona S del plano uv con R del plano xy, f es continua sobre R, R y S son regiones de tipo I o II, y T es uno a uno salvo quizás en el límite de S, entonces ∬_R f(x,y) dA = ∬_S f(x(u,v), y(u,v)) |∂(x,y)/∂(u,v)| du dv. Stewart (2013), p. 1044.</blockquote>
+<p>Tres detalles que se evalúan: el valor absoluto, f evaluada en x(u,v) e y(u,v), y la inyectividad relajada en el borde. Las polares son un caso particular con jacobiano r cos²θ + r sen²θ = r.</p>
+<p><b>Caso del volumen de la mancha.</b> Región R entre y² = 4 − 4x, y² = 4 + 4x e y ≥ 0, altura h = y/10.</p>
+<ol>
+<li>V = ∬_R (y/10) dA = (1/10) ∬_R y dA.</li>
+<li>x = u² − v², y = 2uv, con jacobiano 2u · 2u − (−2v)(2v) = 4u² + 4v² &gt; 0 salvo en el origen, que está en el borde.</li>
+<li>∬_R y dA = ∫₀¹ ∫₀¹ 2uv · 4(u² + v²) du dv = ∫₀¹ (2v + 4v³) dv = 2 (Stewart, 2013, p. 1045).</li>
+<li>V = (1/10) · 2 = <b>0,2 m³</b>.</li>
+</ol>
+<p class="alerta"><b>Erratas del PDF.</b> El enunciado da h = y/10, pero la solución escribe ∭_R dV = ∬_R y dA, pierde el 1/10 y concluye 2 m³. El volumen correcto es 0,2 m³. La región aparece como y² = 4 − 4x² cuando es y² = 4 − 4x. El título habla de tres dimensiones y todo el contenido es en dos. La figura 3 llama «rectángulo tangente» a un paralelogramo. La figura 9 dice verificar la «positividad» del jacobiano cuando el teorema pide que sea no nulo.</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> En ML se llama jacobiano a la matriz de derivadas. En la cátedra es su determinante, un escalar. El |det J| que corrige la densidad en un normalizing flow es el mismo factor que corrige el área acá. El producto vectorial r_u × r_v no tiene nada que ver con un CROSS JOIN.</p>`;
+
+const T_CILESF=`
+<blockquote>Un cambio de variables en R³ es T(u,v,w) = (x(u,v,w), y(u,v,w), z(u,v,w)) con derivadas parciales continuas de primer orden e inyectiva. Universidad Siglo 21 (s. f.), a partir de Stewart (2013).</blockquote>
+<div class="tabla"><table>
+<thead><tr><th>Sistema</th><th>Transformación</th><th>Factor en dV</th><th>Conviene con</th></tr></thead>
+<tbody>
+<tr><td>Cilíndricas (r, θ, z)</td><td>x = r cos θ, y = r sen θ, z = z</td><td>r</td><td>Cilindros, paraboloides, x² + y²</td></tr>
+<tr><td>Esféricas (ρ, θ, φ)</td><td>x = ρ sen φ cos θ, y = ρ sen φ sen θ, z = ρ cos φ</td><td>ρ² sen φ</td><td>Esferas, conos, x² + y² + z²</td></tr>
+</tbody></table></div>
+<p>Cilíndricas en Stewart (2013), pp. 1028 y 1029. Esféricas en pp. 1033 y 1035. Convención: ρ ≥ 0 es la distancia al origen, θ el mismo ángulo de las cilíndricas y 0 ≤ φ ≤ π el ángulo con el semieje z positivo.</p>
+<p><b>Cilíndricas en una región de tipo I.</b> ∭_E f dV = ∫_α^β ∫_{h₁(θ)}^{h₂(θ)} ∫_{u₁}^{u₂} f(r cos θ, r sen θ, z) r dz dr dθ.</p>
+<p><b>Esféricas en una cuña.</b> ∭_E f dV = ∫_c^d ∫_α^β ∫_a^b f(ρ sen φ cos θ, ρ sen φ sen θ, ρ cos φ) ρ² sen φ dρ dθ dφ, con a ≤ ρ ≤ b, α ≤ θ ≤ β, c ≤ φ ≤ d.</p>
+<p>Jacobianos, verificados en el resumen: cilíndricas r cos²θ + r sen²θ = r. Esféricas, en el orden (ρ, θ, φ), −ρ² sen φ, y en valor absoluto ρ² sen φ.</p>
+<p><b>Caso de la pieza de la petrolera.</b> Dentro de x² + y² = 1, entre z = 1 − x² − y² y z = 4, densidad proporcional a la distancia al eje.</p>
+<ol>
+<li>E = {0 ≤ θ ≤ 2π, 0 ≤ r ≤ 1, 1 − r² ≤ z ≤ 4}.</li>
+<li>Densidad: K √(x² + y²) = K r.</li>
+<li>m = ∫∫∫ (K r) r dz dr dθ = K ∫ dθ ∫₀¹ r²(3 + r²) dr.</li>
+<li>= 2πK (1 + 1/5) = <b>12πK/5</b> ≈ 7,54 K (Stewart, 2013, p. 1030).</li>
+</ol>
+<p>Cuidado con 4 − (1 − r²) = 3 + r², no 3 − r².</p>
+<p class="alerta"><b>Erratas del PDF.</b> Escribe T(u,v) sin la w. Dice que se traduce a una integral «doble» cuando es triple. Dice que las esféricas mandan una caja «a una esfera» cuando es una cuña esférica. No da los rangos de ρ y φ ni calcula los jacobianos r y ρ² sen φ. No trae ningún ejemplo resuelto en esféricas. Dos figuras distintas llevan el número 9. La aritmética del caso es correcta.</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> En GEOGRAPHY de BigQuery la longitud equivale a θ, pero la latitud es 90° − φ y no φ. ST_DISTANCE mide entre dos puntos, y en el caso la distancia es a una recta, el eje. Describir E con rangos de θ, r y z se parece a un WHERE sobre tres columnas.</p>`;
+
+const T_JAC3=`
+<blockquote><b>Jacobiano en R³.</b> ∂(x,y,z)/∂(u,v,w) es el determinante de 3 × 3 cuyas filas son las parciales de x, y y z, y cuyas columnas corresponden a u, v y w. Stewart (2013), sección 15.10.</blockquote>
+<blockquote><b>Teorema.</b> Con T de clase C¹, jacobiano no nulo, T inyectiva salvo quizás en la frontera de S y f continua: ∭_R f(x,y,z) dV = ∭_S f(x(u,v,w), y(u,v,w), z(u,v,w)) |∂(x,y,z)/∂(u,v,w)| du dv dw. Stewart (2013), sección 15.10.</blockquote>
+<div class="tabla"><table>
+<thead><tr><th>Dimensión</th><th>Jacobiano</th><th>Elemento</th><th>Mide</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>g′(u)</td><td>dx = g′(u) du</td><td>Longitud</td></tr>
+<tr><td>2</td><td>Determinante 2 × 2</td><td>dA = |∂(x,y)/∂(u,v)| du dv</td><td>Área</td></tr>
+<tr><td>3</td><td>Determinante 3 × 3</td><td>dV = |∂(x,y,z)/∂(u,v,w)| du dv dw</td><td>Volumen</td></tr>
+</tbody></table></div>
+<p>Jacobianos a memoria: polares r, cilíndricas r, esféricas ρ² sen φ, elipsoidales abc r² sen φ.</p>
+<p><b>Caso de las sandías.</b> Elipsoide x²/10² + y²/20² + z²/15² = 1, semiejes a = 10, b = 20, c = 15.</p>
+<ol>
+<li>Cambio: x = a r sen φ cos θ, y = b r sen φ sen θ, z = c r cos φ. La condición pasa a ser r ≤ 1.</li>
+<li>Jacobiano: abc r² cos²φ sen φ + abc r² sen³φ = abc r² sen φ. En el orden (r, θ, φ) el determinante sale −abc r² sen φ y se toma valor absoluto.</li>
+<li>Región nueva: la caja 0 ≤ r ≤ 1, 0 ≤ θ ≤ 2π, 0 ≤ φ ≤ π.</li>
+<li>V = abc · (1/3) · 2 · 2π = (4/3)π abc. Con a = b = c se recupera la esfera.</li>
+<li>Una sandía: (4/3)π · 3 000 = 4 000π ≈ 12 566,37 cm³.</li>
+<li>Lote de 100: 400 000π ≈ 1 256 637 cm³ ≈ 1,26 m³. Es volumen de fruta, no de almacenamiento.</li>
+</ol>
+<p class="alerta"><b>Erratas del PDF.</b> Las figuras citan «Stewart, 2013, p. 146», probablemente p. 1046. El paso intermedio del jacobiano tiene un factor r² sen φ de más, aunque el resultado final es correcto. Los exponentes se perdieron («cos2φ», «sin3φ») y se leen como ángulos múltiples. No aclara que el determinante da negativo en el orden (r, θ, φ). La integral final omite dφ. La respuesta queda sin evaluar y sin multiplicar por 100. No da unidades para los semiejes y concluye en centímetros cúbicos.</p>
+<p class="choque"><b>Choque con el vocabulario de datos.</b> El log |det J| de los normalizing flows es el mismo factor de corrección de volumen. Escalar cada feature por una constante, como un StandardScaler, multiplica los volúmenes por el producto de las constantes, que es el abc del caso. Las curvas de nivel de una gaussiana con covarianza diagonal son elipsoides con esta forma.</p>`;
+
+const AMP={};
+QUIZ.forEach(q=>{AMP[q.n]={"03L1":T_DOBLE,"03L2":T_POLAR,"03L3":T_TRIPLE,"03L4":T_CMASA,
+  "04L1":T_TRANSF,"04L2":T_JACOB,"04L3":T_CILESF,"04L4":T_JAC3}[q.mod+q.lec]});
+
+
+/* ---------- Estado ---------- */
+const HKEY="s21.calculo.parcial2.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+const LETRA=k=>"abcdefg"[k]||"?";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+
+const BANCOS={quiz:QUIZ};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"del paquete de estudio",propia:"escrita para practicar",
+  catedra:"enunciado y opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["03","04"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:["catedra","mixto","propio"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Preguntas del paquete":o==="propia"?"Escritas para practicar":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         "Opciones reconstruidas"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : "Elegí qué lectura repasar";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(k=>LETRA(k)).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco, escritas sobre los ocho resúmenes de teoría de los módulos 03 y 04.'
+    : 'Las '+base.length+' preguntas de repaso que traen las propias lecturas de cátedra de los módulos 03 y 04. Enunciado, opciones y respuesta salen del PDF tal como están impresos.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Lectura")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>

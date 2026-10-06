@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cálculo · Parcial 1 · Autoevaluación interactiva</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --ok:#2D4A3E; --okBg:#EAF1ED;
+    --mal:#8C2F2F; --malBg:#F7EBEB; --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap}
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:24px 24px 20px}
+  .meta{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px}
+  .enunciado{font-size:17px;margin:0 0 18px}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start}
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .texto-libre{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .texto-libre input{font-family:Georgia,serif;font-size:15.5px;padding:10px 13px;
+    border:1px solid var(--borde);border-radius:3px;background:#fff;color:var(--texto);
+    min-width:190px;flex:1}
+  .texto-libre input:focus{outline:2px solid var(--acento);outline-offset:-1px}
+  .btn{font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;border-radius:3px;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px}
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600}
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600}
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic}
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .amp code{font-family:Consolas,monospace;font-size:13.5px;background:#F0EDE7;padding:1px 4px;border-radius:2px}
+  .amp .tabla{overflow-x:auto;margin:9px 0;-webkit-overflow-scrolling:touch}
+  .amp p.choque{background:#F2EFE9;border-left:3px solid var(--tenue);padding:8px 12px;font-size:13.5px;margin:10px 0}
+  .amp p.alerta{background:#F7F0E6;border-left:3px solid #B07A32;padding:8px 12px;font-size:13.5px;margin:10px 0}
+
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .nota100{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0}
+  .aviso{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px}
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Cálculo Avanzado · Parcial 1</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 01 y 02 · Ricardo Alvarez · Legajo VROB003882</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido tomado de los resúmenes de teoría de los módulos 01 y 02 de Cálculo Avanzado, de sus dos índices y del paquete de estudio del Parcial 1. Las preguntas del banco de repaso son las cuatro que traen las propias lecturas de cátedra, con su enunciado y sus opciones registrados. Esta materia todavía no tiene trabajos prácticos ni actividades prácticas archivadas. Ojo con una cosa: Cálculo Avanzado es una matemática de desarrollo, así que esta página mide identificación de conceptos y resolución de ejercicios cortos, no reemplaza haber resuelto a mano los procedimientos de las secciones 4 y 5 del paquete de estudio.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 86 preguntas</button>
+  <button class="modo" data-modo="preg" aria-pressed="false">Repaso de cátedra · 4 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1 · Autoevaluación ---------- */
+const QUIZ=[
+/* ===== M01 L1 · Sucesiones ===== */
+{n:1,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Una sucesión es, por definición de la cátedra, ¿qué clase de objeto?",
+ op:["Una función α de los naturales en los reales","Un conjunto ordenado de números reales","Una lista finita de valores indexados","Una relación entre dos conjuntos numéricos"],ok:0,
+ just:"La lectura arranca con esa definición y todo lo demás sale de ahí: si es una función con dominio en los naturales, se le pueden pedir límites, monotonía y cotas.",
+ dist:"La opción del conjunto ordenado es la definición intuitiva y es la que más se elige. La de lista finita confunde sucesión con arreglo de programación, que es justamente el choque de vocabulario que la cátedra provoca con el ejemplo del for.",
+ ref:"M01 L1"},
+{n:2,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"comprender",tipo:"vf",src:"paquete",
+ q:"Si una sucesión es acotada y monótona, entonces converge.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Son las dos hipótesis del teorema, y juntas alcanzan.",
+ dist:"Marcar Falso es recordar que acotada sola no basta y no advertir que acá está la segunda condición. Sin monotonía, aₙ = (−1)ⁿ está acotada entre −1 y 1 y no converge.",
+ ref:"M01 L1"},
+{n:3,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Si lím(x→∞) f(x) = L y f(n) = aₙ para todo entero n, ¿qué se concluye?",
+ op:["Que lím aₙ = L, pero el recíproco es falso","Que lím aₙ = L, y el recíproco también vale","Que aₙ está acotada, sin poder afirmar nada del límite","Que f y aₙ son la misma función"],ok:0,
+ just:"El teorema del puente va de la función a la sucesión. Es lo que permite usar toda la maquinaria de cálculo de una variable sobre sucesiones.",
+ dist:"La opción «Que lím aₙ = L, y el recíproco también vale» es la trampa. El contraejemplo es f(x) = sen(πx), que vale 0 en todo entero, por lo que la sucesión converge a 0, mientras que la función no tiene límite en infinito.",
+ ref:"M01 L1"},
+{n:4,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"El teorema de compresión exige que las dos sucesiones que acotan __________.",
+ op:["converjan al mismo límite L","converjan, sin importar a qué valor","sean monótonas","estén acotadas"],ok:0,
+ just:"Si los extremos van a valores distintos, la del medio puede oscilar entre ellos. El ejemplo mínimo es bₙ = −1, cₙ = 1 y aₙ = (−1)ⁿ.",
+ dist:"La opción «converjan, sin importar a qué valor» es la versión debilitada del teorema y es el distractor que la cátedra ya usó en su pregunta de repaso de esta misma lección.",
+ ref:"M01 L1"},
+{n:5,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"El corolario «si lím |aₙ| = L entonces lím aₙ = L» vale solamente para el valor __________.",
+ op:["L = 0","cualquier L real","L > 0","L = 1"],ok:0,
+ just:"Sale de aplicar compresión a −|aₙ| ≤ aₙ ≤ |aₙ|, y los dos extremos solo coinciden cuando el límite común es cero.",
+ dist:"La generalización a cualquier L es inmediata de creer y falsa: con aₙ = (−1)ⁿ vale lím |aₙ| = 1 mientras que lím aₙ no existe.",
+ ref:"M01 L1"},
+{n:6,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Calcular lím(n→∞) (3n² + 1) / (n² − 4).",
+ op:["3","0","No existe, diverge al infinito","1/3"],ok:0,
+ just:"Los grados del numerador y del denominador son iguales, por lo que el límite es el cociente de los coeficientes principales: 3 dividido 1.",
+ dist:"La opción del 0 corresponde al caso grado menor arriba y la de divergencia al caso grado mayor arriba. La cátedra arma los distractores con los otros dos casos del mismo criterio.",
+ ref:"M01 L1"},
+{n:101,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Cuál es el límite de aₙ = cos(n) / n?",
+ op:["0, por el teorema de compresión","No existe, porque el coseno oscila","1, por el límite notable","Diverge al infinito"],ok:0,
+ just:"Se acota −1 ≤ cos(n) ≤ 1 y se divide por n, que es positivo. Los extremos −1/n y 1/n tienden a cero, por lo que la del medio también.",
+ dist:"La oscilación del coseno hace pensar que el límite no existe, y ese es el reflejo que hay que desarmar: lo que importa es que el numerador está acotado y el denominador crece sin freno.",
+ ref:"M01 L1"},
+{n:102,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para aₙ = (2n+1)/n, la derivada de f(x) = (2x+1)/x es f'(x) = −1/x². ¿Qué se concluye?",
+ op:["La sucesión es monótona decreciente","La sucesión es monótona creciente","La sucesión no es monótona","No se puede concluir nada sobre la monotonía"],ok:0,
+ just:"Derivada negativa en todo x ≥ 1 significa función decreciente, y por lo tanto sucesión monótona decreciente.",
+ dist:"El PDF de cátedra escribe en este mismo tipo de cuenta f'(x) = −1/x² > 0 y después concluye que la función es decreciente. Ese signo invertido es una errata del material, y responder «creciente» es caer en ella.",
+ ref:"M01 L1"},
+{n:103,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El teorema de la sucesión monótona garantiza __________.",
+ op:["que el límite existe, sin decir cuál es","el valor exacto del límite","que la sucesión es creciente","que la sucesión está acotada"],ok:0,
+ just:"La propia lectura lo señala como la única desventaja del teorema: es un resultado de existencia, y el valor hay que calcularlo por otro camino.",
+ dist:"Creer que el teorema entrega el valor es el error más común. Las dos últimas opciones invierten el teorema: la acotación y la monotonía son hipótesis, no conclusiones.",
+ ref:"M01 L1"},
+{n:104,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Cuál es el límite de aₙ = (n + 5) / (n² + 1)?",
+ op:["0","1","Diverge al infinito","1/5"],ok:0,
+ just:"El grado del numerador es 1 y el del denominador es 2. Cuando el grado de abajo es mayor, el límite es cero.",
+ dist:"Responder 1 sale de mirar solo los términos líderes sin comparar grados. La divergencia corresponde al caso opuesto, con el grado mayor arriba.",
+ ref:"M01 L1"},
+
+/* ===== M01 L2 · Series ===== */
+{n:7,mod:"01",lec:"L2",tema:"Series",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Una serie es, con precisión, __________.",
+ op:["el límite de la sucesión de sumas parciales Sₙ","la suma de infinitos términos de una sucesión","una sucesión de términos que se acumulan","cualquier secuencia indexada de valores"],ok:0,
+ just:"La cátedra insiste en este punto: la definición no garantiza que exista una suma infinita, solo define una notación para indicar la convergencia de las sumas parciales.",
+ dist:"La opción «la suma de infinitos términos de una sucesión» es la formulación intuitiva y la que el propio PDF sale a corregir. La última es el choque con el vocabulario de datos, donde serie significa secuencia.",
+ ref:"M01 L2"},
+{n:8,mod:"01",lec:"L2",tema:"Series",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Cuál es la única familia de series del módulo donde se conoce el valor exacto de la suma?",
+ op:["La serie geométrica","La serie p","La serie armónica","Las series alternantes"],ok:0,
+ just:"La geométrica da a/(1−r) cuando |r| < 1. La lectura de la serie p aclara expresamente que ahí se conoce la naturaleza de la convergencia pero no el resultado de la suma.",
+ dist:"La serie p es la respuesta que más se elige porque tiene un criterio igual de limpio. La diferencia está en que ese criterio decide si converge, no a cuánto.",
+ ref:"M01 L2"},
+{n:9,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Decidir la naturaleza de la serie Σ n/(2n+3).",
+ op:["Diverge, por el criterio del término general","Converge, por comparación con la serie p","Converge, porque el término general tiende a 1/2","Diverge, por el criterio de la integral"],ok:0,
+ just:"El límite del término general es 1/2, distinto de cero, por lo que la serie diverge y no hace falta ningún otro criterio.",
+ dist:"La opción «Converge, porque el término general tiende a 1/2» invierte el criterio: que el término tienda a un valor no nulo es exactamente lo que prueba la divergencia. La cuarta llega al resultado correcto por un camino innecesario.",
+ ref:"M01 L2"},
+{n:10,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Calcular la suma de Σ(n=1 a ∞) (2/5)ⁿ.",
+ op:["2/3","5/3","2/5","3/5"],ok:0,
+ just:"Hay que reescribir con exponente n−1: Σ (2/5)(2/5)^(n−1), con a = 2/5 y r = 2/5. La suma es (2/5)/(1−2/5) = (2/5)/(3/5) = 2/3.",
+ dist:"El 5/3 sale de aplicar a/(1−r) con a = 1 en lugar de a = 2/5, que es el error de no reindexar el exponente. El 2/5 es quedarse con el primer término.",
+ ref:"M01 L2"},
+{n:11,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Clasificar la serie Σ (−1)ⁿ / √n.",
+ op:["Condicionalmente convergente","Absolutamente convergente","Divergente","Convergente y absolutamente convergente"],ok:0,
+ just:"Converge por el criterio alternante, porque 1/√(n+1) ≤ 1/√n y el término tiende a cero. En valor absoluto queda la serie p con p = 1/2, que diverge. Converge pero no absolutamente.",
+ dist:"El par absoluta contra condicional es el distractor estrella de esta lección. Quien solo aplica el criterio alternante y se detiene ahí elige la opción «Convergente y absolutamente convergente».",
+ ref:"M01 L2"},
+{n:12,mod:"01",lec:"L2",tema:"Series",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Si el criterio del cociente arroja L = 1, ¿qué se concluye?",
+ op:["Nada, el criterio no es concluyente","Que la serie converge","Que la serie diverge","Que la serie converge condicionalmente"],ok:0,
+ just:"El propio enunciado del criterio lo dice: con L = 1 no se puede sacar conclusión alguna respecto de la convergencia o la divergencia. Hay que cambiar de criterio.",
+ dist:"La tentación es asimilar L = 1 al caso frontera de la serie p con p = 1, que diverge. No es lo mismo, y esa analogía es justamente la que falla.",
+ ref:"M01 L2"},
+{n:13,mod:"01",lec:"L2",tema:"Series",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Cuándo conviene el criterio de la raíz por sobre el del cociente?",
+ op:["Cuando el término general tiene potencias n-ésimas","Cuando el término general tiene factoriales","Cuando la serie es alternante","Cuando el término general es un cociente de polinomios"],ok:0,
+ just:"La lectura lo dice de forma explícita al presentar cada criterio: el del cociente para factoriales, el de la raíz para potencias de n.",
+ dist:"Las dos primeras opciones están intercambiadas a propósito. Es un dato de memoria pura y por eso es fácil de preguntar.",
+ ref:"M01 L2"},
+{n:14,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Decidir la naturaleza de Σ 1/n^(1/2).",
+ op:["Diverge, es la serie p con p = 1/2","Converge, es la serie p con p = 1/2","Converge, por el criterio de la integral","Diverge, por el criterio del término general"],ok:0,
+ just:"La serie p converge si y solo si p > 1. Acá p = 1/2, que es menor o igual a 1, por lo que diverge.",
+ dist:"La opción «Converge, es la serie p con p = 1/2» invierte la condición del criterio. La cuarta llega al resultado correcto por un camino inválido: el término general tiende a cero, así que ese criterio no dice nada.",
+ ref:"M01 L2"},
+{n:105,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Decidir la naturaleza de Σ 2ⁿ/n!.",
+ op:["Converge, por el criterio del cociente","Diverge, por el criterio del cociente","Converge, por la serie p","No se puede decidir con los criterios del módulo"],ok:0,
+ just:"Con factoriales corresponde el criterio del cociente. El cociente de términos consecutivos es 2/(n+1), cuyo límite es 0, menor que 1, por lo que la serie converge absolutamente.",
+ dist:"La presencia del 2ⁿ creciendo hace pensar en divergencia. El factorial del denominador crece mucho más rápido, y por eso el criterio del cociente es el indicado.",
+ ref:"M01 L2"},
+{n:106,mod:"01",lec:"L2",tema:"Series",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Si una serie converge, entonces su término general tiende a cero.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Esa es la dirección que vale, y es el criterio del término n-ésimo.",
+ dist:"La implicación no se puede dar vuelta: que el término general tienda a cero no garantiza convergencia. La serie armónica Σ 1/n es el contraejemplo, tiende a cero y diverge.",
+ ref:"M01 L2"},
+{n:107,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Aplicando comparación por el límite entre Σ 1/(3n+2) y Σ 1/n, el cociente tiende a 1/3. ¿Qué se concluye?",
+ op:["Las dos divergen, porque comparten naturaleza","La primera converge y la segunda diverge","No se concluye nada, porque el límite no es 1","Las dos convergen"],ok:0,
+ just:"El criterio pide un límite c finito y positivo, y 1/3 lo es. Entonces ambas comparten naturaleza, y como Σ 1/n diverge por ser la serie p con p = 1, la otra también diverge.",
+ dist:"Exigir que el límite valga exactamente 1 es una condición que el criterio no pide. Alcanza con que sea finito y estrictamente positivo.",
+ ref:"M01 L2"},
+{n:108,mod:"01",lec:"L2",tema:"Series",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El teorema de reordenamiento de términos vale para las series __________.",
+ op:["absolutamente convergentes","condicionalmente convergentes","convergentes en general","alternantes"],ok:0,
+ just:"La lectura lo presenta como resultado de alto contenido teórico: si una serie es absolutamente convergente, entonces es convergente y no importa cómo se reordenen sus términos.",
+ dist:"Aplicarlo a las condicionalmente convergentes es el error clásico. En esas el reordenamiento puede cambiar el valor de la suma, y por eso la distinción entre los dos tipos importa.",
+ ref:"M01 L2"},
+{n:109,mod:"01",lec:"L2",tema:"Series",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Las hipótesis del criterio de la integral sobre f en el intervalo [1, ∞) son que f sea __________.",
+ op:["continua, positiva y decreciente","continua y derivable","positiva y acotada","monótona y acotada"],ok:0,
+ just:"Son las tres condiciones que enuncia el teorema. Sin ellas la equivalencia entre la convergencia de la serie y la de la integral impropia no se sostiene.",
+ dist:"Las opciones alternativas mezclan hipótesis de otros teoremas del módulo, sobre todo del teorema de la sucesión monótona, que sí pide monótona y acotada.",
+ ref:"M01 L2"},
+
+/* ===== M01 L3 · Fórmula de Taylor ===== */
+{n:15,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La fórmula general del polinomio de Taylor de grado n centrado en a es __________.",
+ op:["Tₙ(x) = Σ(i=0 a n) f⁽ⁱ⁾(a)/i! · (x−a)ⁱ","Tₙ(x) = Σ(i=0 a n) f⁽ⁱ⁾(x)/i! · (x−a)ⁱ","Tₙ(x) = Σ(i=0 a n) f⁽ⁱ⁾(a)/n! · (x−a)ⁱ","Tₙ(x) = Σ(i=0 a n) f⁽ⁱ⁾(a)/i! · (x−a)ⁿ"],ok:0,
+ just:"Cada término lleva su propia derivada evaluada en el centro, su propio factorial i! y su propia potencia (x−a)ⁱ. Los tres índices avanzan juntos.",
+ dist:"Los tres distractores cambian exactamente una cosa: dónde se evalúa la derivada, qué factorial va en el denominador y qué exponente lleva el binomio. Son los tres errores que se cometen al escribir la fórmula de memoria.",
+ ref:"M01 L3"},
+{n:16,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"El polinomio de Taylor centrado en a = 0 recibe el nombre de polinomio de __________.",
+ op:["Maclaurin","Lagrange","Newton","Bernoulli"],ok:0,
+ just:"Es el caso particular más usado, y la tabla de desarrollos de la lección está toda escrita en a = 0.",
+ dist:"Lagrange aparece asociado a otra forma del residuo en la bibliografía, y por eso es el distractor más creíble.",
+ ref:"M01 L3"},
+{n:17,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Para que la serie de Taylor represente a f en un intervalo, el residuo debe cumplir __________.",
+ op:["lím(n→∞) Rₙ(x) = 0 en ese intervalo","Rₙ(x) = 0 para todo x del intervalo","que Rₙ esté acotado por una constante","que f tenga todas sus derivadas en el intervalo"],ok:0,
+ just:"El teorema 1 pide exactamente ese límite. Que las derivadas existan es necesario pero no suficiente.",
+ dist:"La opción «Rₙ(x) = 0 para todo x del intervalo» confunde el residuo tendiendo a cero con el residuo siendo cero, que solo pasa si f ya es un polinomio. La cuarta se queda con la hipótesis previa y olvida la condición central.",
+ ref:"M01 L3"},
+{n:18,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"El desarrollo de Maclaurin de eˣ y su radio de convergencia son __________.",
+ op:["Σ xⁿ/n!, con R = ∞","Σ xⁿ/n!, con R = 1","Σ (−1)ⁿ xⁿ/n!, con R = ∞","Σ xⁿ, con R = 1"],ok:0,
+ just:"La exponencial es la única de la tabla junto con seno y coseno que converge en toda la recta real.",
+ dist:"El radio 1 corresponde a 1/(1−x), arcotangente, logaritmo y binomio. Confundir los radios es lo que más se pregunta de esta tabla. El signo alternado pertenece a seno, coseno y logaritmo, no a la exponencial.",
+ ref:"M01 L3"},
+{n:19,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"El polinomio de Maclaurin de cos(x) hasta el grado 4 es __________.",
+ op:["1 − x²/2 + x⁴/24","1 − x²/2 + x⁴/12","x − x³/6","1 + x²/2 + x⁴/24"],ok:0,
+ just:"De la tabla, cos x = Σ (−1)ⁿ x^(2n)/(2n)!. Los términos hasta grado 4 son 1, −x²/2! y +x⁴/4!, o sea 1 − x²/2 + x⁴/24.",
+ dist:"El 12 sale de confundir 4! con 4·3. La opción «x − x³/6» es el desarrollo del seno. La cuarta olvida el signo alternado, que es el rasgo distintivo de las trigonométricas.",
+ ref:"M01 L3"},
+{n:20,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Con f(x) = √x y centro a = 4, el polinomio T₂ aproxima √5 en __________.",
+ op:["143/64 ≈ 2,2344","145/64 ≈ 2,2656","9/4 = 2,25","2,2361 exacto"],ok:0,
+ just:"f(4)=2, f'(4)=1/4, f''(4)=−1/32. El coeficiente cuadrático es f''(4)/2! = −1/64. Entonces T₂(5) = 2 + 1/4 − 1/64 = 143/64 ≈ 2,2344, contra el valor real 2,2361.",
+ dist:"El 145/64 sale de sumar el término cuadrático en lugar de restarlo. El 9/4 es quedarse en el polinomio de grado 1. La opción «2,2361 exacto» confunde la aproximación con el valor exacto, que es irracional.",
+ ref:"M01 L3"},
+{n:21,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Cuáles son las dos desventajas de la cota del residuo que menciona el material?",
+ op:["Depende de conocer M, y M depende del ancho d del intervalo","Solo vale para polinomios de grado par, y exige f continua","Requiere calcular el residuo exacto, y depende del punto x","Solo vale en a = 0, y exige infinitas derivadas"],ok:0,
+ just:"La lectura las enumera de forma explícita al comentar la figura de la cota. Son las dos limitaciones prácticas del teorema.",
+ dist:"Los distractores mezclan hipótesis de otros teoremas del módulo. La opción «Requiere calcular el residuo exacto, y depende del…» es contradictoria: el sentido de la cota es justamente evitar calcular el residuo exacto.",
+ ref:"M01 L3"},
+{n:110,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El polinomio de Maclaurin de orden 3 de ln(1+x) es __________.",
+ op:["x − x²/2 + x³/3","x + x²/2 + x³/3","x − x²/2 − x³/3","−x − x²/2 + x³/3"],ok:0,
+ just:"De la tabla, ln(1+x) = Σ (−1)^(n−1) xⁿ/n. Los tres primeros términos alternan signo empezando por el más: x, −x²/2, +x³/3.",
+ dist:"Esta es exactamente la pregunta de opción múltiple que trae el PDF de cátedra, con los mismos tres distractores: cada uno cambia el signo de un término distinto.",
+ ref:"M01 L3"},
+{n:111,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para aproximar √10 con un polinomio de Taylor, ¿cuál es el centro que conviene elegir y por qué?",
+ op:["a = 9, porque √9 = 3 es exacto y está cerca de 10","a = 10, porque es el punto que se quiere aproximar","a = 0, porque siempre conviene Maclaurin","a = 16, porque √16 = 4 es exacto"],ok:0,
+ just:"El centro se elige donde la función se conoce sin error y a la menor distancia posible del punto buscado. El 9 cumple las dos cosas.",
+ dist:"Centrar en el punto buscado es circular: para eso habría que conocer √10, que es justo lo que falta. El 16 también es exacto pero está al doble de distancia, y la cota del error crece con |x−a|.",
+ ref:"M01 L3"},
+{n:112,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con f(x) = √x y centro a = 9, el coeficiente del término cuadrático del polinomio T₂ es __________.",
+ op:["−1/216","−1/648","−1/108","−1/72"],ok:0,
+ just:"f''(x) = −1/(4x^(3/2)), por lo que f''(9) = −1/108. El coeficiente es f''(9)/2! = −1/216.",
+ dist:"El −1/648 es el valor que trae el PDF de cátedra, que dividió por 3! en lugar de por 2!. Es una errata confirmada del material. El −1/108 es olvidarse de dividir por el factorial.",
+ ref:"M01 L3"},
+{n:113,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El residuo Rₙ(x) se define como __________.",
+ op:["f(x) − Tₙ(x)","Tₙ(x) − f(x)","la cota M/(n+1)! |x−a|^(n+1)","el último término del polinomio"],ok:0,
+ just:"Es la diferencia entre la función y su polinomio, en ese orden. De ahí sale la descomposición f(x) = Tₙ(x) + Rₙ(x).",
+ dist:"La opción «la cota M/(n+1)! |x−a|^(n+1)» confunde el residuo con su cota, que es el par de conceptos más caro de toda la unidad. El residuo es el error exacto, la cota es una garantía superior.",
+ ref:"M01 L3"},
+{n:114,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"¿Cuál de estos desarrollos de Maclaurin tiene radio de convergencia R = 1?",
+ op:["arctan(x)","sen(x)","cos(x)","eˣ"],ok:0,
+ just:"Los de radio 1 son 1/(1−x), arctan(x), ln(1+x) y (1+x)^k. Los de radio infinito son eˣ, sen(x) y cos(x).",
+ dist:"La arcotangente se parece mucho al seno en su forma, con potencias impares y signos alternados, y por eso se le asigna radio infinito por analogía. La diferencia está en que la arcotangente no lleva factorial en el denominador.",
+ ref:"M01 L3"},
+
+/* ===== M01 L4 · Usos del polinomio de Taylor ===== */
+{n:22,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Al multiplicar dos polinomios de Taylor de orden 3, ¿qué paso adicional hay que hacer?",
+ op:["Truncar el producto en el grado 3","Dividir el resultado por 3!","Sumar los residuos de ambos","Nada, el producto ya es de orden 3"],ok:0,
+ just:"El producto de dos polinomios de grado 3 llega hasta el grado 6. Los términos de grado mayor a 3 no son confiables y se descartan.",
+ dist:"La opción «Nada, el producto ya es de orden 3» es el error más frecuente: entregar un polinomio de grado 6 cuando se pedía uno de orden 3. En la suma y la resta no hace falta truncar, y esa asimetría es la que confunde.",
+ ref:"M01 L4"},
+{n:23,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"El polinomio de Taylor de orden 3 en a = 0 de f(x) = eˣ·sen(x) es __________.",
+ op:["x + x² + x³/3","x + x² + 5x³/6","x + x²/2 + x³/6","x − x³/6"],ok:0,
+ just:"eˣ ≈ 1 + x + x²/2 + x³/6 y sen x ≈ x − x³/6. Multiplicando y agrupando hasta grado 3 queda x + x² + (1/2 − 1/6)x³ = x + x² + x³/3.",
+ dist:"El 5x³/6 es el resultado del ejemplo del PDF, que multiplica 1/(1−x) por sen(x). Son productos parecidos y es fácil traer el coeficiente del otro ejercicio de memoria.",
+ ref:"M01 L4"},
+{n:24,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Para f(x) = ∛x con a = 8, en |x−8| ≤ 1, la cota del residuo |R₂| es menor a __________.",
+ op:["0,0004","0,004","0,04","0,0021"],ok:0,
+ just:"f'''(x) = (10/27)x^(−8/3), que alcanza su máximo en x = 7 y vale aproximadamente 0,0021 = M. Entonces |R₂| ≤ 0,0021/3! · 1³ ≈ 0,00035, menor a 0,0004.",
+ dist:"El 0,0021 es la cota M de la derivada tercera, no la cota del residuo. Quedarse con M y olvidar dividir por 3! es el error que la cátedra busca.",
+ ref:"M01 L4"},
+{n:25,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Qué relación hay entre el error real de una aproximación y la cota del error?",
+ op:["El error real es siempre menor o igual a la cota, y en general bastante menor","Son iguales por definición","La cota es menor que el error real","No hay relación garantizada entre los dos"],ok:0,
+ just:"El teorema da una desigualdad, no una igualdad. La cota es una garantía de que el error no supera cierto valor, y en la práctica suele quedar holgada.",
+ dist:"Tratar la cota como el error exacto es el par de conceptos que la cátedra explota. La opción «La cota es menor que el error real» invierte la desigualdad y haría inútil todo el teorema.",
+ ref:"M01 L4"},
+{n:115,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El polinomio de Taylor de grado 2 de ∛x en a = 8 evaluado en 9 da __________.",
+ op:["599/288 ≈ 2,0799","601/288 ≈ 2,0868","17/8 = 2,125","2 exacto"],ok:0,
+ just:"f(8)=2, f'(8)=1/12, f''(8)=−1/144. El coeficiente cuadrático es −1/288. Entonces T₂(9) = 2 + 1/12 − 1/288 = 599/288, contra el valor real 2,0801.",
+ dist:"El 601/288 suma el término cuadrático en lugar de restarlo. El 17/8 corta en el polinomio de grado 1. Este es el único caso del módulo donde el PDF hace la cuenta bien.",
+ ref:"M01 L4"},
+{n:116,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Para acotar una derivada de la forma 1/x^k en un intervalo [a, b] con a > 0, el máximo se alcanza en __________.",
+ op:["el extremo menor, porque el denominador es mínimo ahí","el extremo mayor, porque la potencia crece","el punto medio del intervalo","cualquiera de los dos extremos, da igual"],ok:0,
+ just:"Con la variable en el denominador el razonamiento se invierte respecto del caso habitual. Denominador más chico da cociente más grande.",
+ dist:"Evaluar en el extremo mayor es el reflejo automático de quien piensa que a mayor x, mayor valor. Este error arruina la cota en los dos casos resueltos del módulo, el de ∛9 y el de √10.",
+ ref:"M01 L4"},
+{n:117,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El polinomio de Taylor de orden 2 en a = 0 de f(x) = sen(x) + cos(x) es __________.",
+ op:["1 + x − x²/2","x + 1 − x²","1 + x + x²/2","x − x²/2"],ok:0,
+ just:"El de sen(x) a orden 2 es simplemente x, porque su siguiente término es cúbico. El de cos(x) es 1 − x²/2. La suma no requiere truncar.",
+ dist:"La opción «1 + x + x²/2» invierte el signo del término cuadrático, que viene del coseno y es negativo. La cuarta olvida el 1 del coseno, que es el único término independiente.",
+ ref:"M01 L4"},
+{n:118,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Para acotar el residuo de un polinomio de grado n hace falta la derivada de orden __________ y el factorial __________.",
+ op:["n+1 y (n+1)!","n y n!","n+1 y n!","n y (n+1)!"],ok:0,
+ just:"Los dos índices suben juntos. Si el polinomio es de grado 2, la cota usa la derivada tercera y divide por 3!.",
+ dist:"Las opciones cruzadas son el error más caro: usar la derivada correcta con el factorial equivocado da una cota que puede quedar por debajo del error real, y entonces deja de ser una garantía.",
+ ref:"M01 L4"},
+
+/* ===== M02 L1 · Vectores ===== */
+{n:26,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"El ángulo entre ⟨2,1,2⟩ y ⟨1,0,0⟩ es aproximadamente __________.",
+ op:["48,2 grados","41,8 grados","60 grados","33,6 grados"],ok:0,
+ just:"El producto escalar es 2, las normas son 3 y 1. Entonces cos θ = 2/3 ≈ 0,667 y θ = arccos(0,667) ≈ 48,2 grados.",
+ dist:"Los 41,8 grados son el complemento, o sea el resultado de usar arcoseno en lugar de arcocoseno. Los 60 grados salen de confundir 2/3 con 1/2.",
+ ref:"M02 L1"},
+{n:27,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"La proyección vectorial de b = ⟨1,2,3⟩ sobre a = ⟨0,3,0⟩ es __________.",
+ op:["⟨0,2,0⟩","2","⟨0,6,0⟩","⟨1,2,3⟩"],ok:0,
+ just:"a·b = 6 y |a|² = 9, por lo que la proyección es (6/9)⟨0,3,0⟩ = ⟨0,2,0⟩. Es un vector en la dirección de a.",
+ dist:"El 2 es la proyección escalar, que es un número. Dar un escalar donde se pide un vector, o al revés, es el par de conceptos que la cátedra más explota en esta lección.",
+ ref:"M02 L1"},
+{n:28,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"El producto cruz ⟨1,2,3⟩ × ⟨4,5,6⟩ es __________.",
+ op:["⟨−3, 6, −3⟩","⟨−3, −6, −3⟩","⟨3, −6, 3⟩","32"],ok:0,
+ just:"La primera componente es 2·6 − 3·5 = −3, la segunda es 3·4 − 1·6 = 6 y la tercera es 1·5 − 2·4 = −3.",
+ dist:"El segundo distractor olvida el signo menos del término j, que es el error más repetido de toda la lección. El 32 es el producto escalar, que devuelve un número.",
+ ref:"M02 L1"},
+{n:29,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"El área del triángulo de vértices (0,0,0), (1,2,0) y (0,1,3) es __________.",
+ op:["√46 / 2 ≈ 3,391","√46 ≈ 6,782","46 / 2 = 23","√46 · 2 ≈ 13,56"],ok:0,
+ just:"Los vectores son ⟨1,2,0⟩ y ⟨0,1,3⟩, cuyo producto cruz es ⟨6,−3,1⟩ con norma √46. Esa es el área del paralelogramo, y el triángulo es la mitad.",
+ dist:"El √46 sin dividir es el área del paralelogramo, y es el distractor principal. El 23 olvida la raíz cuadrada de la norma.",
+ ref:"M02 L1"},
+{n:30,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"El volumen del paralelepípedo de aristas ⟨2,0,0⟩, ⟨0,3,0⟩ y ⟨1,1,4⟩ es __________.",
+ op:["24","12","6","−24"],ok:0,
+ just:"El determinante de la matriz formada por las tres filas es 2·(3·4 − 0·1) = 24. El volumen es su valor absoluto.",
+ dist:"El −24 aparece si se invierte el orden de dos vectores y no se toma valor absoluto. El 12 sale de dividir por 2, que corresponde al tetraedro y no al paralelepípedo.",
+ ref:"M02 L1"},
+{n:31,mod:"02",lec:"L1",tema:"Vectores",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Dado el plano 2x − y + 5z = 7, su vector normal es __________.",
+ op:["⟨2, −1, 5⟩","⟨2, −1, 5, −7⟩","⟨7, 0, 0⟩","⟨−2, 1, −5⟩ únicamente"],ok:0,
+ just:"En la ecuación ax + by + cz + d = 0, los coeficientes ⟨a,b,c⟩ son el vector normal al plano. El término independiente no forma parte.",
+ dist:"La opción «⟨−2, 1, −5⟩ únicamente» no es falsa en su dirección, pero el enunciado pide el normal que se lee directo de los coeficientes. Incluir el término independiente es el error de leer la ecuación como un vector de cuatro componentes.",
+ ref:"M02 L1"},
+{n:32,mod:"02",lec:"L1",tema:"Vectores",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Dos vectores no nulos son paralelos si y solo si __________.",
+ op:["su producto cruz es el vector nulo","su producto escalar es cero","su producto escalar es uno","sus normas son iguales"],ok:0,
+ just:"Sale de |a×b| = |a||b| sen θ. Si son paralelos, θ vale 0 o π, el seno se anula y el producto cruz da el vector nulo.",
+ dist:"El producto escalar igual a cero caracteriza la perpendicularidad, que es la condición opuesta. Ese cruce entre paralelo y perpendicular es el distractor más usado.",
+ ref:"M02 L1"},
+{n:119,mod:"02",lec:"L1",tema:"Vectores",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La norma del producto cruz |a×b| se calcula con __________.",
+ op:["|a||b| sen θ","|a||b| cos θ","|a||b| tan θ","|a| + |b|"],ok:0,
+ just:"El producto escalar lleva coseno y el producto cruz lleva seno. Esa diferencia explica por qué uno detecta perpendicularidad y el otro paralelismo.",
+ dist:"Usar coseno en el producto cruz es el error de memoria más común de la lección, y además produce un resultado sin sentido geométrico: con vectores paralelos daría área máxima en lugar de cero.",
+ ref:"M02 L1"},
+{n:120,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El plano que pasa por A(1,0,0), B(0,2,0) y C(0,0,3) tiene por ecuación __________.",
+ op:["6x + 3y + 2z = 6","x + y + z = 1","6x + 3y + 2z = 0","2x + 3y + 6z = 6"],ok:0,
+ just:"Con AB = ⟨−1,2,0⟩ y AC = ⟨−1,0,3⟩ el producto cruz da el normal ⟨6,3,2⟩. Aplicando la ecuación en el punto A queda 6(x−1)+3y+2z = 0, o sea 6x+3y+2z = 6.",
+ dist:"La opción «6x + 3y + 2z = 0» olvida el término independiente, que sale de pasar el plano por A. La cuarta permuta los coeficientes del normal, que es el error de armar el determinante con las filas cambiadas.",
+ ref:"M02 L1"},
+{n:121,mod:"02",lec:"L1",tema:"Vectores",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El producto escalar de dos vectores devuelve __________ y el producto cruz devuelve __________.",
+ op:["un escalar, un vector","un vector, un escalar","un escalar, un escalar","un vector, un vector"],ok:0,
+ just:"El material lo advierte de forma explícita: el producto escalar toma dos vectores y devuelve un número real, y el producto cruz toma dos vectores y devuelve un tercer vector perpendicular a ambos.",
+ dist:"La confusión entre los dos tipos de salida es el error que más cuesta en el módulo, porque invalida la respuesta entera aunque la cuenta esté bien hecha.",
+ ref:"M02 L1"},
+{n:122,mod:"02",lec:"L1",tema:"Vectores",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La proyección escalar de b sobre a lleva en el denominador __________.",
+ op:["|a|, la norma del vector sobre el que se proyecta","|b|, la norma del vector que se proyecta","|a|², el cuadrado de la norma","|a||b|, el producto de las dos normas"],ok:0,
+ just:"La escalar divide por |a| y la vectorial por |a|². En los dos casos el denominador lleva el vector sobre el que se proyecta, nunca el que se proyecta.",
+ dist:"El |a|² corresponde a la proyección vectorial, y confundir las dos fórmulas es habitual porque se escriben casi igual. Proyectar sobre el vector equivocado es el otro error frecuente.",
+ ref:"M02 L1"},
+{n:123,mod:"02",lec:"L1",tema:"Vectores",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La ecuación x² + y² + z² = 25 representa __________.",
+ op:["una esfera de centro en el origen y radio 5","una esfera de centro en el origen y radio 25","un elipsoide","un cono"],ok:0,
+ just:"La ecuación de la esfera es (x−h)²+(y−k)²+(z−l)² = r². Acá el centro es el origen y r² = 25, por lo que el radio es 5.",
+ dist:"Tomar 25 como radio es olvidar que el término independiente está al cuadrado. El elipsoide requiere denominadores distintos en cada variable.",
+ ref:"M02 L1"},
+{n:124,mod:"02",lec:"L1",tema:"Vectores",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El triple producto escalar a·(b×c) sirve para calcular __________.",
+ op:["el volumen del paralelepípedo, tomando valor absoluto","el área de la cara generada por b y c","la distancia entre dos planos","el ángulo entre tres vectores"],ok:0,
+ just:"El teorema dice que V = |a·(b×c)|. El valor absoluto no es decorativo: el determinante puede dar negativo según la orientación de la terna.",
+ dist:"El área de una cara sale de |b×c| sin el producto escalar. Entregar el determinante con signo, sin valor absoluto, es el otro error habitual.",
+ ref:"M02 L1"},
+
+/* ===== M02 L2 · Derivación de un vector ===== */
+{n:33,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Para r(t) = ⟨3t, 4t, 5⟩, el vector tangente unitario T(0) es __________.",
+ op:["⟨3/5, 4/5, 0⟩","⟨3, 4, 0⟩","⟨3, 4, 5⟩","⟨3/5, 4/5, 1⟩"],ok:0,
+ just:"r'(t) = ⟨3,4,0⟩, que es constante. Su norma es 5, por lo que T = ⟨3/5, 4/5, 0⟩, con norma 1.",
+ dist:"La opción «⟨3, 4, 0⟩» es r' sin normalizar, que es el error de confundir el tangente con el tangente unitario. La tercera deriva mal la constante 5, que aporta 0 y no 5.",
+ ref:"M02 L2"},
+{n:34,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"La longitud de r(t) = ⟨2cos t, 2sen t, 3t⟩ para 0 ≤ t ≤ 2 es __________.",
+ op:["2√13 ≈ 7,211","√13 ≈ 3,606","2√5 ≈ 4,472","13"],ok:0,
+ just:"r'(t) = ⟨−2sen t, 2cos t, 3⟩ y su norma es √(4sen²t + 4cos²t + 9) = √13, constante. La integral de una constante en un intervalo de largo 2 da 2√13.",
+ dist:"El √13 olvida multiplicar por el largo del intervalo. El 2√5 sale de no elevar el 2 al cuadrado dentro de la raíz. Este ejercicio premia buscar sen² + cos² = 1 antes de integrar.",
+ ref:"M02 L2"},
+{n:35,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Para obtener la longitud de arco de una curva se integra __________.",
+ op:["la norma de la derivada, |r'(t)|","la derivada r'(t)","la función r(t)","la norma de la función, |r(t)|"],ok:0,
+ just:"La fórmula es L = ∫ |r'(t)| dt. El integrando es la rapidez, que es un escalar, y por eso la integral devuelve un número.",
+ dist:"Integrar r' devuelve un vector, no una longitud. Es el error que se detecta solo si se mira qué tipo de objeto entrega la respuesta.",
+ ref:"M02 L2"},
+{n:125,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para r(t) = ⟨cos t, sen t, t²⟩, la derivada r'(t) es __________.",
+ op:["⟨−sen t, cos t, 2t⟩","⟨cos t, sen t, 2t⟩","⟨−sen t, cos t, 2⟩","⟨sen t, −cos t, 2t⟩"],ok:0,
+ just:"Se deriva componente a componente. El coseno da menos seno, el seno da coseno y t² da 2t.",
+ dist:"La opción «⟨−sen t, cos t, 2⟩» es la que trae el PDF de cátedra, que trata la tercera componente como la constante 2. Esa errata lleva a una longitud de arco de 4,9 cuando la correcta es 2,96.",
+ ref:"M02 L2"},
+{n:126,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En la regla de derivación del producto cruz, d/dt[u×v] = __________.",
+ op:["u'×v + u×v', y el orden de los factores no se puede alterar","u'×v + v'×u, el orden da igual","u'×v' únicamente","(u×v)' calculado componente a componente sin regla del producto"],ok:0,
+ just:"Es la regla del producto aplicada al producto cruz. Como el producto cruz es anticonmutativo, invertir el orden de un término cambia el signo del resultado.",
+ dist:"La opción «u'×v + v'×u, el orden da igual» es la trampa: la regla del producto para el producto escalar sí es simétrica, y por analogía se supone que la del cruz también. No lo es.",
+ ref:"M02 L2"},
+{n:127,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El teorema del límite de una función vectorial afirma que __________.",
+ op:["si existen los límites de las componentes, existe el de la función vectorial","si existe el límite de la función vectorial, existen los de las componentes","el límite vectorial existe siempre que la curva sea continua","el límite se calcula tomando la norma y luego el límite escalar"],ok:0,
+ just:"La condición está sobre las componentes y la conclusión sobre el vector. Es el mismo principio que gobierna toda la lección: todo se hace componente a componente.",
+ dist:"La opción «si existe el límite de la función vectorial,…» invierte el sentido del enunciado. Aunque en este caso la recíproca también resulta cierta, no es lo que el teorema del material afirma, y la cátedra evalúa el enunciado tal como lo presenta.",
+ ref:"M02 L2"},
+{n:128,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para r(t) = ⟨t², eᵗ, sen t⟩, el vector tangente unitario en t = 0 es __________.",
+ op:["⟨0, √2/2, √2/2⟩","⟨0, 1, 1⟩","⟨0, 1, 0⟩","⟨2, 1, 1⟩"],ok:0,
+ just:"r'(t) = ⟨2t, eᵗ, cos t⟩, que en t = 0 vale ⟨0,1,1⟩, con norma √2. Dividiendo queda ⟨0, √2/2, √2/2⟩, cuya norma es 1.",
+ dist:"La opción «⟨0, 1, 1⟩» es r'(0) sin normalizar. La cuarta deriva mal t², evaluando 2t como si fuera 2.",
+ ref:"M02 L2"},
+
+/* ===== M02 L3 · Funciones de varias variables ===== */
+{n:36,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Para f(x,y) = x²y³ + e^(xy), la derivada parcial fₓ es __________.",
+ op:["2xy³ + y·e^(xy)","2xy³ + e^(xy)","3x²y² + x·e^(xy)","2xy³ + xy·e^(xy)"],ok:0,
+ just:"Se deja y fija. El primer término da 2xy³ y el segundo requiere regla de la cadena, con la derivada interna de xy respecto de x, que es y.",
+ dist:"La opción «2xy³ + e^(xy)» olvida la cadena y pierde el factor y. La tercera es fy, o sea la parcial respecto de la otra variable.",
+ ref:"M02 L3"},
+{n:37,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"El teorema de Clairaut afirma que fₓᵧ = fᵧₓ siempre que __________.",
+ op:["ambas parciales cruzadas sean continuas en un disco que contiene al punto","f sea derivable","f sea continua en el punto","f sea un polinomio"],ok:0,
+ just:"La hipótesis de continuidad de las cruzadas es lo que hace funcionar el teorema, y es la parte que la cátedra evalúa. Sin ella el resultado puede fallar.",
+ dist:"Enunciar Clairaut sin condiciones es el error típico, porque en todos los ejemplos del material la igualdad se cumple. Que f sea polinómica es suficiente pero no es la hipótesis del teorema.",
+ ref:"M02 L3"},
+{n:38,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Cómo se prueba que un límite en dos variables no existe?",
+ op:["Exhibiendo dos caminos de acercamiento que den límites distintos","Exhibiendo un camino donde el límite no exista","Verificando que la función no sea continua en el punto","Mostrando que la función no está definida en el punto"],ok:0,
+ just:"En el plano hay infinitos caminos de acercamiento a un punto, y el límite debe dar lo mismo por todos. Dos caminos discrepantes alcanzan para negar la existencia.",
+ dist:"La opción «Verificando que la función no sea continua en el…» invierte la lógica: la continuidad se define a partir del límite, no al revés. Que la función no esté definida en el punto no impide que el límite exista.",
+ ref:"M02 L3"},
+{n:129,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Para una función f: R³ → R, los conjuntos {f = k} se llaman __________.",
+ op:["superficies de nivel","curvas de nivel","trazas verticales","conjuntos de contorno"],ok:0,
+ just:"La nomenclatura de la cátedra es precisa: trazas en general, curvas de nivel cuando n = 2 y superficies de nivel cuando n = 3.",
+ dist:"Curvas de nivel corresponde al caso de dos variables y es el nombre más conocido, por eso se aplica por defecto. La cátedra evalúa que se distinga la dimensión.",
+ ref:"M02 L3"},
+{n:130,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Las curvas de nivel de f(x,y) = x² + y² son __________.",
+ op:["circunferencias concéntricas de radio √k","circunferencias concéntricas de radio k","parábolas","rectas paralelas"],ok:0,
+ just:"La ecuación de nivel es x² + y² = k, que para k > 0 es una circunferencia de centro en el origen y radio √k. Para k = 0 es un punto y para k < 0 el conjunto es vacío.",
+ dist:"Tomar k como radio olvida que la ecuación de la circunferencia lleva el radio al cuadrado. Las parábolas son las trazas verticales, no las curvas de nivel.",
+ ref:"M02 L3"},
+{n:131,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para f(x,y) = x²y³ + 2xy, ¿cuánto vale la parcial cruzada fₓᵧ?",
+ op:["6xy² + 2","6x²y² + 2","2xy³ + 2y","2x²y³ + 2x"],ok:0,
+ just:"Primero fₓ = 2xy³ + 2y, dejando y fija. Derivando eso respecto de y queda 6xy² + 2. Se verifica por el otro camino: fᵧ = 3x²y² + 2x, y su derivada respecto de x es 6xy² + 2. Coinciden, como corresponde por Clairaut.",
+ dist:"La opción «6x²y² + 2» agrega una potencia de x que no está, que es el error de derivar respecto de x cuando toca derivar respecto de y. Las dos últimas son parciales de primer orden, fₓ y una variante de fᵧ, o sea detenerse un paso antes.",
+ ref:"M02 L3"},
+{n:132,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El límite de xy/(x²+y²) cuando (x,y) tiende a (0,0) __________.",
+ op:["no existe, porque por y = 0 da 0 y por y = x da 1/2","vale 0","vale 1/2","vale 1"],ok:0,
+ just:"Por el eje x el cociente es 0 para todo x no nulo. Por la recta y = x queda x²/(2x²) = 1/2. Dos caminos, dos valores, el límite no existe.",
+ dist:"Responder 0 es quedarse con el primer camino probado, que es el más simple. Es el error de dar por cerrado un límite en dos variables después de un solo acercamiento.",
+ ref:"M02 L3"},
+{n:133,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para la función de Cobb-Douglas P(L,K) = 1,47·L^0,65·K^0,35, la parcial respecto de L es __________.",
+ op:["0,9555·L^(−0,35)·K^0,35","0,9555·L^0,65·K^0,35","0,5145·L^0,65·K^(−0,65)","1,47·0,65·L^0,65"],ok:0,
+ just:"Se deja K fijo y se aplica la regla de la potencia sobre L: 1,47·0,65 = 0,9555, y el exponente baja de 0,65 a 0,65 − 1 = −0,35.",
+ dist:"La opción «0,9555·L^0,65·K^0,35» multiplica por el exponente pero no lo baja en uno. La tercera es la parcial respecto de K. Esta cuenta reaparece en la lección 4 dentro de la regla de la cadena.",
+ ref:"M02 L3"},
+{n:134,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Las notaciones fₓ, ∂f/∂x, D₁f y f₁ designan __________.",
+ op:["todas la misma derivada parcial respecto de x","derivadas de órdenes distintos","f₁ la primera derivada y las otras la segunda","dos parciales distintas según el subíndice numérico"],ok:0,
+ just:"La lectura enumera seis notaciones equivalentes. En las numéricas el subíndice indica la posición de la variable, no su nombre.",
+ dist:"El subíndice 1 hace pensar en un orden de derivación. En un examen la misma derivada puede aparecer con cualquiera de las seis escrituras, y eso solo se resuelve conociendo la tabla.",
+ ref:"M02 L3"},
+
+/* ===== M02 L4 · Regla de la cadena y gradiente ===== */
+{n:39,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Para f(x,y) = x² + 3xy, la derivada direccional en (1,1) en la dirección de ⟨1,1⟩ vale __________.",
+ op:["4√2 ≈ 5,657","8","√34 ≈ 5,831","2√2 ≈ 2,828"],ok:0,
+ just:"Hay que normalizar: |⟨1,1⟩| = √2, por lo que u = ⟨1/√2, 1/√2⟩. El gradiente es ⟨2x+3y, 3x⟩, que en (1,1) vale ⟨5,3⟩. El producto escalar da 8/√2 = 4√2.",
+ dist:"El 8 es el resultado de no normalizar el vector, que es el error más frecuente de la lección. El √34 es la norma del gradiente, o sea el valor del máximo ascenso, no el de esta dirección.",
+ ref:"M02 L4"},
+{n:40,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Para la misma f(x,y) = x² + 3xy en (1,1), la dirección de máximo ascenso y su valor son __________.",
+ op:["⟨5,3⟩ normalizado, con valor √34 ≈ 5,831","⟨5,3⟩ sin normalizar, con valor 34","⟨3,5⟩ normalizado, con valor √34","⟨1,1⟩ normalizado, con valor 4√2"],ok:0,
+ just:"El máximo se alcanza en la dirección del gradiente y su valor es la norma del gradiente: √(25+9) = √34. El control de sanidad es que 5,831 supera al 5,657 de la pregunta anterior.",
+ dist:"Decir que el valor máximo es el gradiente en lugar de su norma confunde un vector con un escalar. El 34 olvida la raíz. La opción «⟨3,5⟩ normalizado, con valor √34» permuta las componentes del gradiente.",
+ ref:"M02 L4"},
+{n:135,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El vector gradiente respecto de una curva de nivel de la misma función es __________.",
+ op:["perpendicular a ella en cada punto","tangente a ella en cada punto","paralelo a ella solo en los máximos","independiente de ella"],ok:0,
+ just:"Si r(t) está contenida en la curva de nivel, vale ∇f · r'(t) = 0. Producto escalar nulo significa perpendicularidad.",
+ dist:"Pensarlo tangente es el error de imaginar que el gradiente sigue la curva. Justamente lo contrario: la dirección tangente a la curva de nivel es la de cambio cero, y la del gradiente la de cambio máximo.",
+ ref:"M02 L4"},
+{n:136,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El plano tangente a z = x² + y² en el punto (1, 2, 5) es __________.",
+ op:["z = 2x + 4y − 5","z = 2x + 4y + 5","z = x + 2y + 2","z = 2x + 2y + 1"],ok:0,
+ just:"fₓ = 2x y fᵧ = 2y, que en (1,2) valen 2 y 4. Reemplazando en z − 5 = 2(x−1) + 4(y−2) queda z = 2x + 4y − 5. Se verifica evaluando en (1,2), que da 5.",
+ dist:"La opción «z = 2x + 4y + 5» suma el término independiente en lugar de restarlo. La tercera usa el punto en lugar de las parciales como coeficientes.",
+ ref:"M02 L4"},
+{n:137,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Si z = x²y con x = cos t e y = sen t, entonces dz/dt es __________.",
+ op:["−2cos t·sen²t + cos³t","2cos t·sen²t + cos³t","−2sen t + cos t","2xy + x²"],ok:0,
+ just:"Por la regla de la cadena, dz/dt = 2xy·(−sen t) + x²·(cos t). Sustituyendo x e y queda −2cos t sen²t + cos³t. Se verifica derivando cos²t·sen t directamente.",
+ dist:"La opción «2cos t·sen²t + cos³t» pierde el signo menos que viene de derivar el coseno. La cuarta se queda en las parciales sin encadenar con las derivadas de las variables intermedias.",
+ ref:"M02 L4"},
+{n:138,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"La regla de la cadena para u función de n variables intermedias que dependen de m independientes tiene, en cada derivada, __________.",
+ op:["n términos, uno por cada variable intermedia","m términos, uno por cada variable independiente","n·m términos","un solo término"],ok:0,
+ just:"La suma recorre las variables intermedias. Las independientes determinan cuántas derivadas hay que calcular, no cuántos términos tiene cada una.",
+ dist:"Confundir n con m es el error estructural de esta lección, y produce sumas con la cantidad equivocada de términos. El producto n·m es la cantidad total de productos parciales de todo el cálculo, no de una sola derivada.",
+ ref:"M02 L4"},
+{n:139,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el caso de la lección, el ritmo de cambio de la producción en t = 100 da +7,83. Eso significa que __________.",
+ op:["la producción está creciendo a razón de 7,83 millones por día","la producción está decreciendo","la producción se mantiene constante","el modelo no es válido en ese punto"],ok:0,
+ just:"Un ritmo de cambio positivo indica crecimiento. Tiene sentido económico: el aporte de la mano de obra, que crece linealmente, supera a la caída del capital, que decrece como 1/t.",
+ dist:"El PDF de cátedra concluye textualmente «un decrecimiento de P» con ese mismo resultado positivo. Es una errata confirmada del material y el distractor más peligroso de toda la unidad, porque viene avalado por el propio apunte.",
+ ref:"M02 L4"},
+{n:140,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"El gradiente de una función escalar de dos variables es __________.",
+ op:["un vector cuyas componentes son las parciales","un número que mide la pendiente","una matriz de segundas derivadas","la derivada direccional en la dirección del eje x"],ok:0,
+ just:"∇f = ⟨fₓ, fᵧ⟩. Es una función vectorial, y de ahí que la derivada direccional se obtenga con un producto escalar contra el versor de la dirección.",
+ dist:"Tratarlo como escalar es lo que lleva a decir que el valor máximo de la derivada direccional es el gradiente, cuando es su norma. La matriz de segundas derivadas es el hessiano, que no se ve en el módulo.",
+ ref:"M02 L4"},
+{n:141,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Si u es perpendicular al gradiente en un punto, la derivada direccional en esa dirección vale __________.",
+ op:["cero, y se recorre la curva de nivel","el máximo, |∇f|","el mínimo, −|∇f|","no está definida"],ok:0,
+ just:"Como D_u f = |∇f| cos θ, con θ = 90 grados el coseno se anula. Moverse perpendicular al gradiente es moverse a lo largo de la curva de nivel, donde la función no cambia.",
+ dist:"Las opciones del máximo y el mínimo corresponden a θ = 0 y θ = 180 grados. Los tres casos son parte del mismo teorema y por eso se confunden entre sí.",
+ ref:"M02 L4"},
+
+/* ===== Respuestas múltiples ===== */
+{n:201,mod:"01",lec:"L2",tema:"Series",nivel:"comprender",tipo:"ms",src:"propia",
+ q:"Seleccioná todas las afirmaciones correctas sobre criterios de convergencia de series.",
+ op:["El criterio del término general solo sirve para probar divergencia",
+     "La serie p converge si y solo si p > 1",
+     "El criterio del cociente con L = 1 no es concluyente",
+     "Si el término general tiende a cero, la serie converge",
+     "El criterio de comparación exige términos positivos",
+     "La serie geométrica converge si |r| ≥ 1"],ok:[0,1,2,4],
+ just:"Las cuatro correctas son enunciados textuales del material. La cuarta opción invierte el criterio del término general y la sexta invierte la condición de la geométrica, que converge si |r| < 1.",
+ dist:"Las dos incorrectas son exactamente los dos errores que el propio PDF sale a advertir. La corrección es todo o nada, así que marcar una de más invalida la respuesta entera.",
+ ref:"M01 L2"},
+{n:202,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"ms",src:"propia",
+ q:"¿Cuáles de estos desarrollos de Maclaurin tienen radio de convergencia infinito?",
+ op:["eˣ","sen(x)","cos(x)","arctan(x)","ln(1+x)","1/(1−x)","(1+x)^k"],ok:[0,1,2],
+ just:"Solo la exponencial y las dos trigonométricas convergen en toda la recta real. Las otras cuatro tienen R = 1.",
+ dist:"La arcotangente es el distractor fuerte porque su forma se parece mucho a la del seno. La diferencia está en el factorial: seno y coseno lo llevan en el denominador, arcotangente no.",
+ ref:"M01 L3"},
+{n:203,mod:"02",lec:"L1",tema:"Vectores",nivel:"comprender",tipo:"ms",src:"propia",
+ q:"Seleccioná todas las operaciones que devuelven un escalar.",
+ op:["Producto escalar a·b","Norma |a|","Triple producto escalar a·(b×c)","Producto cruz a×b","Proyección vectorial de b sobre a","Proyección escalar de b sobre a"],ok:[0,1,2,5],
+ just:"El producto cruz y la proyección vectorial son las únicas dos de la lista que devuelven un vector. Todas las demás devuelven un número real.",
+ dist:"El triple producto escalar confunde por llevar un producto cruz adentro, pero el producto escalar exterior colapsa el resultado a un número. La proyección escalar y la vectorial se distinguen solo por el nombre.",
+ ref:"M02 L1"},
+{n:204,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"comprender",tipo:"ms",src:"propia",
+ q:"Seleccioná todas las afirmaciones correctas sobre el gradiente.",
+ op:["Es un vector formado por las derivadas parciales",
+     "Su norma es el valor máximo de la derivada direccional",
+     "Es perpendicular a las curvas de nivel",
+     "La derivada direccional es su producto escalar con un versor",
+     "Es tangente a las curvas de nivel",
+     "Su valor es un escalar que mide la pendiente"],ok:[0,1,2,3],
+ just:"Las cuatro primeras son los enunciados centrales de la lección. Las dos últimas son las negaciones de la primera y la tercera.",
+ dist:"Tangente contra perpendicular, y vector contra escalar, son los dos pares que la cátedra usa para armar distractores de gradiente. Aparecen juntos acá a propósito.",
+ ref:"M02 L4"},
+{n:205,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"comprender",tipo:"ms",src:"propia",
+ q:"¿Qué hipótesis necesita el teorema de la sucesión monótona para concluir que una sucesión converge?",
+ op:["Que sea monótona","Que esté acotada","Que sea creciente","Que su término general tienda a cero","Que sea una función de los naturales en los reales"],ok:[0,1],
+ just:"El teorema pide las dos cosas a la vez: acotada y monótona. La quinta opción es la definición de sucesión, que ya está dada de entrada y no es una hipótesis adicional.",
+ dist:"Exigir que sea creciente es restringir de más, porque el teorema admite también decrecientes. Pedir que el término tienda a cero es confundir con el criterio de series, que pertenece a otra lección.",
+ ref:"M01 L1"}
+];
+
+/* ---------- Banco 2 · Repaso de cátedra ---------- */
+const TPS=[
+{n:2001,orig:1,inst:"Repaso M01 L1",tema:"Teorema de compresión",tipo:"vf",fid:"catedra",
+ q:"Supongamos que bₙ ≤ aₙ ≤ cₙ y que tanto bₙ como cₙ convergen. Entonces aₙ converge.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Falso. El teorema de compresión exige que los dos extremos converjan al mismo límite L. Si convergen a valores distintos, la del medio puede oscilar entre ellos sin estabilizarse.",
+ dist:"La afirmación es el teorema con la hipótesis debilitada, que es exactamente el distractor que la cátedra construyó. El contraejemplo mínimo es bₙ = −1, cₙ = 1 y aₙ = (−1)ⁿ. El enunciado y las dos opciones están registrados tal cual aparecen en el PDF.",
+ ref:"M01 L1"},
+{n:2002,orig:2,inst:"Repaso M01 L1",tema:"Sucesiones acotadas",tipo:"vf",fid:"catedra",
+ q:"Supongamos que aₙ es acotada. Entonces aₙ converge.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Falso. Falta la monotonía. El teorema pide acotada y monótona, y sin la segunda condición la sucesión puede oscilar indefinidamente dentro de sus cotas.",
+ dist:"Es el par acotada contra convergente, planteado de la forma más directa posible. El contraejemplo es aₙ = (−1)ⁿ, acotada entre −1 y 1 y sin límite. El enunciado y las opciones están registrados del PDF.",
+ ref:"M01 L1"},
+{n:2003,orig:3,inst:"Repaso M01 L3",tema:"Polinomio de Maclaurin",tipo:"mc",fid:"catedra",
+ q:"El polinomio de Taylor de orden 3 de la función f(x) = ln(1+x) en a = 0 es __________.",
+ op:["T₃(x) = x − x²/2 + x³/3","T₃(x) = x + x²/2 + x³/3","T₃(x) = x − x²/2 − x³/3","T₃(x) = −x − x²/2 + x³/3"],ok:0,
+ just:"De la tabla de desarrollos, ln(1+x) = Σ (−1)^(n−1) xⁿ/n, que hasta el grado 3 da x − x²/2 + x³/3. Verificando por derivadas: f(0)=0, f'(0)=1, f''(0)=−1, f'''(0)=2, y dividiendo por 1!, 2! y 3! se llega al mismo polinomio.",
+ dist:"Las cuatro opciones están registradas del PDF en su orden original. Cada distractor cambia el signo de un término distinto: el cuadrático en B, el cúbico en C y el lineal en D. En el PDF el enunciado aparece con el LaTeX roto, escrito como «fx=ln(1+x)» y las opciones como «T3x=x-x22+x33».",
+ ref:"M01 L3"},
+{n:2004,orig:4,inst:"Repaso M01 L4",tema:"Cota del residuo",tipo:"mc",fid:"catedra",
+ q:"Si f es derivable en el intervalo (2,5) y |f'(x)| ≤ 5 para todo x en el intervalo [3,4], entonces __________.",
+ op:["|R₁(x)| ≤ (5/2)|x − 3,5|² para todo x en [3,4]","|R₁(x)| ≤ (5/2)|x − 5|² para todo x en [3,4]","|R₁(x)| ≤ (5/2)|x − 3| para todo x en [3,4]","|R₁(x)| ≤ (5/2)|x − 4|² para todo x en [3,4]","|R₁(x)| ≤ (5/2)|x − 3,5|² para todo x en (2,5)"],ok:0,
+ just:"La cota es M/(n+1)! por |x − a| elevado a n+1, con M = 5 y factorial 2. El centro debe estar dentro del intervalo donde se acotó la derivada, y el punto medio de [3,4] es 3,5. La desigualdad vale en [3,4], que es donde rige la cota de la derivada.",
+ dist:"Las cinco opciones están registradas del PDF. B y D mueven el centro a un extremo o fuera del intervalo, C pierde el cuadrado, y E cambia el conjunto de validez a (2,5), que es donde f es derivable pero no donde se acotó f'. Ese último es el distractor más fino de los cuatro.",
+ ref:"M01 L4"}
+];
+
+/* ---------- Definiciones en castellano ---------- */
+const D_SUC=`<b>Una sucesión</b> es una lista infinita de números, uno detrás del otro, generada por una regla.
+Si la regla es «dividí uno por el número de orden», la sucesión es 1, 1/2, 1/3, 1/4 y así para siempre.
+La cátedra la define como una <b>función</b> que toma un número natural (1, 2, 3, ...) y devuelve un número real.
+Que <b>converja</b> significa que los valores se van acercando a un número fijo y se quedan ahí: 1/n converge a 0.
+Que esté <b>acotada</b> significa que nunca se escapa de un rango, y que sea <b>monótona</b> significa que siempre va para el mismo lado, o todo el tiempo subiendo o todo el tiempo bajando.`;
+
+const D_SERIE=`<b>Una serie</b> es lo que pasa cuando se suman todos los términos de una sucesión.
+Como no se puede sumar infinitas cosas de una vez, se va sumando de a poco: primero el término 1, después 1 más 2, después 1 más 2 más 3.
+Esas sumas que se van acumulando se llaman <b>sumas parciales</b>, y son exactamente lo que en SQL sería un total acumulado.
+Si esas sumas acumuladas se van acercando a un número fijo, la serie <b>converge</b> y ese número es la suma de la serie.
+El ejemplo clásico: 1/2 + 1/4 + 1/8 + 1/16 nunca llega a pasar de 1, y de hecho converge a 1.`;
+
+const D_TAYLOR=`<b>Un polinomio de Taylor</b> es un polinomio que imita a una función complicada cerca de un punto.
+La idea: si conozco cuánto vale la función en un punto, cuánto vale su pendiente ahí, cuánto se curva, y así siguiendo,
+puedo armar un polinomio que arranque igual, tenga la misma pendiente, se curve igual, y entonces se le parezca mucho en la zona cercana.
+Es lo que hace la calculadora cuando le pedís el seno de un número: por dentro evalúa un polinomio.
+El <b>centro</b> es el punto donde se arma el polinomio, y se elige donde la función se conoce sin error. Para aproximar la raíz de 10 se centra en 9, porque ahí la raíz vale exactamente 3.`;
+
+const D_RESIDUO=`<b>El residuo</b> es el error que se comete al cambiar la función por su polinomio. Es la resta entre lo verdadero y lo aproximado.
+El problema es que para conocerlo exacto habría que conocer el valor verdadero, que es justo lo que no se sabe.
+Por eso existe <b>la cota del residuo</b>: una fórmula que no dice cuánto es el error, pero sí garantiza que no puede ser mayor que cierto valor.
+Es la diferencia entre decir «me equivoqué en 0,0002» y decir «me equivoqué en menos de 0,001». Lo segundo se puede probar sin saber lo primero,
+y alcanza para afirmar que los primeros tres decimales son confiables.`;
+
+const D_VECTOR=`<b>Un vector</b> es una flecha: tiene un largo y apunta para algún lado. Se escribe con sus tres coordenadas, por ejemplo ⟨1, 0, 2⟩.
+Hay dos formas muy distintas de multiplicar dos vectores.
+El <b>producto escalar</b> los multiplica coordenada a coordenada y suma todo, y devuelve <b>un número</b>. Ese número dice qué tanto apuntan para el mismo lado:
+si da cero, están en ángulo recto. Es la misma cuenta que la similitud coseno de los embeddings.
+El <b>producto cruz</b> devuelve <b>otro vector</b>, perpendicular a los dos primeros, y su largo es el área del paralelogramo que forman los dos originales.
+Sirve para calcular áreas y para encontrar la dirección perpendicular a un plano.`;
+
+const D_VECDER=`<b>Una función vectorial</b> describe el recorrido de un punto que se mueve. Por cada valor del tiempo t devuelve la posición del punto en el espacio.
+<b>Derivarla</b> es derivar cada coordenada por separado, y lo que se obtiene es la velocidad: una flecha que apunta en la dirección en la que el punto se está moviendo.
+El <b>vector tangente unitario</b> es esa misma flecha pero achicada a largo 1, para que informe solo la dirección y no la rapidez.
+La <b>longitud de arco</b> es cuánto camino recorrió el punto. Se calcula integrando la rapidez, o sea el largo de la flecha velocidad, a lo largo del tiempo.
+Es como calcular kilómetros recorridos integrando el velocímetro.`;
+
+const D_VARIAS=`<b>Una función de varias variables</b> recibe más de un dato y devuelve uno solo. Por ejemplo, la producción de una fábrica depende de las horas trabajadas y del capital invertido.
+Su gráfico ya no es una curva sino una <b>superficie</b>, como el relieve de un terreno.
+Las <b>curvas de nivel</b> son las líneas que unen los puntos de igual altura, igual que en un mapa topográfico.
+<b>Una derivada parcial</b> responde cuánto cambia el resultado si se mueve una sola de las variables y se deja la otra quieta.
+En la práctica se deriva como siempre, tratando a la otra variable como si fuera un número fijo.`;
+
+const D_GRAD=`<b>El gradiente</b> es un vector que junta todas las derivadas parciales de una función. Si la función es el relieve de un cerro, el gradiente en cada punto
+es la flecha que apunta hacia la subida más empinada, y su largo dice qué tan empinada es.
+<b>La derivada direccional</b> responde otra pregunta: cuánto sube o baja el terreno si camino en una dirección elegida, que no tiene por qué ser la más empinada.
+Se calcula con el producto escalar entre el gradiente y la dirección, y para que la cuenta dé bien la dirección tiene que venir con largo exactamente 1.
+De ahí salen tres casos: si camino en la dirección del gradiente subo lo máximo posible, si camino en la opuesta bajo lo máximo posible, y si camino perpendicular no subo ni bajo,
+porque estoy recorriendo una curva de nivel.`;
+
+const DEF={};
+[1,2,3,4,5,6,101,102,103,104,205,2001,2002].forEach(n=>DEF[n]=D_SUC);
+[7,8,9,10,11,12,13,14,105,106,107,108,109,201].forEach(n=>DEF[n]=D_SERIE);
+[15,16,17,18,19,20,21,110,111,112,113,114,202,2003].forEach(n=>DEF[n]=D_TAYLOR);
+[22,23,24,25,115,116,117,118,2004].forEach(n=>DEF[n]=D_RESIDUO);
+[26,27,28,29,30,31,32,119,120,121,122,123,124,203].forEach(n=>DEF[n]=D_VECTOR);
+[33,34,35,125,126,127,128].forEach(n=>DEF[n]=D_VECDER);
+[36,37,38,129,130,131,132,133,134].forEach(n=>DEF[n]=D_VARIAS);
+[39,40,135,136,137,138,139,140,141,204].forEach(n=>DEF[n]=D_GRAD);
+
+/* ---------- Teoría completa ---------- */
+const T_SUC=`
+<p>Una sucesión es una función α: N en R. Se escribe aₙ en vez de α(n), y la sucesión completa como {aₙ} con n desde 1 hasta infinito.</p>
+<p><b>Los tres teoremas de la lección, con sus hipótesis exactas:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Teorema</th><th>Hipótesis</th><th>Conclusión</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>Puente a la función real</td><td>lím(x→∞) f(x) = L y f(n) = aₙ</td><td>lím aₙ = L. El recíproco es falso</td><td>Stewart p. 693</td></tr>
+<tr><td>Compresión</td><td>aₙ ≤ bₙ ≤ cₙ para n ≥ n₀, y lím aₙ = lím cₙ = L, <b>el mismo L</b></td><td>lím bₙ = L</td><td>Stewart p. 694</td></tr>
+<tr><td>Sucesión monótona</td><td>Acotada <b>y</b> monótona</td><td>Converge. No dice a qué valor</td><td>Stewart p. 698</td></tr>
+</tbody></table></div>
+<p><b>Aritmética de límites.</b> Si {aₙ} y {bₙ} convergen y c es constante: el límite de la suma es la suma de los límites, lo mismo para la resta, el producto por escalar, el producto y el cociente cuando el denominador no tiende a cero, y la potencia si p &gt; 0 y aₙ &gt; 0. La hipótesis de que <b>las dos</b> converjan no es negociable.</p>
+<p><b>Corolario del valor absoluto.</b> Si lím |aₙ| = 0 entonces lím aₙ = 0. Vale <b>solo</b> para el límite cero, porque sale de comprimir con −|aₙ| y +|aₙ|, que coinciden únicamente ahí.</p>
+<p><b>Cocientes de polinomios, regla rápida:</b> grado de arriba menor da 0, grados iguales da el cociente de coeficientes principales, grado de arriba mayor da divergencia al infinito.</p>
+<p><b>Choque con el vocabulario de datos.</b> En el trabajo, «serie temporal» es cualquier secuencia indexada. En la cátedra eso es una <b>sucesión</b>, y «serie» significa la suma de una sucesión, que es el objeto de la lección 2. Confundirlos hace perder la lección siguiente entera. Del mismo modo, «monótono creciente» en SQL suele admitir igualdad, mientras que la cátedra usa desigualdad estricta: aₙ &lt; aₙ₊₁.</p>
+<p><b>Errata del PDF.</b> En el ejemplo de monotonía de aₙ = (n+1)/n el material escribe f'(x) = −1/x² &gt; 0 y a continuación concluye que f es decreciente. El signo está invertido: es &lt; 0.</p>`;
+
+const T_SERIE=`
+<p>Dada {aₙ}, las sumas parciales son Sₙ = Σ(j=1 a n) aⱼ. La serie converge si y solo si la sucesión {Sₙ} converge, y en ese caso su suma es ese límite. La cátedra remarca que la definición no garantiza que exista una suma infinita, solo define una notación.</p>
+<p><b>Los ocho criterios, con su condición de uso:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Criterio</th><th>Hipótesis</th><th>Enunciado</th><th>Cuándo</th></tr></thead>
+<tbody>
+<tr><td>Término general</td><td>ninguna</td><td>Si lím aₙ ≠ 0, diverge. Solo prueba divergencia</td><td>Siempre primero</td></tr>
+<tr><td>Integral</td><td>f continua, positiva y decreciente en [1,∞), aₙ = f(n)</td><td>La serie converge si y solo si converge la integral impropia</td><td>f fácil de integrar</td></tr>
+<tr><td>Serie p</td><td>términos 1/n^p</td><td>Converge si p &gt; 1, diverge si p ≤ 1</td><td>Reconocimiento directo</td></tr>
+<tr><td>Comparación</td><td>términos positivos</td><td>Mayorada por convergente converge. Minorada por divergente diverge</td><td>Se ve una p o geométrica</td></tr>
+<tr><td>Comparación por el límite</td><td>positivos, lím(aₙ/bₙ) = c finito y &gt; 0</td><td>Comparten naturaleza</td><td>La desigualdad no sale</td></tr>
+<tr><td>Serie alternante</td><td>bₙ &gt; 0</td><td>Si bₙ₊₁ ≤ bₙ y lím bₙ = 0, converge</td><td>Signos alternados</td></tr>
+<tr><td>Cociente</td><td>ninguna</td><td>L &lt; 1 converge absolutamente, L &gt; 1 diverge, L = 1 no concluye</td><td>Hay factoriales</td></tr>
+<tr><td>Raíz</td><td>ninguna</td><td>L &lt; 1 converge absolutamente, L &gt; 1 diverge, L = 1 no concluye</td><td>Hay potencias n-ésimas</td></tr>
+</tbody></table></div>
+<p><b>Serie geométrica.</b> Σ(n=1 a ∞) a·r^(n−1) = a/(1−r) si |r| &lt; 1, y diverge si |r| ≥ 1. El exponente es <b>n−1</b>. Si el enunciado viene con exponente n, hay que reescribir antes de aplicar la fórmula, y eso cambia el valor de a.</p>
+<p><b>Tipos de convergencia.</b> Absolutamente convergente significa que Σ|aₙ| converge. Condicionalmente convergente significa que converge pero no absolutamente. Absoluta implica convergente, y además admite reordenar los términos sin cambiar la suma.</p>
+<p><b>Choque con el vocabulario de datos.</b> Las sumas parciales Sₙ son exactamente el total acumulado que calcula una ventana SUM() OVER en SQL. Y el factor de decaimiento de un promedio móvil exponencial es la razón r de una serie geométrica.</p>`;
+
+const T_TAYLOR=`
+<p>El polinomio de Taylor de grado n de f en a es Tₙ(x) = Σ(i=0 a n) [f⁽ⁱ⁾(a)/i!]·(x−a)ⁱ. Cada término tiene su propia derivada evaluada en a, su propio factorial y su propia potencia. Cuando a = 0 se llama polinomio de Maclaurin.</p>
+<p><b>Tabla completa de desarrollos de Maclaurin:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Función</th><th>Serie</th><th>Radio</th><th>Rasgo para recordar</th></tr></thead>
+<tbody>
+<tr><td>1/(1−x)</td><td>1 + x + x² + x³ + ...</td><td>R = 1</td><td>Todos los coeficientes valen 1</td></tr>
+<tr><td>eˣ</td><td>1 + x/1! + x²/2! + x³/3! + ...</td><td>R = ∞</td><td>Todas las potencias, con factorial, sin signos</td></tr>
+<tr><td>sen x</td><td>x − x³/3! + x⁵/5! − x⁷/7! + ...</td><td>R = ∞</td><td>Solo impares, con factorial, alternado</td></tr>
+<tr><td>cos x</td><td>1 − x²/2! + x⁴/4! − x⁶/6! + ...</td><td>R = ∞</td><td>Solo pares, con factorial, alternado</td></tr>
+<tr><td>arctan x</td><td>x − x³/3 + x⁵/5 − x⁷/7 + ...</td><td>R = 1</td><td>Solo impares, <b>sin</b> factorial, alternado</td></tr>
+<tr><td>ln(1+x)</td><td>x − x²/2 + x³/3 − x⁴/4 + ...</td><td>R = 1</td><td>Todas las potencias, sin factorial, alternado</td></tr>
+<tr><td>(1+x)^k</td><td>1 + kx + k(k−1)x²/2! + ...</td><td>R = 1</td><td>Binomio generalizado</td></tr>
+</tbody></table></div>
+<p><b>Residuo.</b> Rₙ(x) = f(x) − Tₙ(x), de donde f(x) = Tₙ(x) + Rₙ(x). El teorema 1 dice que si lím(n→∞) Rₙ(x) = 0 en |x−a| &lt; R, entonces f es igual a la suma de su serie de Taylor en ese intervalo.</p>
+<p><b>Cota del teorema 2.</b> Si |f⁽ⁿ⁺¹⁾(x)| ≤ M para |x−a| ≤ d, entonces |Rₙ(x)| ≤ [M/(n+1)!]·|x−a|^(n+1). Las dos desventajas que el material señala: depende de conocer M, y ese M depende intrínsecamente de d.</p>
+<p><b>Errata del PDF.</b> En el caso de aproximar √10 con centro en 9, el material da el coeficiente cuadrático −1/648, dividiendo por 3! en vez de por 2!. El valor correcto es −1/216, y la aproximación correcta es 683/216 ≈ 3,16204 contra el 2051/648 ≈ 3,16512 del apunte. El valor real es 3,16228, así que la versión correcta es además más precisa.</p>`;
+
+const T_RESIDUO=`
+<p>La lección organiza tres usos del polinomio de Taylor: operar entre polinomios, aproximar valores y estimar el error.</p>
+<p><b>Uso 1. Aritmética.</b> El polinomio de orden n de una combinación se obtiene combinando los polinomios de orden n de cada función y truncando en el grado n.</p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Operación</th><th>¿Hay que truncar?</th><th>Por qué</th></tr></thead>
+<tbody>
+<tr><td>Suma</td><td>No</td><td>No aparecen grados nuevos</td></tr>
+<tr><td>Resta</td><td>No</td><td>No aparecen grados nuevos</td></tr>
+<tr><td>Producto</td><td><b>Sí</b></td><td>Dos polinomios de grado n dan uno de grado 2n</td></tr>
+<tr><td>División</td><td>El material remite a la bibliografía</td><td>No se desarrolla en la lectura</td></tr>
+</tbody></table></div>
+<p><b>Uso 2. Aproximar.</b> Elegir el centro donde la función es exacta y más cerca del punto buscado, construir el polinomio, evaluar.</p>
+<p><b>Uso 3. Estimar el error, en cuatro pasos:</b></p>
+<ol>
+<li>Derivar hasta el orden n+1.</li>
+<li>Fijar el intervalo |x − a| ≤ d donde se quiere la garantía.</li>
+<li>Acotar |f⁽ⁿ⁺¹⁾| en ese intervalo. Si es monótona, el máximo cae en un extremo, y <b>si la variable está en el denominador el máximo se da en el extremo menor</b>.</li>
+<li>Reemplazar M en |Rₙ| ≤ M/(n+1)! · d^(n+1) y traducir a decimales garantizados.</li>
+</ol>
+<p><b>Los dos casos resueltos del módulo, con sus números:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Caso</th><th>Centro</th><th>Polinomio T₂</th><th>Valor</th><th>Cota del error</th></tr></thead>
+<tbody>
+<tr><td>∛9</td><td>a = 8</td><td>2 + (x−8)/12 − (x−8)²/288</td><td>599/288 ≈ 2,07986</td><td>&lt; 0,0004</td></tr>
+<tr><td>√10</td><td>a = 9</td><td>3 + (x−9)/6 − (x−9)²/216</td><td>683/216 ≈ 3,16204</td><td>&lt; 10⁻³</td></tr>
+</tbody></table></div>
+<p><b>Erratas del PDF en esta lección.</b> El ejemplo 2 enuncia una suma y desarrolla una resta. El ejemplo 3 menciona eˣ donde usa sen(x). Y en el caso final la derivada tercera de √x aparece como −1/(8√x⁵) cuando es +3/(8√x⁵): el signo y el coeficiente están mal, aunque la conclusión de los tres decimales igual se sostiene.</p>`;
+
+const T_VECTOR=`
+<p><b>Qué devuelve cada operación.</b> Esta tabla resuelve la mitad de los distractores de la lección.</p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Operación</th><th>Entrada</th><th>Salida</th><th>Interpretación</th></tr></thead>
+<tbody>
+<tr><td>Producto por escalar</td><td>escalar y vector</td><td>vector</td><td>Estira o achica</td></tr>
+<tr><td>Producto escalar a·b</td><td>dos vectores</td><td><b>escalar</b></td><td>|a||b|cos θ. Cero significa perpendicular</td></tr>
+<tr><td>Norma |a|</td><td>vector</td><td>escalar</td><td>Raíz de a·a</td></tr>
+<tr><td>Proyección escalar</td><td>dos vectores</td><td>escalar</td><td>(a·b)/|a|. Puede ser negativa</td></tr>
+<tr><td>Proyección vectorial</td><td>dos vectores</td><td>vector</td><td>[(a·b)/|a|²]·a</td></tr>
+<tr><td>Producto cruz a×b</td><td>dos vectores de R³</td><td><b>vector</b></td><td>|a||b|sen θ. Cero significa paralelo. Su norma es el área del paralelogramo</td></tr>
+<tr><td>Triple producto a·(b×c)</td><td>tres vectores</td><td>escalar</td><td>Su valor absoluto es el volumen del paralelepípedo</td></tr>
+</tbody></table></div>
+<p><b>Producto cruz por determinante.</b> a×b se desarrolla por menores de la matriz con i, j, k en la primera fila. El término de j lleva <b>signo menos</b>. Es el error más repetido de la lección.</p>
+<p><b>Rectas y planos.</b> Recta vectorial: r = r₀ + tv. Paramétricas: x = x₀ + at, y = y₀ + bt, z = z₀ + ct. Segmento de r₀ a r₁: r(t) = (1−t)r₀ + t·r₁ con t entre 0 y 1. Plano vectorial: n·(r − r₀) = 0. Plano algebraico: a(x−x₀)+b(y−y₀)+c(z−z₀)=0, donde ⟨a,b,c⟩ es el vector <b>normal</b>, o sea perpendicular al plano, no contenido en él.</p>
+<p><b>Superficies cuádricas, lectura rápida.</b> Contar los signos menos cuando todo está al cuadrado e igualado a 1: cero menos es elipsoide, uno es hiperboloide de una hoja, dos es hiperboloide de dos hojas. Si una variable está a la primera potencia es paraboloide, y el signo relativo de las otras dos decide si es elíptico o hiperbólico.</p>
+<p><b>Choque con el vocabulario de datos.</b> La similitud coseno de dos embeddings es literalmente (a·b)/(|a||b|), o sea el cos θ de la cátedra. La norma L2 es la norma. Lo que no tiene equivalente en el trabajo diario es el producto cruz, que casi no aparece en álgebra lineal aplicada y acá es central.</p>
+<p><b>Erratas del PDF.</b> Dice que cada punto del espacio tridimensional queda expresado con «4 coordenadas», cuando son 3. Dice «tres vectores linealmente independientes en R²», cuando debe ser R³. Y llama cubo al paralelepípedo del caso, que no lo es: solo una de sus caras distintas es un cuadrado.</p>`;
+
+const T_VECDER=`
+<p><b>Principio rector de la lección:</b> todo se hace componente a componente. Límite, continuidad y derivada de r(t) = ⟨f(t), g(t), h(t)⟩ se calculan sobre cada coordenada por separado.</p>
+<p><b>Límite.</b> lím(t→a) r(t) = ⟨lím f, lím g, lím h⟩, siempre que existan los límites de las componentes. Stewart p. 840.</p>
+<p><b>Derivada.</b> r'(t) = ⟨f'(t), g'(t), h'(t)⟩. Es el vector tangente a la curva en ese punto. Stewart p. 848.</p>
+<p><b>Tangente unitario.</b> T(t) = r'(t)/|r'(t)|, de norma 1 en todo punto donde la curva es diferenciable.</p>
+<p><b>Las seis reglas de derivación:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>#</th><th>Regla</th><th>Nota</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>d/dt[u + v] = u' + v'</td><td>Directa</td></tr>
+<tr><td>2</td><td>d/dt[c·u] = c·u'</td><td>c escalar constante</td></tr>
+<tr><td>3</td><td>d/dt[f(t)·u] = f'·u + f·u'</td><td>Producto por función real</td></tr>
+<tr><td>4</td><td>d/dt[u·v] = u'·v + u·v'</td><td>Producto escalar. Simétrica</td></tr>
+<tr><td>5</td><td>d/dt[u×v] = u'×v + u×v'</td><td>Producto cruz. <b>El orden no se altera</b></td></tr>
+<tr><td>6</td><td>d/dt[u(f(t))] = f'(t)·u'(f(t))</td><td>Cadena</td></tr>
+</tbody></table></div>
+<p><b>Longitud de arco.</b> L = ∫(a a b) |r'(t)| dt. Se integra la <b>norma</b> de la derivada, que es la rapidez. Integrar r' devuelve un vector y no una longitud. Antes de integrar conviene buscar la simplificación sen²t + cos²t = 1, que es lo que convierte muchos integrandos en constantes.</p>
+<p><b>Errata grave del PDF.</b> En el caso de la ruta de montaña r(t) = ⟨cos t, sen t, t²⟩ con t entre −1 y 1, el material escribe la derivada como ⟨cos t, sen t, 2t⟩, con el rótulo r(t) en vez de r'(t) y sin cambiar las trigonométricas, y después trata la tercera componente como la constante 2 dentro de la raíz. Llega a ∫√6 dt = 2√6 ≈ 4,9. Lo correcto es r'(t) = ⟨−sen t, cos t, 2t⟩, con norma √(1+4t²), y la longitud es ∫(−1 a 1)√(1+4t²) dt ≈ <b>2,96</b>. El resultado del apunte está errado por un factor cercano a 1,7.</p>`;
+
+const T_VARIAS=`
+<p>Para F: Rⁿ en Rᵐ, la función recibe n entradas y devuelve m salidas. El caso que desarrolla la lección es f: R² en R.</p>
+<p><b>Gráfico.</b> G = {(x, y, f(x,y)) : (x,y) en Dom(F)}, una superficie en R³. Para más de dos variables el gráfico existe pero no se puede visualizar.</p>
+<p><b>Conjuntos de nivel.</b> {f = k} es el conjunto de puntos donde la función vale k.</p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Dimensión de entrada</th><th>Nombre</th><th>Analogía</th></tr></thead>
+<tbody>
+<tr><td>Cualquiera</td><td>Trazas</td><td>Corte de la superficie</td></tr>
+<tr><td>n = 2</td><td>Curvas de nivel</td><td>Mapa topográfico, contour plot</td></tr>
+<tr><td>n = 3</td><td>Superficies de nivel</td><td>Capas de igual valor en el espacio</td></tr>
+</tbody></table></div>
+<p><b>Límite.</b> lím(x→a) f(x) = L significa que para todo ε &gt; 0 existe δ &gt; 0 tal que si 0 &lt; |x − a| &lt; δ entonces |f(x) − L| &lt; ε, con |x − a| la distancia euclídea en Rⁿ. Stewart p. 889.</p>
+<p><b>La diferencia con una variable.</b> En R hay dos caminos posibles para acercarse a un punto. En R² hay infinitos. El límite debe dar lo mismo por todos, y por eso <b>dos caminos con valores distintos alcanzan para probar que el límite no existe</b>. Dos caminos que coinciden, en cambio, no prueban nada.</p>
+<p><b>Derivadas parciales.</b> fₓ incrementa solo x, fᵧ incrementa solo y. En la práctica se deriva como siempre tratando a la otra variable como constante.</p>
+<p><b>Las seis notaciones equivalentes:</b> fₓ(x,y), fₓ, ∂f/∂x, ∂z/∂x, f₁, D₁f o Dₓf. En las numéricas el subíndice indica la <b>posición</b> de la variable, no su nombre.</p>
+<p><b>Teorema de Clairaut.</b> Si f está definida sobre un disco D que contiene a (a,b) y <b>tanto fₓᵧ como fᵧₓ son continuas</b> sobre D, entonces fₓᵧ(a,b) = fᵧₓ(a,b). La hipótesis de continuidad es lo que se evalúa. El orden de los subíndices en fₓᵧ significa derivar primero respecto de x.</p>
+<p><b>Errata del PDF.</b> La definición del gráfico aparece rota, escrita como si fuera una fracción: G = {(x,y), f(x,y)/(x,y) ∈ Dom(F)}. Y en el caso de Cobb-Douglas el material define K en millones de dólares pero interpreta K = 20 como «20 000 dólares invertidos». Son 20 millones.</p>`;
+
+const T_GRAD=`
+<p><b>Plano tangente.</b> Con las parciales continuas, el plano tangente a z = f(x,y) en P(x₀,y₀,z₀) es z − z₀ = fₓ(x₀,y₀)(x − x₀) + fᵧ(x₀,y₀)(y − y₀). Stewart p. 916. Leído como aproximación, es el polinomio de Taylor de grado 1 en dos variables, lo cual conecta esta lección con el módulo 01.</p>
+<p><b>Regla de la cadena, en sus tres formas:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Situación</th><th>Fórmula</th><th>Fuente</th></tr></thead>
+<tbody>
+<tr><td>n intermedias, m independientes</td><td>∂u/∂tᵢ = Σ(j=1 a n) (∂u/∂xⱼ)(∂xⱼ/∂tᵢ)</td><td>Stewart p. 927</td></tr>
+<tr><td>2 intermedias, 1 independiente</td><td>dz/dt = (∂f/∂x)(dx/dt) + (∂f/∂y)(dy/dt)</td><td>Stewart p. 924</td></tr>
+<tr><td>2 intermedias, 2 independientes</td><td>∂z/∂s y ∂z/∂t, cada una con dos términos</td><td>Stewart p. 926</td></tr>
+</tbody></table></div>
+<p>La cantidad de <b>términos</b> de cada suma la fijan las variables <b>intermedias</b>. Las independientes fijan cuántas derivadas hay que calcular.</p>
+<p><b>Derivada direccional.</b> D_u f(x,y) = fₓ·a + fᵧ·b con u = ⟨a,b⟩ <b>unitario</b>. Si el vector no viene normalizado hay que dividirlo por su norma antes de usarlo. Las derivadas parciales son los casos particulares u = ⟨1,0⟩ y u = ⟨0,1⟩.</p>
+<p><b>Gradiente.</b> ∇f = ⟨fₓ, fᵧ⟩, una función <b>vectorial</b>. Y D_u f = ∇f · u, un producto escalar, o sea un <b>número</b>.</p>
+<p><b>Teorema del máximo ascenso y sus tres casos:</b></p>
+<div class="tablaWrap"><table>
+<thead><tr><th>Dirección de u</th><th>Valor de D_u f</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td>La misma que ∇f</td><td>+|∇f|</td><td>Máximo ascenso</td></tr>
+<tr><td>Opuesta a ∇f</td><td>−|∇f|</td><td>Máximo descenso. Es lo que usa el descenso por gradiente</td></tr>
+<tr><td>Perpendicular a ∇f</td><td>0</td><td>Se recorre la curva de nivel, la función no cambia</td></tr>
+</tbody></table></div>
+<p><b>Perpendicularidad.</b> Si r(t) está contenida en {f = k}, entonces ∇f · r'(t) = 0. El gradiente es perpendicular a las curvas y superficies de nivel, y en R³ es el vector normal al plano tangente a la superficie de nivel.</p>
+<p><b>Caso de la lección, resuelto completo.</b> Con P(L,K) = 1,47·L^0,65·K^0,35, L = 7t y K = 1.000.000/t, en t = 100 se tiene L = 700 y K = 10.000. Las parciales valen 2,4235 y 0,09135, y las derivadas de las intermedias valen 7 y −100. Entonces dP/dt = 2,4235·7 + 0,09135·(−100) = 16,9645 − 9,135 = <b>7,8295</b>, positivo, o sea <b>crecimiento</b>.</p>
+<p><b>Erratas del PDF.</b> El material escribe «2,4235 · 7 − 9,135 = 7,851», cuando el resultado es 7,8295, y después concluye que el valor «indica un decrecimiento de P». Con un ritmo de cambio positivo lo que indica es crecimiento. Es la errata más peligrosa del módulo, porque un distractor de examen construido sobre el apunte quedaría invertido.</p>
+<p><b>Choque con el vocabulario de datos.</b> El gradiente de la cátedra y el de backpropagation son el mismo objeto. El descenso por gradiente se mueve en la dirección −∇f, que es exactamente el teorema del máximo ascenso invertido. Y preguntar cuánto cambia un KPI al mover varias palancas a la vez es literalmente calcular una derivada direccional.</p>`;
+
+const AMP={};
+[1,2,3,4,5,6,101,102,103,104,205,2001,2002].forEach(n=>AMP[n]=T_SUC);
+[7,8,9,10,11,12,13,14,105,106,107,108,109,201].forEach(n=>AMP[n]=T_SERIE);
+[15,16,17,18,19,20,21,110,111,112,113,114,202,2003].forEach(n=>AMP[n]=T_TAYLOR);
+[22,23,24,25,115,116,117,118,2004].forEach(n=>AMP[n]=T_RESIDUO);
+[26,27,28,29,30,31,32,119,120,121,122,123,124,203].forEach(n=>AMP[n]=T_VECTOR);
+[33,34,35,125,126,127,128].forEach(n=>AMP[n]=T_VECDER);
+[36,37,38,129,130,131,132,133,134].forEach(n=>AMP[n]=T_VARIAS);
+[39,40,135,136,137,138,139,140,141,204].forEach(n=>AMP[n]=T_GRAD);
+
+/* ---------- Estado ---------- */
+const HKEY="s21.calculo.p1.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+const LETRA=k=>"abcdefg"[k]||"?";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const BANCOS={quiz:QUIZ,preg:TPS};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"del paquete de estudio",propia:"escrita para practicar",
+  catedra:"enunciado y opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:["catedra","mixto","propio"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Preguntas del paquete":o==="propia"?"Escritas para practicar":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         "Opciones reconstruidas"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : "Elegí qué lectura repasar";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(k=>LETRA(k)).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' que salen de la sección 9 del paquete de estudio más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre los resúmenes de teoría para cubrir los huecos.'
+    : 'Las '+base.length+' preguntas de repaso que traen las propias lecturas de cátedra de los módulos 01 y 02. Enunciado, opciones y respuesta salen del PDF tal como están impresos.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Lectura")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>
