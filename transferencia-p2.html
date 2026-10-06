@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transferencia · Parcial 2 · Autoevaluación interactiva</title>
+<style>
+  :root{
+    --texto:#1A1A1A;
+    --titulo:#3D3D3D;
+    --acento:#2D4A3E;
+    --fondo:#FAF9F7;
+    --panel:#FFFFFF;
+    --borde:#E7E5E4;
+    --ok:#2D4A3E;
+    --okBg:#EAF1ED;
+    --mal:#8C2F2F;
+    --malBg:#F7EBEB;
+    --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--fondo);
+    color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap;
+  }
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{
+    background:var(--panel);border:1px solid var(--borde);border-radius:4px;
+    padding:24px 24px 20px;
+  }
+  .meta{
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px;
+  }
+  .enunciado{font-size:17px;margin:0 0 18px}
+  .enunciado b{font-weight:bold}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{
+    text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start;
+  }
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{
+    font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+  }
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .btn{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;
+    border-radius:3px;cursor:pointer;
+  }
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{
+    font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px;
+  }
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{
+    font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px;
+  }
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600;
+  }
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .aviso{
+    font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px;
+  }
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{
+    background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600;
+  }
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{
+    margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic;
+  }
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0;
+  }
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Transferencia e Innovación Tecnológica · Parcial 2</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 03 y 04 · Ricardo Alvarez · Legajo VROB003882</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido armado sobre los ocho resúmenes de teoría de los módulos 03 y 04, con sus secciones Para el examen, Trampas frecuentes, Choques con el vocabulario de datos y Erratas del PDF. No hay paquete de estudio de este parcial, ninguna de las ocho lecciones trae preguntas de repaso y no hay trabajos prácticos archivados de estos módulos, así que todas las preguntas son escritas para practicar y los bancos de preguntas ya tomadas y de repaso de cátedra quedaron vacíos.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 102 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+
+/* ---------- Banco 1: autoevaluación, módulos 03 y 04 ---------- */
+const QUIZ = [
+{n:101, mod:"03", lec:"L1", tema:"Generación de innovación en la empresa", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Varela Villegas, las tres nociones que el género humano usa como elementos básicos de su accionar forman un ciclo continuo e incesante. ¿En qué orden?",
+ op:["Cambio, acción y mejoramiento","Cambio, mejoramiento y acción","Mejoramiento, cambio y acción","Acción, cambio y mejoramiento"],
+ ok:0,
+ just:"El texto nombra el ciclo cambio-acción-mejoramiento en ese orden. Primero se detecta qué modificar, después se ejecuta, y el mejoramiento orienta los resultados y hace que el ciclo vuelva a empezar.",
+ dist:"Las tres incorrectas usan las mismas palabras en otro orden, que es la trampa que registra el resumen. Poner acción primero es el error más común porque en la práctica se suele empezar por hacer, pero para la cátedra la acción ejecuta un cambio ya identificado.",
+ ref:"M03 L1"},
+
+{n:102, mod:"03", lec:"L1", tema:"Culturas innovadoras", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Varela Villegas encuentra cuatro rasgos comunes en las civilizaciones que más aportaron. ¿Cómo llama a la actitud continua de corregir errores y avanzar sobre los aciertos?",
+ op:["Mejoramiento continuo o Kaizen","Principio de mejoramiento","Necesidades","Inercia organizacional","Ciclo de transformación"],
+ ok:1,
+ just:"El cuarto rasgo es la destreza para sostener una actitud continua corrigiendo errores y avanzando sobre aciertos, y el autor lo denomina principio de mejoramiento.",
+ dist:"Necesidades es el nombre que el mismo autor da a las nuevas formas de desarrollo y progreso, el primer rasgo. Kaizen también es mejoramiento continuo, pero es un método japonés que aparece más adelante en la lección y no el nombre del rasgo. Inercia organizacional es justamente la fuerza contraria.",
+ ref:"M03 L1"},
+
+{n:103, mod:"03", lec:"L1", tema:"Inercia organizacional", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"La resistencia al cambio se concentra en los niveles operativos de la organización, porque los directivos son quienes impulsan las ideas nuevas.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La cátedra dice que la resistencia está presente en todos los niveles de la organización. Además, la segunda medida para superarla supone convencer primero a la dirigencia, lo que muestra que también arriba hay resistencia.",
+ dist:"La afirmación suena razonable porque asocia la innovación con la gerencia. El texto dice lo contrario: las ideas novedosas pueden surgir en cualquier nivel y la resistencia también.",
+ ref:"M03 L1"},
+
+{n:104, mod:"03", lec:"L1", tema:"Superar la inercia", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Antes de proponer una herramienta nueva, una líder releva el clima del área, las normas informales y las conductas que suelen frenar los cambios, para preparar al equipo. Según la cátedra, ¿qué medida está aplicando?",
+ op:["Implementación clara y transparente","Control descentralizado","Mejoramiento continuo","Diagnóstico de los factores de resistencia","Movimiento estratégico"],
+ ok:3,
+ just:"El diagnóstico consiste en estudiar a fondo los factores de resistencia presentes en la empresa: clima, normas, conductas y sus causas, para que el personal entienda la finalidad del cambio.",
+ dist:"La implementación clara y transparente es la otra medida, y va después, una vez que la dirigencia aceptó la idea. Movimiento estratégico es del océano azul (L3) y control descentralizado es una desventaja de Kaizen. Las tres están puestas por ser vocabulario del mismo módulo.",
+ ref:"M03 L1"},
+
+{n:105, mod:"03", lec:"L1", tema:"Superar la inercia", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"El directorio ya aprobó migrar los tableros a una plataforma nueva. El líder informa con detalle los beneficios y suma a todos los sectores al proceso, para que quienes participen ayuden a sostener el cambio donde todavía hay resistencia. ¿Qué medida es?",
+ op:["Implementación clara y transparente","Diagnóstico de los factores de resistencia","Principio de mejoramiento","Innovación en valor"],
+ ok:0,
+ just:"Es la segunda medida: con la idea ya aceptada por la dirigencia, se informan los beneficios con el máximo detalle y se implica a todos los sectores. Quien participó acepta más fácil la transformación y la sostiene frente a los que resisten.",
+ dist:"El diagnóstico es previo y consiste en estudiar la resistencia, no en comunicar beneficios. El dato que desempata es que el directorio ya aprobó: la implementación transparente presupone esa aceptación.",
+ ref:"M03 L1"},
+
+{n:106, mod:"03", lec:"L1", tema:"Método Kaizen", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En la definición de Kaizen que recoge la cátedra, ¿quién realiza el mejoramiento continuo?",
+ op:["La dirección general, que lo baja al resto","Todos los empleados, en cualquier lugar de la empresa","Consultores externos contratados para cada mejora","Un área especializada de calidad"],
+ ok:1,
+ just:"La definición dice mejoramiento todos los días, a cada momento, realizado por todos los empleados de la organización, en cualquier lugar de la empresa.",
+ dist:"Un área de calidad es la confusión más frecuente, porque así se organiza la mejora en muchas empresas. La dirección como origen contradice la ventaja de que cada integrante controla su propio proceso.",
+ ref:"M03 L1"},
+
+{n:107, mod:"03", lec:"L1", tema:"Método Kaizen", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"La definición de Kaizen que cita la lección abarca desde pequeñas mejoras incrementales hasta innovaciones drásticas y radicales.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Su esencia son las pequeñas acciones, pero el alcance declarado en la definición llega mucho más lejos.",
+ dist:"Marcar Falso es quedarse con la versión corta de Kaizen, la de la mejora continua de a poco. El texto citado es más amplio.",
+ ref:"M03 L1"},
+
+{n:108, mod:"03", lec:"L1", tema:"Método Kaizen", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Dónde y cuándo se popularizó el método Kaizen, según la lección?",
+ op:["En la industria automotriz estadounidense, en la década de 1920","Entre las automotrices japonesas, antes de la Segunda Guerra Mundial","En la industria electrónica europea, después de 1970","Entre los fabricantes de autos japoneses, después de 1950"],
+ ok:3,
+ just:"Se popularizó después de 1950 entre los fabricantes de autos japoneses, que ganaron mercado con vehículos de alta calidad y precios competitivos frente a las automotrices norteamericanas y europeas.",
+ dist:"La opción estadounidense invierte los papeles: Estados Unidos y Europa fueron los competidores desplazados. La de antes de la guerra conserva el país y la industria pero cambia la fecha.",
+ ref:"M03 L1"},
+
+{n:109, mod:"03", lec:"L1", tema:"Ventajas y desventajas de Kaizen", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un equipo prueba un cambio chico en una transformación de datos. Falla, lo revierten al proceso anterior y el flujo de trabajo casi no se ve afectado. ¿Qué ventaja de Kaizen ilustra?",
+ op:["Cambios económicos y de bajo riesgo","Control descentralizado","Estimula la adaptación al cambio","Impulsa cambios positivos"],
+ ok:0,
+ just:"La ventaja de bajo riesgo se apoya en eso: los cambios son chicos y probados, y si fallan se vuelve atrás afectando poco el flujo de trabajo.",
+ dist:"Impulsar cambios positivos se refiere a que cada integrante controla su proceso. Adaptación al cambio habla de entornos cambiantes. El control descentralizado no es una ventaja sino una desventaja, porque exige más esfuerzo.",
+ ref:"M03 L1"},
+
+{n:110, mod:"03", lec:"L1", tema:"Ventajas y desventajas de Kaizen", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa muy jerárquica, donde todo cambio pasa por la aprobación de la gerencia, quiere adoptar Kaizen. ¿Qué desventaja del método le va a pegar más fuerte?",
+ op:["Que los cambios sean demasiado caros","Que hay que ceder la iniciativa y descentralizar el control","Que el método solo sirve para la industria automotriz","Que las mejoras no se pueden revertir"],
+ ok:1,
+ just:"Las dos desventajas son la posibilidad de equivocarse y la necesidad de ceder la iniciativa con alta tolerancia al error, con un control descentralizado que exige nuevas formas de ejercerlo. Una cultura jerárquica choca de frente con la segunda.",
+ dist:"Costo alto e irreversibilidad son lo contrario de las ventajas del método: cambios económicos y siempre reversibles. Lo de la industria automotriz confunde el origen histórico con el alcance, cuando la cátedra dice que el concepto pasó a otras áreas.",
+ ref:"M03 L1"},
+
+{n:111, mod:"03", lec:"L1", tema:"Inercia organizacional", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Qué dice la cátedra sobre el origen de la inercia organizacional?",
+ op:["Que surge solo cuando la cultura de la organización es jerárquica","Que la causa principal es el miedo al fracaso","Que no hay un factor único sino una interrelación compleja de factores","Que depende exclusivamente del nivel de riesgo que se asume"],
+ ok:2,
+ just:"El texto aclara que no hay un factor específico: las causas responden a una interrelación compleja de factores, y enumera nueve.",
+ dist:"Miedo al fracaso, cultura de la organización y nivel de riesgo son causas reales de la lista, puestas para tentar a quien recuerda un ítem y lo eleva a causa única.",
+ ref:"M03 L1"},
+
+{n:112, mod:"03", lec:"L1", tema:"Inercia organizacional", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Se anuncia la automatización de un proceso. El personal no sabe en qué consiste el cambio y teme que el nuevo esquema lo deje sin tareas. ¿Qué dos causas de inercia se ven con más claridad?",
+ op:["Baja confianza en la organización y costos demasiado altos","Escasa flexibilidad y exceso de competencia","Otras prioridades e incertidumbre sobre la demanda","Falta de información y temor a lo desconocido"],
+ ok:3,
+ just:"No saber en qué consiste el cambio es falta de información, y temer lo que pueda pasar con un esquema que no se conoce es temor a lo desconocido. Las dos están en la lista de nueve causas.",
+ dist:"Exceso de competencia, costos demasiado altos, otras prioridades e incertidumbre sobre la demanda son obstáculos a la innovación del estudio vasco de la L4, no causas de inercia de la L1. Mezclar las dos listas es el error que la opción busca.",
+ ref:"M03 L1"},
+
+{n:201, mod:"03", lec:"L1", tema:"Inercia organizacional", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná las causas de la inercia organizacional que enumera la cátedra.",
+ op:["Temor a lo desconocido","Falta de información","Miedo al fracaso","Exceso de capital disponible","Resistencia a salir de la zona de confort","Alta rotación de proveedores","Incertidumbre"],
+ ok:[0,1,2,4,6],
+ just:"Las nueve causas son temor a lo desconocido, falta de información, cultura de la organización, baja confianza en la capacidad de la organización, miedo al fracaso, resistencia a salir de la zona de confort, escasa flexibilidad, incertidumbre y nivel de riesgo que debe asumirse.",
+ dist:"Exceso de capital y rotación de proveedores no figuran. Fueron escritas para practicar y suenan a problemas de gestión, pero la lista de la cátedra es toda de factores humanos y culturales.",
+ ref:"M03 L1"},
+
+{n:113, mod:"03", lec:"L2", tema:"Equipos y métodos", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Con qué otro nombre se conoce al proceso de generación de ideas?",
+ op:["Proceso de innovación","Proceso creativo","Movimiento estratégico","Proceso de transferencia"],
+ ok:1,
+ just:"La cátedra lo define como el conjunto de etapas o fases para poner en práctica la imaginación, con el objeto de resolver un problema o iniciar un proyecto, y dice que también se lo conoce como proceso creativo.",
+ dist:"Proceso de innovación es el tema de la L4 y va más allá de la idea: llega al mercado. Movimiento estratégico es un paso del océano azul (L3).",
+ ref:"M03 L2"},
+
+{n:114, mod:"03", lec:"L2", tema:"Elementos de Treffinger", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Donald Treffinger, citado por Varela Villegas, ¿cuáles son los cuatro elementos básicos del pensamiento creativo?",
+ op:["Inspiración, ideación, implementación y contexto","Motivación, liderazgo, ambiente propicio y resultados","Características, procesos, contexto y resultados","Cambio, acción, mejoramiento y contexto"],
+ ok:2,
+ just:"Los cuatro elementos son características, procesos, contexto y resultados, y no actúan por separado.",
+ dist:"Cada distractor mezcla una tríada real con un cuarto elemento. Motivación, liderazgo y ambiente son las condiciones del equipo creativo de esta misma lección. Inspiración, ideación e implementación son los espacios de Brown (L3). Cambio, acción y mejoramiento es el ciclo de la L1.",
+ ref:"M03 L2"},
+
+{n:115, mod:"03", lec:"L2", tema:"Elementos de Treffinger", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En la Figura 1 de la lección, ¿cómo aparece el contexto respecto de los otros tres elementos?",
+ op:["Como el punto de partida de una secuencia lineal","Como el resultado final que surge de la intersección de los otros tres","Como un cuarto círculo del mismo tamaño que los demás","Como el marco que abarca a los otros tres e influye sobre ellos positiva o negativamente"],
+ ok:3,
+ just:"La figura dibuja procesos, resultados y características como tres círculos superpuestos inmersos en el contexto, que los contiene y puede influir de forma positiva o negativa.",
+ dist:"Pensarlo como un cuarto círculo es la trampa gráfica que marca el resumen. Resultado y secuencia lineal son ideas ajenas a la figura, que muestra elementos simultáneos y no pasos.",
+ ref:"M03 L2"},
+
+{n:116, mod:"03", lec:"L2", tema:"Elementos de Treffinger", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Dos equipos usan la misma técnica de generación de ideas. Uno produce mucho y el otro casi nada, porque en el segundo el jefe castiga cada error y hay poca confianza entre las personas. Según Treffinger, ¿qué elemento explica la diferencia?",
+ op:["El contexto","Los procesos","Las características","Los resultados"],
+ ok:0,
+ just:"El contexto reúne los factores del ambiente que afectan la creatividad productiva: bloqueos, barreras organizacionales, confianza, conflicto, propensión al riesgo. La cátedra insiste en que aunque haya capacidad, la creatividad sube o baja según el contexto.",
+ dist:"Los procesos son las técnicas, y el enunciado dice que son iguales en los dos equipos. Características serían rasgos de las personas, que el caso no menciona. Resultados es el efecto que se espera, no su causa.",
+ ref:"M03 L2"},
+
+{n:117, mod:"03", lec:"L2", tema:"Creatividad, invención e innovación", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un equipo de datos construye un modelo predictivo que funciona bien en el entorno de pruebas, pero nunca se pone a disposición de ningún cliente. Según Varela Villegas, ¿qué es?",
+ op:["Creatividad","Invención","Innovación","Innovación incremental"],
+ ok:1,
+ just:"La invención es la materialización de una idea creativa en un prototipo, modelo o concepto. Existe el objeto y funciona, pero no se integró al mercado, que es lo que haría falta para hablar de innovación.",
+ dist:"Creatividad sería la idea sin materializar, y acá ya hay un modelo funcionando. Innovación exige que llegue a clientes. El choque de vocabulario es fuerte: en el trabajo un prototipo o POC exitoso se celebra como innovación, pero para la cátedra sigue siendo invención.",
+ ref:"M03 L2"},
+
+{n:118, mod:"03", lec:"L2", tema:"Creatividad, invención e innovación", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"En una reunión a alguien se le ocurre usar los datos de los sensores para anticipar fallas en las máquinas. Todavía no se escribió una línea de código. ¿Qué momento es, según la lección?",
+ op:["Innovación","Invención","Creatividad","Transferencia tecnológica"],
+ ok:2,
+ just:"La creatividad es la capacidad de generar una idea útil y original, el momento fulgurante en que se encuentra una nueva línea de acción. Todavía no hay nada materializado.",
+ dist:"Invención requiere un prototipo o modelo, que acá no existe. Innovación requiere llegar al mercado. Transferencia es mover conocimiento de una parte a otra, tema del Módulo 4.",
+ ref:"M03 L2"},
+
+{n:119, mod:"03", lec:"L2", tema:"Creatividad, invención e innovación", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Según la lección, muchas invenciones nunca llegan a convertirse en innovaciones.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Puede ser por circunstancias de tiempo o de lugar, por el tipo de empresa, por la cultura o por la personalidad de los inventores.",
+ dist:"Marcar Falso es creer que un prototipo que funciona ya es una innovación. Lo que convierte a una invención en innovación es que llegue al uso.",
+ ref:"M03 L2"},
+
+{n:120, mod:"03", lec:"L2", tema:"Equipos creativos", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Cuántas personas integran como máximo un equipo creativo, según la definición de la cátedra?",
+ op:["No más de diez","No más de cinco","No más de veinticinco","No más de quince"],
+ ok:0,
+ just:"El equipo creativo es un conjunto de no más de diez personas que buscan resolver de manera diferente un problema.",
+ dist:"Veinticinco es el mínimo de expertos del método Delphi (L3), puesto para quien mezcla los números del módulo. Cinco y quince son cifras vecinas sin respaldo en el texto.",
+ ref:"M03 L2"},
+
+{n:121, mod:"03", lec:"L2", tema:"Equipos creativos", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un equipo creativo tiene una sesión de dos horas para buscar soluciones a un problema. Siguiendo la regla práctica de la cátedra, ¿cuánto tiempo debería dedicar a generar ideas sin criticarlas?",
+ op:["Veinte minutos, para no perder foco","Media hora, y el resto a evaluar","Una hora","Las dos horas completas"],
+ ok:2,
+ just:"La regla es dedicar la mitad del tiempo disponible a generar ideas sin criticarlas. La mitad de dos horas es una hora. Recién después se valoran, discuten, agrupan y desarrollan.",
+ dist:"Las dos horas completas olvidan que la segunda mitad es para evaluar y mejorar. Las cifras chicas responden al reflejo de criticar temprano para ahorrar tiempo, que es lo que la regla busca evitar.",
+ ref:"M03 L2"},
+
+{n:122, mod:"03", lec:"L2", tema:"Técnica de Varela Villegas", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Para acelerar un reporte que tarda horas, el equipo se inspira en cómo una aplicación web usa un caché, un problema que no tiene nada que ver con reportes. ¿Qué acción de la técnica de Varela Villegas es?",
+ op:["Descomponer el problema en sus partes","Determinar qué se puede eliminar por redundante","Adaptar ideas que funcionan en problemas o productos sin relación","Aplicar ideas que funcionan en problemas parecidos"],
+ ok:2,
+ just:"La técnica distingue dos formas de transferir: adaptar ideas de problemas o productos que no tienen nada que ver, y aplicar ideas de problemas parecidos. Una aplicación web y un reporte no están relacionados, así que es adaptar.",
+ dist:"Aplicar es la opción gemela y es la sutileza de la lista: vale solo para problemas parecidos. Descomponer y eliminar lo redundante son otras acciones reales de la técnica.",
+ ref:"M03 L2"},
+
+{n:123, mod:"03", lec:"L2", tema:"Técnica de Varela Villegas", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Al revisar una tabla, el equipo detecta columnas que nadie consulta y las saca. ¿A qué grupo de acciones de la técnica de Varela Villegas corresponde?",
+ op:["Descomponer","Transferir","Reutilizar y transformar","Depurar"],
+ ok:3,
+ just:"Depurar reúne estudiar qué se puede simplificar, qué mejorar del proceso y qué eliminar por redundante. Sacar columnas sin uso es eliminar lo redundante.",
+ dist:"Reutilizar pregunta para qué otra cosa se podría usar algo, lo contrario de sacarlo. Descomponer divide el problema en partes y transferir trae ideas de otros problemas.",
+ ref:"M03 L2"},
+
+{n:124, mod:"03", lec:"L2", tema:"Métodos", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La lección lista siete métodos comunes de pensamiento creativo. ¿Cuál de estos NO está en esa lista?",
+ op:["Sinéctica","Mapas mentales","Método 635","Seis sombreros","Método Delphi"],
+ ok:4,
+ just:"Los siete son tormenta de ideas, árboles de diseño, método 635, sinéctica, seis sombreros, mapas mentales y análisis sectorial. Delphi es un método de prospectiva que aparece en la L3.",
+ dist:"El 635, la sinéctica, los seis sombreros y los mapas mentales están en la lista aunque el PDF no los explica. Delphi se puso porque es otro método con nombre propio del mismo módulo.",
+ ref:"M03 L2"},
+
+{n:202, mod:"03", lec:"L2", tema:"Elementos de Treffinger", nivel:"comprender", tipo:"ms", src:"propia",
+ q:"Seleccioná los rasgos que la cátedra ubica entre los intelectuales de las personas con alta competencia creativa.",
+ op:["Fluidez","Originalidad","Humor","Optimismo","Autonomía","Inconformismo","Energía"],
+ ok:[0,1,2,3],
+ just:"Los rasgos intelectuales son fluidez, originalidad, flexibilidad, tolerancia a la ambigüedad, capacidad de jugar con ideas, humor y optimismo.",
+ dist:"Autonomía, inconformismo y energía están en la otra columna, la de rasgos personales, junto con motivación, independencia y sensibilidad. Humor y optimismo son la trampa inversa: parecen personales pero la cátedra los pone entre los intelectuales.",
+ ref:"M03 L2"},
+
+{n:125, mod:"03", lec:"L3", tema:"Metodologías de innovación", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Qué pone el design thinking como centro de gravedad de todo el desarrollo?",
+ op:["La reducción de costos","Las necesidades de los usuarios o clientes","La opinión de un panel de expertos","La tecnología disponible"],
+ ok:1,
+ just:"La metodología estudia y define primero el problema y después busca soluciones, con las necesidades de usuarios o clientes como centro de gravedad. Se resume en cinco acciones no lineales: encontrar, entender, crear, pensar y hacer.",
+ dist:"El panel de expertos es el corazón del Delphi, la tercera metodología de la lección. Reducción de costos y tecnología disponible son criterios que el design thinker equilibra pero no pone en el centro.",
+ ref:"M03 L3"},
+
+{n:126, mod:"03", lec:"L3", tema:"Design thinking", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Tim Brown (2020), ¿cuáles son los tres espacios que se solapan en el proceso de innovación?",
+ op:["Inspiración, ideación e implementación","Factibilidad, viabilidad y deseabilidad","Encontrar, entender y crear","Formulación, elección de expertos y explotación"],
+ ok:0,
+ just:"Brown describe la inspiración, el problema u oportunidad que motiva buscar soluciones, la ideación, generar y probar ideas, y la implementación, el camino de la sala de proyectos al mercado.",
+ dist:"Factibilidad, viabilidad y deseabilidad son las tres restricciones del mismo autor, otro trío fácil de cruzar. Encontrar, entender y crear son tres de las cinco acciones. La opción «Formulación, elección de expertos y explotación» son las fases del Delphi.",
+ ref:"M03 L3"},
+
+{n:127, mod:"03", lec:"L3", tema:"Design thinking", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Brown sostiene que el proceso de innovación funciona mejor como una secuencia de pasos ordenados, basada en hitos.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La cita dice lo contrario: no existe una manera mejor y única, y el continuo de innovación es mejor como un sistema de espacios que se solapan que como una secuencia de pasos ordenados.",
+ dist:"La afirmación describe justamente los procesos lineales basados en hitos con los que Brown contrasta el design thinking. El propio autor advierte que por eso parece caótico la primera vez.",
+ ref:"M03 L3"},
+
+{n:128, mod:"03", lec:"L3", tema:"Tres restricciones", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una plataforma de datos nueva es técnicamente realizable y entra en el presupuesto, pero los analistas que la tendrían que usar no le encuentran sentido. ¿Qué restricción falla?",
+ op:["Factibilidad","Deseabilidad","Escalabilidad","Viabilidad"],
+ ok:1,
+ just:"Deseabilidad responde qué tiene sentido para las personas destinatarias. Si los usuarios no le encuentran sentido, esa restricción no se cumple aunque las otras dos sí.",
+ dist:"Factibilidad y viabilidad son las otras dos restricciones y el enunciado dice que se cumplen. Escalabilidad no es una restricción del design thinking, aparece en el Módulo 4 como parte de los aspectos de adopción.",
+ ref:"M03 L3"},
+
+{n:129, mod:"03", lec:"L3", tema:"Tres restricciones", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un equipo evalúa si, con la gente y los plazos que tiene, hay suficientes probabilidades de llevar adelante el proyecto. ¿Qué criterio está analizando?",
+ op:["Viabilidad","Deseabilidad","Factibilidad","Innovación en valor"],
+ ok:2,
+ just:"En la cátedra, factibilidad pregunta si hay suficientes probabilidades de realizarlo. Viabilidad pregunta qué es posible implementar.",
+ dist:"Viabilidad es la confusión esperable, porque en el lenguaje común son casi sinónimos. La cátedra las separa con esas dos preguntas. Innovación en valor es un paso del océano azul.",
+ ref:"M03 L3"},
+
+{n:130, mod:"03", lec:"L3", tema:"Tres restricciones", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Qué diferencia al design thinker de un diseñador común frente a las tres restricciones?",
+ op:["El design thinker prioriza la factibilidad y deja las otras para después","El diseñador común las lleva a un equilibrio y el design thinker las resuelve de a una","El design thinker las lleva a un armonioso equilibrio y el diseñador común intenta resolver cada una por separado","No hay diferencia, los dos usan el mismo marco"],
+ ok:2,
+ just:"Según Brown, el diseñador común intenta resolver cada restricción por separado, mientras que el design thinker las lleva a un armonioso equilibrio. El otro rasgo distintivo es la observación permanente de las necesidades del cliente.",
+ dist:"La opción «El diseñador común las lleva a un equilibrio y el…» invierte los papeles, que es la forma habitual de armar el distractor en esta materia. Priorizar una sola restricción es lo que el design thinker justamente no hace.",
+ ref:"M03 L3"},
+
+{n:131, mod:"03", lec:"L3", tema:"Océano azul", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Quiénes son los autores de la estrategia del océano azul que cita la lección?",
+ op:["W. Chan Kim y Renée Mauborgne","Aponte Figueroa, Cardozo Montilla y Melo","Michel Godet","Tim Brown"],
+ ok:0,
+ just:"La estrategia sale del libro de W. Chan Kim y Renée Mauborgne (2017), que plantea dejar de pelear por mercados saturados y crear demanda en espacios no aprovechados.",
+ dist:"Los otros tres son los autores de las otras dos metodologías de la misma lección: Brown del design thinking, Godet y Aponte Figueroa et al. del Delphi.",
+ ref:"M03 L3"},
+
+{n:132, mod:"03", lec:"L3", tema:"Océano azul", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa baja precios para quitarle clientes a su principal competidor en el mismo mercado que ya comparten. Según la Tabla 1 de la lección, ¿qué estrategia sigue?",
+ op:["Océano azul, porque busca capturar demanda","Océano rojo, porque compite en el mercado existente para vencer a la competencia","Océano azul, porque rompe la disyuntiva valor-costo","Design thinking, porque se centra en el cliente"],
+ ok:1,
+ just:"Competir en el mercado existente, querer vencer a la competencia y elegir en función de los costos son tres filas de la columna del océano rojo.",
+ dist:"Las dos opciones de océano azul toman palabras de esa columna, pero al océano azul la competencia no le interesa y busca crear demanda nueva. Bajar precios para sacarle clientes a otro es disputar la demanda existente.",
+ ref:"M03 L3"},
+
+{n:133, mod:"03", lec:"L3", tema:"Océano azul", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En la fila de alineación de la empresa de la Tabla 1, ¿qué busca el océano azul?",
+ op:["Diferenciación o bajos costos, según convenga","Solo diferenciación","Diferenciación y bajos costos al mismo tiempo, a largo plazo","Solo bajos costos"],
+ ok:2,
+ just:"El océano rojo se alinea en función de la diferenciación o de bajar los costos. El azul busca las dos cosas a la vez, en el largo plazo. Es la fila que concentra la idea de la metodología.",
+ dist:"La opción «Diferenciación o bajos costos, según convenga» es la definición del océano rojo con la o disyuntiva. Las opciones de una sola cosa vienen de pensar el océano azul solo como diferenciación.",
+ ref:"M03 L3"},
+
+{n:134, mod:"03", lec:"L3", tema:"Océano azul", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Cómo se llama la serie de decisiones y actuaciones de la gerencia para producir una oferta que cree un nuevo mercado?",
+ op:["Innovación en valor","Secuencia estratégica","Reconstrucción de fronteras","Movimiento estratégico"],
+ ok:3,
+ just:"Movimiento estratégico es el segundo de los cuatro pasos del océano azul. El tercero es aplicar la lógica de la innovación en valor.",
+ dist:"Innovación en valor es el otro concepto en negrita de los pasos y consiste en redefinir lo que se busca sin quedar limitado por costos. Secuencia estratégica y reconstrucción de fronteras son dos de los seis principios.",
+ ref:"M03 L3"},
+
+{n:135, mod:"03", lec:"L3", tema:"Prospectiva y Delphi", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una consultora arma un cuestionario Delphi con 18 especialistas elegidos por su conocimiento del sector. Según Godet, ¿cumple con la segunda fase?",
+ op:["Sí, porque lo que importa es el conocimiento de los expertos","No, porque hacen falta no menos de veinticinco expertos","Sí, porque el mínimo es de diez","No, porque el mínimo es de cincuenta"],
+ ok:1,
+ just:"En la fase de elección de expertos Godet pide no menos de veinticinco, elegidos por su conocimiento y su capacidad para trabajar sobre el futuro, con trabajo independiente y opinión anónima. Con 18 faltan siete.",
+ dist:"Diez es el tope del equipo creativo de la L2, el número del módulo que más se cruza con este. La opción «Sí, porque lo que importa es el conocimiento de los…» tiene parte de razón, porque el conocimiento es criterio de elección, pero no reemplaza el mínimo.",
+ ref:"M03 L3"},
+
+{n:136, mod:"03", lec:"L3", tema:"Prospectiva y Delphi", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Después de la primera ronda de un Delphi, las opiniones están muy dispersas. ¿Qué indica la tercera fase?",
+ op:["Reunir a los expertos en un debate presencial para que lleguen a un acuerdo","Descartar las opiniones de quienes se apartan de la mayoría","Hacer nuevas rondas a quienes opinan muy distinto hasta llegar a la opinión media consensuada","Tomar la opinión del experto más reconocido como referencia"],
+ ok:2,
+ just:"La tercera fase analiza la dispersión y vuelve a consultar a quienes opinan muy distinto, con cuestionarios sucesivos, hasta llegar a la opinión media consensuada.",
+ dist:"El debate presencial y seguir al experto más reconocido reintroducen las interacciones sociales indeseables que Delphi busca eliminar con el anonimato. Descartar opiniones no es parte del método: se las vuelve a consultar. Tampoco busca unanimidad sino convergencia.",
+ ref:"M03 L3"},
+
+{n:203, mod:"03", lec:"L3", tema:"Océano azul", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los principios que dan sustento a la estrategia del océano azul.",
+ op:["Reconstruir las fronteras del mercado","Enfocarse en la perspectiva global, no en las cifras iniciales","Ir más allá de la demanda existente","Vencer a la competencia en su propio terreno","Desarrollar la secuencia estratégica correcta","Elegir entre diferenciación o bajo costo","Incorporar la ejecución en la estrategia"],
+ ok:[0,1,2,4,6],
+ just:"Los seis principios son reconstruir las fronteras del mercado, enfocarse en la perspectiva global, ir más allá de la demanda existente, desarrollar la secuencia estratégica correcta, superar los obstáculos de la organización e incorporar la ejecución en la estrategia.",
+ dist:"Vencer a la competencia y elegir entre diferenciación o bajo costo son rasgos del océano rojo tomados de la Tabla 1. Están puestos para quien marca todo lo que suena a estrategia.",
+ ref:"M03 L3"},
+
+{n:137, mod:"03", lec:"L4", tema:"La innovación como proceso", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Quintanilla (2017), la innovación tecnológica es el proceso que consiste en ______ un bien de valor económico con propiedades nuevas basadas en la tecnología.",
+ op:["investigar, desarrollar y patentar","adquirir, adaptar y difundir","idear, prototipar y validar","diseñar, producir y comercializar"],
+ ok:3,
+ just:"La definición textual es diseñar, producir y comercializar un bien de valor económico con propiedades nuevas basadas en la tecnología. Los tres verbos van en ese orden.",
+ dist:"Investigar, desarrollar y patentar suena a I+D pero deja afuera la comercialización, que es lo que hace que haya innovación. Las otras dos son secuencias plausibles de otros marcos que no son la cita.",
+ ref:"M03 L4"},
+
+{n:138, mod:"03", lec:"L4", tema:"Innovación como motor", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según distintos expertos que cita la lección, ¿qué dos factores permiten a las economías industriales avanzadas obtener ventajas competitivas?",
+ op:["Las actividades de innovación y el capital humano","La tecnología importada y los bajos costos","El financiamiento público y las patentes","El tamaño del mercado y la estabilidad"],
+ ok:0,
+ just:"La lección dice que las actividades de innovación junto con el capital humano son los principales factores de ventaja competitiva, y agrega que no alcanza con tenerlos: toda la organización debe estar convencida de implementarlos y apoyarlos.",
+ dist:"Financiamiento, patentes y tamaño de mercado son factores que aparecen en la tabla del INDEC de la misma lección, pero como obstáculos, no como fuentes de ventaja.",
+ ref:"M03 L4"},
+
+{n:139, mod:"03", lec:"L4", tema:"Proceso de innovación", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Cuál de estos figura entre los factores que, según la cátedra, influyen en el tipo de proceso de innovación de cada organización?",
+ op:["La cantidad de patentes registradas","La edad de los directivos, gerentes e ingenieros","El país de origen de la tecnología","El capital social de la empresa"],
+ ok:1,
+ just:"Los factores que nombra la cátedra son la edad de directivos, gerentes e ingenieros, la cultura de la organización y el ramo o área de trabajo.",
+ dist:"La edad es el dato poco intuitivo y por eso se pregunta. Las demás opciones suenan a variables razonables de una empresa pero no están en el texto.",
+ ref:"M03 L4"},
+
+{n:140, mod:"03", lec:"L4", tema:"Papel del conocimiento", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿En qué orden describe Quintanilla la concepción tradicional, lineal, de la innovación tecnológica?",
+ op:["Comercialización, diseño, conocimiento nuevo","Diseño, conocimiento nuevo, comercialización","Conocimiento nuevo, aplicación en diseño y puesta a punto, comercialización","Aplicación en diseño, comercialización, conocimiento nuevo"],
+ ok:2,
+ just:"El modelo lineal comienza con la adquisición de un conocimiento nuevo, sigue con su aplicación en el diseño y la puesta a punto de productos, y termina con la comercialización, difusión y venta.",
+ dist:"Las otras opciones reordenan los mismos tres pasos. En el modelo lineal la investigación siempre va primero, y eso es justamente lo que las cuatro ideas nuevas de Quintanilla discuten.",
+ ref:"M03 L4"},
+
+{n:141, mod:"03", lec:"L4", tema:"Papel del conocimiento", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Para Quintanilla, el modelo lineal sigue siendo la mejor descripción de cómo se innova hoy en la industria.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La cátedra lo presenta como la concepción tradicional, superada por la complejidad actual, donde la innovación no se limita a la investigación aplicada y el conocimiento ocupa un lugar más destacado.",
+ dist:"La trampa es tomar la cita del modelo lineal como la postura del autor. Quintanilla la expone para después oponerle cuatro ideas nuevas.",
+ ref:"M03 L4"},
+
+{n:142, mod:"03", lec:"L4", tema:"Papel del conocimiento", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa descubre que sus mejores mejoras de producto salieron de reclamos de clientes y sugerencias de proveedores, más que de los informes de investigación. ¿Con qué idea de Quintanilla coincide?",
+ op:["El conocimiento más útil es el que se produce desde adentro","La información de usuarios o proveedores puede ser tanto o más valiosa que la investigación científica","La empresa debe gestionar el conocimiento en toda su extensión","El modelo lineal parte del conocimiento nuevo"],
+ ok:1,
+ just:"La segunda idea dice que la información de usuarios o proveedores puede ser una fuente de inspiración tanto o más valiosa que la investigación científica y tecnológica.",
+ dist:"Las otras dos ideas de Quintanilla son reales pero no describen el caso. La del modelo lineal va en sentido contrario, porque pone la investigación como punto de partida. Choque de vocabulario: en el trabajo esto se llama feedback de usuarios.",
+ ref:"M03 L4"},
+
+{n:143, mod:"03", lec:"L4", tema:"Papel del conocimiento", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un técnico con veinte años en la planta sabe ajustar una máquina por el sonido, sin manual y sin haberlo estudiado formalmente. Según Quintanilla, ¿qué tipo de conocimiento es?",
+ op:["Conocimiento codificado","Conocimiento tácito","Conocimiento científico","Conocimiento exógeno"],
+ ok:1,
+ just:"Quintanilla dice que el conocimiento más importante es tácito: no se obtiene por los procedimientos formales de transmisión sino por el uso y la práctica.",
+ dist:"Codificado sería lo que está en un manual, y el caso dice que no lo hay. Exógeno aparece en la tabla del INDEC como conocimiento de afuera de la empresa. Choque de vocabulario: en el trabajo se le dice know-how o conocimiento de dominio.",
+ ref:"M03 L4"},
+
+{n:144, mod:"03", lec:"L4", tema:"Factores limitantes", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En la encuesta del Instituto Vasco de Estadística (2020), ¿cuál fue la primera causa que dificulta la innovación?",
+ op:["Costos demasiado altos, 35,8 %","Otras prioridades dentro de la empresa, 44,8 %","Exceso de competencia, 29,7 %","Dificultad para obtener subvenciones del Estado, 30 %"],
+ ok:1,
+ just:"La primera causa fue la existencia de otras prioridades dentro de la empresa, con 44,8 %. La segunda fueron los costos demasiado altos, con 35,8 %.",
+ dist:"Costos es el distractor fuerte porque es lo que uno espera en primer lugar. Que la primera causa no sea económica es el dato preguntable.",
+ ref:"M03 L4"},
+
+{n:145, mod:"03", lec:"L4", tema:"Factores limitantes", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"En el estudio vasco, el 58 % del total de empresas percibe obstáculos para innovar, y en las empresas más pequeñas ese porcentaje sube a 65,3 %. ¿Cuántos puntos porcentuales de diferencia hay?",
+ op:["7,3 puntos","12,6 puntos","20,5 puntos","9 puntos"],
+ ok:0,
+ just:"65,3 menos 58 da 7,3 puntos porcentuales.",
+ dist:"12,6 es el aumento relativo (7,3 dividido 58), que se expresa en por ciento y no en puntos. 20,5 sale de restar 44,8, la primera causa, en lugar del 58 total. 9 es la resta entre otras prioridades y costos, 44,8 menos 35,8.",
+ ref:"M03 L4"},
+
+{n:146, mod:"03", lec:"L4", tema:"Factores limitantes", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿De qué año es el relevamiento del INDEC sobre factores que obstaculizan la innovación que usa la lección, y a qué empresas abarca?",
+ op:["2008, empresas industriales","2017, empresas tecnológicas","2008, pymes de todos los sectores","2020, empresas de servicios"],
+ ok:0,
+ just:"La cátedra toma el último relevamiento del INDEC, de 2008, sobre empresas industriales. El año 2020 corresponde al estudio vasco.",
+ dist:"2020 cruza el año del otro estudio de la lección. 2017 es el año de Quintanilla. Los sectores de las otras opciones no figuran.",
+ ref:"M03 L4"},
+
+{n:147, mod:"03", lec:"L4", tema:"Factores limitantes", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"En la columna muy importante de la tabla del INDEC, el financiamiento marca 21,7 % y la falta de personal calificado dentro de la firma, 7,0 %. ¿Cuántas veces más empresas calificaron como muy importante al financiamiento?",
+ op:["Unas 3,7 veces","Unas 3,1 veces","14,7 veces","Unas 1,6 veces"],
+ ok:1,
+ just:"21,7 dividido 7,0 da 3,1. Tres veces más empresas pusieron al financiamiento como obstáculo muy importante.",
+ dist:"14,7 es la diferencia en puntos, no el cociente. 3,7 sale de dividir por 5,8, que es la escasez de personal calificado en el mercado laboral, la fila vecina. 1,6 sale de dividir por 13,5, la incertidumbre sobre el éxito.",
+ ref:"M03 L4"},
+
+{n:148, mod:"03", lec:"L4", tema:"Factores limitantes", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Qué concluye la cátedra al comparar el estudio vasco con el del INDEC?",
+ op:["Que dan resultados opuestos por la diferencia de contexto","Que no son comparables porque miden cosas distintas","Que, aunque son muy distintos en lugar y tiempo, arrojan resultados similares","Que el estudio argentino muestra más obstáculos internos"],
+ ok:2,
+ just:"La conclusión es que ambos estudios dan resultados similares. En los dos aparecen el costo y el financiamiento, la incertidumbre sobre la demanda o el éxito, y el apoyo del Estado.",
+ dist:"Las dos primeras opciones razonan desde la diferencia de contexto, que la cátedra reconoce pero no usa como conclusión. La cuarta es falsa: las empresas argentinas pusieron primero obstáculos externos como financiamiento y políticas públicas.",
+ ref:"M03 L4"},
+
+{n:204, mod:"03", lec:"L4", tema:"Factores limitantes", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los cuatro factores que la lección destaca como principales en la columna muy importante de la tabla del INDEC.",
+ op:["Dificultades de acceso al financiamiento o costo excesivo","Incertidumbre sobre las posibilidades reales de éxito","Falta de personal calificado dentro de la firma","Deficiencias en las políticas públicas","Período de retorno excesivamente largo","Reducido tamaño de mercado","Costo o burocracia del sistema de propiedad intelectual"],
+ ok:[0,1,3,5],
+ just:"Los cuatro principales son financiamiento (21,7 %), incertidumbre sobre el éxito (13,5 %), deficiencias en las políticas públicas (12,5 %) y reducido tamaño de mercado (12,4 %).",
+ dist:"Período de retorno es el quinto, con 11,3 %, muy cerca del cuarto, y por eso tienta. Personal calificado (7,0 %) y propiedad intelectual (4,1 %) están mucho más abajo, y propiedad intelectual es además el factor con más respuestas no importante.",
+ ref:"M03 L4"},
+
+{n:149, mod:"04", lec:"L1", tema:"La empresa como generadora de innovación social", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según González Sabater (2011), todos los actores de la transferencia intervienen, de alguna manera, en:",
+ op:["la protección legal del conocimiento mediante patentes","la transformación del conocimiento en riqueza económica a través de los filtros del mercado","la producción de conocimiento científico en universidades","la creación de valor compartido con la comunidad"],
+ ok:1,
+ just:"La cita dice que todos intervienen en la transformación del conocimiento en riqueza económica a través de los filtros del mercado. Los actores se agrupan en quienes desarrollan el conocimiento, quienes lo reciben e intermediarios.",
+ dist:"Valor compartido es el objetivo de la RSE, en la segunda mitad de esta misma lección. Patentes es tema de la L3. Producir conocimiento en la universidad es solo el papel de uno de los grupos de actores.",
+ ref:"M04 L1"},
+
+{n:150, mod:"04", lec:"L1", tema:"Tecnología propia, compartida o ajena", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa contrata a una consultora para que le desarrolle un sistema a medida, que queda como propiedad de la empresa. Según la Figura 1 de la lección, ¿qué opción de tecnología es?",
+ op:["Tecnología compartida","Tecnología propia","Tecnología ajena","Transferencia por licencia"],
+ ok:1,
+ just:"En la Figura 1 la tecnología propia incluye el desarrollo interno y la subcontratación. Encargar un desarrollo a medida es subcontratar.",
+ dist:"Es la trampa más fuerte de la lección: la subcontratación parece ajena porque la hace otro, pero la cátedra la agrupa con la propia. Ajena es suministro o licencia, y compartida es codesarrollo con socios.",
+ ref:"M04 L1"},
+
+{n:151, mod:"04", lec:"L1", tema:"Tecnología propia, compartida o ajena", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa necesita resolver rápido y contrata la licencia de un software de mercado que usa tal como viene. Según la Figura 1, ¿cómo quedan su dependencia y su liderazgo tecnológico?",
+ op:["Dependencia máxima y liderazgo mínimo","Dependencia mínima y liderazgo máximo","Dependencia y liderazgo intermedios","Dependencia mínima y liderazgo mínimo"],
+ ok:0,
+ just:"La licencia es tecnología ajena. Yendo de propia a ajena bajan el liderazgo, el riesgo técnico y la necesidad de recursos, y suben la disponibilidad, la rapidez, la dependencia y la cooperación abierta.",
+ dist:"La opción «Dependencia mínima y liderazgo máximo» describe la tecnología propia y la tercera la compartida. La cuarta mezcla las dos flechas: supone que ajena reduce todo, cuando la dependencia es justamente lo que sube.",
+ ref:"M04 L1"},
+
+{n:152, mod:"04", lec:"L1", tema:"Acceso a la tecnología", nivel:"recordar", tipo:"vf", src:"propia",
+ q:"La cátedra considera poco probable que una empresa desarrolle el 100 % de su tecnología, y por eso toma como factor constante un cierto grado de transferencia tecnológica.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Es textual. La transferencia se entiende como dispositivo de acceso a los activos tecnológicos necesarios para innovar, y a partir de ahí la cátedra la concibe como colaboración entre empresas.",
+ dist:"La afirmación podría parecer exagerada, pero es la base de toda la sección. Sin ese supuesto no tendría sentido hablar de acceso a la tecnología externa.",
+ ref:"M04 L1"},
+
+{n:153, mod:"04", lec:"L1", tema:"Acceso a la tecnología", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En la Figura 2, ¿cuáles son los cuatro tipos de innovaciones tecnológicas a los que llegan los activos?",
+ op:["Productos, procesos, organización y marketing","Incremental, radical, disruptiva y abierta","Licencias, cooperación, asistencia técnica y alianzas","Tangible, intangible, legal y de adopción"],
+ ok:0,
+ just:"Los cuatro tipos son productos, procesos, organización y marketing, los mismos del Manual de Oslo del Módulo 1.",
+ dist:"Tangible, intangible, legal y de adopción son los cuatro aspectos de la L3 de este módulo. Licencias, cooperación y alianzas son mecanismos de transferencia de la misma figura, no innovaciones. La clasificación por grado es de otra parte de la materia.",
+ ref:"M04 L1"},
+
+{n:154, mod:"04", lec:"L1", tema:"Acceso a la tecnología", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa incorpora a un ingeniero que viene del laboratorio de un competidor para aprovechar lo que sabe. En la Figura 2, ¿qué mecanismo de transferencia es?",
+ op:["Asistencia técnica y servicios","Movilidad de personal","Fusiones y adquisiciones","Cooperación tecnológica"],
+ ok:1,
+ just:"La movilidad de personal es uno de los ocho mecanismos: el conocimiento viaja con la persona que cambia de organización.",
+ dist:"Asistencia técnica es un servicio que presta un tercero sin sumarse a la empresa. Fusiones y adquisiciones implica comprar o unirse a otra empresa entera. Cooperación tecnológica es trabajo conjunto entre organizaciones.",
+ ref:"M04 L1"},
+
+{n:155, mod:"04", lec:"L1", tema:"Etapas del proceso de acceso", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En la Figura 3, ¿qué etapa va inmediatamente antes de la colaboración con el proveedor?",
+ op:["Necesidad tecnológica","Implantación de la tecnología","Elección del proveedor","Proyecto de innovación"],
+ ok:2,
+ just:"La secuencia es proyecto de innovación, necesidad tecnológica, elección del proveedor, colaboración con el proveedor, implantación y explotación. Primero se elige y después se colabora.",
+ dist:"Necesidad tecnológica va dos lugares antes. Implantación va después de la colaboración. El orden entre elegir y colaborar es la parte más preguntable de la figura.",
+ ref:"M04 L1"},
+
+{n:156, mod:"04", lec:"L1", tema:"Etapas del proceso de acceso", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Cuándo considera la cátedra que el circuito de acceso a la tecnología es finito?",
+ op:["Cuando se firma el contrato con el proveedor","Cuando la tecnología queda implantada en la empresa","Cuando lo comprobado se lanzó al mercado y se explota","Cuando se detecta la necesidad tecnológica"],
+ ok:2,
+ just:"El proceso empieza en una idea y termina cuando se comprobó empíricamente el uso de la tecnología. Se considera finito cuando eso se lanzó al mercado y se explota, que es la sexta etapa.",
+ dist:"Terminar en la implantación es la trampa registrada: la implantación es la quinta etapa y todavía falta la explotación. Firmar con el proveedor ni siquiera es una etapa de la figura.",
+ ref:"M04 L1"},
+
+{n:157, mod:"04", lec:"L1", tema:"Innovación social y RSE", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Según la lección, ¿de qué necesidad nace la responsabilidad social empresarial?",
+ op:["De demostrar a la sociedad el beneficio que la empresa brinda a su entorno","De reducir los impuestos mediante donaciones","De competir con otras empresas por la imagen de marca","De cumplir con la legislación ambiental"],
+ ok:0,
+ just:"La RSE nace de la necesidad de demostrar a la sociedad el beneficio que la empresa brinda a su entorno, y de mostrar que su único fin no es el beneficio particular sino la trascendencia y la creación de valor compartido.",
+ dist:"Las otras tres opciones son motivos que se le atribuyen a la RSE en la calle, pero ninguna figura en el texto. La cátedra la plantea en términos de valor compartido, no de obligación legal ni de ventaja fiscal.",
+ ref:"M04 L1"},
+
+{n:158, mod:"04", lec:"L1", tema:"Innovación social y RSE", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Qué busca el valor compartido que menciona la lección?",
+ op:["Compartir la tecnología propia con los competidores","Mejorar a la vez la productividad de la empresa y las condiciones sociales, económicas y ambientales de la comunidad","Que el Estado financie parte de la innovación","Repartir las utilidades entre los empleados"],
+ ok:1,
+ just:"El valor compartido persigue al mismo tiempo la productividad de la empresa y la mejora de las condiciones sociales, económicas y ambientales de la comunidad donde está inserta.",
+ dist:"Repartir utilidades y compartir tecnología toman la palabra compartido en otro sentido. El apoyo del Estado aparece en la lección como parte del ecosistema, no como definición de valor compartido.",
+ ref:"M04 L1"},
+
+{n:159, mod:"04", lec:"L1", tema:"Caso Grupo Telecom", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En el caso de la lección, ¿dónde fue reconocida la gestión de Grupo Telecom con su programa Nuestro Lugar?",
+ op:["En el Foro Económico Mundial de Davos","En el Día de la Internet Segura en Buenos Aires","En el Global Child Forum de Brasil","En una conferencia de UNICEF en Nueva York"],
+ ok:2,
+ just:"Fue reconocida en el Global Child Forum de Brasil, organizado por Global Child Forum y Boston Consulting Group con UNICEF y Childhood Brasil. Telecom fue la única empresa argentina invitada.",
+ dist:"UNICEF colaboró con el foro pero no fue el organizador ni el lugar. El Día de la Internet Segura fue la fecha de los talleres, no del reconocimiento.",
+ ref:"M04 L1"},
+
+{n:160, mod:"04", lec:"L1", tema:"Caso Grupo Telecom", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Telecom da talleres de uso seguro de internet en escuelas, la comunidad la reconoce, eso refuerza el compromiso con su marca y la demanda de sus servicios. ¿Qué idea de la lección ilustra esta secuencia?",
+ op:["El proceso lineal de innovación","El océano azul","La tecnología ajena","El círculo virtuoso de la RSE"],
+ ok:3,
+ just:"El círculo virtuoso es: la empresa atiende necesidades de la comunidad, recibe reconocimiento y compromiso, la comunidad demanda sus productos con más frecuencia y eso lleva progreso al entorno.",
+ dist:"El proceso lineal y el océano azul son del Módulo 3. Tecnología ajena describe cómo accede la empresa a la tecnología, no la relación con la comunidad.",
+ ref:"M04 L1"},
+
+{n:205, mod:"04", lec:"L1", tema:"Acceso a la tecnología", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los mecanismos de transferencia que muestra la Figura 2.",
+ op:["Licencias","Movilidad de personal","Creación de empresas","Registro de marcas","Compraventa de bienes de equipo","Publicaciones científicas","Fusiones y adquisiciones"],
+ ok:[0,1,2,4,6],
+ just:"Los ocho mecanismos son licencias, cooperación tecnológica, asistencia técnica y servicios, compraventa de bienes de equipo, movilidad de personal, alianzas tecnológicas, fusiones y adquisiciones, y creación de empresas.",
+ dist:"Registro de marcas y publicaciones científicas no figuran. Suenan a transferencia, pero la figura mira el acceso de la empresa a la tecnología, no la difusión académica ni la protección de marca.",
+ ref:"M04 L1"},
+
+{n:161, mod:"04", lec:"L2", tema:"Nuevos emprendedores", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La palabra emprendimiento viene del francés entrepreneur. ¿Qué significa, según la lección?",
+ op:["Empresario que asume riesgos financieros","Estar listo para tomar decisiones o iniciar algo","Persona que crea una empresa con fin de lucro","Intermediario entre el productor y el mercado"],
+ ok:1,
+ just:"La cátedra dice que entrepreneur significa estar listo para tomar decisiones o iniciar algo.",
+ dist:"La opción «Persona que crea una empresa con fin de lucro» agrega el fin de lucro, que la definición de emprendimiento de la cátedra deja abierto. La primera toma el rasgo del riesgo, que es de la definición de emprendedor y no de la etimología.",
+ ref:"M04 L2"},
+
+{n:162, mod:"04", lec:"L2", tema:"Qué es un emprendimiento", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Según la definición de la cátedra, un emprendimiento puede tener como finalidad obtener dinero o no.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"La definición habla de una acción nueva enfocada a la actividad laboral, individual o grupal, sin atar el fin al lucro.",
+ dist:"Marcar Falso es pegar emprendimiento a negocio. Con esa definición quedan adentro los emprendimientos sociales y comunitarios.",
+ ref:"M04 L2"},
+
+{n:163, mod:"04", lec:"L2", tema:"Quiénes son los emprendedores", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Qué dice la cátedra sobre el perfil típico del emprendedor, joven, universitario y con buena posición económica?",
+ op:["Que es necesario al menos uno de esos tres rasgos","Que es el perfil más frecuente y el que tiene más éxito","Que es el perfil que busca la Red para Emprender","Que no hay un único modelo de emprendedor"],
+ ok:3,
+ just:"La cátedra niega que haya un único modelo. Lo esencial es tener la certeza de querer llevar adelante la idea, aportando coraje y actitud.",
+ dist:"Las otras opciones aceptan el estereotipo en alguna medida. La Red para Emprender aparece en la lección como ejemplo de financiamiento, sin perfil de edad ni formación.",
+ ref:"M04 L2"},
+
+{n:164, mod:"04", lec:"L2", tema:"Cualidades del emprendedor", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"En la Tabla 1 de la lección, ¿en qué columna aparece la cualidad proactivo?",
+ op:["Asociadas a la innovación","No figura en la tabla","Asociadas a la actitud proactiva","Asociadas a los riesgos"],
+ ok:0,
+ just:"Proactivo está en la columna de cualidades asociadas a la innovación, junto con ingenioso, auténtico, ocurrente, accionador de mejoras y capaz de quebrantar prototipos.",
+ dist:"La columna de actitud proactiva es la respuesta intuitiva y por eso es la trampa. La cátedra no la ubica ahí.",
+ ref:"M04 L2"},
+
+{n:165, mod:"04", lec:"L2", tema:"Cualidades del emprendedor", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una emprendedora se caracteriza por ser precavida y a la vez audaz. En la Tabla 1, ¿dónde están esas dos cualidades?",
+ op:["Precavida en actitud proactiva y audaz en riesgos","Las dos en la columna asociada a los riesgos","Las dos en la columna de actitud proactiva","Precavida en innovación y audaz en riesgos"],
+ ok:1,
+ just:"Precavido y audaz están juntos en la columna de cualidades asociadas a los riesgos, con asertivo, intuitivo, apasionado por los retos, concreto y seguridad en sí mismo.",
+ dist:"Separarlas en columnas distintas responde a que parecen opuestas. Para la cátedra las dos describen cómo el emprendedor se relaciona con el riesgo.",
+ ref:"M04 L2"},
+
+{n:166, mod:"04", lec:"L2", tema:"Dos cuestiones precisas", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Según la lección, ¿cómo deben ser las organizaciones que apoyan a emprendedores innovadores de gran expansión?",
+ op:["Más grandes y más formales que los emprendimientos, para darles estabilidad","Con la misma estructura o, al menos, la misma manera de trabajar que ellos","Exclusivamente públicas, para garantizar neutralidad","Independientes del emprendedor, para evaluarlo con objetividad"],
+ ok:1,
+ just:"La cátedra dice que deben tener la misma estructura o al menos la misma manera de trabajar que los emprendedores, ajustándose a su modus operandi, en un contexto institucional privado y público.",
+ dist:"La opción «Más grandes y más formales que los emprendimientos,…» es la intuición contraria, que el apoyo imponga su forma. La tercera contradice el contexto privado y público que menciona el texto.",
+ ref:"M04 L2"},
+
+{n:167, mod:"04", lec:"L2", tema:"Responsabilidad del emprendedor", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Qué impactos derivados de su actividad debe medir el emprendedor innovador?",
+ op:["Económicos y sociales","Económicos, sociales y ambientales","Sociales, ambientales y culturales","Económicos, tecnológicos y sociales"],
+ ok:1,
+ just:"La responsabilidad de un emprendedor innovador es medir los impactos económicos, sociales y ambientales derivados de su actividad.",
+ dist:"La opción «Económicos y sociales» olvida el ambiental, que es el error registrado. Las otras dos cambian uno de los tres por un término del mismo campo.",
+ ref:"M04 L2"},
+
+{n:168, mod:"04", lec:"L2", tema:"Consejos para emprendedores", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un emprendedor que recién arranca su proyecto pregunta en qué grupo enfocarse primero para desarrollar la idea. Según el tercer consejo de la cátedra, ¿cuál es?",
+ op:["Los empleados","Los inversores","Los clientes","La comunidad"],
+ ok:0,
+ just:"El tercer consejo, destacado en negrita en el PDF, dice que desde el comienzo hay que enfocarse en los empleados, el grupo más importante para desarrollar la idea, preguntándoles qué les interesa y en qué quieren ayudar.",
+ dist:"Clientes es la respuesta del sentido común empresarial. La comunidad aparece en el quinto consejo, que pide entenderla antes de desarrollar el emprendimiento, pero no la presenta como el grupo más importante.",
+ ref:"M04 L2"},
+
+{n:169, mod:"04", lec:"L2", tema:"Errores frecuentes al innovar", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un equipo entiende perfectamente el problema de negocio y la solución en teoría, pero no tiene las capacidades para construirla. ¿Qué error de la lista de la cátedra comete si igual avanza?",
+ op:["Creer que la innovación es solo para empresas grandes","Creer que lo que se entiende racionalmente se puede hacer","Innovar para seguir tendencias","Creer que innovar es cosa de una sola vez"],
+ ok:1,
+ just:"El segundo error es creer que lo que se entiende se puede hacer. La cátedra advierte que hay una gran diferencia entre entender algo y ser capaz de hacerlo.",
+ dist:"Los otros tres son errores reales de la misma lista, pero describen otras situaciones. Choque de vocabulario: en el trabajo esto se llama skill gap.",
+ ref:"M04 L2"},
+
+{n:170, mod:"04", lec:"L2", tema:"Errores frecuentes al innovar", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa lanza un piloto de analítica, lo presenta con éxito y después nadie lo mantiene ni lo mejora. ¿Qué error de la lista refleja?",
+ op:["Creer que innovar es sentarse a hablar de ideas","No asumir que innovar requiere un cambio cultural","Creer que innovar es cosa de una sola vez","Considerar que la innovación solo implica al mundo tecnológico"],
+ ok:2,
+ just:"El sexto error es creer que innovar es cosa de una sola vez. El piloto sin continuidad lo muestra: se innova una vez y se abandona.",
+ dist:"Cambio cultural también podría estar en juego, pero el rasgo que describe el enunciado es la falta de continuidad. Sentarse a hablar de ideas es el error de creer que alcanza con charlar sin tiempo, metodología ni riesgos.",
+ ref:"M04 L2"},
+
+{n:171, mod:"04", lec:"L2", tema:"Nuevos emprendedores", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La lección abre con seis condiciones que hoy se le exigen a un producto. ¿Cuál de estas NO está?",
+ op:["Tener un costo accesible","Ser amigable con el medioambiente","Satisfacer una necesidad","Estar protegido por una patente"],
+ ok:3,
+ just:"Las seis condiciones son satisfacer una necesidad, tener calidad, costo accesible, ser amigable con el medioambiente, generar un impulso en la sociedad y venir de una empresa comprometida con el progreso de la comunidad.",
+ dist:"La patente es tema de la L3 y está puesta como vocabulario cercano del mismo módulo. Las tres últimas condiciones de la lista son las que conectan con la RSE de la L1.",
+ ref:"M04 L2"},
+
+{n:172, mod:"04", lec:"L2", tema:"Nuevos emprendedores", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿Qué ejemplo institucional da la lección de organismo que financia el emprendimiento dinámico?",
+ op:["La Red para Emprender del Ministerio de Desarrollo Productivo","La Unidad Usemprende de la Universidad de Sevilla","El Global Child Forum","INIS Biotech del Instituto Leloir"],
+ ok:0,
+ just:"El ejemplo es la Red para Emprender del Ministerio de Desarrollo Productivo, con su línea de emprendimientos dinámicos.",
+ dist:"Usemprende es el caso de la L4 e INIS Biotech una de sus misiones institucionales. El Global Child Forum es el reconocimiento del caso Telecom de la L1. Todos son nombres propios del mismo módulo.",
+ ref:"M04 L2"},
+
+{n:206, mod:"04", lec:"L2", tema:"Errores frecuentes al innovar", nivel:"comprender", tipo:"ms", src:"propia",
+ q:"Seleccioná los que la cátedra presenta como errores frecuentes al innovar.",
+ op:["Creer que la innovación es solo para empresas grandes","Considerar que la innovación solo implica al mundo tecnológico","Enfocarse primero en los empleados","Creer que innovar es cosa de una sola vez","Medir los impactos ambientales","Creer que innovar es sentarse a hablar hasta que aparezca una idea brillante","Entender la cadena de valor"],
+ ok:[0,1,3,5],
+ just:"Los siete errores son creer que es solo para grandes empresas, confundir entender con saber hacer, pensar que solo implica lo tecnológico, reducirla a charlar ideas, innovar para seguir tendencias, creer que es cosa de una vez y no asumir el cambio cultural.",
+ dist:"Enfocarse en los empleados y entender la cadena de valor son consejos, el tercero y el cuarto. Medir impactos ambientales es parte de la responsabilidad del emprendedor. Las tres están puestas para ver si se distingue la lista de consejos de la de errores.",
+ ref:"M04 L2"},
+
+{n:173, mod:"04", lec:"L3", tema:"Propiedad intelectual", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según la definición de la lección, la transferencia tecnológica es el proceso de transferir conocimiento tecnológico de una parte a otra. ¿Qué pueden ser esas partes?",
+ op:["Solo universidades y empresas","Solo organismos públicos","Personas naturales o jurídicas","Solo empresas"],
+ ok:2,
+ just:"La definición dice de una parte, persona natural o jurídica, a otra, con la intención de que quien recibe lo use o implemente.",
+ dist:"Las opciones restrictivas vienen de asociar la transferencia con el vínculo universidad-empresa, que es el caso más común pero no el único. En la L4 la cátedra insiste en que la transferencia no se da solo en el ámbito académico.",
+ ref:"M04 L3"},
+
+{n:174, mod:"04", lec:"L3", tema:"Transferencia del programa de RR. HH.", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"En el ejemplo del programa de recursos humanos, compartir el programa con otra organización suele alcanzar para que esta pueda implementarlo.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La cátedra dice que compartir la información o el programa normalmente no alcanza. Hace falta un procedimiento específico: información técnica, licencia, secretos empresariales y entrenamiento del equipo inventor.",
+ dist:"Choque de vocabulario: en el trabajo se suele pensar que pasar el repositorio es un traspaso. La cátedra pide además documentación, autorización legal y capacitación.",
+ ref:"M04 L3"},
+
+{n:175, mod:"04", lec:"L3", tema:"Transferencia del programa de RR. HH.", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En la empresa, ¿por qué vías se canalizan los procesos de transferencia, según la lección?",
+ op:["Compra, acuerdos de colaboración o convenios de investigación","Patentes, marcas y modelos de utilidad","Donaciones, subsidios y concursos","Licencias, fusiones y movilidad de personal"],
+ ok:0,
+ just:"La cátedra nombra tres vías: compra, acuerdos de colaboración o convenios de investigación.",
+ dist:"Patentes, marcas y modelos son formas de protección, del aspecto legal. Licencias, fusiones y movilidad son mecanismos de la Figura 2 de la L1, una lista distinta aunque vecina.",
+ ref:"M04 L3"},
+
+{n:176, mod:"04", lec:"L3", tema:"Sin propiedad intelectual establecida", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Dos instituciones desarrollan juntas un algoritmo por un acuerdo informal. Cuando aparece un comprador, nadie sabe qué porcentaje de la venta le toca a cada una. ¿Qué dice la cátedra de esta situación?",
+ op:["Que es normal y se resuelve al momento de vender","Que es uno de los problemas de transferir sin propiedad intelectual establecida, y puede terminar en pérdida de una oportunidad de innovación","Que la propiedad es de quien registró primero el código","Que conviene dividir en partes iguales"],
+ ok:1,
+ just:"Entre los problemas de transferir sin propiedad intelectual establecida están que no queda claro qué parte le corresponde a cada uno y que no se define cómo dividir los beneficios. Lo que parecía una oportunidad termina en la pérdida de una oportunidad de innovación.",
+ dist:"Las opciones de registro primero y partes iguales proponen reglas que el material no da. La primera minimiza lo que la cátedra trata como un problema de fondo.",
+ ref:"M04 L3"},
+
+{n:177, mod:"04", lec:"L3", tema:"Estrategia institucional", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Qué relación observa la cátedra entre las estrategias institucionales de protección y la transferencia?",
+ op:["Que más protección dificulta la transferencia porque encarece el acceso","Que no hay relación directa","Que cuantas más estrategias institucionales de protección, mejores posibilidades de transferencia y comercialización","Que la protección solo importa cuando se busca comercializar"],
+ ok:2,
+ just:"La práctica de los emprendedores muestra una relación directa: más estrategias institucionales de protección, mejores posibilidades de transferencia y comercialización. Y la estrategia hace falta tanto si se busca impacto social como comercialización.",
+ dist:"La opción «Que más protección dificulta la transferencia…» es un argumento real en otros debates, pero no el de la cátedra. La cuarta contradice que la estrategia se exija también para el impacto social.",
+ ref:"M04 L3"},
+
+{n:178, mod:"04", lec:"L3", tema:"Aspectos de la tecnología", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La cita que la lección atribuye a Isenberg (2011) clasifica los cuatro aspectos de la tecnología según dos ejes. ¿Cuáles?",
+ op:["Costo y plazo de implementación","Tangibilidad y protección legal","Riesgo técnico y dependencia","Impacto en el núcleo competitivo y facilidad de manejo"],
+ ok:3,
+ just:"Los aspectos tangibles, intangibles, legales y de adopción se clasifican según su impacto en el núcleo competitivo de la empresa y su facilidad de manejo.",
+ dist:"Riesgo técnico y dependencia son atributos de la Figura 1 de la L1. Errata: el PDF atribuye el manual a Daniel Isenberg, pero el manual con ese título y año es de González Sabater. Si la pregunta es literal, conviene responder con el nombre del PDF.",
+ ref:"M04 L3"},
+
+{n:179, mod:"04", lec:"L3", tema:"Aspectos de la tecnología", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un emprendimiento transfiere un paquete de software instalable. Según la lección, ¿a qué aspecto corresponde?",
+ op:["Tangible","Intangible","Legal","De adopción"],
+ ok:0,
+ just:"La cátedra incluye los paquetes de software entre los aspectos tangibles, junto con dispositivos, medios técnicos, infraestructura y maquinaria.",
+ dist:"Intangible es la respuesta que da cualquiera que trabaja con software, y es la trampa registrada. Para la cátedra lo intangible es la documentación y el saber del personal especializado.",
+ ref:"M04 L3"},
+
+{n:180, mod:"04", lec:"L3", tema:"Aspectos de la tecnología", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Al recibir un sistema, la empresa descubre que depende de un único proveedor para instalarlo y que no tiene personal formado para operarlo. ¿Qué aspecto de la tecnología está en problemas?",
+ op:["Intangible","De adopción","Legal","Tangible"],
+ ok:1,
+ just:"Los aspectos de adopción incluyen la dependencia de elementos externos, como instaladores y proveedores, el análisis del estado actual de la tecnología y que el emprendimiento tenga infraestructura, equipo técnico y formación.",
+ dist:"Intangible podría tentar por lo del personal, pero ese aspecto habla del saber de quienes desarrollaron la tecnología, no de la formación del receptor. Choque de vocabulario: la dependencia de proveedores es lo que en el trabajo se llama vendor lock-in.",
+ ref:"M04 L3"},
+
+{n:181, mod:"04", lec:"L3", tema:"Aspectos de la tecnología", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En la matriz de la Figura 1, ¿cuáles son los aspectos marcados con asterisco por producir mayor valor añadido en las innovaciones del receptor?",
+ op:["Tangible y legal, los de mayor facilidad de control","Tangible e intangible, los del núcleo competitivo","Intangible y legal","Legal y de adopción, los complementarios"],
+ ok:2,
+ just:"Los asteriscos marcan intangible y legal. Están en diagonal: intangible en el núcleo competitivo con menor facilidad de control, legal en los complementarios con mayor facilidad de control.",
+ dist:"Las otras opciones toman una fila o una columna completa de la matriz, que es el razonamiento esperable. El dato preguntable es que los dos de mayor valor no comparten fila ni columna.",
+ ref:"M04 L3"},
+
+{n:182, mod:"04", lec:"L3", tema:"Aspectos de la tecnología", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una empresa que exporta tecnología a ciertos países necesita permisos administrativos del Estado. ¿En qué casilla de la matriz de la Figura 1 cae esa cuestión?",
+ op:["Elementos complementarios, menor facilidad de control","Núcleo competitivo, mayor facilidad de control","Núcleo competitivo, menor facilidad de control","Elementos complementarios, mayor facilidad de control"],
+ ok:3,
+ just:"Las autorizaciones legales y los permisos administrativos son aspecto legal. En la matriz, legal está en elementos complementarios con mayor facilidad de control.",
+ dist:"Núcleo competitivo con mayor control es tangible, núcleo con menor control es intangible y complementarios con menor control es adopción. Poner legal en el núcleo es la confusión registrada.",
+ ref:"M04 L3"},
+
+{n:183, mod:"04", lec:"L3", tema:"Gestión de la propiedad intelectual", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Cuál de estas NO es una de las finalidades de la gestión de la propiedad intelectual según la definición de la lección?",
+ op:["Impedir que otras organizaciones usen la tecnología","Incidir deliberadamente en acciones generadoras de valor","Asegurar la traducción de derechos en activos del patrimonio tecnológico","Evitar costos innecesarios por invasión de derechos"],
+ ok:0,
+ just:"Las tres finalidades son generar valor a partir de tecnologías existentes o propias, convertir los derechos en activos del patrimonio tecnológico y evitar costos por invasión de derechos.",
+ dist:"Impedir el uso por otros es la idea defensiva de la propiedad intelectual. La cátedra insiste en que la PI no es solo para proteger, también sirve para establecer una cultura de nuevos desarrollos y para transferir.",
+ ref:"M04 L3"},
+
+{n:207, mod:"04", lec:"L3", tema:"Transferencia del programa de RR. HH.", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná lo que, según la cátedra, puede incluir el procedimiento específico para transferir el programa de RR. HH.",
+ op:["Entrega de información técnica","Licencia para usar derechos soportados en patentes","Transferencia de secretos empresariales","Venta de las acciones del grupo de investigación","Entrenamiento técnico dado por el equipo inventor","Publicación del código en abierto"],
+ ok:[0,1,2,4],
+ just:"Son cuatro elementos: información técnica, licencia sobre derechos de propiedad intelectual soportados en patentes, secretos empresariales asociados y entrenamiento técnico del receptor por parte del equipo inventor.",
+ dist:"Vender acciones y publicar el código en abierto son formas de mover tecnología que la lección no menciona. La segunda, además, contradice la lógica de protección de toda la lección.",
+ ref:"M04 L3"},
+
+{n:184, mod:"04", lec:"L4", tema:"Buenas prácticas en la gestión de la vinculación", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Audretsch (2009), una sociedad emprendedora se destaca porque ______ son considerados fuerzas impulsoras del crecimiento económico, la creación de empleos y la competitividad global.",
+ op:["el Estado y la universidad","la tecnología y el capital","el emprendimiento y el conocimiento","la innovación y la transferencia"],
+ ok:2,
+ just:"La cita dice que el emprendimiento y el conocimiento son las fuerzas impulsoras, con tres efectos: crecimiento económico, creación de empleos y competitividad en los mercados globales.",
+ dist:"Innovación y transferencia son los temas de la materia, puestos porque suenan bien en la frase. Errata: la cita de Audretsch no figura en las referencias del PDF.",
+ ref:"M04 L4"},
+
+{n:185, mod:"04", lec:"L4", tema:"Buenas prácticas", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Para qué sirve, según la cátedra, documentar el quehacer de técnicos e investigadores del sistema de transferencia?",
+ op:["Para controlar el desempeño individual","Para cumplir con requisitos de financiamiento","Para registrar patentes","Para establecer patrones o modelos comprobados que se puedan replicar en otros procesos"],
+ ok:3,
+ just:"La utilidad de las buenas prácticas es la replicabilidad: cuando los agentes actúan de forma correcta y documentada se pueden establecer patrones exitosos que se replican en otros procesos.",
+ dist:"Registrar patentes es función de la oficina de apoyo, en esta misma lección. Controlar desempeño y cumplir requisitos son usos habituales de la documentación, pero no los que da el texto.",
+ ref:"M04 L4"},
+
+{n:186, mod:"04", lec:"L4", tema:"Buenas prácticas", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Según la cátedra, la transferencia de conocimiento también ocurre entre empresas y en el devenir de los emprendedores, no solo en el ámbito académico.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"La aclaración es explícita en el material.",
+ dist:"Marcar Falso es reducir la transferencia al vínculo universidad empresa, que es el caso típico pero no el único.",
+ ref:"M04 L4"},
+
+{n:187, mod:"04", lec:"L4", tema:"Oficina de apoyo", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una oficina de transferencia firma convenios con empresas para que estudiantes hagan pasantías y ganen experiencia laboral. ¿Qué función cumple?",
+ op:["Apoyar los procesos que garanticen los derechos de propiedad intelectual","Fomentar el vínculo con la comunidad mediante pasantías para promover el empleo","Apoyar las actividades asociadas al emprendedor","Brindar apoyo técnico de cooperación interinstitucional"],
+ ok:1,
+ just:"La séptima función es fomentar el vínculo con la comunidad mediante pasantías, para promover el empleo y la orientación profesional. Es la única que mira hacia la comunidad y el empleo.",
+ dist:"Cooperación interinstitucional también involucra convenios, pero apunta a protocolos y contratos de servicios con alcance provincial, nacional e internacional. El convenio del enunciado tiene como fin la pasantía.",
+ ref:"M04 L4"},
+
+{n:188, mod:"04", lec:"L4", tema:"Oficina de apoyo", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"¿Cuántas funciones debe tener la oficina de apoyo de transferencia del conocimiento que propone la cátedra?",
+ op:["Exactamente siete","Al menos cuatro","Al menos siete","Exactamente cinco"],
+ ok:2,
+ just:"La cátedra dice que la oficina debe tener, al menos, siete funciones. La lista es un piso, no un total cerrado.",
+ dist:"Exactamente siete es la trampa registrada: el número es correcto pero el texto dice al menos. Cinco son los rasgos de una buena práctica, otra lista de la misma lección.",
+ ref:"M04 L4"},
+
+{n:189, mod:"04", lec:"L4", tema:"Estructura de gestión", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una universidad nunca gestionó transferencia, no sabe si tiene conocimiento transferible ni cómo lo recibirían los usuarios. ¿Qué recomienda la cátedra respecto de las normas?",
+ op:["Redactar primero un reglamento completo para ordenar todo desde el inicio","No fijar normas muy definidas, porque pueden impedir ejecutar lo que se busca","Copiar la normativa del MIT","Crear o fortalecer estructuras con reglamentos adaptados"],
+ ok:1,
+ just:"Es el contexto sin experiencia. Ahí la cátedra desaconseja normas muy definidas, porque pueden trabar la ejecución. Crear o fortalecer estructuras con reglamentos corresponde al contexto con desarrollos.",
+ dist:"La opción «Crear o fortalecer estructuras con reglamentos…» es la recomendación correcta pero del otro contexto. La primera es el reflejo de ordenar todo antes de empezar, que la cátedra considera un riesgo. Choque de vocabulario: es el equivalente a no montar un gobierno de datos pesado antes de tener casos de uso.",
+ ref:"M04 L4"},
+
+{n:190, mod:"04", lec:"L4", tema:"Estructura de gestión", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Una vez diagnosticado el estado de la organización, ¿cuál es el primer paso para establecer la estructura de gestión de la transferencia?",
+ op:["Establecer los objetivos y metas que se buscan con las herramientas de gestión","Crear la oficina de apoyo","Firmar acuerdos de licencia","Registrar las patentes existentes"],
+ ok:0,
+ just:"El primer paso es establecer los objetivos y metas, definiendo cómo la protección y la comercialización de los resultados de investigación contribuyen a la misión institucional.",
+ dist:"Crear la oficina es la trampa registrada. Patentes y licencias son funciones de la oficina, que vienen después.",
+ ref:"M04 L4"},
+
+{n:191, mod:"04", lec:"L4", tema:"Misiones institucionales", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Una oficina define su misión como producir inversión en el desarrollo de invenciones a través del licenciamiento. Entre las cuatro misiones de Sumar Valor (2013), ¿a cuál se parece?",
+ op:["INIS Biotech del Instituto Leloir","Oficina de Licenciamiento de Tecnología del MIT","Área de Vinculación de la FCEN-UBA","Fundación de la Universidad Autónoma de Madrid"],
+ ok:1,
+ just:"La palabra distintiva es licenciamiento, que es el núcleo de la misión de la oficina del MIT.",
+ dist:"INIS Biotech apunta al mercado global, FCEN-UBA a los acuerdos justos y la Fundación UAM a servir de puente. Atribuir el licenciamiento a INIS Biotech es la confusión registrada.",
+ ref:"M04 L4"},
+
+{n:192, mod:"04", lec:"L4", tema:"Investigar e innovar", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según la lección, investigar permite transformar ______, mientras que innovar es transformar ______.",
+ op:["conocimiento en dinero / dinero en conocimiento","dinero en conocimiento / conocimiento en dinero","ideas en prototipos / prototipos en productos","tecnología en valor / valor en tecnología"],
+ ok:1,
+ just:"Investigar transforma dinero en conocimiento, innovar transforma conocimiento en dinero. Son dos definiciones espejo.",
+ dist:"La opción «conocimiento en dinero / dinero en conocimiento» las invierte, que es la trampa obvia. Ideas en prototipos corresponde a creatividad e invención del Módulo 3.",
+ ref:"M04 L4"},
+
+{n:193, mod:"04", lec:"L4", tema:"Investigar e innovar", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un grupo de investigación tiene un algoritmo muy superior al del mercado, pero no sabe cómo cobrarlo ni a quién venderlo. Según la Figura 1 de la lección, ¿qué le falta para crear valor?",
+ op:["Una patente","Más investigación básica","Más tecnología","Un modelo de negocios"],
+ ok:3,
+ just:"La ecuación de la Figura 1 es tecnología más modelo de negocios igual a creación de valor. El grupo ya tiene la tecnología, le falta el modelo de negocios. La invención por sí sola no es suficiente.",
+ dist:"Más tecnología o más investigación insisten en el término que ya está. La patente protege, pero la ecuación no la menciona como componente del valor.",
+ ref:"M04 L4"},
+
+{n:194, mod:"04", lec:"L4", tema:"Caso Usemprende", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"¿A quiénes dirige sus capacitaciones la Unidad Usemprende de la Universidad de Sevilla?",
+ op:["A estudiantes, investigadores y personal de administración y servicios","A emprendedores externos a la universidad","A estudiantes e investigadores","Solo a estudiantes"],
+ ok:0,
+ just:"Usemprende apunta a tres públicos: estudiantes, investigadores y personal de administración y servicios. Organiza un concurso anual de ideas de negocio con seminarios gratuitos y mentores especializados.",
+ dist:"Solo estudiantes y estudiantes más investigadores son las trampas registradas. Que incluya al personal de administración es el dato que diferencia el caso.",
+ ref:"M04 L4"},
+
+{n:208, mod:"04", lec:"L4", tema:"Buenas prácticas", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los rasgos que la cátedra enumera como buenas prácticas de transferencia de innovación tecnológica o de conocimiento.",
+ op:["Eficiencia","Carácter innovador","Bajo costo","Resultados positivos","La transferencia misma","Confidencialidad","Posibilidades de ser aplicada"],
+ ok:[0,1,3,4,6],
+ just:"Los cinco son eficiencia, carácter innovador, resultados positivos, la transferencia misma y las posibilidades de ser aplicada la innovación o el conocimiento.",
+ dist:"Bajo costo y confidencialidad suenan a criterios de gestión, pero no están en la lista cerrada de la cátedra.",
+ ref:"M04 L4"}
+];
+
+/* ---------- Bancos sin contenido en este parcial ---------- */
+const TPS = [];
+const PREG = [];
+
+/* ---------- Definición en castellano, por concepto ---------- */
+const D_CICLO=`<b>El ciclo cambio-acción-mejoramiento</b> es la forma en que Varela Villegas explica por qué las personas innovan. Primero se ve que algo podría ser distinto, que es el cambio. Después se hace lo necesario para que ese cambio ocurra, que es la acción. Y al final se mira el resultado para hacerlo mejor la próxima vez, que es el mejoramiento. Cuando eso se repite sin parar, el ciclo es continuo e incesante. Pensalo como arreglar un proceso en el trabajo: detectás la falla, la corregís y después vigilás que no vuelva.`;
+
+const D_INERCIA=`<b>La inercia organizacional</b> es la tendencia de una organización a seguir haciendo las cosas como siempre. Son fuerzas internas que frenan cualquier cambio, aunque el cambio sea bueno. No viene de una sola causa: se mezclan el miedo a lo desconocido, la falta de información, la cultura y otras más. Y aparece en todos los niveles, de la gerencia para abajo. Para vencerla la cátedra propone dos pasos: primero entender por qué la gente resiste, que es el diagnóstico, y después implementar el cambio con información clara y sumando a todos los sectores.`;
+
+const D_KAIZEN=`<b>Kaizen</b> es una palabra japonesa que significa mejoramiento continuo. La idea es mejorar un poquito todos los días, y que lo haga todo el mundo en la empresa, no un área especial. Se hizo famoso con las automotrices japonesas después de 1950. Su gran argumento es que los cambios son chicos y se pueden deshacer: si una mejora sale mal, se vuelve al proceso de antes sin romper nada. Su costo es que la dirección tiene que soltar el control y tolerar errores.`;
+
+const D_TREFFINGER=`<b>El pensamiento creativo, según Treffinger, tiene cuatro elementos.</b> Las <b>características</b> son cómo es la gente que participa. Los <b>procesos</b> son las técnicas que usa. Los <b>resultados</b> son lo que se espera obtener. Y el <b>contexto</b> es el ambiente que rodea todo lo anterior. En el dibujo de la cátedra los tres primeros son círculos que se superponen, y el contexto es el fondo que los contiene. Por eso dos equipos con la misma técnica pueden rendir muy distinto si uno trabaja con miedo y el otro con confianza.`;
+
+const D_TRIADA=`<b>Creatividad, invención e innovación son tres momentos de una misma historia.</b> La creatividad es cuando se te ocurre la idea, y todavía no existe nada fuera de tu cabeza. La invención es cuando construís el objeto y funciona, aunque no lo use nadie. La innovación recién aparece cuando eso llega al mercado y alguien lo adquiere. Un modelo de datos que anda perfecto en pruebas pero no usa ningún cliente es una invención, no una innovación.`;
+
+const D_EQUIPO=`<b>Un equipo creativo</b> es un grupo chico, de no más de diez personas, que se junta a buscar una forma distinta de resolver un problema. Funciona si la gente está motivada, si alguien lo conduce bien y si el ambiente permite tirar ideas sin que las maten enseguida. La regla práctica es usar la mitad del tiempo solo para generar ideas, sin criticar ninguna, y recién después ponerse a evaluarlas.`;
+
+const D_TECNICA=`<b>La técnica de Varela Villegas</b> es una lista de preguntas para sacar ideas de un problema. Se parte el problema en pedazos, se buscan ideas en otros lados, se revisa qué anda y qué no, se limpia lo que sobra y se piensa para qué más podría servir lo que ya hay. Una sutileza: si la idea viene de un problema parecido se dice aplicar, y si viene de algo que no tiene nada que ver se dice adaptar.`;
+
+const D_DT=`<b>El design thinking</b> es una forma de innovar que empieza por entender bien a las personas que van a usar la solución. Tim Brown lo describe como tres espacios que se pisan entre sí, inspiración, ideación e implementación, y que se recorren varias veces. Además pide que la solución sea a la vez realizable, posible de implementar y deseada por la gente. Un buen ejemplo es una herramienta técnicamente perfecta que nadie quiere usar: falla en deseabilidad.`;
+
+const D_OCEANO=`<b>El océano rojo</b> es un mercado lleno de competidores peleando por los mismos clientes, donde la sangre de la pelea tiñe el agua. <b>El océano azul</b> es un mercado que todavía nadie explotó, donde no hay con quién pelear. La estrategia de Chan Kim y Mauborgne propone dejar de pelear y crear una demanda nueva, buscando ser distinto y barato al mismo tiempo, en lugar de elegir una de las dos cosas.`;
+
+const D_DELPHI=`<b>El método Delphi</b> sirve para imaginar el futuro preguntándole a expertos. Se les manda un cuestionario por separado, sin que sepan qué contestó cada uno, y se repite varias veces. En cada vuelta se les muestra cómo quedaron las respuestas y se le vuelve a preguntar a quien opinó muy distinto. Así las opiniones se van acercando. El anonimato evita que el experto más famoso arrastre al resto. Hacen falta por lo menos veinticinco expertos.`;
+
+const D_PROCESO_INNOV=`<b>Para Quintanilla, innovar en tecnología es diseñar, producir y comercializar</b> algo nuevo con valor económico. No alcanza con inventar: el producto tiene que llegar a venderse. La cátedra agrega que cada empresa innova a su manera, según su cultura, el rubro en el que trabaja y hasta la edad de sus directivos, y que en un mercado impredecible el proceso tiene que adaptarse rápido.`;
+
+const D_CONOC=`<b>Antes se pensaba que innovar era una línea recta:</b> se investiga, se diseña y se vende. Quintanilla dice que hoy no funciona así. El conocimiento más útil se genera dentro de la empresa, muchas veces viene de clientes o proveedores y no de un laboratorio, y lo más valioso es el saber que se aprende haciendo y que no está escrito en ningún manual. A ese saber se lo llama tácito, como el del técnico que ajusta una máquina por el ruido.`;
+
+const D_LIMITES=`<b>Las encuestas sobre obstáculos a la innovación</b> preguntan a las empresas qué les impide innovar. En el País Vasco, en 2020, lo que más se nombró fue tener otras prioridades, antes que los costos. En Argentina, en 2008, el INDEC encontró que el obstáculo más citado era conseguir financiamiento. Aunque son lugares y años muy distintos, la cátedra concluye que los resultados se parecen: plata, incertidumbre y falta de apoyo del Estado aparecen en los dos.`;
+
+const D_OPCIONES=`<b>Una empresa tiene tres formas de conseguir la tecnología que necesita.</b> La puede hacer ella misma o encargarla a medida, que es tecnología propia. La puede desarrollar junto con un socio, que es compartida. O la puede comprar o licenciar ya hecha, que es ajena. Cuanto más propia, más control y más riesgo. Cuanto más ajena, más rápido llega pero más dependés de otro. Es el viejo dilema de construir o comprar.`;
+
+const D_ACCESO=`<b>Casi ninguna empresa hace toda su tecnología sola.</b> Por eso la cátedra dice que siempre hay algo de transferencia. La Figura 2 muestra el camino: la empresa parte de ciertos activos, como conocimiento o máquinas, los consigue por algún mecanismo, como una licencia o la contratación de alguien que sabe, y termina con una innovación en un producto, un proceso, la organización o el marketing.`;
+
+const D_ETAPAS=`<b>Conseguir una tecnología de afuera tiene seis pasos.</b> Primero hay un proyecto de innovación. De ahí sale una necesidad tecnológica concreta. Después se elige un proveedor, se trabaja con él, se instala la tecnología y finalmente se explota la innovación en el mercado. El proceso no termina al instalar: termina cuando lo nuevo se vende y se usa.`;
+
+const D_RSE=`<b>La responsabilidad social empresarial</b> es la forma en que una empresa muestra que no solo busca ganar plata sino también mejorar su entorno. La idea de valor compartido es que la empresa y la comunidad ganen al mismo tiempo. Cuando la empresa ayuda, la comunidad la reconoce, eso aumenta la demanda de sus productos y se arma un círculo virtuoso. El caso de Telecom enseñando uso seguro de internet en escuelas es un ejemplo de eso.`;
+
+const D_EMPREND=`<b>Emprender es arrancar algo nuevo</b>, solo o en grupo, con o sin fines de lucro. La palabra viene del francés y significa estar listo para decidir o iniciar. El emprendedor es alguien a quien le interesa innovar y que se anima a asumir riesgos. La cátedra insiste en que no hay un único perfil: no hace falta ser joven ni universitario ni tener plata, lo que hace falta es estar convencido de la idea.`;
+
+const D_CUALIDADES=`<b>La Tabla 1 reparte las cualidades del emprendedor en tres grupos:</b> las que tienen que ver con el riesgo, las que tienen que ver con innovar y las que tienen que ver con la actitud proactiva. La trampa es que algunas no caen donde uno esperaría. Proactivo está en innovación, no en actitud proactiva. Y precavido está en riesgo, al lado de audaz, porque las dos describen cómo el emprendedor maneja el riesgo.`;
+
+const D_RESPONS=`<b>La responsabilidad del emprendedor innovador</b> es medir qué efectos tiene su actividad en tres planos: la economía, la sociedad y el ambiente. La cátedra le da cinco consejos, el más destacado es empezar por los propios empleados, y siete errores para evitar, como creer que innovar es cosa de una sola vez o que alcanza con entender algo para saber hacerlo.`;
+
+const D_TRANSF=`<b>Transferir tecnología es pasar conocimiento técnico de una persona u organización a otra</b> para que la otra lo use. No alcanza con mandar el programa o los archivos: hace falta explicar cómo funciona, dar permiso legal para usarlo y entrenar a quien lo recibe. Si eso se hace sin dejar claro de quién es cada parte, aparecen peleas por la propiedad y por las ganancias, y la oportunidad se pierde.`;
+
+const D_MATRIZ=`<b>Cuando se transfiere una tecnología hay cuatro cosas para controlar.</b> Lo tangible, lo que se puede tocar, donde la cátedra incluye los paquetes de software. Lo intangible, que es la documentación y el saber de quienes la desarrollaron. Lo legal, que son los derechos y permisos. Y la adopción, que es si quien la recibe está preparado para usarla. La matriz las ordena según cuánto pesan en la competitividad y cuán fácil es controlarlas.`;
+
+const D_GESTIONPI=`<b>Gestionar la propiedad intelectual</b> no es solo cuidar que nadie te copie. Es planificar cómo sacar valor de lo que la institución sabe, convertir sus derechos en activos que formen parte de su patrimonio y evitar gastos por pisar derechos ajenos. Bien hecha, le permite a un emprendimiento transferir mejor y ganar más con lo que desarrolló.`;
+
+const D_BP=`<b>Una buena práctica de vinculación</b> es una forma de trabajar que funcionó y que quedó documentada para que otros la puedan repetir. La cátedra pide registrar cómo trabajan los técnicos e investigadores para convertir lo que salió bien en un modelo reutilizable. Y aclara que la transferencia no pasa solo en la universidad: también entre empresas y entre emprendedores.`;
+
+const D_OFICINA=`<b>La oficina de apoyo a la transferencia</b> es el lugar que ayuda a los emprendedores a no perderse. Se ocupa de la propiedad intelectual, las patentes, las licencias, el apoyo al emprendedor, los convenios con otras instituciones y las pasantías. La cátedra dice que tiene al menos siete funciones, así que la lista es un mínimo.`;
+
+const D_ESTRUCTURA=`<b>No todas las instituciones deben organizar la transferencia igual.</b> Si nunca lo hicieron, conviene no llenarse de reglas al principio, porque pueden trabar todo. Si ya tienen desarrollos y usuarios conocidos, conviene armar estructuras y reglamentos. En los dos casos el primer paso, después del diagnóstico, es fijar qué objetivos y metas se buscan. Las misiones de ejemplo muestran cómo cada oficina pone el acento en algo distinto.`;
+
+const D_INNOVAR=`<b>Investigar es gastar plata para obtener conocimiento. Innovar es usar ese conocimiento para generar plata.</b> Un invento solo no alcanza: para crear valor hace falta sumarle un modelo de negocios, es decir, saber a quién venderlo y cómo cobrarlo. El caso Usemprende de la Universidad de Sevilla ayuda justamente con eso: acompaña a estudiantes, investigadores y personal administrativo a convertir una idea en un proyecto de empresa.`;
+
+const DEF = {
+101:D_CICLO, 102:D_CICLO, 103:D_INERCIA, 104:D_INERCIA, 105:D_INERCIA, 106:D_KAIZEN,
+107:D_KAIZEN, 108:D_KAIZEN, 109:D_KAIZEN, 110:D_KAIZEN, 111:D_INERCIA, 112:D_INERCIA,
+201:D_INERCIA, 113:D_TREFFINGER, 114:D_TREFFINGER, 115:D_TREFFINGER, 116:D_TREFFINGER, 117:D_TRIADA,
+118:D_TRIADA, 119:D_TRIADA, 120:D_EQUIPO, 121:D_EQUIPO, 122:D_TECNICA, 123:D_TECNICA,
+124:D_TECNICA, 202:D_TREFFINGER, 125:D_DT, 126:D_DT, 127:D_DT, 128:D_DT,
+129:D_DT, 130:D_DT, 131:D_OCEANO, 132:D_OCEANO, 133:D_OCEANO, 134:D_OCEANO,
+135:D_DELPHI, 136:D_DELPHI, 203:D_OCEANO, 137:D_PROCESO_INNOV, 138:D_PROCESO_INNOV, 139:D_PROCESO_INNOV,
+140:D_CONOC, 141:D_CONOC, 142:D_CONOC, 143:D_CONOC, 144:D_LIMITES, 145:D_LIMITES,
+146:D_LIMITES, 147:D_LIMITES, 148:D_LIMITES, 204:D_LIMITES, 149:D_OPCIONES, 150:D_OPCIONES,
+151:D_OPCIONES, 152:D_ACCESO, 153:D_ACCESO, 154:D_ACCESO, 155:D_ETAPAS, 156:D_ETAPAS,
+157:D_RSE, 158:D_RSE, 159:D_RSE, 160:D_RSE, 205:D_ACCESO, 161:D_EMPREND,
+162:D_EMPREND, 163:D_EMPREND, 164:D_CUALIDADES, 165:D_CUALIDADES, 166:D_EMPREND, 167:D_RESPONS,
+168:D_RESPONS, 169:D_RESPONS, 170:D_RESPONS, 171:D_EMPREND, 172:D_EMPREND, 206:D_RESPONS,
+173:D_TRANSF, 174:D_TRANSF, 175:D_TRANSF, 176:D_TRANSF, 177:D_TRANSF, 178:D_MATRIZ,
+179:D_MATRIZ, 180:D_MATRIZ, 181:D_MATRIZ, 182:D_MATRIZ, 183:D_GESTIONPI, 207:D_TRANSF,
+184:D_BP, 185:D_BP, 186:D_BP, 187:D_OFICINA, 188:D_OFICINA, 189:D_ESTRUCTURA,
+190:D_ESTRUCTURA, 191:D_ESTRUCTURA, 192:D_INNOVAR, 193:D_INNOVAR, 194:D_INNOVAR, 208:D_BP
+};
+
+/* ---------- Teoría completa, por concepto ---------- */
+const T_CICLO=`<p>Varela Villegas (2017) explica la innovación desde el nivel antropológico. Para lograr progreso, desarrollo, bienestar y superación, el género humano usa tres nociones.</p>
+<div class="tabla"><table><tr><th>#</th><th>Noción</th><th>Qué aporta</th></tr>
+<tr><td>1</td><td>Cambio, modificación</td><td>Buscar formas nuevas y creativas de resolver problemas, identificar oportunidades, atender necesidades y deseos. El autor lo iguala a innovar</td></tr>
+<tr><td>2</td><td>Acción, realización</td><td>Llevar a cabo las actividades para que los cambios se implementen</td></tr>
+<tr><td>3</td><td>Mejoramiento, superación</td><td>Orientar los cambios hacia mejores resultados y hacer que el ciclo se repita</td></tr></table></div>
+<blockquote>[...] que el ciclo cambio-acción-mejoramiento sea continuo e incesante. (Varela Villegas, 2017, p. 8)</blockquote>
+<p><b>Los cuatro rasgos de las culturas innovadoras</b> (Varela Villegas, 2017, p. 13). La cátedra aclara que ninguna etnia tiene más o menos preocupación por mejorar.</p>
+<ol><li>Capacidad para identificar nuevas formas de desarrollo y progreso, a las que llama <b>necesidades</b>.</li>
+<li>Habilidad para satisfacerlas mediante procesos creativos e innovadores.</li>
+<li>Decisión para ejecutar esas soluciones.</li>
+<li>Destreza para sostener una actitud continua corrigiendo errores y avanzando sobre aciertos: el <b>principio de mejoramiento</b>.</li></ol>`;
+
+const T_INERCIA=`<blockquote><b>Inercia organizacional</b>: son las fuerzas existentes dentro de una organización que la hacen resistente al cambio. (Universidad Siglo 21, s. f.)</blockquote>
+<p>López Duque et al. (2013, p. 152): los cambios surgen de la necesidad de romper el equilibrio existente para transformarlo en otro más provechoso. Las fuerzas del cambio chocan con la resistencia al cambio, y todo cambio debe incluir tareas para minimizar esa interacción. La resistencia está <b>en todos los niveles</b>.</p>
+<p><b>Las nueve causas</b>, sin un factor único: temor a lo desconocido, falta de información, cultura de la organización, baja confianza en la capacidad de la organización, miedo al fracaso, resistencia a salir de la zona de confort, escasa flexibilidad, incertidumbre, nivel de riesgo que debe asumirse.</p>
+<div class="tabla"><table><tr><th>Medida</th><th>Qué implica</th><th>Cuándo</th></tr>
+<tr><td><b>Diagnóstico</b></td><td>Estudio profundo de los factores de resistencia: clima, normas, conductas y sus causas, para preparar al personal</td><td>Primero</td></tr>
+<tr><td><b>Implementación clara y transparente</b></td><td>Informar con el máximo detalle los beneficios e implicar a todos los sectores. Quien participó sostiene el cambio frente a quien resiste</td><td>Después, con la idea ya aceptada por la dirigencia</td></tr></table></div>
+<p><b>Choque de vocabulario.</b> En el trabajo esto se llama change management. La cátedra lo formula como superar la inercia, con el foco puesto en que la dirigencia acepte la idea.</p>`;
+
+const T_KAIZEN=`<blockquote>"mejoramiento continuo, pero mejoramiento todos los días, a cada momento, realizado por todos los empleados de la organización, en cualquier lugar de la empresa. Y que va de pequeñas mejoras incrementales a innovaciones drásticas y radicales" (Suárez-Barraza y Miguel-Dávila, 2008)</blockquote>
+<p>Promotor citado: Masaaki Imai (1986). Se popularizó <b>después de 1950</b> entre los fabricantes de autos japoneses, que compitieron con alta calidad y precios competitivos contra las automotrices norteamericanas y europeas.</p>
+<div class="tabla"><table><tr><th>Aspecto</th><th>Ventaja</th><th>Desventaja</th></tr>
+<tr><td>Riesgo</td><td>Cambios económicos y de bajo riesgo: chicos, probados y reversibles</td><td>Posibilidad de equivocarse o de implementar métodos poco convenientes</td></tr>
+<tr><td>Personas</td><td>Impulsa cambios positivos: cada integrante controla su proceso</td><td>Ceder la iniciativa y tener alta tolerancia al error</td></tr>
+<tr><td>Organización</td><td>Estimula la adaptación al cambio</td><td>Control descentralizado, que exige más esfuerzo</td></tr>
+<tr><td>Cultura</td><td>Fomenta la innovación sin miedo a la crítica, y siempre se puede volver al proceso original</td><td></td></tr></table></div>
+<p><b>Choque de vocabulario.</b> Volver al proceso original es lo que en un equipo de datos se llama rollback. Un comité centralizado de cambios es lo opuesto a Kaizen, que exige control descentralizado.</p>
+<p><b>Errata del PDF.</b> El promotor figura como "Masaki Imai". El nombre correcto es Masaaki Imai, y el texto entrecomillado sale de Suárez-Barraza y Miguel-Dávila (2008), no de Imai. En Referencias aparece "Suárez-Berraza", y la forma correcta es Suárez-Barraza.</p>`;
+
+const T_TREFFINGER=`<blockquote><b>Proceso de generación de ideas</b>, también conocido como <b>proceso creativo</b>: conjunto de etapas o fases que se desarrollan para poner en práctica la imaginación, con el objeto de resolver un problema o iniciar un nuevo proyecto. (Universidad Siglo 21, s. f.)</blockquote>
+<div class="tabla"><table><tr><th>Elemento</th><th>Qué comprende</th><th>Ejemplos</th></tr>
+<tr><td><b>Contexto</b></td><td>Factores del ambiente que afectan la creatividad productiva. En la figura envuelve a los otros tres</td><td>Bloqueos personales, barreras organizacionales, motivación, libertad, confianza, conflicto, propensión al riesgo</td></tr>
+<tr><td><b>Características</b></td><td>Habilidades, preferencias, actitudes, motivación, estilos</td><td>Rasgos intelectuales y personales</td></tr>
+<tr><td><b>Procesos</b></td><td>Métodos, estrategias y técnicas para generar ideas y resolver problemas</td><td>Las técnicas de la lección</td></tr>
+<tr><td><b>Resultados</b></td><td>El efecto concreto y creativo que se espera</td><td>Novedoso, original, útil, valioso, atractivo, elegante</td></tr></table></div>
+<div class="tabla"><table><tr><th>Rasgos intelectuales</th><th>Rasgos personales</th></tr>
+<tr><td>Fluidez, originalidad, flexibilidad, tolerancia a la ambigüedad, capacidad de jugar con ideas, <b>humor, optimismo</b></td><td>Fuerte motivación por el trabajo, autonomía, independencia, inconformismo, energía, sensibilidad</td></tr></table></div>
+<p>La cátedra afirma que todos tienen capacidades creativas distintas y que la creatividad puede ser potenciada.</p>
+<p><b>Errata del PDF.</b> El autor figura como "Varela Villega" en la sección 1 y en la fuente de la Figura 1. La forma correcta es Varela Villegas.</p>`;
+
+const T_TRIADA=`<p>Las tres definiciones son de Varela Villegas (2017, p. 263).</p>
+<div class="tabla"><table><tr><th>Concepto</th><th>Definición</th><th>Marca distintiva</th></tr>
+<tr><td><b>Creatividad</b></td><td>Capacidad de lograr generar una idea útil y original. El momento fulgurante en que se encuentra una nueva línea de acción</td><td>La idea</td></tr>
+<tr><td><b>Invención</b></td><td>Desarrollo y materialización de una idea creativa, universalmente nueva, en un prototipo, modelo, concepto o idea. Volver realidad el acto creativo</td><td>El prototipo</td></tr>
+<tr><td><b>Innovación</b></td><td>Proceso por el cual esos prototipos o ideas se integran al mercado y se ofrecen como bienes para ser adquiridos por los clientes. Convertir una idea en una empresa</td><td>El mercado</td></tr></table></div>
+<p>La secuencia de la innovación: idea, idea empresarial, oportunidad empresarial, plan de empresa, empresa en desarrollo y crecimiento. La creatividad es el motor de las otras dos, pero muchas invenciones nunca llegan a ser innovaciones por tiempo, lugar, tipo de empresa, cultura o personalidad de los involucrados.</p>
+<p><b>Choque de vocabulario.</b> Un prototipo o POC es invención. Salir a producción con clientes reales es lo que la cátedra llama innovación.</p>`;
+
+const T_EQUIPO=`<blockquote><b>Equipo creativo</b>: conjunto de no más de diez personas que buscan resolver de manera diferente un determinado problema. (Universidad Siglo 21, s. f.)</blockquote>
+<div class="tabla"><table><tr><th>Condición</th><th>Qué pide</th></tr>
+<tr><td>Motivación</td><td>Integrantes motivados con el problema, de mente abierta, dispuestos a equivocarse y volver a empezar</td></tr>
+<tr><td>Liderazgo</td><td>Conducción por personas que conozcan técnicas creativas y dinámicas de equipo. Dirige la creatividad, fija tiempos y controla los egos</td></tr>
+<tr><td>Ambiente propicio</td><td>Respeto, y que las ideas fluyan sin ser criticadas antes de tiempo</td></tr></table></div>
+<p><b>Regla práctica.</b> La mitad del tiempo disponible se dedica a generar ideas sin criticarlas. En esa fase vale cualquier idea, incluso la más descabellada. Recién después se valoran, discuten, agrupan, mejoran y desarrollan.</p>
+<p>No confundir el tope de diez personas con el mínimo de veinticinco expertos del Delphi (L3).</p>`;
+
+const T_TECNICA=`<p><b>Los siete métodos que lista la cátedra</b>, sin desarrollarlos: tormenta de ideas (brainstorming), árboles de diseño, método 635, sinéctica, seis sombreros, mapas mentales y análisis sectorial. El PDF no explica ninguno.</p>
+<p><b>La técnica de Varela Villegas</b> (2017, p. 261), la única que el PDF desarrolla, agrupada:</p>
+<div class="tabla"><table><tr><th>Grupo</th><th>Acciones</th></tr>
+<tr><td>Descomponer</td><td>Dividir el problema en partes y armar propuestas para cada una</td></tr>
+<tr><td>Transferir</td><td><b>Adaptar</b> ideas de problemas o productos sin relación. <b>Aplicar</b> ideas de problemas parecidos</td></tr>
+<tr><td>Revisar lo existente</td><td>Lista de lo que no funciona para corregirlo y de lo que funciona para mejorarlo</td></tr>
+<tr><td>Depurar</td><td>Qué simplificar, qué mejorar del proceso, qué eliminar por redundante</td></tr>
+<tr><td>Reutilizar y transformar</td><td>Para qué otra cosa se podría usar, cambios radicales, sustituciones o variantes</td></tr></table></div>
+<p><b>Choque de vocabulario.</b> Descomponer es el breakdown en tareas. Eliminar lo redundante equivale a deprecar código muerto. Las dos listas de lo que funciona y lo que no son el esquema de una retrospectiva.</p>`;
+
+const T_DT=`<p><b>Design thinking.</b> Primero se estudia y define el problema, después se buscan soluciones, con las <b>necesidades de los usuarios como centro de gravedad</b>. Cinco acciones no lineales: encontrar, entender, crear, pensar y hacer.</p>
+<blockquote>No existe una «manera mejor y única» de avanzar en este proceso. [...] el continuo de innovación es mejor cuando se trata de un sistema de espacios que se solapan que cuando es una secuencia de pasos ordenados. (Brown, 2020, p. 22)</blockquote>
+<div class="tabla"><table><tr><th>Espacio</th><th>Qué es</th></tr>
+<tr><td>Inspiración</td><td>El problema o la oportunidad que motiva buscar soluciones</td></tr>
+<tr><td>Ideación</td><td>Generar, desarrollar y probar ideas</td></tr>
+<tr><td>Implementación</td><td>El camino de la sala de proyectos al mercado</td></tr></table></div>
+<p>Brown advierte que por ser repetitivo y de final abierto parece caótico la primera vez.</p>
+<div class="tabla"><table><tr><th>Restricción</th><th>Pregunta</th></tr>
+<tr><td>Factibilidad</td><td>¿Hay suficientes probabilidades de realizarlo?</td></tr>
+<tr><td>Viabilidad</td><td>¿Qué es posible implementar?</td></tr>
+<tr><td>Deseabilidad</td><td>¿Qué tiene sentido para las personas destinatarias?</td></tr></table></div>
+<p>El diseñador común resuelve cada restricción por separado. El design thinker las lleva a un armonioso equilibrio.</p>
+<p><b>Choque de vocabulario.</b> En el trabajo feasibility suele traducirse como viabilidad técnica, pero en la cátedra viabilidad es otra cosa. Deseabilidad se parece a lo que en producto se llama product-market fit.</p>`;
+
+const T_OCEANO=`<blockquote>Los océanos azules "son espacios no aprovechados que pueden permitir la creación de la demanda y son oportunidades para alcanzar un crecimiento rentable" (Chan Kim y Mauborgne, 2017, p. 5)</blockquote>
+<div class="tabla"><table><tr><th>Factor</th><th>Océano rojo</th><th>Océano azul</th></tr>
+<tr><td>Objetivo</td><td>Competir en el mercado existente</td><td>Buscar nuevos mercados</td></tr>
+<tr><td>Competencia</td><td>Vencerla</td><td>No le interesa</td></tr>
+<tr><td>Demanda</td><td>Explotar la existente</td><td>Capturar o crear una nueva</td></tr>
+<tr><td>Valor-costo</td><td>Elegir en función de los costos</td><td>Romper con la disyuntiva</td></tr>
+<tr><td>Alineación</td><td>Diferenciación <b>o</b> bajos costos</td><td>Diferenciación <b>y</b> bajos costos, largo plazo</td></tr></table></div>
+<p><b>Los cuatro pasos.</b> Dejar el océano rojo. Disponer de un <b>movimiento estratégico</b>, las decisiones de la gerencia para crear un nuevo mercado. Aplicar la <b>innovación en valor</b>, con ganancias a largo plazo. Alinear todo el sistema de la empresa.</p>
+<p><b>Los seis principios.</b></p>
+<ol><li>Reconstruir las fronteras del mercado.</li><li>Enfocarse en la perspectiva global, no en las cifras iniciales.</li><li>Ir más allá de la demanda existente.</li><li>Desarrollar la secuencia estratégica correcta.</li><li>Superar los obstáculos de la organización.</li><li>Incorporar la ejecución en la estrategia.</li></ol>`;
+
+const T_DELPHI=`<blockquote><b>Prospectiva</b>: desarrollo de un proceso de investigación sobre el futuro, con la intención de optimizar la consecución de los objetivos estratégicos de cualquier organización. (Universidad Siglo 21, s. f.)</blockquote>
+<p>Delphi aprovecha el juicio de expertos y elimina las interacciones sociales indeseables de todo grupo (Aponte Figueroa et al., 2012). Su finalidad es "poner de manifiesto convergencias de opinión y hacer emerger ciertos consensos" mediante cuestionarios sucesivos (Godet, 2000, p. 86).</p>
+<div class="tabla"><table><tr><th>Fase</th><th>Nombre</th><th>Qué se hace</th></tr>
+<tr><td>1</td><td>Formulación del problema</td><td>Cuestionario de preguntas precisas y cuantificables</td></tr>
+<tr><td>2</td><td>Elección de expertos</td><td><b>No menos de veinticinco</b>, por conocimiento y capacidad de trabajar sobre el futuro. Trabajo independiente y opinión anónima</td></tr>
+<tr><td>3</td><td>Desarrollo práctico y explotación</td><td>Encuestas por separado, análisis de la dispersión, nuevas rondas a quienes opinan muy distinto, hasta la opinión media consensuada</td></tr></table></div>
+<p><b>Choque de vocabulario.</b> La dispersión de opiniones es lo que en estadística se mide como varianza o desvío. Delphi itera para reducirla, no busca unanimidad.</p>
+<p><b>Nota del PDF.</b> El material escribe "DELPHI" en mayúsculas, pero es un nombre propio y no una sigla.</p>`;
+
+const T_PROCESO_INNOV=`<blockquote><b>Innovación tecnológica</b>: "el proceso que consiste en diseñar, producir y comercializar un bien de valor económico con propiedades nuevas basadas en la tecnología" (Quintanilla, 2017, p. 211)</blockquote>
+<p>Según distintos expertos, las <b>actividades de innovación junto con el capital humano</b> son los principales factores de ventaja competitiva de las economías industriales avanzadas. No alcanza con tenerlos: toda la organización debe estar convencida.</p>
+<p>Los procesos deben responder a la <b>imprevisibilidad de los mercados</b>, a diferencia del pasado, más estable. Factores que influyen en el tipo de proceso: la <b>edad de directivos, gerentes e ingenieros</b>, la cultura de la organización y el ramo o área de trabajo.</p>
+<p><b>Errata del PDF.</b> La primera mención del autor dice "Quintantillas (2017)". La forma correcta es Quintanilla.</p>`;
+
+const T_CONOC=`<blockquote>La innovación tecnológica es un proceso de tipo lineal. [...] comienza con la adquisición de un nuevo conocimiento, sigue con su aplicación en el diseño y la puesta a punto de nuevos productos [...] y termina con la comercialización, difusión y venta. (Quintanilla, 2017, p. 210)</blockquote>
+<p>Es la concepción tradicional. Hoy la innovación no se limita a la investigación aplicada. Las cuatro ideas de Quintanilla:</p>
+<ol><li>El conocimiento más útil para innovar se <b>produce desde adentro</b> y se incorpora a la cultura de la empresa.</li>
+<li>La información de <b>usuarios o proveedores</b> puede ser tanto o más valiosa que la investigación científica y tecnológica.</li>
+<li>El conocimiento más importante es <b>tácito</b>: se obtiene por uso y práctica.</li>
+<li>La empresa debe gestionar el conocimiento en toda su extensión.</li></ol>
+<p><b>Choque de vocabulario.</b> El modelo lineal se parece al waterfall. El conocimiento tácito es el know-how o conocimiento de dominio. La cuarta idea es lo que en el trabajo se llama knowledge management.</p>`;
+
+const T_LIMITES=`<p><b>Instituto Vasco de Estadística (2020).</b> El 58 % de las empresas percibe obstáculos. En las más pequeñas sube a 65,3 %.</p>
+<div class="tabla"><table><tr><th>Causa</th><th>%</th></tr>
+<tr><td>Otras prioridades dentro de la empresa</td><td>44,8</td></tr><tr><td>Costos demasiado altos</td><td>35,8</td></tr>
+<tr><td>Dificultad para obtener ayuda del Estado</td><td>30,0</td></tr><tr><td>Exceso de competencia</td><td>29,7</td></tr>
+<tr><td>Incertidumbre sobre la demanda</td><td>29,4</td></tr><tr><td>Falta de financiamiento interno</td><td>28,4</td></tr>
+<tr><td>Falta de financiamiento privado externo</td><td>23,9</td></tr></table></div>
+<p><b>INDEC (2008), empresas industriales.</b> Columna muy importante, de mayor a menor:</p>
+<div class="tabla"><table><tr><th>Factor</th><th>%</th></tr>
+<tr><td>Acceso al financiamiento o costo excesivo</td><td>21,7</td></tr><tr><td>Incertidumbre sobre el éxito</td><td>13,5</td></tr>
+<tr><td>Deficiencias en las políticas públicas</td><td>12,5</td></tr><tr><td>Reducido tamaño de mercado</td><td>12,4</td></tr>
+<tr><td>Período de retorno excesivamente largo</td><td>11,3</td></tr><tr><td>Bajo ritmo de cambio tecnológico del sector</td><td>8,8</td></tr>
+<tr><td>Inseguridad en la apropiación de resultados</td><td>7,2</td></tr><tr><td>Falta de personal calificado en la firma</td><td>7,0</td></tr>
+<tr><td>Estructura del mercado</td><td>6,7</td></tr><tr><td>Escasez de personal calificado en el mercado laboral</td><td>5,8</td></tr>
+<tr><td>Baja receptividad de la demanda</td><td>5,7</td></tr><tr><td>Problemas de organización administrativa o productiva</td><td>4,8</td></tr>
+<tr><td>Costo o burocracia de la propiedad intelectual</td><td>4,1</td></tr><tr><td>Deficiencias en infraestructura física</td><td>3,9</td></tr>
+<tr><td>Acceso a conocimientos exógenos</td><td>3,0</td></tr></table></div>
+<p>Los cuatro primeros son los que destaca el texto. La conclusión de la cátedra: aunque son muy distintos en lugar y tiempo, <b>ambos estudios dan resultados similares</b>.</p>
+<p><b>Cuidado con las cuentas.</b> La diferencia entre dos porcentajes se expresa en puntos porcentuales. 65,3 menos 58 da 7,3 puntos, que es un aumento relativo de alrededor del 12,6 %.</p>
+<p><b>Erratas del PDF.</b> En la tabla del INDEC las cuatro columnas no suman 100 % por fila y el universo no se explica, así que los porcentajes sirven para comparar filas. La expresión "empresas de 10/15 empleados" es ambigua y no queda claro a qué segmento corresponde el 65,3 %. El PDF escribe "Instituto Nacional de Estadísticas y Censos", y el nombre oficial es Instituto Nacional de Estadística y Censos.</p>`;
+
+const T_OPCIONES=`<p>González Sabater (2011): todos los actores intervienen en <b>la transformación del conocimiento en riqueza económica a través de los filtros del mercado</b>. Tres grupos: los que desarrollan el conocimiento (universidades, organismos de investigación, centros tecnológicos, empresas), los que lo reciben, y los intermediarios (administraciones públicas, asociaciones, centros de apoyo, consultores).</p>
+<div class="tabla"><table><tr><th>Opción</th><th>Forma de desarrollo</th><th>Liderazgo, riesgo técnico, recursos</th><th>Disponibilidad, rapidez, dependencia, cooperación abierta</th></tr>
+<tr><td><b>Propia</b></td><td>Desarrollo interno o <b>subcontratación</b></td><td>Máximos</td><td>Mínimos</td></tr>
+<tr><td><b>Compartida</b></td><td>Codesarrollo con socios externos</td><td>Intermedios</td><td>Intermedios</td></tr>
+<tr><td><b>Ajena</b></td><td>Suministro o licencia</td><td>Mínimos</td><td>Máximos</td></tr></table></div>
+<p><b>Choque de vocabulario.</b> Es el dilema build vs buy, con una opción intermedia. Subcontratar a una consultora, para la cátedra, es tecnología propia. Una licencia de software o un SaaS es tecnología ajena.</p>
+<p><b>Errata del PDF.</b> Las tres figuras citan fuentes sin autor, del tipo "[Imagen sin título sobre tecnología] (s.f.)". Por su contenido parecen del manual de González Sabater, pero el PDF no lo dice.</p>`;
+
+const T_ACCESO=`<p>Es poco probable que una empresa desarrolle el 100 % de su tecnología. Por eso un cierto grado de transferencia es un <b>factor constante</b>, entendido como dispositivo de acceso a los activos necesarios para innovar.</p>
+<div class="tabla"><table><tr><th>Activos tecnológicos (4)</th><th>Mecanismos de transferencia (8)</th><th>Innovaciones (4)</th></tr>
+<tr><td>Derechos de propiedad</td><td>Licencias</td><td>Productos</td></tr>
+<tr><td>Conocimiento científico</td><td>Cooperación tecnológica</td><td>Procesos</td></tr>
+<tr><td>Conocimiento técnico</td><td>Asistencia técnica y servicios</td><td>Organización</td></tr>
+<tr><td>Bienes de equipo</td><td>Compraventa de bienes de equipo</td><td>Marketing</td></tr>
+<tr><td></td><td>Movilidad de personal</td><td></td></tr>
+<tr><td></td><td>Alianzas tecnológicas</td><td></td></tr>
+<tr><td></td><td>Fusiones y adquisiciones</td><td></td></tr>
+<tr><td></td><td>Creación de empresas</td><td></td></tr></table></div>
+<p>Dos caminos en la figura: el desarrollo propio, directo, y el desarrollo ajeno o compartido, que pasa por los mecanismos. Los cuatro tipos de innovación coinciden con los del Manual de Oslo del Módulo 1. La cátedra propone concebir la transferencia como <b>colaboración entre empresas</b>.</p>`;
+
+const T_ETAPAS=`<p>El objeto de transferencia es <b>uno de los componentes</b> de la innovación, no el único. El circuito se considera finito cuando lo comprobado se lanzó al mercado y se explota.</p>
+<ol><li>Proyecto de innovación (extremo)</li><li>Necesidad tecnológica</li><li>Elección del proveedor</li><li>Colaboración con el proveedor</li><li>Implantación de la tecnología</li><li>Explotación de la innovación (extremo)</li></ol>
+<p><b>Choque de vocabulario.</b> Elección del proveedor es el vendor selection. Implantación es la puesta en producción, y todavía falta la explotación.</p>`;
+
+const T_RSE=`<blockquote>La innovación social crea nuevas ideas que favorecen a las necesidades sociales, generan relaciones y establecen colaboraciones, que pueden devenir en: productos, servicios o modelos, que permiten abordar las necesidades no satisfechas de una forma más acertada. (Universidad Siglo 21, s. f.)</blockquote>
+<p>La <b>RSE</b> nace de la necesidad de demostrar a la sociedad el beneficio que la empresa brinda a su entorno, y de mostrar que su fin no es solo el beneficio particular sino la <b>creación de valor compartido</b>: productividad de la empresa y mejora de las condiciones sociales, económicas y ambientales de la comunidad.</p>
+<p>RSE más innovación, con apoyo de gobiernos, organizaciones y comunidades, arma un <b>ecosistema</b> cuyo impacto se ve en la perdurabilidad de la empresa. El <b>círculo virtuoso</b>: la empresa atiende necesidades, recibe reconocimiento y compromiso, la comunidad demanda más sus productos y el entorno progresa. El marco compartido apunta a alianzas con organismos públicos y privados, con la comunidad como cocreadora y un impacto social escalable.</p>
+<p><b>Caso.</b> Grupo Telecom, programa <b>Nuestro Lugar</b>: difunde el valor de las TIC para la inclusión. En el Día de la Internet Segura dio talleres sobre privacidad, fuentes seguras y cyberbullying. Reconocido en el <b>Global Child Forum de Brasil</b>, organizado por Global Child Forum y Boston Consulting Group con UNICEF y Childhood Brasil. Fue la única empresa argentina invitada.</p>`;
+
+const T_EMPREND=`<p><b>Las seis condiciones de un producto hoy:</b> satisfacer una necesidad, tener calidad, costo accesible, ser amigable con el medioambiente, generar un impulso en la sociedad, venir de una empresa comprometida con la comunidad.</p>
+<p><b>Entrepreneur</b>, del francés: estar listo para tomar decisiones o iniciar algo.</p>
+<blockquote>Un emprendimiento se considera una acción nueva enfocada a la actividad laboral, que hace una persona o un grupo de personas, que puede tener como finalidad obtener dinero o no. (Universidad Siglo 21, s. f.)</blockquote>
+<blockquote>Los emprendedores son personas que tienen interés por la innovación y disposición para asumir riesgos. (Universidad Siglo 21, s. f.)</blockquote>
+<p>No hay un único modelo de emprendedor. Lo esencial es la certeza de querer llevar adelante la idea, con coraje y actitud. Donde cualquiera ve un problema, el emprendedor ve un resultado.</p>
+<p><b>Dos cuestiones precisas:</b> el emprendedor y su equipo como generadores de capacidades de innovación, y aprender a partir de la acción, con emprendimiento e innovación inseparables y codependientes. Las organizaciones de apoyo deben tener la misma estructura, o al menos la misma manera de trabajar, que los emprendedores, en un contexto institucional privado y público. Ejemplo: la <b>Red para Emprender</b> del Ministerio de Desarrollo Productivo, línea de emprendimientos dinámicos.</p>
+<p><b>Choque de vocabulario.</b> Lo que en el trabajo se llama startup es el emprendimiento dinámico de la Red para Emprender.</p>`;
+
+const T_CUALIDADES=`<div class="tabla"><table><tr><th>Asociadas a los riesgos (7)</th><th>Asociadas a la innovación (6)</th><th>Asociadas a la actitud proactiva (10)</th></tr>
+<tr><td>Asertivo</td><td>Ingenioso</td><td>Dirigente</td></tr>
+<tr><td>Intuitivo</td><td><b>Proactivo</b></td><td>Voluntarioso</td></tr>
+<tr><td><b>Precavido</b></td><td>Auténtico</td><td>Riguroso</td></tr>
+<tr><td>Apasionado por los retos</td><td>Ocurrente</td><td>Accionador del triunfo</td></tr>
+<tr><td>Concreto</td><td>Accionador de mejoras</td><td>Competencia para el trabajo en equipo</td></tr>
+<tr><td>Seguridad en sí mismo</td><td>Capaz de quebrantar prototipos</td><td>Generador</td></tr>
+<tr><td>Audaz</td><td></td><td>Habituado al cambio</td></tr>
+<tr><td></td><td></td><td>Empático</td></tr>
+<tr><td></td><td></td><td>Gestionador de redes</td></tr>
+<tr><td></td><td></td><td>Implicado</td></tr></table></div>
+<p>Las ubicaciones que confunden: proactivo en innovación, precavido junto a audaz en riesgos, accionador del triunfo en proactiva y accionador de mejoras en innovación.</p>
+<p><b>Nota sobre el material.</b> La tabla no está equilibrada: siete, seis y diez cualidades por columna.</p>`;
+
+const T_RESPONS=`<blockquote>La responsabilidad de un emprendedor innovador es medir los impactos económicos, sociales y ambientales derivados de su actividad. (Universidad Siglo 21, s. f.)</blockquote>
+<p>Además necesita un sistema de gestión que considere las expectativas de los grupos de interés, con comportamiento transparente y ético.</p>
+<p><b>Cinco consejos.</b></p>
+<ol><li>Aprovechar y generar oportunidades de negocio asociadas a la innovación.</li><li>Incorporar principios y prácticas de innovación desde la planificación o la gestión.</li><li>Enfocarse desde el comienzo en <b>los empleados</b>, el grupo más importante.</li><li>Entender la cadena de valor y cómo innovar en cada eslabón.</li><li>Entender primero a la comunidad y aliarse con otros emprendedores.</li></ol>
+<p><b>Siete errores.</b></p>
+<ol><li>Creer que la innovación es solo para empresas grandes.</li><li>Creer que lo que se entiende se puede hacer.</li><li>Considerar que solo implica al mundo tecnológico.</li><li>Creer que innovar es sentarse a hablar de ideas, cuando tiene tiempo, metodología y riesgos.</li><li>Innovar para seguir tendencias en lugar de resolver problemas.</li><li>Creer que innovar es cosa de una sola vez.</li><li>No asumir que innovar requiere un cambio cultural.</li></ol>
+<p><b>Errata del PDF.</b> Los ítems 5 y 7 están redactados como recomendaciones y no como errores. El título habla de errores de las empresas y la introducción, de errores de los emprendedores.</p>
+<p><b>Choque de vocabulario.</b> El error 2 es el skill gap, y el 5 lo que en jerga se llama hype-driven development. Los grupos de interés son los stakeholders.</p>`;
+
+const T_TRANSF=`<blockquote>Se considera a la innovación tecnológica como un grupo de habilidades técnico-prácticas utilizadas para resolver conflictos, necesidades o problemáticas técnicas. (Universidad Siglo 21, s. f.)</blockquote>
+<blockquote>[La transferencia tecnológica es el] proceso de transferir conocimiento tecnológico de una parte (persona natural o jurídica) a otra con la intención de ser utilizado o implementado por quien lo recibe. (Universidad Siglo 21, s. f.)</blockquote>
+<p><b>Ejemplo del programa de RR. HH.</b> Compartirlo normalmente no alcanza para implementarlo. El procedimiento puede incluir: información técnica, licencia sobre derechos soportados en patentes, secretos empresariales y entrenamiento dado por el equipo inventor. Vías en la empresa: <b>compra, acuerdos de colaboración o convenios de investigación</b>.</p>
+<p><b>Sin propiedad intelectual establecida</b> aparecen cinco problemas: falta de transparencia de elementos y procedimientos, no queda claro qué parte corresponde a cada uno, no se sabe cómo aplicar o adaptar la tecnología, no se conocen los instrumentos para venderla y no se define cómo dividir los beneficios. Resultado: pérdida de una oportunidad de innovación.</p>
+<p><b>Estrategia institucional.</b> Cuantas más estrategias de protección, mejores posibilidades de transferencia y comercialización. Hace falta una estrategia minuciosamente diseñada tanto para el impacto social como para la comercialización, y la PI debe trabajarse desde la idea, el desarrollo y la implementación.</p>
+<p><b>Choque de vocabulario.</b> Lo que en el trabajo se llama handover incluye, para la cátedra, documentación, licencia, secretos y entrenamiento.</p>`;
+
+const T_MATRIZ=`<blockquote>Se trata de aspectos tangibles, intangibles, legales y relacionados con la incorporación de la tecnología, clasificados según su impacto en el núcleo competitivo de la empresa y su facilidad de manejo. (Isenberg, 2011)</blockquote>
+<div class="tabla"><table><tr><th></th><th>Mayor facilidad de control</th><th>Menor facilidad de control</th></tr>
+<tr><td><b>Núcleo competitivo</b></td><td>Tangible</td><td>Intangible (*)</td></tr>
+<tr><td><b>Elementos complementarios</b></td><td>Legal (*)</td><td>Adopción</td></tr></table></div>
+<p>(*) Mayor valor añadido en las innovaciones del receptor.</p>
+<ul><li><b>Tangibles</b>: dispositivos, medios técnicos, infraestructura, maquinaria, <b>paquetes de software</b>.</li>
+<li><b>Intangibles</b>: documentación de la tecnología (manual de usuario) y conocimiento del personal especializado.</li>
+<li><b>Legales</b>: derechos de propiedad industrial e intelectual (patentes, diseños, modelos de utilidad) y autorizaciones o permisos administrativos (sectores estratégicos, entornos contaminantes, exportación a ciertos países).</li>
+<li><b>De adopción</b>: dependencia de elementos externos (instaladores, proveedores), análisis del estado actual (prototipos, escalabilidad, pruebas) e infraestructura, equipo técnico y formación del receptor.</li></ul>
+<p><b>Choque de vocabulario.</b> En la jerga técnica el software es intangible, pero la cátedra lo pone como tangible. La dependencia de proveedores es el vendor lock-in, y los permisos son el compliance.</p>
+<p><b>Errata del PDF.</b> La cita se atribuye a "Daniel Isenberg (2011)", pero el manual con ese título y año es de Jaime González Sabater (The Transfer Institute), el mismo de la L1. Si la pregunta es literal, conviene responder con el nombre del PDF. Además, el apartado de aspectos intangibles aparece titulado "Aspectos tangibles" por error.</p>`;
+
+const T_GESTIONPI=`<blockquote>La gestión de la propiedad intelectual es un conjunto de actividades planificadas y estratégicas que permite a una institución: incidir deliberadamente en acciones generadoras de valor, tanto a partir de tecnologías existentes como de desarrollos propios. Asegurar la traducción de sus derechos de propiedad intelectual en activos intelectuales que pasarán a formar parte de su patrimonio tecnológico. Evitar costos innecesarios por invasión de derechos. (Universidad Siglo 21, s. f.)</blockquote>
+<p>Tres finalidades: generar valor, convertir derechos en activos, evitar costos por invasión de derechos. Bien hecha permite construir capacidades de transferencia y extraer valor de los activos intelectuales.</p>
+<p>El conocimiento es inmaterial e intangible, y por eso hay que protegerlo. Pero la cátedra insiste en que la PI no sirve solo para proteger: también establece una cultura de nuevos desarrollos.</p>`;
+
+const T_BP=`<blockquote>Una sociedad emprendedora se destaca porque el emprendimiento y el conocimiento son considerados como fuerzas impulsoras del crecimiento económico, la creación de empleos y la competitividad en los mercados globales. (Audretsch, 2009)</blockquote>
+<p>Sostener buenas prácticas es desarrollar información y recopilar datos del quehacer de técnicos e investigadores. Su utilidad es la <b>replicabilidad</b>: patrones comprobados que se replican en otros procesos y estimulan la cooperación entre organismos, empresas y proveedores.</p>
+<p><b>Los cinco rasgos:</b> eficiencia, carácter innovador, resultados positivos, la transferencia misma, posibilidades de ser aplicada. La transferencia no se da solo en el ámbito académico, también entre empresas y emprendedores.</p>
+<p><b>Choque de vocabulario.</b> Las experiencias documentadas son el playbook, y los modelos comprobados, un template reutilizable.</p>
+<p><b>Errata del PDF.</b> La cita de Audretsch (2009) no figura en las Referencias, que solo listan a Sumar Valor (2013).</p>`;
+
+const T_OFICINA=`<p>La oficina de apoyo de transferencia del conocimiento tiene, <b>al menos</b>, siete funciones:</p>
+<ol><li>Apoyar los procesos que garanticen los derechos de propiedad intelectual.</li><li>Organizar el registro de patentes.</li><li>Promover la transferencia del conocimiento y la innovación.</li><li>Elaborar acuerdos de licencia y de transferencia tecnológica.</li><li>Apoyar las actividades asociadas al emprendedor y al emprendimiento.</li><li>Brindar apoyo técnico de cooperación interinstitucional a nivel provincial, nacional e internacional, sobre todo en protocolos y contratos de prestación de servicios.</li><li>Fomentar el vínculo con la comunidad mediante pasantías, para promover el empleo y la orientación profesional.</li></ol>
+<p>Las funciones 1, 2 y 4 retoman la L3. La 7 es la única que mira a la comunidad y el empleo, y la 6 la única con alcance territorial explícito.</p>
+<p><b>Choque de vocabulario.</b> La oficina se parece a un centro de excelencia, y los contratos de prestación de servicios a un acuerdo de servicio entre áreas.</p>`;
+
+const T_ESTRUCTURA=`<div class="tabla"><table><tr><th></th><th>Contexto 1: sin experiencia</th><th>Contexto 2: con desarrollos</th></tr>
+<tr><td>Experiencia</td><td>No hay</td><td>Hay desarrollos posibles de implementar</td></tr>
+<tr><td>Conocimiento innovador</td><td>No se reveló</td><td>Existe</td></tr>
+<tr><td>Usuarios</td><td>No se conoce su aceptación</td><td>Se conocen sus necesidades</td></tr>
+<tr><td>Normas</td><td><b>No fijar normas muy definidas</b></td><td><b>Crear o fortalecer estructuras</b> con reglamentos adaptados</td></tr></table></div>
+<p><b>Primer paso</b>, después del diagnóstico: establecer los objetivos y metas, definiendo cómo la protección y la comercialización contribuyen a la misión institucional.</p>
+<div class="tabla"><table><tr><th>Institución</th><th>País</th><th>Núcleo de la misión</th></tr>
+<tr><td>INIS Biotech (Instituto Leloir)</td><td>Argentina</td><td>Transferencia <b>al mercado global</b></td></tr>
+<tr><td>Área de Vinculación, FCEN-UBA</td><td>Argentina</td><td><b>Acuerdos justos</b> para la institución y la sociedad</td></tr>
+<tr><td>Oficina de Licenciamiento de Tecnología, MIT</td><td>Estados Unidos</td><td>Inversión en invenciones <b>a través del licenciamiento</b></td></tr>
+<tr><td>Fundación UAM</td><td>España</td><td><b>Servir de puente</b> entre universidad y sociedad</td></tr></table></div>
+<p>Fuente de las misiones: Sumar Valor (2013). <b>Choque de vocabulario.</b> Normar mucho sin experiencia equivale a montar un gobierno de datos pesado antes de tener casos de uso.</p>`;
+
+const T_INNOVAR=`<blockquote>Investigar permite transformar dinero en conocimiento, mientras que innovar es transformar el conocimiento en dinero. (Universidad Siglo 21, s. f.)</blockquote>
+<p><b>Figura 1, La invención.</b> La invención por sí sola no es suficiente. La innovación es la introducción de algo nuevo con valor económico. Y la ecuación:</p>
+<p style="text-align:center"><b>Tecnología + Modelo de negocios = Creación de valor</b></p>
+<p>Emprender exige asumir grandes riesgos económicos, por eso hace falta una estrategia en comunión con organismos públicos o privados. Los éxitos de hoy no garantizan el futuro: el único modo de progresar es caminar en constante innovación.</p>
+<p><b>Caso Usemprende</b>, Universidad de Sevilla. Capacitaciones para <b>estudiantes, investigadores y personal de administración y servicios</b>. Concurso anual de ideas de negocio con herramientas de consolidación, seminarios gratuitos y mentores especializados, para convertir conocimientos en un proyecto empresarial viable y concreto.</p>
+<p><b>Choque de vocabulario.</b> El modelo de negocios de la cátedra es lo que en el trabajo se arma como caso de negocio.</p>`;
+
+const AMP = {
+101:T_CICLO, 102:T_CICLO, 103:T_INERCIA, 104:T_INERCIA, 105:T_INERCIA, 106:T_KAIZEN,
+107:T_KAIZEN, 108:T_KAIZEN, 109:T_KAIZEN, 110:T_KAIZEN, 111:T_INERCIA, 112:T_INERCIA,
+201:T_INERCIA, 113:T_TREFFINGER, 114:T_TREFFINGER, 115:T_TREFFINGER, 116:T_TREFFINGER, 117:T_TRIADA,
+118:T_TRIADA, 119:T_TRIADA, 120:T_EQUIPO, 121:T_EQUIPO, 122:T_TECNICA, 123:T_TECNICA,
+124:T_TECNICA, 202:T_TREFFINGER, 125:T_DT, 126:T_DT, 127:T_DT, 128:T_DT,
+129:T_DT, 130:T_DT, 131:T_OCEANO, 132:T_OCEANO, 133:T_OCEANO, 134:T_OCEANO,
+135:T_DELPHI, 136:T_DELPHI, 203:T_OCEANO, 137:T_PROCESO_INNOV, 138:T_PROCESO_INNOV, 139:T_PROCESO_INNOV,
+140:T_CONOC, 141:T_CONOC, 142:T_CONOC, 143:T_CONOC, 144:T_LIMITES, 145:T_LIMITES,
+146:T_LIMITES, 147:T_LIMITES, 148:T_LIMITES, 204:T_LIMITES, 149:T_OPCIONES, 150:T_OPCIONES,
+151:T_OPCIONES, 152:T_ACCESO, 153:T_ACCESO, 154:T_ACCESO, 155:T_ETAPAS, 156:T_ETAPAS,
+157:T_RSE, 158:T_RSE, 159:T_RSE, 160:T_RSE, 205:T_ACCESO, 161:T_EMPREND,
+162:T_EMPREND, 163:T_EMPREND, 164:T_CUALIDADES, 165:T_CUALIDADES, 166:T_EMPREND, 167:T_RESPONS,
+168:T_RESPONS, 169:T_RESPONS, 170:T_RESPONS, 171:T_EMPREND, 172:T_EMPREND, 206:T_RESPONS,
+173:T_TRANSF, 174:T_TRANSF, 175:T_TRANSF, 176:T_TRANSF, 177:T_TRANSF, 178:T_MATRIZ,
+179:T_MATRIZ, 180:T_MATRIZ, 181:T_MATRIZ, 182:T_MATRIZ, 183:T_GESTIONPI, 207:T_TRANSF,
+184:T_BP, 185:T_BP, 186:T_BP, 187:T_OFICINA, 188:T_OFICINA, 189:T_ESTRUCTURA,
+190:T_ESTRUCTURA, 191:T_ESTRUCTURA, 192:T_INNOVAR, 193:T_INNOVAR, 194:T_INNOVAR, 208:T_BP
+};
+
+/* ---------- Estado ---------- */
+const HKEY="s21.transferencia.parcial2.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const LETRA=k=>"abcdefg"[k]||"?";
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"para el examen del índice",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  preguntero:"preguntero, verificada contra el material",
+  errado:"el preguntero se equivoca acá"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["03","04"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["catedra"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Las de Para el examen":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué instancia" : "Elegí qué bloque del preguntero";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else {
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll("input").forEach(x=>x.disabled=true);
+    $("chk").disabled=true;
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(LETRA).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de las secciones Para el examen más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de pregunteros de circulación libre, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período, en los dos TP online y en las dos autoevaluaciones de actividad práctica. El enunciado y la respuesta correcta salen del registro de cada instancia, parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>

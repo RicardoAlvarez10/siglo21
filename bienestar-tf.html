@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bienestar · Trabajo Final · Autoevaluación interactiva</title>
+<style>
+  :root{
+    --texto:#1A1A1A;
+    --titulo:#3D3D3D;
+    --acento:#2D4A3E;
+    --fondo:#FAF9F7;
+    --panel:#FFFFFF;
+    --borde:#E7E5E4;
+    --ok:#2D4A3E;
+    --okBg:#EAF1ED;
+    --mal:#8C2F2F;
+    --malBg:#F7EBEB;
+    --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--fondo);
+    color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap;
+  }
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{
+    background:var(--panel);border:1px solid var(--borde);border-radius:4px;
+    padding:24px 24px 20px;
+  }
+  .meta{
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px;
+  }
+  .enunciado{font-size:17px;margin:0 0 18px}
+  .enunciado b{font-weight:bold}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{
+    text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start;
+  }
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{
+    font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+  }
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .btn{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;
+    border-radius:3px;cursor:pointer;
+  }
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{
+    font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px;
+  }
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{
+    font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px;
+  }
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600;
+  }
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .aviso{
+    font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px;
+  }
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{
+    background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600;
+  }
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{
+    margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic;
+  }
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0;
+  }
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .campo{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .campo input{flex:1;min-width:220px;font-family:Georgia,serif;font-size:15.5px;padding:10px 13px;
+    border:1px solid var(--borde);border-radius:3px;background:#fff;color:var(--texto)}
+  .campo input:focus{outline:none;border-color:var(--acento)}
+  .campo input.bien{background:var(--okBg);border-color:var(--ok)}
+  .campo input.mal{background:var(--malBg);border-color:var(--mal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Bienestar y Emociones Positivas · Trabajo Final</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 01 y 02 · Ricardo Alvarez · Legajo VROB003882</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido armado sobre el paquete de estudio del Trabajo Final, secciones 2, 7, 8 y 9, y sobre los ocho resúmenes de teoría de los módulos 01 y 02 con sus índices. Las preguntas usan los casos de las lecturas, no el caso del enunciado, y no contienen respuestas del Trabajo Final. No hay trabajos prácticos online archivados de esta materia y las 20 preguntas del Trabajo Final no se vieron, así que los bancos de preguntas ya tomadas quedaron vacíos.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 47 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1: autoevaluación, sección 9 del paquete más preguntas de práctica ---------- */
+const QUIZ = [
+{"n": 1, "mod": "01", "lec": "L1", "tema": "Psicología Positiva", "nivel": "recordar", "tipo": "mc", "q": "La propuesta de estudiar de forma sistemática las fortalezas humanas, las virtudes y los procesos del funcionamiento óptimo, con la que se consolida la Psicología Positiva, corresponde a:", "just": "Seligman y Csikszentmihalyi (2000) proponen que la disciplina estudie fortalezas, virtudes y funcionamiento óptimo, sin abandonar el estudio del sufrimiento.", "dist": "Las otras tres son citas reales del módulo con otro aporte: Nakamura y Csikszentmihalyi sistematizan el flow, Castro Solano y Cosentino validan las fortalezas en Argentina, Hernández y Carranza estudian optimismo y apoyo en universitarios. Las preguntas de autoría son las más probables del módulo.", "ref": "M01 L1", "src": "paquete", "op": ["Seligman y Csikszentmihalyi (2000)", "Nakamura y Csikszentmihalyi (2014)", "Castro Solano y Cosentino (2017)", "Hernández y Carranza (2017)"], "ok": 0},
+{"n": 2, "mod": "01", "lec": "L1", "tema": "Psicología Positiva", "nivel": "comprender", "tipo": "vf", "q": "Para la cátedra, la Psicología Positiva es una disciplina independiente que reemplaza a la psicología centrada en la patología.", "just": "Falso. Solano (2010) la presenta como una ampliación del objeto de estudio, no como un quiebre radical ni como una disciplina independiente. Estudiar el malestar y estudiar el bienestar no son excluyentes.", "dist": "La afirmación toma algo real, el cambio de foco hacia el florecimiento, y lo exagera hasta convertirlo en reemplazo. Es la trampa número uno del Módulo 01.", "ref": "M01 L1", "src": "paquete", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 3, "mod": "01", "lec": "L1", "tema": "Estilo explicativo", "nivel": "recordar", "tipo": "comp", "q": "Según Seligman (2014), el estilo explicativo pesimista interpreta los eventos negativos como permanentes, globales y ________.", "just": "Los tres atributos son permanente (\"siempre será así\"), global (\"afecta todo lo que hago\") y personal (\"es culpa mía\").", "dist": "El error típico es agregar un cuarto atributo o cambiar el orden. El reencuadre propone la atribución inversa: específica, contextual y modificable.", "ref": "M01 L1", "src": "paquete", "ac": ["personales", "personal"], "resp": "personales"},
+{"n": 4, "mod": "01", "lec": "L1", "tema": "Emociones positivas", "nivel": "comprender", "tipo": "mc", "q": "Según la lectura, la diferencia de función entre emociones negativas y positivas es que:", "just": "Las negativas estrechan el foco hacia una amenaza específica. Las positivas lo amplían, y con eso traen flexibilidad cognitiva y construcción de recursos (Seligman, 2016).", "dist": "La opción que dice que las positivas estrechan invierte la función, que es la trampa que marca la propia lectura. La de la activación fisiológica mezcla un tema de M01 L4 que no es el criterio de esta sección.", "ref": "M01 L1", "src": "paquete", "op": ["Las positivas amplían el foco atencional y las negativas lo estrechan hacia una amenaza", "Las positivas estrechan el foco hacia la meta y las negativas lo amplían para detectar peligros", "Las positivas eliminan la activación fisiológica y las negativas la aumentan", "Las dos estrechan el foco, pero las positivas lo hacen con menor intensidad"], "ok": 0},
+{"n": 5, "mod": "01", "lec": "L1", "tema": "Diario de Gratitud", "nivel": "aplicar", "tipo": "mc", "q": "Un estudiante anota en su Diario de Gratitud: \"Estoy agradecido por la clase\". Según el protocolo de la cátedra, el registro falla en:", "just": "La especificidad es el criterio de calidad. La lectura contrasta esa misma frase con \"valoro la explicación clara que permitió comprender un tema que me generaba dificultad\".", "dist": "La opción semanal contradice el protocolo, que pide un momento fijo del día y tres situaciones. La que prohíbe nombrar emociones lo invierte: el paso 4 pide identificar qué emoción estuvo presente.", "ref": "M01 L1", "src": "paquete", "op": ["La frecuencia, porque el diario se completa una vez por semana", "La especificidad, porque tiene que describir la situación con detalle", "El contenido, porque solo deben registrarse logros académicos", "La forma, porque el diario debe evitar nombrar emociones"], "ok": 1},
+{"n": 6, "mod": "01", "lec": "L2", "tema": "Modelo PERMA", "nivel": "recordar", "tipo": "mc", "q": "¿Cuál de los siguientes NO es una dimensión del modelo PERMA?", "just": "Las cinco dimensiones son emociones positivas, compromiso (engagement), relaciones, sentido y logro (Seligman, 2016, 2018).", "dist": "Resiliencia aparece en el módulo, pero como resultado de la escalera de emociones positivas (M01 L1) y no como letra del acrónimo. Es el distractor más plausible porque se lee en las mismas lecciones.", "ref": "M01 L2", "src": "paquete", "op": ["Emociones positivas", "Compromiso", "Resiliencia", "Sentido"], "ok": 2},
+{"n": 7, "mod": "01", "lec": "L2", "tema": "Modelo PERMA", "nivel": "comprender", "tipo": "mc", "q": "La diferencia entre Meaning (sentido) y Accomplishment (logro) en PERMA es que:", "just": "Seligman (2016) trata las dos como componentes independientes. El sentido es el \"para qué\" y el logro es el resultado y el progreso.", "dist": "La opción de las obligaciones mezcla sentido con obligación, que la lectura separa de forma explícita. La de las calificaciones reduce el logro a la nota, cuando la lectura incluye metas intermedias.", "ref": "M01 L2", "src": "paquete", "op": ["El sentido da dirección y propósito, mientras que el logro apunta a la consecución de metas y la percepción de eficacia", "El sentido es cumplir las obligaciones de la carrera y el logro es aprobar las materias", "El logro se reduce a las calificaciones y el sentido a las emociones agradables", "Son la misma dimensión vista desde la perspectiva del docente y del estudiante"], "ok": 0},
+{"n": 8, "mod": "01", "lec": "L2", "tema": "Matriz diagnóstica", "nivel": "comprender", "tipo": "vf", "q": "La matriz diagnóstica PERMA es un instrumento psicométrico validado que mide el nivel de bienestar de la persona.", "just": "Falso. La lectura dice que la matriz no es una medición psicométrica formal sino reflexión estructurada. Su utilidad es detectar asimetrías entre dimensiones.", "dist": "La confusión viene de L1, donde sí hay instrumentos validados (el IVyF abreviado de Castro Solano y Cosentino, 2018). La matriz de L2 no lo es.", "ref": "M01 L2", "src": "paquete", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 9, "mod": "01", "lec": "L2", "tema": "Laboratorio PERMA", "nivel": "recordar", "tipo": "comp", "q": "El Laboratorio PERMA es un registro breve que se completa durante ________ días consecutivos, con al menos un ejemplo diario por dimensión.", "just": "Siete días consecutivos. La auditoría de bienestar es una foto puntual y el laboratorio es una serie de siete días que observa el modelo en movimiento.", "dist": "Se confunde con la escala de estrés de M01 L4, que pregunta por las últimas dos semanas.", "ref": "M01 L2", "src": "paquete", "ac": ["siete", "7"], "resp": "siete"},
+{"n": 10, "mod": "01", "lec": "L3", "tema": "Equilibrio desafío y habilidad", "nivel": "aplicar", "tipo": "mc", "q": "Un estudiante percibe una materia con desafío alto y siente que su habilidad es baja. Según la Tabla 1 de la lectura, el estado probable y el ajuste recomendado son:", "just": "Desafío alto con habilidad baja da ansiedad, con evitación, postergación y sobrecarga como consecuencias en el estudio.", "dist": "Las otras tres son filas reales de la misma tabla. Inseguridad leve corresponde a desafío medio con habilidad bajo-medio, que es la casilla menos intuitiva.", "ref": "M01 L3", "src": "paquete", "op": ["Ansiedad. Dividir la tarea en subtareas, buscar apoyo y reforzar habilidades básicas", "Aburrimiento. Incrementar la complejidad y agregar metas", "Inseguridad leve. Practicar y repetir con retroalimentación", "Desinterés. Clarificar el propósito o replantear metas"], "ok": 0},
+{"n": 11, "mod": "01", "lec": "L3", "tema": "Equilibrio desafío y habilidad", "nivel": "recordar", "tipo": "mc", "q": "En la Tabla 1 de la lectura, la combinación de desafío medio con habilidad percibida bajo-medio corresponde al estado de:", "just": "Inseguridad leve: dudas iniciales pero posibilidad de ajuste. El ajuste es practicar y repetir con retroalimentación.", "dist": "Es la fila que más se olvida porque no está en el esquema de tres estados de M01 L2. La tabla de L3 tiene cinco.", "ref": "M01 L3", "src": "paquete", "op": ["Inseguridad leve", "Ansiedad", "Desinterés", "Engagement o flow"], "ok": 0},
+{"n": 12, "mod": "01", "lec": "L3", "tema": "Flow", "nivel": "comprender", "tipo": "vf", "q": "Según la cátedra, el flow aparece cuando la tarea es fácil y no exige esfuerzo.", "just": "Falso. El flow aparece con tareas exigentes pero abordables. La lectura aclara que no hay ausencia de esfuerzo: el esfuerzo se vive como significativo y absorbente.", "dist": "Una tarea fácil con habilidad alta lleva al aburrimiento, no al flow.", "ref": "M01 L3", "src": "paquete", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 13, "mod": "01", "lec": "L4", "tema": "Factores intensificadores", "nivel": "recordar", "tipo": "comp", "q": "Los cinco factores que intensifican el estrés académico son acumulación de plazos simultáneos, perfeccionismo, comparación social, ________ y falta de descanso y recuperación.", "just": "Sin criterios claros de evaluación la mente anticipa escenarios negativos y prolonga la activación.", "dist": "Se confunde con los obstáculos al flow de M01 L3 (fragmentación digital, multitarea, ansiedad anticipatoria, metas difusas).", "ref": "M01 L4", "src": "paquete", "ac": ["incertidumbre evaluativa", "la incertidumbre evaluativa"], "resp": "incertidumbre evaluativa"},
+{"n": 14, "mod": "01", "lec": "L4", "tema": "Activación y rendimiento", "nivel": "comprender", "tipo": "mc", "q": "Según la lectura, la relación entre activación y rendimiento es:", "just": "Es una relación no lineal con el óptimo en un punto intermedio. Por eso no todo estrés es perjudicial.", "dist": "La lineal negativa es la idea que la lectura quiere desactivar (\"si siento estrés, algo está mal\"). La que habla solo de horas de estudio contradice también a M01 L1.", "ref": "M01 L4", "src": "paquete", "op": ["No lineal: activación muy baja da apatía, muy alta bloquea, y el óptimo está en un punto intermedio", "Lineal positiva: a más activación, mejor rendimiento", "Lineal negativa: toda activación reduce el rendimiento", "Independiente: el rendimiento solo depende de las horas de estudio"], "ok": 0},
+{"n": 15, "mod": "01", "lec": "L4", "tema": "Señales de sobrecarga", "nivel": "aplicar", "tipo": "mc", "q": "Un estudiante marca en el checklist de señales tempranas un único ítem, irritabilidad, en una semana de entregas. Según la lectura, corresponde concluir que:", "just": "La lectura dice que una señal ocasional no indica estrés crónico y que la acumulación sostenida sí indica intervenir.", "dist": "La opción que da a la escala valor de confirmación contradice la advertencia de que el autodiagnóstico no reemplaza una evaluación profesional. La de eliminar toda exigencia confunde prevenir con suprimir la demanda.", "ref": "M01 L4", "src": "paquete", "op": ["Tiene estrés crónico y debe intervenir de inmediato", "Una señal ocasional no indica estrés crónico. Lo que indica intervenir es la acumulación sostenida", "La escala reemplaza una evaluación profesional y confirma el cuadro", "Debe eliminar toda exigencia académica hasta que la señal desaparezca"], "ok": 1},
+{"n": 16, "mod": "02", "lec": "L1", "tema": "Inflexibilidad psicológica", "nivel": "recordar", "tipo": "mc", "q": "Los tres procesos centrales de la inflexibilidad psicológica, según la lectura, son:", "just": "Fusión cognitiva (creer literalmente en todo pensamiento), evitación experiencial (huir de emociones incómodas) y desconexión de valores (actuar solo para reducir malestar).", "dist": "Todas las opciones son tríadas reales de la materia: sensibilidad, intensidad y retorno lento es la vulnerabilidad emocional (M02 L2), interpretación, fisiología e impulso son los componentes de la emoción (M02 L2) y permanente, global y personal es el estilo explicativo (M01 L1).", "ref": "M02 L1", "src": "paquete", "op": ["Fusión cognitiva, evitación experiencial y desconexión de valores", "Alta sensibilidad, alta intensidad y retorno lento a la línea de base", "Interpretación cognitiva, respuesta fisiológica e impulso de acción", "Permanente, global y personal"], "ok": 0},
+{"n": 17, "mod": "02", "lec": "L1", "tema": "Defusión cognitiva", "nivel": "comprender", "tipo": "mc", "q": "La defusión cognitiva consiste en:", "just": "Cambia la relación con el pensamiento, no su contenido. La técnica es lingüística: \"estoy teniendo el pensamiento de que…\". Baja la literalidad y el poder del pensamiento sobre la conducta.", "dist": "Reemplazar por un pensamiento positivo es exactamente lo que la lectura dice que la defusión no es. Buscar evidencia se parece al ejercicio de desarmar la narrativa de M02 L3, que no es defusión.", "ref": "M02 L1", "src": "paquete", "op": ["Reemplazar el pensamiento negativo por uno positivo", "Notar el pensamiento como pensamiento, sin eliminarlo, discutirlo ni reemplazarlo", "Demostrar con evidencia que el pensamiento es falso", "Suprimir el pensamiento hasta que pierda intensidad"], "ok": 1},
+{"n": 18, "mod": "02", "lec": "L1", "tema": "Flexibilidad psicológica", "nivel": "comprender", "tipo": "vf", "q": "El objetivo primario de la flexibilidad psicológica es bajar la intensidad de la ansiedad.", "just": "Falso. El objetivo primario es ampliar la capacidad de actuar en presencia de la emoción. La ansiedad puede seguir presente.", "dist": "Bajar la intensidad puede ocurrir como efecto, pero no es la meta. En la simulación de Lucía la ansiedad baja lo suficiente sin desaparecer, y la diferencia está en la relación con la emoción.", "ref": "M02 L1", "src": "paquete", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 19, "mod": "02", "lec": "L1", "tema": "Yo-contexto", "nivel": "recordar", "tipo": "comp", "q": "En ACT, la perspectiva desde la cual se notan pensamientos, emociones y sensaciones, que Hayes describe como un punto de conciencia constante, se llama yo-________.", "just": "Yo-contexto o yo observador (self-as-context). En la metáfora es el cielo, mientras que las nubes son los pensamientos y emociones.", "dist": "Se invierte con yo-contenido (self-as-content), que son las historias, etiquetas y evaluaciones sobre uno mismo.", "ref": "M02 L1", "src": "paquete", "ac": ["contexto", "yo-contexto", "yo contexto"], "resp": "contexto (yo-contexto o yo observador)"},
+{"n": 20, "mod": "02", "lec": "L2", "tema": "Modelo biosocial", "nivel": "recordar", "tipo": "mc", "q": "Según el modelo biosocial de DBT, la desregulación emocional surge de la combinación entre:", "just": "Vulnerabilidad emocional más ambiente invalidante, en interacción biológica y ambiental a lo largo del tiempo. No es falta de carácter ni debilidad personal.", "dist": "Las otras opciones son pares reales de M01 L4, M02 L1 y M02 L3. El par biosocial es el único que explica el origen de la desregulación.", "ref": "M02 L2", "src": "paquete", "op": ["Vulnerabilidad emocional y ambiente invalidante", "Estrés adaptativo y estrés crónico", "Fusión cognitiva y evitación experiencial", "Dolor primario y sufrimiento secundario"], "ok": 0},
+{"n": 21, "mod": "02", "lec": "L2", "tema": "Vulnerabilidad emocional", "nivel": "recordar", "tipo": "comp", "q": "Las tres características de la vulnerabilidad emocional son alta sensibilidad, alta intensidad en la respuesta y retorno lento a la ________.", "just": "Retorno lento a la línea de base: cuesta recuperar el equilibrio emocional. El orden de la lectura es sensibilidad, intensidad, retorno.", "dist": "En el trabajo con datos \"línea base\" es un valor de referencia de una métrica. Acá es el nivel emocional de reposo.", "ref": "M02 L2", "src": "paquete", "ac": ["linea de base", "la linea de base", "línea de base", "la línea de base"], "resp": "línea de base"},
+{"n": 22, "mod": "02", "lec": "L2", "tema": "Regular y tolerar", "nivel": "comprender", "tipo": "mc", "q": "La diferencia entre regulación emocional y tolerancia al malestar es que:", "just": "Cuando la emoción es demasiado intensa para modificarla, el objetivo pasa a ser atravesar la ola sin generar consecuencias adicionales.", "dist": "La cátedra cierra la L2 con tres fórmulas que desarman las opciones de resignarse y reprimir: regular no es reprimir, tolerar no es resignarse, aceptar no es rendirse.", "ref": "M02 L2", "src": "paquete", "op": ["Regular es modular la intensidad, mientras que tolerar es sostener la experiencia cuando la intensidad es alta sin agravarla", "Son sinónimos en DBT", "Tolerar equivale a resignarse ante la emoción", "Regular equivale a reprimir la emoción para que no se exprese"], "ok": 0},
+{"n": 23, "mod": "02", "lec": "L2", "tema": "Técnica STOP", "nivel": "aplicar", "tipo": "mc", "q": "Un estudiante lee un mensaje grupal que cuestiona su parte del trabajo, siente enojo intenso y el impulso de responder confrontando. La intensidad es demasiado alta para modularla en ese momento. Según la L2, lo primero que corresponde aplicar es:", "just": "Es la simulación de Sofía. Con la intensidad fuera de la ventana de tolerancia va primero tolerancia al malestar con STOP: detenerse, tomar distancia, observar, proceder con conciencia.", "dist": "La acción opuesta es una habilidad de regulación, que requiere una activación más baja. DEAR MAN es de M02 L4 y sirve para formular el pedido después, no para frenar el impulso.", "ref": "M02 L2", "src": "paquete", "op": ["La técnica STOP", "DEAR MAN", "La acción opuesta", "La auditoría de bienestar"], "ok": 0},
+{"n": 24, "mod": "02", "lec": "L2", "tema": "Técnica STOP", "nivel": "recordar", "tipo": "comp", "q": "En la técnica STOP, la letra O corresponde al paso de ________ pensamientos, emociones y sensaciones sin juzgarlos.", "just": "S, stop o detenerse. T, tomar distancia. O, observar. P, proceder con conciencia.", "dist": "La trampa marcada en la lectura es expandir la O como \"organizar\".", "ref": "M02 L2", "src": "paquete", "ac": ["observar"], "resp": "observar"},
+{"n": 25, "mod": "02", "lec": "L3", "tema": "Aceptación radical", "nivel": "comprender", "tipo": "vf", "q": "La aceptación radical implica aprobar o estar de acuerdo con lo que ocurrió.", "just": "Falso. Aceptar radicalmente no significa aprobar, justificar, resignarse ni negar emociones. Significa reconocer que el hecho ya ocurrió y que la resistencia interna no lo modifica.", "dist": "El choque con el vocabulario de trabajo es directo: aceptar un cambio en un repositorio es aprobarlo. Para la cátedra, aceptar es reconocer un hecho consumado.", "ref": "M02 L3", "src": "paquete", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 26, "mod": "02", "lec": "L3", "tema": "Aceptación radical", "nivel": "recordar", "tipo": "mc", "q": "El concepto de aceptación radical pertenece a:", "just": "Es un concepto de Linehan dentro de la Terapia Dialéctico Conductual.", "dist": "Hayes y ACT es la trampa principal: ACT también habla de aceptación, pero la aceptación radical como concepto es de DBT. La fusión con el yo-contenido, que aparece en la misma lección, sí es ACT.", "ref": "M02 L3", "src": "paquete", "op": ["Marsha Linehan, dentro de DBT", "Steven Hayes, dentro de ACT", "Martin Seligman, dentro del modelo PERMA", "Csikszentmihalyi, dentro de la teoría del flow"], "ok": 0},
+{"n": 27, "mod": "02", "lec": "L3", "tema": "Dolor y sufrimiento", "nivel": "aplicar", "tipo": "mc", "q": "Después de desaprobar un parcial, un estudiante se repite durante días \"no sirvo para esta carrera\". Según la Tabla 1 de la L3, ese pensamiento corresponde a:", "just": "El dolor primario es la tristeza o la frustración por la nota. El sufrimiento secundario nace de la interpretación y la lucha posterior, se prolonga por rumiación y tiene foco en la identidad.", "dist": "Dolor primario confunde el pensamiento con el evento que lo dispara. Defusión es lo contrario de lo que pasa: el estudiante está fusionado con el pensamiento, no lo observa.", "ref": "M02 L3", "src": "paquete", "op": ["Dolor primario, porque surge de un evento concreto", "Sufrimiento secundario, porque el foco pasa a la identidad global y se prolonga por rumiación", "Estrés adaptativo, porque moviliza recursos para la próxima evaluación", "Defusión cognitiva, porque el estudiante observa su pensamiento"], "ok": 1},
+{"n": 28, "mod": "02", "lec": "L3", "tema": "Simulacro de crisis consciente", "nivel": "comprender", "tipo": "vf", "q": "El simulacro de crisis consciente de la L3 empieza con la aceptación radical del resultado.", "just": "Falso. Empieza con STOP (DBT, L2) para detener respuestas impulsivas. La aceptación radical es el quinto de siete pasos.", "dist": "La lectura marca esta trampa de forma explícita. El orden es STOP, dolor primario, sufrimiento secundario, defusión, aceptación radical, valor, acción coherente.", "ref": "M02 L3", "src": "paquete", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 29, "mod": "02", "lec": "L4", "tema": "DEAR MAN, GIVE y FAST", "nivel": "recordar", "tipo": "mc", "q": "La correspondencia correcta entre los acrónimos de DBT y el objetivo interpersonal que protege cada uno es:", "just": "DEAR MAN sirve para pedir algo o poner un límite. GIVE cuida el vínculo. FAST mantiene el autorrespeto.", "dist": "El cruce más frecuente es poner GIVE en autoestima: tiene una V de validar y suena a autoestima, pero validar es reconocer la experiencia del otro, que es relacional.", "ref": "M02 L4", "src": "paquete", "op": ["DEAR MAN instrumental, GIVE relacional, FAST autoestima", "DEAR MAN relacional, GIVE autoestima, FAST instrumental", "DEAR MAN autoestima, GIVE instrumental, FAST relacional", "DEAR MAN instrumental, GIVE autoestima, FAST relacional"], "ok": 0},
+{"n": 30, "mod": "02", "lec": "L4", "tema": "Estilos comunicacionales", "nivel": "aplicar", "tipo": "mc", "q": "Ante un compañero que no entrega su parte del trabajo grupal, la respuesta \"No pasa nada, lo hago yo\", con malestar interno no expresado, corresponde al estilo:", "just": "El estilo pasivo evita expresar necesidades, desacuerdos o límites por temor al conflicto. Reduce la tensión a corto plazo y genera resentimiento y sobrecarga a largo plazo.", "dist": "La opción de GIVE confunde evitar el conflicto con validar al otro. La lectura sostiene que priorizar la relación hasta no expresar desacuerdo es pasividad.", "ref": "M02 L4", "src": "paquete", "op": ["Pasivo", "Agresivo", "Asertivo", "Validante, según GIVE"], "ok": 0},
+{"n": 101, "mod": "01", "lec": "L1", "tema": "Fortalezas del carácter", "nivel": "recordar", "tipo": "mc", "q": "El estudio de virtudes y fortalezas en población adulta de Buenos Aires con un enfoque mixto émico/ético corresponde a:", "just": "El estudio de 2017 usa el enfoque mixto émico/ético. El de 2018 es el análisis psicométrico del IVyF abreviado.", "dist": "El estudio de 2018 es del mismo equipo y un año después, por eso es el distractor más fino. Solano (2010) es la mirada de la Psicología Positiva como ampliación.", "ref": "M01 L1", "src": "propia", "op": ["Castro Solano y Cosentino (2017)", "Castro Solano y Cosentino (2018)", "Solano (2010)", "Seligman (2016)"], "ok": 0},
+{"n": 102, "mod": "01", "lec": "L1", "tema": "Reencuadre cognitivo", "nivel": "comprender", "tipo": "mc", "q": "Según la Tabla 2 de la L1, la atribución propia del reencuadre cognitivo es:", "just": "El reencuadre analiza la dificultad desde una perspectiva más amplia: qué variables influyeron, qué funcionó y qué ajustar. No convierte lo negativo en positivo.", "dist": "Permanente, global y personal es la atribución del sesgo negativo. Positiva, optimista y motivadora es el pensamiento positivo forzado, que la lectura separa del reencuadre.", "ref": "M01 L1", "src": "propia", "op": ["Específica, contextual y modificable", "Permanente, global y personal", "Positiva, optimista y motivadora", "Externa, ajena y circunstancial"], "ok": 0},
+{"n": 103, "mod": "01", "lec": "L2", "tema": "Relaciones", "nivel": "recordar", "tipo": "mc", "q": "Las tres funciones del apoyo que distingue la L2 en la dimensión Relationships son:", "just": "Instrumental (ayuda concreta en tareas), emocional (escucha y comprensión) e intelectual (intercambio de ideas).", "dist": "Instrumental, relacional y de autoestima son los tres objetivos de la eficacia interpersonal de M02 L4. Comparten la palabra instrumental y por eso se cruzan.", "ref": "M01 L2", "src": "propia", "op": ["Instrumental, emocional e intelectual", "Instrumental, relacional y de autoestima", "Académica, social e institucional", "Emocional, económica y familiar"], "ok": 0},
+{"n": 104, "mod": "01", "lec": "L2", "tema": "Auditoría de bienestar", "nivel": "comprender", "tipo": "vf", "q": "La lectura recomienda hacer la auditoría de bienestar en plena presión evaluativa, para que refleje el estado real.", "just": "Falso. Se recomienda un momento de relativa calma, por escrito y usando la matriz.", "dist": "La afirmación suena razonable desde la lógica de medir en producción, pero la auditoría es una revisión reflexiva y no una prueba de carga.", "ref": "M01 L2", "src": "propia", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 105, "mod": "01", "lec": "L3", "tema": "Compromiso y sentido", "nivel": "comprender", "tipo": "mc", "q": "Según Seligman (2016), tal como lo retoma la L3, la relación entre compromiso y sentido es que:", "just": "Compromiso y sentido son distintos. El propósito funciona como organizador motivacional y sostiene el compromiso en el tiempo.", "dist": "Las opciones que los igualan o hacen que uno implique al otro los fusionan, que es justamente lo que la lectura separa.", "ref": "M01 L3", "src": "propia", "op": ["Se puede tener flow en una tarea puntual y perder el compromiso con la materia si no se la percibe dentro de una trayectoria con significado", "El sentido aparece siempre que hay flow", "El compromiso y el sentido son la misma dimensión de PERMA", "El sentido reemplaza al equilibrio entre desafío y habilidad"], "ok": 0},
+{"n": 106, "mod": "01", "lec": "L3", "tema": "Obstáculos al flow", "nivel": "recordar", "tipo": "ms", "q": "Seleccioná los cuatro obstáculos contemporáneos al flow que desarrolla la L3.", "just": "Fragmentación digital, multitarea, ansiedad anticipatoria y ausencia de metas claras. El checklist agrega falta de límites temporales y entornos con distractores.", "dist": "Comparación social y perfeccionismo son factores intensificadores del estrés de M01 L4, no obstáculos al flow.", "ref": "M01 L3", "src": "propia", "op": ["Fragmentación digital", "Multitarea percibida como eficiente", "Ansiedad anticipatoria", "Ausencia de metas claras", "Comparación social", "Perfeccionismo"], "ok": [0, 1, 2, 3]},
+{"n": 107, "mod": "01", "lec": "L4", "tema": "Plan Preventivo Personal", "nivel": "recordar", "tipo": "mc", "q": "Los cuatro apartados del Plan Preventivo Personal son:", "just": "Señales, estrategias, recursos de apoyo e indicadores de seguimiento para saber que la activación volvió a rango funcional.", "dist": "Plazos, perfeccionismo y comparación son factores intensificadores, desafío y habilidad son columnas del Mapa de Flow y detener y respirar son pasos de la pausa activa.", "ref": "M01 L4", "src": "propia", "op": ["Señales personales de alerta, estrategias de regulación, recursos de apoyo e indicadores de seguimiento", "Plazos, perfeccionismo, comparación social y descanso", "Desafío, habilidad, estado predominante y ajuste necesario", "Detener, respirar, ampliar la conciencia corporal y retomar"], "ok": 0},
+{"n": 108, "mod": "01", "lec": "L4", "tema": "Mindfulness", "nivel": "recordar", "tipo": "comp", "q": "La atención plena (mindfulness) se define como dirigir la atención al momento presente con apertura y sin ________.", "just": "No es vaciar la mente. Es observar sensaciones, pensamientos y emociones sin reaccionar impulsivamente.", "dist": "Se suele completar con \"pensamientos\", que es el error de entender el mindfulness como vaciar la mente.", "ref": "M01 L4", "src": "propia", "ac": ["juicio", "juzgar"], "resp": "juicio"},
+{"n": 109, "mod": "01", "lec": "L4", "tema": "Apoyo social", "nivel": "comprender", "tipo": "vf", "q": "La L4 equipara el apoyo social con la dependencia de apoyo.", "just": "Falso. La lectura los diferencia: pedir ayuda no es delegar la responsabilidad del propio aprendizaje, es reconocer que la formación ocurre en un entramado relacional.", "dist": "El apoyo social actúa como amortiguador del estrés y distribuye la carga emocional.", "ref": "M01 L4", "src": "propia", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 110, "mod": "02", "lec": "L1", "tema": "Evitación experiencial", "nivel": "recordar", "tipo": "ms", "q": "Seleccioná las tres formas académicas de la evitación experiencial que nombra la L1.", "just": "Postergación, perfeccionismo paralizante y sobrepreparación por miedo. Alivian a corto plazo y restringen el repertorio conductual a largo plazo.", "dist": "La rumiación aparece en M02 L3 como forma de no aceptación. La comparación social es un factor intensificador de M01 L4.", "ref": "M02 L1", "src": "propia", "op": ["Postergación", "Perfeccionismo paralizante", "Sobrepreparación impulsada por miedo", "Rumiación", "Comparación social"], "ok": [0, 1, 2]},
+{"n": 111, "mod": "02", "lec": "L2", "tema": "Habilidades de regulación", "nivel": "recordar", "tipo": "mc", "q": "Los cuatro ejes prácticos de las habilidades de regulación de la L2 son:", "just": "Nombrar con precisión, validar internamente, hacer la acción contraria cuando la emoción empuja a una conducta ineficaz y reducir la vulnerabilidad fuera del momento crítico.", "dist": "Las opciones restantes son STOP (tolerancia al malestar), la primera mitad de DEAR MAN y el Plan Preventivo de M01 L4.", "ref": "M02 L2", "src": "propia", "op": ["Identificación precisa de la emoción, validación interna, acción opuesta y reducción de vulnerabilidad", "Stop, tomar distancia, observar y proceder con conciencia", "Describir, expresar, afirmar y reforzar", "Señales, estrategias, recursos e indicadores"], "ok": 0},
+{"n": 112, "mod": "02", "lec": "L2", "tema": "ACT y DBT", "nivel": "recordar", "tipo": "comp", "q": "Fórmula de la cátedra: ACT amplía el espacio psicológico. DBT ________ la respuesta conductual.", "just": "ACT trabaja la relación con los eventos internos. DBT trabaja la modulación conductual y la adquisición de habilidades.", "dist": "Los dos marcos comparten que el malestar no es el enemigo, y la lectura insiste en que se complementan.", "ref": "M02 L2", "src": "propia", "ac": ["estructura"], "resp": "estructura"},
+{"n": 113, "mod": "02", "lec": "L3", "tema": "No aceptación", "nivel": "comprender", "tipo": "mc", "q": "Según la L3, la no aceptación se expresa como:", "just": "Consume energía, mantiene la activación y la experiencia en el centro de la atención, y activa conductas evitativas.", "dist": "Tristeza, frustración y vergüenza son dolor primario, inevitable y adaptativo, no resistencia. Postergación, perfeccionismo y sobrepreparación son las formas de evitación experiencial de M02 L1.", "ref": "M02 L3", "src": "propia", "op": ["Rumiación, comparación constante e intentos de reescribir mentalmente el pasado", "Postergación, perfeccionismo y sobrepreparación", "Tristeza, frustración y vergüenza ante el resultado", "Pausa, respiración y observación"], "ok": 0},
+{"n": 114, "mod": "02", "lec": "L3", "tema": "Aceptación radical", "nivel": "recordar", "tipo": "comp", "q": "Fórmula de la L3: aceptar es un punto de ________, no un punto final.", "just": "Aceptar desplaza el foco hacia la acción futura. La emoción no desaparece automáticamente, pero aumenta la claridad.", "dist": "Se completa mal con \"inflexión\" o \"equilibrio\". La fórmula es punto de partida.", "ref": "M02 L3", "src": "propia", "ac": ["partida"], "resp": "partida"},
+{"n": 115, "mod": "02", "lec": "L4", "tema": "DEAR MAN", "nivel": "recordar", "tipo": "mc", "q": "Las dos letras A de DEAR MAN corresponden a:", "just": "D describir, E expresar, A afirmar, R reforzar, M mantenerse enfocado, A apariencia segura, N negociar si es necesario.", "dist": "La lectura marca esta confusión como trampa frecuente. Asertividad es el estilo, no una letra del acrónimo.", "ref": "M02 L4", "src": "propia", "op": ["Afirmar lo que se necesita y Apariencia segura", "Aceptar y Asertividad", "Atender y Acordar", "Afirmar y Acompañar"], "ok": 0},
+{"n": 116, "mod": "02", "lec": "L4", "tema": "Pedido de ayuda", "nivel": "comprender", "tipo": "vf", "q": "Para DBT, pedir ayuda es un recurso de última instancia, cuando las estrategias propias ya fallaron.", "just": "Falso. La lectura lo presenta como estrategia preventiva: consultar dudas antes de que se acumulen y pedir retroalimentación antes de que un error escale.", "dist": "La lectura discute la idea implícita de que pedir ayuda es debilidad, porque fomenta la autosuficiencia extrema y el aislamiento.", "ref": "M02 L4", "src": "propia", "op": ["Verdadero", "Falso"], "ok": 1},
+{"n": 117, "mod": "02", "lec": "L4", "tema": "GIVE", "nivel": "comprender", "tipo": "mc", "q": "En GIVE, validar al otro significa:", "just": "G gentil, I interesado, V validar, E estilo equilibrado. Validar no significa estar de acuerdo.", "dist": "Ceder para evitar el conflicto es lo que FAST busca evitar. Comprobar que algo es correcto es el sentido de validar en datos.", "ref": "M02 L4", "src": "propia", "op": ["Reconocer la experiencia del otro, sin que implique estar de acuerdo", "Darle la razón para cuidar el vínculo", "Comprobar que lo que dice el otro es correcto", "Ceder en el pedido para evitar el conflicto"], "ok": 0}
+];
+
+/* ---------- Bancos sin contenido en este trabajo final ---------- */
+const TPS = [];
+const PREG = [];
+
+/* ---------- Definición en castellano, por concepto ---------- */
+const D_PP="<b>La Psicología Positiva no vino a reemplazar a la psicología clínica.</b> Durante el siglo XX la disciplina miró casi solo el malestar, y el bienestar quedó definido como no estar enfermo. Seligman y Csikszentmihalyi (2000) proponen estudiar también lo que hace funcionar bien a una persona: fortalezas, virtudes, funcionamiento óptimo. Solano (2010) lo resume como una ampliación del objeto de estudio. Las fortalezas, por su parte, se validaron en Argentina con instrumentos psicométricos (Castro Solano y Cosentino, 2017 y 2018).";
+const D_ESTILO="<b>El sesgo negativo es la tendencia a darle más peso a lo malo que a lo bueno.</b> Un solo parcial flojo tapa varios buenos. No es baja autoestima, es un patrón de la especie: detectar peligros rápido servía para sobrevivir. Seligman (2014) agrega cómo explicamos lo malo: el estilo pesimista lo ve permanente, global y personal. El reencuadre no pinta de rosa la dificultad, busca una explicación específica, contextual y modificable.";
+const D_EMOPOS="<b>Las emociones negativas achican el foco, las positivas lo agrandan.</b> El miedo te concentra en la amenaza. La gratitud, la calma o el interés abren la atención, y con eso aparece flexibilidad para pensar alternativas y conectar ideas. Repetidas, construyen recursos que quedan. Esto no es negar lo difícil: Harris (2021) sostiene que las emociones incómodas son inevitables y que se trata de cambiar la relación con ellas.";
+const D_GRATITUD="<b>El Diario de Gratitud es un entrenamiento de la atención, no un ejercicio de optimismo.</b> Sirve contra la tendencia a fijarse solo en lo que salió mal. Lo que lo hace funcionar es el detalle: una frase genérica no entrena nada. Tres situaciones por día, a una hora fija, con qué sentiste y quién o qué te ayudó.";
+const D_PERMA="<b>PERMA parte el bienestar en cinco piezas que se pueden mirar por separado.</b> Emociones positivas, compromiso, relaciones, sentido y logro. No es una suma que garantiza la felicidad, es una guía para ver dónde está flojo uno. Las dos que más se confunden son sentido, que es para qué hacés lo que hacés, y logro, que es lo que conseguiste. Y en relaciones, el apoyo tiene tres funciones: ayudarte con la tarea, escucharte y discutir ideas.";
+const D_MATRIZ="<b>Las tres herramientas de PERMA son de reflexión, no de medición.</b> La matriz diagnóstica te hace poner Bajo, Medio o Alto en cada dimensión para ver asimetrías, por ejemplo mucho logro con poco sentido. La auditoría es una foto que conviene sacar en calma. El laboratorio es una película de siete días. Ninguna es un test validado.";
+const D_FLOW="<b>El flow aparece cuando la tarea te exige justo un poco más de lo que sabés.</b> Si te supera mucho, ansiedad. Si te queda chica, aburrimiento. Si las dos cosas son bajas, desinterés. Y hay una casilla que se olvida: desafío medio con habilidad algo baja da inseguridad leve, que se arregla practicando. El flow no es facilidad ni un rasgo de personalidad: es un ajuste que hay que ir corrigiendo a medida que mejorás.";
+const D_OBST="<b>Muchas veces no falta capacidad, falta continuidad.</b> Cada notificación obliga a arrancar la concentración de cero, y la multitarea da sensación de productividad pero procesa todo más superficial. También frena el flow pensar en el examen que viene o no saber qué tenés que lograr en la sesión. Y aparte de todo eso está el para qué: podés estar absorbido en un ejercicio y aun así perder el compromiso con la materia si no la ves dentro de algo que te importa.";
+const D_ESTRES="<b>No todo estrés es malo.</b> Un poco de activación antes de un examen te pone alerta y te ayuda a rendir. El problema es cuando no se apaga: activación sostenida sin descanso es estrés crónico, con cansancio, irritabilidad, olvidos y mal sueño. La relación con el rendimiento es una curva: muy poca activación da apatía, mucha bloquea. Y una señal aislada no es diagnóstico, lo que pide intervenir es que se acumulen.";
+const D_REGM1="<b>Regular no es apagar la emoción.</b> Es darte cuenta de que estás activado, aceptar que está ahí y seguir haciendo lo que te acerca a tu objetivo. Para eso la L4 da herramientas cortas, como la pausa de tres minutos o el anclaje en los cinco sentidos, y un plan armado antes de que aparezca la crisis. Y pedir ayuda no es depender: el apoyo de otros reparte la carga.";
+const D_ACT="<b>ACT dice que el problema no es la ansiedad, es la pelea contra la ansiedad.</b> Cuanto más intentás no sentirla, más presente está. La flexibilidad psicológica es poder sentirla y seguir haciendo lo que te importa. Lo contrario, la inflexibilidad, tiene tres caras: creerte cada pensamiento, huir de lo que incomoda y terminar actuando solo para no sentir. Escaparse alivia hoy y achica tus opciones mañana.";
+const D_DEFUSION="<b>Defusionar es despegarte del pensamiento sin pelearte con él.</b> No lo discutís ni lo cambiás por uno lindo. Le agregás \"estoy teniendo el pensamiento de que\" adelante y pierde fuerza de orden. Y el yo-contexto es el lugar desde donde mirás: tus historias sobre vos son las nubes, vos sos el cielo que las contiene.";
+const D_BIOSOCIAL="<b>El modelo biosocial explica de dónde sale la desregulación sin echarle la culpa a nadie.</b> Por un lado, hay personas que reaccionan rápido, fuerte y tardan en volver a la calma. Por otro, entornos que minimizan o se burlan de lo que sentís. La combinación hace que no aprendas a regularte y que uses atajos como evitar o explotar. Esos atajos no son irracionales: alivian. El trabajo es sumar otras respuestas.";
+const D_REGDBT="<b>Regular y tolerar son dos herramientas para dos momentos.</b> Si la emoción está en un nivel manejable, la regulás: la nombrás, la validás y, si te empuja a algo que no sirve, hacés lo contrario. Si está por las nubes, no es momento de arreglar nada: aplicás STOP, te frenás, respirás, mirás qué pasa y recién después actuás. Tolerar es atravesar la ola sin empeorar las cosas.";
+const D_ACTDBT="<b>ACT y DBT no compiten, se reparten el trabajo.</b> ACT te ayuda a hacerle lugar a lo que sentís y pensás para seguir hacia lo que te importa. DBT te da pasos concretos para responder cuando la emoción ya se disparó. Los dos coinciden en que el malestar no es el enemigo y en que escaparse lo mantiene.";
+const D_ACEPT="<b>Desaprobar duele, y ese dolor tiene sentido.</b> Lo que lo agranda es lo que le sumás encima: \"esto no debería haber pasado\", \"soy un desastre\", dar vueltas sin parar. Eso es sufrimiento secundario. La aceptación radical, de Linehan, es dejar de pelearte con algo que ya pasó. No es estar de acuerdo ni bajar los brazos: es el punto desde donde arrancás a decidir qué hacer.";
+const D_SIMUL="<b>El simulacro de crisis consciente es un ensayo general para el día que te vaya mal.</b> Junta en siete pasos todo el módulo, y el orden importa: primero frenás con STOP para no tomar decisiones en caliente, después separás lo que duele de lo que te estás diciendo, te despegás del pensamiento, aceptás el hecho, te acordás de por qué elegiste esto y hacés algo concreto en las próximas 48 horas.";
+const D_EFIC="<b>En cada conversación difícil querés tres cosas a la vez:</b> conseguir lo que necesitás, no romper el vínculo y no perderte el respeto. Si solo cuidás el vínculo terminás haciendo todo vos, que es el estilo pasivo. Si solo cuidás el resultado, atropellás, que es el agresivo. DBT da un acrónimo para cada objetivo: DEAR MAN para pedir, GIVE para cuidar la relación y FAST para cuidarte vos. Y pedir ayuda a tiempo es prevención, no debilidad.";
+const DEF = {1:D_PP,2:D_PP,3:D_ESTILO,4:D_EMOPOS,5:D_GRATITUD,6:D_PERMA,7:D_PERMA,8:D_MATRIZ,9:D_MATRIZ,10:D_FLOW,11:D_FLOW,12:D_FLOW,13:D_ESTRES,14:D_ESTRES,15:D_ESTRES,16:D_ACT,17:D_DEFUSION,18:D_ACT,19:D_DEFUSION,20:D_BIOSOCIAL,21:D_BIOSOCIAL,22:D_REGDBT,23:D_REGDBT,24:D_REGDBT,25:D_ACEPT,26:D_ACEPT,27:D_ACEPT,28:D_SIMUL,29:D_EFIC,30:D_EFIC,101:D_PP,102:D_ESTILO,103:D_PERMA,104:D_MATRIZ,105:D_OBST,106:D_OBST,107:D_REGM1,108:D_REGM1,109:D_REGM1,110:D_ACT,111:D_REGDBT,112:D_ACTDBT,113:D_ACEPT,114:D_ACEPT,115:D_EFIC,116:D_EFIC,117:D_EFIC};
+
+/* ---------- Teoría completa, por concepto ---------- */
+const T_PP="<p>La Tabla 1 de M01 L1 compara los dos enfoques.</p>\n<table><tr><th>Dimensión</th><th>Centrado en la patología</th><th>Orientado al florecimiento</th></tr>\n<tr><td>Pregunta central</td><td>¿Qué falla o está alterado?</td><td>¿Qué permite desarrollar capacidades?</td></tr>\n<tr><td>Concepto de salud</td><td>Ausencia de enfermedad</td><td>Presencia de bienestar multidimensional</td></tr>\n<tr><td>Unidad de estudio</td><td>Síntoma y déficit</td><td>Fortaleza y recurso</td></tr>\n<tr><td>Finalidad</td><td>Reducir malestar</td><td>Expandir potencialidades y construir recursos</td></tr>\n<tr><td>Intervención</td><td>Reparación y compensación</td><td>Entrenamiento y desarrollo de capacidades</td></tr></table>\n<table><tr><th>Estudio</th><th>Qué hizo</th></tr>\n<tr><td>Castro Solano y Cosentino (2017)</td><td>Fortalezas en adultos de Buenos Aires, enfoque mixto émico/ético</td></tr>\n<tr><td>Castro Solano y Cosentino (2018)</td><td>Análisis psicométrico del IVyF abreviado (IVyFabre): consistencia factorial y fiabilidad</td></tr></table>\n<p>Las fortalezas son disposiciones relativamente estables y funcionan como amortiguadores psicológicos: no eliminan el estrés, cambian la forma de afrontarlo. Cadena de la Figura 1: fortaleza, conducta observable, recurso académico, resiliencia y desempeño.</p>\n<p><b>Choque de vocabulario.</b> Validar, en datos, es comprobar un esquema. Acá la validez y la fiabilidad psicométrica hablan de que un instrumento mida lo que dice medir y lo haga de forma consistente.</p>";
+const T_ESTILO="<table><tr><th>Dimensión</th><th>Sesgo negativo</th><th>Reencuadre cognitivo</th></tr>\n<tr><td>Foco atencional</td><td>Concentración exclusiva en el error</td><td>Análisis equilibrado de aciertos y dificultades</td></tr>\n<tr><td>Atribución</td><td>Permanente, global y personal</td><td>Específica, contextual y modificable</td></tr>\n<tr><td>Impacto emocional</td><td>Desmotivación y rumiación</td><td>Aprendizaje y ajuste estratégico</td></tr>\n<tr><td>Proyección futura</td><td>Anticipación de fracaso</td><td>Identificación de oportunidades de mejora</td></tr>\n<tr><td>Consecuencia conductual</td><td>Evitación o abandono</td><td>Planificación y persistencia</td></tr></table>\n<p>Frases típicas del estilo pesimista: permanente, \"siempre será así\". Global, \"afecta todo lo que hago\". Personal, \"es culpa mía\". Harris (2021) agrega que intentar eliminar los pensamientos negativos puede intensificarlos: se los observa con flexibilidad psicológica.</p>\n<p><b>Choque de vocabulario.</b> En un modelo, sesgo es error sistemático de estimación. Acá es una tendencia atencional y de memoria.</p>";
+const T_EMOPOS="<p>Escalera de la Figura 2 de M01 L1, cinco pasos en orden:</p>\n<ol><li>Emoción positiva</li><li>Ampliación del foco</li><li>Flexibilidad cognitiva</li><li>Construcción de recursos</li><li>Mayor resiliencia</li></ol>\n<p>En PERMA (M01 L2) las emociones positivas son necesarias pero no suficientes. No niegan las negativas, no exigen entusiasmo constante y no equivalen a optimismo ingenuo.</p>\n<p><b>Errata.</b> La figura lleva como fuente a Castro Solano y Cosentino, pero el cuerpo atribuye el mecanismo a Seligman (2016).</p>";
+const T_GRATITUD="<p>Protocolo de cinco pasos:</p>\n<ol><li>Reservar un momento fijo del día, preferentemente al terminar la jornada académica</li><li>Registrar tres situaciones específicas que generen gratitud</li><li>Describir cada una con detalle</li><li>Identificar qué emoción estuvo presente y por qué el evento fue significativo</li><li>Señalar qué recurso personal o apoyo externo intervino</li></ol>\n<p>Qué evitar: frases genéricas, usar el ejercicio para negar dificultades o forzar una interpretación positiva. El impacto se evalúa tras una semana de práctica.</p>\n<p><b>Choque de vocabulario.</b> No es un log de eventos. Vale la especificidad de la descripción, no el volumen de entradas.</p>";
+const T_PERMA="<table><tr><th>Letra</th><th>Original</th><th>Cátedra</th><th>Qué aporta</th></tr>\n<tr><td>P</td><td>Positive Emotions</td><td>Emociones positivas</td><td>Regulación y amplitud cognitiva</td></tr>\n<tr><td>E</td><td>Engagement</td><td>Compromiso, implicación profunda</td><td>Implicación profunda</td></tr>\n<tr><td>R</td><td>Relationships</td><td>Relaciones significativas</td><td>Sostén y acompañamiento</td></tr>\n<tr><td>M</td><td>Meaning</td><td>Sentido</td><td>Orientación de la trayectoria</td></tr>\n<tr><td>A</td><td>Accomplishment</td><td>Logro</td><td>Percepción de eficacia</td></tr></table>\n<p>Sentido no es obligación. Logro incluye metas intermedias y se fortalece al atribuirlo a factores internos y modificables (Seligman, 2014). Apoyo instrumental (tareas), emocional (escucha) e intelectual (ideas).</p>\n<p><b>Choque de vocabulario.</b> Dimensión no es una tabla de dimensiones de un modelo estrella, y engagement no es una métrica de clics.</p>";
+const T_MATRIZ="<table><tr><th>Herramienta</th><th>Qué es</th><th>Dato preguntable</th></tr>\n<tr><td>Matriz diagnóstica</td><td>Indicadores personales, académicos, acción de fortalecimiento y nivel por dimensión</td><td>No es psicométrica. Detecta asimetrías</td></tr>\n<tr><td>Auditoría de bienestar</td><td>Revisión escrita de las cinco dimensiones</td><td>Foto puntual, en momento de relativa calma</td></tr>\n<tr><td>Laboratorio PERMA</td><td>Registro breve con un ejemplo diario por dimensión</td><td>Siete días consecutivos</td></tr></table>\n<p><b>Choque de vocabulario.</b> Auditoría no es control de cumplimiento, y el laboratorio no es una serie temporal con agregación estadística.</p>";
+const T_FLOW="<table><tr><th>Desafío</th><th>Habilidad</th><th>Estado</th><th>Ajuste</th></tr>\n<tr><td>Alto</td><td>Bajo</td><td>Ansiedad</td><td>Dividir en subtareas, buscar apoyo, reforzar bases</td></tr>\n<tr><td>Bajo</td><td>Alto</td><td>Aburrimiento</td><td>Incrementar complejidad, agregar metas</td></tr>\n<tr><td>Medio-alto</td><td>Medio-alto</td><td>Engagement o flow</td><td>Mantener desafío progresivo y objetivos claros</td></tr>\n<tr><td>Medio</td><td>Bajo-medio</td><td>Inseguridad leve</td><td>Practicar y repetir con retroalimentación</td></tr>\n<tr><td>Bajo</td><td>Bajo</td><td>Desinterés</td><td>Clarificar propósito o replantear metas</td></tr></table>\n<p>Seis características: atención en la actividad, menor autoconciencia evaluativa, claridad de objetivos, retroalimentación inmediata, alteración del tiempo, esfuerzo vivido como significativo. Autores: Nakamura y Csikszentmihalyi (2014).</p>\n<p><b>Choque de vocabulario.</b> Flow no es un dataflow ni un pipeline: es una relación entre dos variables percibidas que se reajusta.</p>";
+const T_OBST="<p>Obstáculos contemporáneos de M01 L3: fragmentación digital, multitarea percibida como eficiente, ansiedad anticipatoria, ausencia de metas claras. El checklist suma falta de límites temporales y entornos con distractores. La dispersión impide invertir energía psíquica sostenida (Nakamura y Csikszentmihalyi, 2014).</p>\n<table><tr><th>Estrategia de diseño del entorno</th><th>Criterio</th></tr>\n<tr><td>Objetivos por sesión</td><td>\"Comprender y resolver diez ejercicios del tema 3\", no \"estudiar para el parcial\"</td></tr>\n<tr><td>Gestión del tiempo</td><td>Bloques con inicio y cierre claros</td></tr>\n<tr><td>Entorno físico</td><td>Distractores mínimos</td></tr>\n<tr><td>Retroalimentación</td><td>Ejercicios resueltos, síntesis, mapas conceptuales</td></tr>\n<tr><td>Regulación emocional</td><td>Pausa breve de respiración al iniciar</td></tr></table>\n<p>Compromiso y sentido son distintos (Seligman, 2016). El propósito es organizador motivacional.</p>\n<p><b>Choque de vocabulario.</b> En cómputo el paralelismo acelera. En la cátedra la multitarea fragmenta la atención.</p>";
+const T_ESTRES="<table><tr><th>Rasgo</th><th>Adaptativo</th><th>Crónico</th></tr>\n<tr><td>Duración</td><td>Puntual ante una demanda concreta</td><td>Prolongado sin recuperación adecuada</td></tr>\n<tr><td>Efecto</td><td>Alerta, focalización, energía</td><td>Fatiga cognitiva, irritabilidad, memoria, descanso alterado</td></tr>\n<tr><td>Rendimiento</td><td>Puede mejorarlo en rango moderado</td><td>Pierde su función reguladora</td></tr></table>\n<p>Factores intensificadores: plazos simultáneos, perfeccionismo, comparación social, incertidumbre evaluativa, falta de descanso. Ocho señales tempranas, entre ellas urgencia constante, dificultad para desconectar, irritabilidad, reducción del sueño, postergación por saturación y autocrítica excesiva. Escala de seis ítems, dos semanas, de 1 a 4, que no reemplaza una evaluación profesional.</p>\n<p><b>Choque de vocabulario.</b> No es un stress test. Y una alerta aislada no dispara la intervención como en un monitoreo.</p>";
+const T_REGM1="<p>Pausa activa de tres minutos: detener la acción automática, focalizar en la respiración, ampliar la conciencia corporal, redirigir la atención con intención, retomar gradualmente. Importa la calidad, no la duración.</p>\n<p>Mindfulness: atención al presente con apertura y sin juicio. Anclaje en los cinco sentidos, de tres a cinco minutos.</p>\n<table><tr><th>Plan Preventivo Personal</th><th>Ejemplo</th></tr>\n<tr><td>1. Señales personales de alerta</td><td>Irritabilidad, insomnio, dificultad para concentrarse</td></tr>\n<tr><td>2. Estrategias de regulación</td><td>Pausa activa, mindfulness de los sentidos, reorganización de metas</td></tr>\n<tr><td>3. Recursos de apoyo</td><td>Personas a quienes consultar</td></tr>\n<tr><td>4. Indicadores de seguimiento</td><td>Señales de vuelta a rango funcional</td></tr></table>\n<p>Apoyo social como amortiguador del estrés. Apoyo no es dependencia.</p>\n<p><b>Choque de vocabulario.</b> Se parece a un runbook porque se arma antes de la crisis, pero con señales, estrategias y apoyos personales.</p>";
+const T_ACT="<table><tr><th>Proceso de inflexibilidad</th><th>Definición</th></tr>\n<tr><td>Fusión cognitiva</td><td>Creer literalmente en todo pensamiento que aparece</td></tr>\n<tr><td>Evitación experiencial</td><td>Huir de emociones incómodas</td></tr>\n<tr><td>Desconexión de valores</td><td>Actuar solo para reducir malestar</td></tr></table>\n<p>Formas académicas de evitación experiencial: postergación, perfeccionismo paralizante, sobrepreparación impulsada por miedo.</p>\n<table><tr><th>Situación</th><th>Lucha</th><th>Flexibilidad</th></tr>\n<tr><td>Ansiedad antes de un examen</td><td>\"Tengo que calmarme ya.\"</td><td>\"Estoy notando ansiedad. Puedo seguir estudiando aunque esté presente.\"</td></tr>\n<tr><td>Pensamiento autocrítico</td><td>\"Si pienso que soy malo en esto, debe ser cierto.\"</td><td>\"Es un pensamiento, no un hecho.\"</td></tr></table>\n<p><b>Choque de vocabulario.</b> La flexibilidad de un esquema no tiene nada que ver: acá es actuar según valores con malestar presente.</p>";
+const T_DEFUSION="<p>Ejercicio \"Estoy teniendo el pensamiento de…\": identificar un pensamiento recurrente, repetirlo 20 segundos, agregarle el prefijo, repetir otros 20 segundos, notar si cambió la intensidad. Base teórica: Teoría del Marco Relacional.</p>\n<table><tr><th>Forma</th><th>En inglés</th><th>Qué es</th></tr>\n<tr><td>Yo-contenido</td><td>Self-as-content</td><td>Historias, etiquetas, recuerdos y evaluaciones sobre uno mismo</td></tr>\n<tr><td>Yo-contexto o yo observador</td><td>Self-as-context</td><td>Perspectiva constante desde la que se notan pensamientos y emociones</td></tr></table>\n<p>Observación sin juicio: describir en lugar de evaluar. ACT lo llama contacto con el momento presente y DBT observar, describir y participar sin juzgar.</p>\n<p><b>Choque de vocabulario.</b> Fusión no es un merge ni un join. Contexto no es una ventana de contexto.</p>";
+const T_BIOSOCIAL="<p>Vulnerabilidad emocional, en orden:</p>\n<ol><li>Alta sensibilidad a estímulos emocionales</li><li>Alta intensidad en la respuesta</li><li>Retorno lento a la línea de base</li></ol>\n<p>Ambiente invalidante: experiencias minimizadas (\"no es para tanto\"), ridiculizadas (\"siempre exagerás\") o respondidas de forma incoherente. No tiene que ser traumático.</p>\n<p>Componentes de la emoción: interpretación cognitiva, respuesta fisiológica, impulso de acción. Se retroalimentan.</p>\n<p><b>Choque de vocabulario.</b> Línea de base no es el baseline de una métrica: es el nivel emocional de reposo.</p>";
+const T_REGDBT="<table><tr><th>Aspecto</th><th>Reprimir</th><th>Actuar impulsivamente</th><th>Regular</th></tr>\n<tr><td>Relación con la emoción</td><td>Negarla o evitarla</td><td>Seguir el impulso</td><td>Reconocerla sin juicio</td></tr>\n<tr><td>Activación</td><td>Puede aumentar internamente</td><td>Se descarga externamente</td><td>Se modula gradualmente</td></tr>\n<tr><td>Corto plazo</td><td>Aparente control</td><td>Alivio momentáneo</td><td>Mayor estabilidad</td></tr>\n<tr><td>Largo plazo</td><td>Vacío en el original</td><td>Acumulación de tensión</td><td>Conducta más eficaz</td></tr></table>\n<p>Cuatro ejes: identificación precisa, validación interna, acción opuesta, reducción de vulnerabilidad. Ventana de tolerancia: dentro se puede elegir, fuera la conducta se automatiza.</p>\n<table><tr><th>STOP</th><th>Paso</th></tr><tr><td>S</td><td>Stop, detenerse</td></tr><tr><td>T</td><td>Tomar distancia</td></tr><tr><td>O</td><td>Observar</td></tr><tr><td>P</td><td>Proceder con conciencia</td></tr></table>\n<p><b>Choque de vocabulario.</b> La tolerancia al malestar no es un rollback: no deshace nada.</p>";
+const T_ACTDBT="<table><tr><th></th><th>ACT</th><th>DBT</th></tr>\n<tr><td>Foco</td><td>Relación con los eventos internos</td><td>Modulación conductual y habilidades</td></tr>\n<tr><td>Herramientas</td><td>Defusión, yo-contexto, contacto con el presente</td><td>Regulación de intensidad y tolerancia al malestar</td></tr>\n<tr><td>Pregunta</td><td>¿Puedo actuar hacia mis valores con la emoción presente?</td><td>¿Cómo respondo de forma más eficaz cuando la emoción ya se activó?</td></tr>\n<tr><td>Fórmula</td><td>Amplía el espacio psicológico</td><td>Estructura la respuesta conductual</td></tr></table>\n<p>Cierre de la cátedra: regular no es reprimir, tolerar no es resignarse, aceptar no es rendirse.</p>";
+const T_ACEPT="<table><tr><th>Aspecto</th><th>Dolor primario</th><th>Sufrimiento secundario</th></tr>\n<tr><td>Origen</td><td>Evento concreto</td><td>Interpretaciones y lucha posterior</td></tr>\n<tr><td>Duración</td><td>Limitada</td><td>Se prolonga por rumiación</td></tr>\n<tr><td>Foco</td><td>Hecho específico</td><td>Identidad global</td></tr>\n<tr><td>Conducta</td><td>Procesamiento emocional</td><td>Evitación o autoataque</td></tr>\n<tr><td>Aprendizaje</td><td>Alto</td><td>Reducido</td></tr></table>\n<p>Aceptación radical ante una nota baja, seis pasos: nombrar el hecho, identificar la emoción, detectar pensamientos de resistencia, recordar que el hecho no cambia con la lucha, reafirmar la aceptación, preguntar \"¿y ahora qué?\". No aceptación: rumiación, comparación constante, reescribir el pasado.</p>\n<p><b>Choque de vocabulario.</b> Aceptar un cambio en un repositorio es aprobarlo. Acá no implica aprobar.</p>";
+const T_SIMUL="<table><tr><th>Paso</th><th>Herramienta</th><th>Origen</th></tr>\n<tr><td>1</td><td>STOP</td><td>DBT, L2</td></tr>\n<tr><td>2</td><td>Identificar dolor primario</td><td>L3</td></tr>\n<tr><td>3</td><td>Detectar sufrimiento secundario</td><td>L3</td></tr>\n<tr><td>4</td><td>Defusión</td><td>ACT, L1</td></tr>\n<tr><td>5</td><td>Aceptación radical</td><td>DBT, L3</td></tr>\n<tr><td>6</td><td>Recordar el valor implicado</td><td>ACT, L1</td></tr>\n<tr><td>7</td><td>Acción coherente en 48 horas</td><td>ACT, L1</td></tr></table>\n<p>Secuencia integradora: reconocer, aceptar, elegir acción. La resiliencia es una habilidad que se construye.</p>\n<p><b>Choque de vocabulario.</b> No es un post mortem: se entrena antes del evento, como un simulacro de recuperación ante desastres.</p>";
+const T_EFIC="<table><tr><th>Objetivo</th><th>Pregunta</th><th>Si se exagera</th><th>Si se descuida</th></tr>\n<tr><td>Instrumental</td><td>¿Qué quiero lograr?</td><td>Manipulación o dureza</td><td>No obtener resultado</td></tr>\n<tr><td>Relacional</td><td>¿Cómo impacta en el vínculo?</td><td>Evitación o complacencia</td><td>Conflicto innecesario</td></tr>\n<tr><td>Autoestima</td><td>¿Actúo según mis valores?</td><td>Rigidez moral</td><td>Culpa o pérdida de respeto propio</td></tr></table>\n<table><tr><th>Acrónimo</th><th>Objetivo</th><th>Letras</th></tr>\n<tr><td>DEAR MAN</td><td>Instrumental</td><td>Describir, Expresar, Afirmar, Reforzar, Mantenerse enfocado, Apariencia segura, Negociar</td></tr>\n<tr><td>GIVE</td><td>Relacional</td><td>Gentil, Interesado, Validar, Estilo equilibrado</td></tr>\n<tr><td>FAST</td><td>Autoestima</td><td>Firme, Auténtico, Sin disculpas innecesarias, Transparente</td></tr></table>\n<p>Estilos: pasivo (evita expresar necesidades), agresivo (impone), asertivo (comunica con claridad y regulación previa). Validar no es estar de acuerdo.</p>\n<p><b>Choque de vocabulario.</b> Escalar, en la cátedra, es que el conflicto empeore. Y FAST no tiene que ver con velocidad.</p>";
+const AMP = {1:T_PP,2:T_PP,3:T_ESTILO,4:T_EMOPOS,5:T_GRATITUD,6:T_PERMA,7:T_PERMA,8:T_MATRIZ,9:T_MATRIZ,10:T_FLOW,11:T_FLOW,12:T_FLOW,13:T_ESTRES,14:T_ESTRES,15:T_ESTRES,16:T_ACT,17:T_DEFUSION,18:T_ACT,19:T_DEFUSION,20:T_BIOSOCIAL,21:T_BIOSOCIAL,22:T_REGDBT,23:T_REGDBT,24:T_REGDBT,25:T_ACEPT,26:T_ACEPT,27:T_ACEPT,28:T_SIMUL,29:T_EFIC,30:T_EFIC,101:T_PP,102:T_ESTILO,103:T_PERMA,104:T_MATRIZ,105:T_OBST,106:T_OBST,107:T_REGM1,108:T_REGM1,109:T_REGM1,110:T_ACT,111:T_REGDBT,112:T_ACTDBT,113:T_ACEPT,114:T_ACEPT,115:T_EFIC,116:T_EFIC,117:T_EFIC};
+
+/* ---------- Estado ---------- */
+const HKEY="s21.bienestar.tfi.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const LETRA=k=>"abcdefg"[k]||"?";
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"sección 9 del paquete",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  preguntero:"preguntero, verificada contra el material",
+  errado:"el preguntero se equivoca acá"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["catedra"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Las de la sección 9 del paquete":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué instancia" : "Elegí qué bloque del preguntero";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||p.tipo==="comp"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="comp"){
+    cuerpo='<p class="rotulo-ms">Completar</p><div class="campo"><input id="resp" type="text" autocomplete="off" placeholder="Escribí la palabra o expresión que falta">'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else if(p.tipo==="comp"){
+    const inp=$("resp");
+    const ir=()=>{if(inp.value.trim()) responder(p,inp.value)};
+    $("chk").onclick=ir;
+    inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopPropagation();ir();}});
+    inp.focus({preventScroll:true});
+  } else {
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : p.tipo==="comp" ? p.ac.some(a=>norm(a)===norm(elegido))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll("input").forEach(x=>{x.disabled=true;x.classList.add(bien?"bien":"mal")});
+    $("chk").disabled=true;
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(LETRA).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : (p.tipo==="comp") ? p.resp
+                 : p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del intento"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de la sección 9 del paquete de estudio más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material para practicar.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de pregunteros de circulación libre, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período, en los dos TP online y en las dos autoevaluaciones de actividad práctica. El enunciado y la respuesta correcta salen del registro de cada instancia, parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>

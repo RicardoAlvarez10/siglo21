@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tecnología · Parcial 1 · Autoevaluación</title>
+<style>
+  :root{
+    --texto:#1A1A1A;
+    --titulo:#3D3D3D;
+    --acento:#2D4A3E;
+    --fondo:#FAF9F7;
+    --panel:#FFFFFF;
+    --borde:#E7E5E4;
+    --ok:#2D4A3E;
+    --okBg:#EAF1ED;
+    --mal:#8C2F2F;
+    --malBg:#F7EBEB;
+    --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--fondo);
+    color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap;
+  }
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{
+    background:var(--panel);border:1px solid var(--borde);border-radius:4px;
+    padding:24px 24px 20px;
+  }
+  .meta{
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px;
+  }
+  .enunciado{font-size:17px;margin:0 0 18px}
+  .enunciado b{font-weight:bold}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{
+    text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start;
+  }
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{
+    font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+  }
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .btn{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;
+    border-radius:3px;cursor:pointer;
+  }
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{
+    font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px;
+  }
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{
+    font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px;
+  }
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600;
+  }
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .aviso{
+    font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px;
+  }
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{
+    background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600;
+  }
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{
+    margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic;
+  }
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0;
+  }
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Tecnología, Humanidades y Modelos Globales · Parcial 1</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 01 y 02 · Ricardo Alvarez · Legajo VROB003882</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido armado sobre los resúmenes de teoría de los módulos 01 y 02, sus índices y el paquete de estudio del Parcial 1, secciones Para el examen, Trampas frecuentes, Errores frecuentes y distractores, y Choques con el vocabulario de datos. La cátedra todavía no tomó ninguna instancia evaluada en esta materia, así que no hay banco de preguntas ya tomadas: el segundo banco reúne las cuatro actividades de repaso que traen los PDF de cátedra.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 74 preguntas</button>
+  <button class="modo" data-modo="preg" aria-pressed="false">Repaso de cátedra · 4 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1 · Autoevaluación sobre la teoría ---------- */
+const QUIZ=[
+/* ===== Módulo 01 · Lección 1 ===== */
+{n:1, mod:"01", lec:"L1", tema:"Concepto de tecnología", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"En la etimología de la palabra tecnología, <i>tekne</i> significa:",
+ op:["Ciencia o conocimiento","Técnica u oficio","Herramienta o instrumento","Método o procedimiento"],
+ ok:1,
+ just:"El PDF separa las dos raíces griegas de forma explícita: <i>tekne</i> es técnica u oficio y <i>logos</i> es ciencia o conocimiento.",
+ dist:"La opción a es la definición de <i>logos</i>. La cátedra arma el distractor intercambiando las dos raíces, que es el error más barato de cometer en toda la lección. Las opciones c y d suenan plausibles pero no figuran en el material.",
+ ref:"M01 L1"},
+
+{n:2, mod:"01", lec:"L1", tema:"Concepto de tecnología", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Las cuatro fases que identifica Walter Ong en la manera de crear y compartir conocimiento son, en orden:",
+ op:["Oralidad, escritura, imprenta, TIC","Escritura, imprenta, oralidad, digitalización","Oralidad, imprenta, escritura, internet","Lenguaje, alfabeto, libro, computadora"],
+ ok:0,
+ just:"Es el orden de la figura 3 del PDF, que además asocia a cada fase el aporte concreto que hace.",
+ dist:"Las opciones b y c alteran el orden poniendo la imprenta antes que la escritura o la escritura antes que la oralidad. La opción d cambia los rótulos por los objetos, que es el par que la cátedra usa para armar distractores: la fase se llama por la tecnología de comunicación, no por el soporte.",
+ ref:"M01 L1"},
+
+{n:3, mod:"01", lec:"L1", tema:"Concepto de tecnología", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Según la lección, el origen histórico de las nuevas tecnologías se desplazó:",
+ op:["De la ciencia hacia la técnica","De la técnica hacia la ciencia","De la artesanía hacia la industria, sin intervención de la ciencia","De la filosofía hacia el método experimental"],
+ ok:1,
+ just:"El texto lo dice con todas las letras: la técnica cedió su lugar al rigor conceptual y metodológico de la ciencia.",
+ dist:"La opción a invierte el sentido y es el distractor principal, porque el sentido común contemporáneo hace pensar que la ciencia siempre estuvo primero. El material sostiene lo contrario y lo repite en la lección 2, al llamar a la Tercera Revolución la revolución científico-tecnológica propiamente dicha.",
+ ref:"M01 L1"},
+
+{n:4, mod:"01", lec:"L1", tema:"Dimensiones de Pacey", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"La figura 5 de la primera lección enumera las dimensiones de la tecnología según Pacey como:",
+ op:["Técnica, económica y política","Técnica, organizativa e ideológica-cultural","Instrumental, social y ambiental","Científica, técnica y organizativa"],
+ ok:1,
+ just:"Es el rótulo textual de la figura, que cita a Pacey, 1990.",
+ dist:"Ojo con esta pregunta, porque el propio PDF se contradice: el párrafo que sigue a la figura llama <b>social</b> a la tercera dimensión en lugar de ideológica-cultural. Si en el parcial apareciera social como única opción plausible, también es defendible. Las opciones a, c y d mezclan adjetivos de otras clasificaciones que no están en el material.",
+ ref:"M01 L1"},
+
+{n:5, mod:"01", lec:"L1", tema:"Patrón virtuoso", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"El patrón virtuoso que la cátedra atribuye a la incorporación de nuevas tecnologías empieza por:",
+ op:["El crecimiento económico agregado","La mayor producción de bienes y servicios","El incremento de la productividad de la economía","La reducción de los precios al consumidor"],
+ ok:2,
+ just:"La cadena tiene un orden fijo: primero aumenta la productividad, eso lleva a mayor producción de bienes y servicios, y eso impulsa el crecimiento económico agregado.",
+ dist:"Las opciones a y b son los eslabones segundo y tercero, puestos en primer lugar. Es el distractor típico de las preguntas de secuencia: dar los elementos correctos en el orden equivocado. La opción d no forma parte de la cadena en esta lección, aunque los costos decrecientes sí aparecen en el módulo 2.",
+ ref:"M01 L1"},
+
+{n:6, mod:"01", lec:"L1", tema:"Dimensiones de Pacey", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una empresa incorpora un sistema nuevo y el personal se resiste porque teme por sus tareas. Según el marco de Pacey, el problema está fundamentalmente en:",
+ op:["La dimensión técnica, porque el sistema no fue bien diseñado","Las dimensiones organizativa e ideológica-cultural, que no fueron abordadas","La dimensión ideológica-cultural únicamente","Ninguna de las dimensiones, porque la resistencia es siempre irracional"],
+ ok:1,
+ just:"El miedo por las tareas toca lo organizativo, que incluye la actividad profesional productiva y a los agentes sociales, y lo ideológico-cultural, que incluye valores y creencias. La cátedra sostiene que solo abordando las tres dimensiones de manera amplia los procesos de adopción dan resultados sostenibles.",
+ dist:"La opción a reduce todo a lo técnico, que es justamente lo que el marco de Pacey viene a desarmar. La opción c es parcial: deja afuera lo organizativo, donde viven las tareas y los puestos. La opción d contradice la tesis central de la lección, que dice que las sociedades no son espectadoras pasivas y que la resistencia tiene causas concretas.",
+ ref:"M01 L1"},
+
+{n:101, mod:"01", lec:"L1", tema:"Concepto de tecnología", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La definición de tecnología de la figura 1 la presenta como conjunto de conocimiento condensado para lograr:",
+ op:["Una ventaja competitiva sostenible en el tiempo","Una aplicación concreta para resolver un problema real","Un avance científico verificable empíricamente","La automatización de tareas humanas repetitivas"],
+ ok:1,
+ just:"Los tres componentes de la definición son conocimiento condensado, aplicación concreta y problema real. Los tres son preguntables por separado.",
+ dist:"Las opciones a y d suenan a vocabulario de gestión y de sistemas, que es exactamente el terreno donde el examen busca hacer fallar a quien trabaja en tecnología. La opción c confunde tecnología con ciencia: según el material la ciencia produce conocimiento, la tecnología lo condensa para aplicarlo.",
+ ref:"M01 L1"},
+
+{n:102, mod:"01", lec:"L1", tema:"Concepto de tecnología", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Al definir la tecnología como un sistema interrelacionado, la cátedra enumera ocho componentes. ¿Cuál de los siguientes <b>no</b> forma parte de esa enumeración?",
+ op:["Valores éticos","Pautas culturales","Infraestructura y patentes","Estimaciones económicas"],
+ ok:2,
+ just:"Los ocho componentes son conocimientos, artefactos, habilidades, recursos naturales, estimaciones económicas, valores éticos, pautas culturales y acuerdos sociales.",
+ dist:"Infraestructura y patentes son los distractores construidos sobre el vocabulario técnico y jurídico. Las patentes sí aparecen en el módulo 2, pero como ejemplo de factores de la producción del capitalismo, no como componente de esta definición. Las otras tres opciones están en la lista y son las que suelen sorprender, porque la definición es deliberadamente más social que técnica.",
+ ref:"M01 L1"},
+
+{n:201, mod:"01", lec:"L1", tema:"Concepto de tecnología", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná todos los elementos que la cátedra incluye en su definición de la tecnología como sistema interrelacionado.",
+ op:["Conocimientos","Artefactos","Valores éticos","Marcos regulatorios internacionales","Acuerdos sociales","Modelos de negocio","Recursos naturales"],
+ ok:[0,1,2,4,6],
+ just:"De la lista de ocho componentes, acá aparecen cinco: conocimientos, artefactos, valores éticos, acuerdos sociales y recursos naturales. Los otros tres de la enumeración original son habilidades, estimaciones económicas y pautas culturales.",
+ dist:"Los marcos regulatorios internacionales y los modelos de negocio son agregados. El primero se parece a los acuerdos sociales pero no es lo mismo: los acuerdos sociales son de la comunidad, no de organismos. El segundo pertenece al vocabulario del módulo 2 y no aparece en esta definición.",
+ ref:"M01 L1"},
+
+/* ===== Módulo 01 · Lección 2 ===== */
+{n:7, mod:"01", lec:"L2", tema:"Paradigmas de Kuhn", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Según Kuhn, los paradigmas se renuevan a partir de:",
+ op:["La decisión de las autoridades científicas de cada época","La acumulación gradual de descubrimientos","La aparición de anomalías que las teorías vigentes no resuelven","El reemplazo generacional de los investigadores"],
+ ok:2,
+ just:"La cátedra lo formula primero por la negativa, diciendo que los paradigmas no se renuevan por decisión de una autoridad ni como resultado de un fenómeno directo, y después por la positiva con las anomalías.",
+ dist:"La opción a es la que el propio texto desmiente de manera explícita, lo cual la convierte en el distractor mejor plantado. La opción b describe la visión lineal y acumulativa de la ciencia, que es exactamente lo que Kuhn vino a negar. La opción d es una idea difundida sobre el cambio científico que no está en este material.",
+ ref:"M01 L2"},
+
+{n:8, mod:"01", lec:"L2", tema:"Tres primeras revoluciones", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"La Primera Revolución Industrial se inicia, según la lección, en:",
+ op:["1750","1760","1800","1830"],
+ ok:1,
+ just:"El texto dice: en las últimas décadas del siglo XVIII, específicamente desde 1760.",
+ dist:"1750 y 1800 son fechas redondas cercanas, que es la forma clásica de armar un distractor numérico. 1830 es el año de cierre del período, no el de inicio, así que es el distractor más peligroso: está en el material pero cumple otra función.",
+ ref:"M01 L2"},
+
+{n:9, mod:"01", lec:"L2", tema:"Tres primeras revoluciones", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"¿Cuál de estas afirmaciones sobre la Primera Revolución Industrial es correcta?",
+ op:["Se apoyó más en el conocimiento científico que en las técnicas","Se apoyó más en el poder de las técnicas que en el conocimiento científico","Fue impulsada por áreas de investigación y desarrollo financiadas por el Estado","Tuvo a la energía eléctrica como fuente principal"],
+ ok:1,
+ just:"El material dice que el proceso fue impulsado por actores que se dedicaron a diversas actividades económicas apoyándose más en el poder de las técnicas que en el conocimiento científico.",
+ dist:"La opción a invierte la afirmación. La opción c describe la Tercera Revolución, con sus áreas de I+D y la participación del Estado. La opción d describe la Segunda. Las tres incorrectas toman rasgos reales del material y los mudan de revolución, que es el mecanismo de distractor más frecuente en esta lección.",
+ ref:"M01 L2"},
+
+{n:10, mod:"01", lec:"L2", tema:"Tres primeras revoluciones", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Las cinco características de la Segunda Revolución Industrial que enumera el material incluyen todas las siguientes, <b>excepto</b>:",
+ op:["Producción en serie con taylorismo y fordismo","Surgimiento del proletariado","Globalización económica","Expansión de las telecomunicaciones"],
+ ok:3,
+ just:"Las cinco son energía eléctrica, nuevos materiales, producción en serie, globalización económica y surgimiento del proletariado. Las telecomunicaciones no están.",
+ dist:"Las telecomunicaciones aparecen en la Tercera Revolución, dentro de la tríada de convergencia con microelectrónica e informática. Es un distractor tentador porque el telégrafo de Siemens, que sí es de esta época, hace pensar en comunicaciones. El telégrafo es un caso de empresa, no una característica del período.",
+ ref:"M01 L2"},
+
+{n:11, mod:"01", lec:"L2", tema:"Tres primeras revoluciones", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La convergencia que constituye el epicentro de la Tercera Revolución Industrial está formada por:",
+ op:["Informática, internet y telecomunicaciones","Microelectrónica, informática y telecomunicaciones","Microelectrónica, biotecnología y robótica","Informática, energía nuclear y telecomunicaciones"],
+ ok:1,
+ just:"El texto habla de la convergencia renovada entre microelectrónica, informática y telecomunicaciones, que establece un sistema teleinformático.",
+ dist:"La opción a es el distractor fuerte: cambia microelectrónica por internet. Internet pertenece a esta revolución pero como eslabón consolidador posterior, no como parte del epicentro. La opción c toma la biotecnología y la robótica, que el material menciona como aplicaciones que acompañan, no como el núcleo.",
+ ref:"M01 L2"},
+
+{n:12, mod:"01", lec:"L2", tema:"Tres primeras revoluciones", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Internet, según el material, pertenece a:",
+ op:["La Cuarta Revolución Industrial, porque habilita la digitalización","La Tercera Revolución Industrial, como eslabón que consolida la sociedad del conocimiento","La Segunda Revolución Industrial, junto con las telecomunicaciones","Un período de transición entre la Tercera y la Cuarta"],
+ ok:1,
+ just:"El texto dice que será sobre todo la aparición de internet el eslabón que consolidará este proceso y llevará a la sociedad del conocimiento a su máxima expresión, dentro de la Tercera Revolución.",
+ dist:"La opción a es el error más común de toda la materia y está construido sobre una verdad parcial: internet sí habilita la digitalización de la que la Cuarta Revolución es hija, pero eso lo ubica antes, no dentro. La opción d es una salida intermedia que el material no ofrece: en la lección 3 el ordenador en red figura como ícono de la Tercera.",
+ ref:"M01 L2"},
+
+{n:103, mod:"01", lec:"L2", tema:"Paradigmas de Kuhn", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Ordená la secuencia de Kuhn tal como la presenta la lección:",
+ op:["Crisis, anomalías, revolución científica, nuevas teorías","Anomalías, crisis, nuevas teorías, revolución científica","Nuevas teorías, anomalías, crisis, revolución científica","Anomalías, nuevas teorías, crisis, revolución científica"],
+ ok:1,
+ just:"Aparecen anomalías que las teorías vigentes no resuelven, eso genera crisis, la crisis es antesala de nuevas teorías, y la transición entre las viejas y las nuevas es la revolución científica.",
+ dist:"La opción a invierte anomalía y crisis, que es el par que más se confunde: la anomalía es el hecho que la teoría no explica y la crisis es lo que ese hecho produce. Las opciones c y d adelantan las nuevas teorías, que en Kuhn llegan siempre después de la crisis.",
+ ref:"M01 L2"},
+
+{n:104, mod:"01", lec:"L2", tema:"Energía", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"El material destaca dos propiedades de la energía. La segunda, que considera la más importante, es que puede:",
+ op:["Transformarse sin pérdida","Almacenarse para programar usos diferidos en el tiempo","Transportarse a cualquier distancia","Renovarse de forma indefinida"],
+ ok:1,
+ just:"El texto dice que cualquier tipo de energía puede medirse y, lo más importante, que puede almacenarse para programar usos diferidos en el tiempo. Esa capacidad explica la relación eterna entre la civilización humana y la energía.",
+ dist:"La opción a enuncia una propiedad física falsa y ajena al material. La opción c describe una ventaja de la energía eléctrica que la lección atribuye a la Segunda Revolución, no a la definición general. La opción d remite a las nuevas energías de la lección 3.",
+ ref:"M01 L2"},
+
+{n:105, mod:"01", lec:"L2", tema:"Caso Siemens", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Siemens fue fundada en:",
+ op:["Berlín, en 1847, por Werner von Siemens, con un equipo inicial de 10 personas","Múnich, en 1866, por Werner von Siemens y Johann Halske","Berlín, en 1866, con la invención del generador eléctrico","Berlín, en 1870, al inicio de la Segunda Revolución Industrial"],
+ ok:0,
+ just:"Esos son los cuatro datos que el PDF da juntos: ciudad, año, fundador y tamaño del equipo inicial.",
+ dist:"1866 es el año del generador eléctrico, no el de la fundación, y es el distractor más fuerte porque también es un dato real de la lección. Halske fue el mecánico que colaboró con el telégrafo, no cofundador según este material. 1870 es el inicio de la Segunda Revolución, no un hito de la empresa.",
+ ref:"M01 L2"},
+
+{n:202, mod:"01", lec:"L2", tema:"Tres primeras revoluciones", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná las características que el material enumera para la Segunda Revolución Industrial.",
+ op:["Energía eléctrica","Nuevos materiales","Producción en serie","Sistema teleinformático","Globalización económica","Surgimiento del proletariado","Investigación y desarrollo"],
+ ok:[0,1,2,4,5],
+ just:"Las cinco características del carrusel del PDF son energía eléctrica, nuevos materiales, producción en serie, globalización económica y surgimiento del proletariado.",
+ dist:"El sistema teleinformático y la investigación y desarrollo son de la Tercera Revolución. Son los dos distractores construidos con el mismo método de la pregunta 10: contenido real del material, mudado de período.",
+ ref:"M01 L2"},
+
+/* ===== Módulo 01 · Lección 3 ===== */
+{n:13, mod:"01", lec:"L3", tema:"Cuarta Revolución Industrial", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Klaus Schwab, quien conceptualizó la Cuarta Revolución Industrial, es:",
+ op:["Investigador del MIT Media Lab","Decano de la Universidad Carnegie Mellon","Fundador y director del Foro Económico Mundial de Davos","Fundador de Bridgewater Associates"],
+ ok:2,
+ just:"El material lo presenta con ese cargo antes de citar su libro de 2016.",
+ dist:"Las tres incorrectas son cargos reales de otros autores de estos dos módulos. El MIT Media Lab es de Cynthia Breazeal, Carnegie Mellon es de Andrew Moore y Bridgewater Associates es de Ray Dalio. La cátedra puede mezclar los cuatro nombres con los cuatro cargos, así que conviene tenerlos apareados.",
+ ref:"M01 L3"},
+
+{n:14, mod:"01", lec:"L3", tema:"Impulsores de la Cuarta Revolución", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Los tres grupos de dominios que, según Schwab, dan forma a las tecnologías de la Cuarta Revolución son:",
+ op:["Físicos, digitales y biológicos","Físicos, digitales y sociales","Digitales, cognitivos y biológicos","Mecánicos, electrónicos y digitales"],
+ ok:0,
+ just:"La figura 1 del PDF los presenta como una ecuación: tecnologías más dominios igual inteligencia artificial, y los dominios son físicos, digitales y biológicos.",
+ dist:"El error habitual es cambiar biológicos por sociales o por cognitivos, porque suena más acorde con una materia de humanidades. El tercer dominio es biológico y es lo que abre el camino a la biotecnología y, en el módulo siguiente, al transhumanismo.",
+ ref:"M01 L3"},
+
+{n:15, mod:"01", lec:"L3", tema:"Industria 5.0", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La marca distintiva de la Quinta Revolución Industrial, según la lección, es que:",
+ op:["Se centra en la robótica colaborativa","No se centra únicamente en artefactos sino también en modelos operacionales","Reemplaza definitivamente el trabajo humano","Se apoya en la computación cuántica como tecnología única"],
+ ok:1,
+ just:"El texto dice que esta revolución no se centra únicamente en artefactos o dispositivos tecnológicos, sino también en modelos operacionales que ofrecen soluciones innovadoras a nuestras anomalías.",
+ dist:"Las opciones a y d toman dos de las cinco tendencias, robótica y computación cuántica, y las presentan como si fueran el rasgo definitorio. Son parte de la lista, no su marca. La opción c contradice la posición de la cátedra sobre la IA, que sostiene el fortalecimiento de la condición humana y no su reemplazo.",
+ ref:"M01 L3"},
+
+{n:106, mod:"01", lec:"L3", tema:"Cuarta Revolución Industrial", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En la cita de Schwab, la Cuarta Revolución Industrial no se parece a nada que la humanidad haya experimentado antes en su escala, alcance y __________.",
+ op:["Velocidad","Profundidad","Complejidad","Alcance geográfico"],
+ ok:2,
+ just:"La cita textual de la página 13 del libro nombra tres atributos: escala, alcance y complejidad.",
+ dist:"Velocidad y profundidad son palabras que el material usa en otros párrafos sobre la misma revolución, lo cual las vuelve plausibles. La cita, sin embargo, es literal y cierra con complejidad. El alcance geográfico es una repetición ampliada de alcance, que ya está en la tríada.",
+ ref:"M01 L3"},
+
+{n:107, mod:"01", lec:"L3", tema:"Caso Siemens", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Los tres pilares estratégicos en los que Siemens basa hoy sus aportes a la sociedad son:",
+ op:["Electrificación, automatización y digitalización","Energía, movilidad y salud","Innovación, sostenibilidad y digitalización","Electrificación, robótica e inteligencia artificial"],
+ ok:0,
+ just:"El material los enumera en ese orden, después de describir los problemas que la compañía declara resolver.",
+ dist:"Las opciones b y c arman listas con vocabulario corporativo genérico, que es lo que aparecería en la web de cualquier empresa. La opción d reemplaza automatización y digitalización por dos tecnologías de la lección, robótica e IA, que son temas del módulo pero no pilares de Siemens.",
+ ref:"M01 L3"},
+
+{n:108, mod:"01", lec:"L3", tema:"Impulsores de la Cuarta Revolución", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"El metaverso se define en la lección como:",
+ op:["Un entorno de realidad virtual para uso profesional","Un universo 3D persistente en línea que combina múltiples espacios virtuales","Una red social basada en avatares","Un protocolo de interoperabilidad entre plataformas digitales"],
+ ok:1,
+ just:"La definición del material es textual, y agrega que puede pensarse como una versión futura de internet donde los usuarios trabajan, se reúnen, juegan y socializan.",
+ dist:"Las dos palabras que hay que retener de la definición son <b>3D persistente</b>. La opción a deja afuera la persistencia y lo reduce a lo profesional. La opción c lo confunde con una red social, cuando el material lo presenta como alter ego digital de la vida analógica. La opción d es vocabulario técnico ajeno al texto.",
+ ref:"M01 L3"},
+
+{n:109, mod:"01", lec:"L3", tema:"Industria 5.0", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Al describir los sistemas de agentes de IA, la cátedra los contrasta con los grandes modelos lingüísticos. La comparación es que:",
+ op:["Los LLM funcionan como un experto solitario y los agentes emulan un entorno colaborativo","Los LLM colaboran entre sí y los agentes operan de forma aislada","Los LLM procesan texto y los agentes procesan imágenes","Los LLM son más precisos y los agentes más rápidos"],
+ ok:0,
+ just:"La analogía del PDF es un redactor, un investigador, un editor y un verificador de datos colaborando para producir un artículo de alta calidad, frente al LLM que trabaja solo.",
+ dist:"La opción b invierte la analogía, que es el distractor esperable. Las opciones c y d introducen criterios técnicos, de modalidad y de rendimiento, que el material no usa en ningún momento. La comparación de la cátedra es organizacional, no técnica.",
+ ref:"M01 L3"},
+
+{n:110, mod:"01", lec:"L3", tema:"Cuarta Revolución Industrial", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Los grandes íconos de las tres revoluciones industriales previas, según la apertura de la lección, son:",
+ op:["El telar mecánico, el generador eléctrico y el teléfono","La máquina de vapor, la energía eléctrica a gran escala y el ordenador en red","La máquina de hilar, el automóvil y el microprocesador","La imprenta, la electricidad y el teléfono móvil"],
+ ok:1,
+ just:"El texto los nombra en ese orden para después decir que la Cuarta Revolución es hija de la digitalización que estos habilitaron.",
+ dist:"La opción a toma tres artefactos reales que aparecen en el material pero que no son los íconos elegidos. La opción c mezcla un artefacto correcto de la Primera con dos que el material no destaca. La opción d empieza por la imprenta, que pertenece a la clasificación de Ong de la lección 1 y no a la serie de revoluciones industriales.",
+ ref:"M01 L3"},
+
+/* ===== Módulo 01 · Lección 4 ===== */
+{n:16, mod:"01", lec:"L4", tema:"Naturaleza de la IA", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"La definición de inteligencia artificial que la cátedra cita corresponde a:",
+ op:["Klaus Schwab, 2016","Andrew Moore, de Carnegie Mellon, en 2017","Cynthia Breazeal, del MIT, en 2023","Maurice Conti, en 2023"],
+ ok:1,
+ just:"El material presenta a Moore como decano de Ciencias de la Naturaleza y Computación de Carnegie Mellon, y ubica su definición en 2017.",
+ dist:"Breazeal es el distractor más peligroso porque también habla de IA y también es de una universidad de primera línea, pero su aporte son los cinco principios éticos. Conti aporta las tres maneras de aumento de capacidades. Schwab es del módulo anterior y conceptualiza la Cuarta Revolución, no la IA.",
+ ref:"M01 L4"},
+
+{n:17, mod:"01", lec:"L4", tema:"Naturaleza de la IA", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Cuando el material afirma que la IA no es una caja negra que produce resultados de forma mágica, está sosteniendo que:",
+ op:["Los modelos entrenados son siempre auditables paso a paso","El desarrollo de la IA requiere un trabajo metódico e interdisciplinario ideado por personas","La IA no utiliza algoritmos opacos","El machine learning no altera el diseño original de los modelos"],
+ ok:1,
+ just:"Lo que la cátedra niega es que se trate de un sistema automático o mágico. Afirma que desarrollar IA exige trabajo metódico e interdisciplinario, y agrega que el proceso es ideado por personas humanas.",
+ dist:"Las opciones a y c van demasiado lejos y por eso son incorrectas: el mismo PDF admite, tres páginas después, que tras muchos ciclos de aprendizaje ni los creadores pueden explicar el funcionamiento interno de un algoritmo. La opción d contradice de plano lo que la lección dice sobre el machine learning, que es justamente que los modelos se liberan de su diseño original.",
+ ref:"M01 L4"},
+
+{n:18, mod:"01", lec:"L4", tema:"Ética de la IA", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Los cinco principios de Cynthia Breazeal incluyen todos los siguientes, <b>excepto</b>:",
+ op:["La IA debe ser transparente","La IA debe contar con un medio algorítmico de rendición de cuentas","La IA debe estar diseñada para una privacidad inteligente","La IA debe ser desarrollada bajo estándares internacionales de certificación"],
+ ok:3,
+ just:"Los cinco son ayudar a la humanidad, ser transparente, maximizar la eficacia sin destruir la dignidad, privacidad inteligente, y rendición de cuentas algorítmica.",
+ dist:"El estándar internacional de certificación es un distractor construido sobre el marco normativo de la Unesco de 2021, que sí existe en la lección pero es otra cosa y tiene otro autor. Mezclar el marco institucional con los principios de una investigadora es el cruce que la cátedra puede armar.",
+ ref:"M01 L4"},
+
+{n:19, mod:"01", lec:"L4", tema:"Caso Airbnb", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una compañía de alojamientos capacita a todos sus empleados para tomar decisiones con datos, no solo a su equipo especializado. Según el caso de la lección, ese modelo se apoya en tres ejes que son:",
+ op:["Tecnología, procesos y personas","Accesibilidad a los datos para todos, herramientas adecuadas y conocimiento de cómo usarlos","Captura, análisis e intercambio de datos","Volumen, velocidad y veracidad"],
+ ok:1,
+ just:"Son los tres ejes del modelo de Airbnb, que da origen a la Data University.",
+ dist:"La opción a es la tríada genérica de cualquier manual de gestión y por eso resulta cómoda. La opción c toma tres verbos reales del material, pero describen lo que las empresas hacen con los datos para ganar ventaja competitiva, no el modelo de Airbnb. La opción d pertenece al modelo de las cinco V, que en esta materia no se desarrolla.",
+ ref:"M01 L4"},
+
+{n:20, mod:"01", lec:"L4", tema:"Transformación digital", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Según el cierre de la cuarta lección, en las empresas nativas digitales lo digital:",
+ op:["Es un insumo más dentro de la cadena de valor","Se concentra en las áreas técnicas de la organización","Deja de ser un insumo y se convierte en componente central del modelo de negocios","Reemplaza a la propuesta de valor tradicional"],
+ ok:2,
+ just:"La frase textual es que lo digital deja de ser un simple insumo en la cadena de valor para convertirse en un componente central del modelo de negocios y de la propuesta de valor que ofrecen al mercado.",
+ dist:"La opción a describe la situación de las empresas establecidas, que es el contraste que la cátedra construye. La opción d exagera: lo digital se integra a la propuesta de valor, no la reemplaza. Esta frase es el puente hacia el módulo 2, así que conviene tenerla literal.",
+ ref:"M01 L4"},
+
+{n:111, mod:"01", lec:"L4", tema:"Naturaleza de la IA", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"La cátedra llama a la inteligencia artificial la nueva electricidad de la humanidad. La razón que da es que:",
+ op:["Consume enormes cantidades de energía eléctrica","Así como la energía reemplaza la fuerza muscular, el flujo continuo de datos facilita actividades y resuelve problemas","Es una infraestructura que todos los países deben garantizar","Su desarrollo depende de la Segunda Revolución Industrial"],
+ ok:1,
+ just:"La analogía es funcional: la energía facilita movimientos y procesos que de otro modo dependerían de la fuerza manual, y los datos globales hacen lo propio con las actividades que requieren interpretación y decisión.",
+ dist:"La opción a convierte una metáfora en un dato de consumo energético, que el material no menciona. La opción c traslada la analogía al terreno de la política pública, que tampoco aparece. La opción d confunde la analogía con una dependencia histórica: la electricidad es de la Segunda Revolución, pero la IA pertenece a la Cuarta.",
+ ref:"M01 L4"},
+
+{n:112, mod:"01", lec:"L4", tema:"Ética de la IA", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Maurice Conti, las capacidades humanas se verán aumentadas de tres maneras. La tercera es:",
+ op:["Los sistemas robóticos nos ayudarán a hacer","Los sistemas computacionales nos ayudarán a pensar","Un sistema nervioso digital nos conectará con el mundo más allá de lo que el natural puede ofrecer","La inteligencia artificial nos ayudará a decidir"],
+ ok:2,
+ just:"Las tres maneras, en orden, son pensar con los sistemas computacionales, hacer con los sistemas robóticos, y conectar con un sistema nervioso digital.",
+ dist:"Las opciones a y b son la segunda y la primera respectivamente, puestas fuera de lugar. La opción d suena a la definición de IA de la lección, que habla de mejorar la asertividad de las decisiones, pero no es una de las tres maneras de Conti.",
+ ref:"M01 L4"},
+
+{n:113, mod:"01", lec:"L4", tema:"Machine learning", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"La consecuencia que la cátedra subraya del machine learning es que:",
+ op:["Los modelos se vuelven más rápidos con cada ciclo de aprendizaje","Los modelos se liberan de sus diseños originales, al punto de que a los expertos que los crearon les cuesta explicar sus decisiones","Los modelos dejan de necesitar datos nuevos","Los modelos pueden funcionar sin intervención humana desde el inicio"],
+ ok:1,
+ just:"El texto dice que con machine learning los modelos adquieren nuevos formatos a medida que aprenden de su propia experiencia, y que por eso incluso a sus creadores les resulta difícil explicar el funcionamiento interno tras múltiples ciclos.",
+ dist:"La opción a confunde aprendizaje con optimización de rendimiento. La opción c invierte la relación, porque el aprendizaje exige justamente más datos y más uso. La opción d contradice la afirmación de la lección de que todo el proceso es ideado por personas humanas.",
+ ref:"M01 L4"},
+
+{n:203, mod:"01", lec:"L4", tema:"Ética de la IA", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los principios que Cynthia Breazeal propone para guiar la IA bajo un enfoque humanista.",
+ op:["La IA debe estar para ayudar a la humanidad","La IA debe ser transparente","La IA debe maximizar su eficacia sin destruir la dignidad de la gente","La IA debe estar auditada por un organismo internacional","La IA debe estar diseñada para una privacidad inteligente","La IA debe contar con un medio algorítmico de rendición de cuentas","La IA debe ser de código abierto"],
+ ok:[0,1,2,4,5],
+ just:"Son los cinco principios, en el orden en que la lección los presenta.",
+ dist:"La auditoría por un organismo internacional y el código abierto son agregados que suenan razonables en cualquier discusión sobre ética de la IA, pero no están en Breazeal. El primero se apoya en el marco de la Unesco, que es de otra parte de la lección. El segundo no aparece en ningún lugar del material.",
+ ref:"M01 L4"},
+
+/* ===== Módulo 02 · Lección 1 ===== */
+{n:21, mod:"02", lec:"L1", tema:"Capitalismo", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El capitalismo tiene sus orígenes, según el material, en:",
+ op:["La Europa del siglo XIII, con la caída del feudalismo","La Revolución Industrial del siglo XVIII","La Europa del siglo XVI, con el mercantilismo","Los Estados Unidos del siglo XIX"],
+ ok:0,
+ just:"El texto dice que sus orígenes hay que buscarlos en la Europa del siglo XIII, cuando comienza a caer el feudalismo.",
+ dist:"La opción b es el distractor más fuerte porque asocia capitalismo con industria, que es la intuición habitual y además conecta con el módulo anterior. El material es explícito: el capitalismo es muy anterior a la Primera Revolución Industrial de 1760.",
+ ref:"M02 L1"},
+
+{n:22, mod:"02", lec:"L1", tema:"Capitalismo", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La definición de capitalismo de la cátedra sostiene que la dinámica de oferta y demanda funciona:",
+ op:["Sin ningún tipo de regulación estatal","Sin una intervención centralizada del gobierno, aunque con distintos niveles de regulación","Bajo la planificación centralizada de los precios","Con regulación completa de los factores de producción"],
+ ok:1,
+ just:"El material aclara entre paréntesis que hay distintos niveles de regulación según el caso en el que se aplica. Lo que el capitalismo excluye es la intervención centralizada, no la regulación.",
+ dist:"La opción a es el distractor construido sobre el estereotipo del libre mercado absoluto. Es la lectura que muchos harían de memoria y es justamente la que el paréntesis del texto desmiente. Las opciones c y d describen sistemas de planificación, que son el contrario del que se define.",
+ ref:"M02 L1"},
+
+{n:23, mod:"02", lec:"L1", tema:"Creación de valor", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"La creación de valor, según la definición de la cátedra, requiere trabajo humano soportado por:",
+ op:["Capital y trabajo","Capital y tecnología","Tecnología e innovación","Capital, tecnología y recursos naturales"],
+ ok:1,
+ just:"La definición de la figura pone las tres palabras en mayúsculas: trabajo humano, soportado por un capital y tecnología. Y agrega la condición de que alguien lo acepte y lo demande viéndolo útil y necesario.",
+ dist:"La opción a repite el trabajo, que ya está en el enunciado. La opción c deja afuera el capital, que es el elemento que conecta con toda la lección sobre inversión. La opción d agrega los recursos naturales, que el material menciona pero justamente para decir que la creación de valor <b>no</b> es una dotación de recursos naturales.",
+ ref:"M02 L1"},
+
+{n:24, mod:"02", lec:"L1", tema:"Creación de valor", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La diferencia central entre creación de valor y riqueza es que:",
+ op:["La creación de valor es un stock y la riqueza es un flujo","La creación de valor es un flujo y la riqueza es un stock","Las dos son flujos, pero se miden en unidades distintas","La riqueza es el resultado inevitable de la creación de valor"],
+ ok:1,
+ just:"La cátedra lo repite tres veces en la lección. La creación de valor es un flujo o proceso, nunca un stock determinado. La riqueza es una medida de algo que se tiene y se acumula.",
+ dist:"La opción a invierte los términos y es el distractor obvio. La opción d es el distractor fino y conviene detectarlo: el material da dos contraejemplos justamente para mostrar que son independientes, con el caso del derroche y el caso del patrimonio heredado.",
+ ref:"M02 L1"},
+
+{n:25, mod:"02", lec:"L1", tema:"Creación de valor", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Un país tiene un patrimonio acumulado enorme y un nivel muy bajo de producción de bienes y servicios demandados. Según el material, eso demuestra que:",
+ op:["La creación de valor y la riqueza son variables independientes","La riqueza siempre deriva de la creación de valor","Hay extracción de valor pero no creación","La teoría del derrame no se aplica a los países"],
+ ok:0,
+ just:"Es uno de los dos cruces que la cátedra da de forma explícita: se puede tener bajo nivel de creación de valor y mucha riqueza acumulada, por patrimonio o monopolios. El otro cruce es el inverso.",
+ dist:"La opción b es lo que el ejemplo desmiente. La opción c mete extracción de valor, que es un concepto de la misma lección pero que describe otra cosa: la captura de rentas, no la acumulación patrimonial. La opción d traslada la discusión a la teoría del derrame, que no interviene en esta distinción.",
+ ref:"M02 L1"},
+
+{n:26, mod:"02", lec:"L1", tema:"Extracción de valor", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Sobre la extracción de valor, la cátedra sostiene que:",
+ op:["Es siempre ilegítima y debe eliminarse","Es válida y de ella vienen los procesos de reinversión, y el problema aparece cuando supera a la creación","Solo existe en el sector financiero","Es equivalente a la creación de valor desde el punto de vista económico"],
+ ok:1,
+ just:"El material dice que es válido que cualquier actor capitalice los retornos, más aún considerando que de esas apropiaciones de rentas vienen los procesos de reinversión. El problema emerge cuando la extracción es más fuerte que la creación o cuando logra equipararla.",
+ dist:"La opción a es la lectura moralizante que el texto evita a propósito, y es el distractor principal porque toda la sección habla de las falencias del capitalismo. La opción c generaliza a partir del ejemplo del sector financiero, que el material presenta con un matiz: en general, no siempre. La opción d borra la distinción que estructura la lección entera.",
+ ref:"M02 L1"},
+
+{n:27, mod:"02", lec:"L1", tema:"Crítica de Dalio", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"La frase según la cual el capitalismo ha sido eficiente para agrandar el pastel pero no para repartirlo corresponde a:",
+ op:["Muhammad Yunus","Ray Dalio","Mariana Mazzucato","Joseph Schumpeter"],
+ ok:1,
+ just:"Es la síntesis que el material atribuye a Dalio, fundador de Bridgewater Associates y autor de <i>Principios</i>.",
+ dist:"Yunus es el distractor más fuerte porque aporta una crítica muy parecida en el párrafo siguiente, la de los capturadores de rentas frente a los creadores de riquezas. Mazzucato aparece citada en la misma lección por su libro sobre el valor. Schumpeter es de la lección siguiente. Los cuatro son autores reales del módulo.",
+ ref:"M02 L1"},
+
+{n:114, mod:"02", lec:"L1", tema:"Capitalismo", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según la teoría del derrame, las externalidades positivas de la libertad económica se traducen en todo lo siguiente, <b>excepto</b>:",
+ op:["Empleos indirectos","Nuevos conocimientos e innovaciones que resuelven problemas","Ascenso social de muchos sectores","Reducción de la concentración de la riqueza"],
+ ok:3,
+ just:"Las cuatro externalidades del material son empleos indirectos, nuevos conocimientos e innovaciones, ascenso social y elevación de la calidad de vida de la población.",
+ dist:"La reducción de la concentración de la riqueza es exactamente lo que la lección dice que el capitalismo <b>no</b> logra, con la frase de Dalio sobre el pastel. El distractor está construido invirtiendo la crítica central de la lección y convirtiéndola en una promesa.",
+ ref:"M02 L1"},
+
+{n:204, mod:"02", lec:"L1", tema:"Creación de valor", nivel:"comprender", tipo:"ms", src:"propia",
+ q:"Seleccioná las afirmaciones que el material sostiene sobre la creación de valor.",
+ op:["Es un flujo o proceso","Requiere que alguien la acepte y la demande viéndola útil y necesaria","Puede ser tangible o intangible","Es una dotación de recursos naturales","Se traduce en precios que alguien define y alguien paga","Siempre produce riqueza acumulada"],
+ ok:[0,1,2,4],
+ just:"Las cuatro correctas están en el texto de forma literal. Los ejemplos de tangible e intangible son la bicicleta eléctrica y una metodología para formar personas.",
+ dist:"La dotación de recursos naturales es una de las tres cosas que la cátedra dice que la creación de valor <b>no</b> es, junto con el stock determinado y el compendio de recursos heredados. Y la producción inevitable de riqueza está desmentida por el contraejemplo del derroche.",
+ ref:"M02 L1"},
+
+/* ===== Módulo 02 · Lección 2 ===== */
+{n:28, mod:"02", lec:"L2", tema:"Destrucción creativa", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El concepto de destrucción creativa fue introducido originalmente por:",
+ op:["Joseph Schumpeter","Clayton Christensen","Werner Sombart","Gary Hamel"],
+ ok:2,
+ just:"El PDF lo dice en una sola oración: fue originalmente introducida por el sociólogo Werner Sombart, pero Schumpeter fue quien fortaleció y popularizó el concepto.",
+ dist:"Schumpeter es la trampa mejor plantada de los dos módulos, porque la asociación entre su nombre y la destrucción creativa es correcta en todo lo demás: es él quien la considera la esencia del capitalismo y quien la desarrolla en su libro de 1942. La distinción está entre introducir y popularizar. Christensen aporta el dilema del innovador y Hamel la cita sobre Apple.",
+ ref:"M02 L2"},
+
+{n:29, mod:"02", lec:"L2", tema:"Dilema del innovador", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"¿En qué se diferencia el enfoque de Christensen del de Schumpeter?",
+ op:["Christensen sostiene que la dificultad de innovar de las empresas establecidas es estructural y no depende del ciclo económico","Christensen sostiene que solo las empresas grandes pueden innovar","Christensen niega que las empresas establecidas puedan transformarse","Christensen ubica el fenómeno únicamente en la industria tecnológica"],
+ ok:0,
+ just:"La formulación del material es que, para Christensen, las empresas establecidas <b>más allá de los ciclos de la economía</b> siempre tienen una dificultad mayor para emprender las innovaciones que el mercado demanda.",
+ dist:"La opción c es el distractor fino: el material cierra el apartado diciendo lo contrario, que existen muchas empresas que logran superar sus límites y transformarse antes de caer en la obsolescencia, y pone a Apple como ejemplo. Las opciones b y d invierten o restringen el planteo sin apoyo en el texto.",
+ ref:"M02 L2"},
+
+{n:30, mod:"02", lec:"L2", tema:"Dilema del innovador", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Las tres razones por las que una empresa establecida tiende a mantener sus negocios actuales incluyen todas las siguientes, <b>excepto</b>:",
+ op:["La inclinación a amortizar al máximo las inversiones ya realizadas","La aversión a explorar tecnologías aún no validadas del todo","La tendencia a subestimar el impacto de los nuevos competidores","La imposibilidad legal de operar en mercados nuevos"],
+ ok:3,
+ just:"Las tres razones del material son financieras, tecnológicas y de percepción. Ninguna es jurídica.",
+ dist:"La imposibilidad legal es un obstáculo externo, y las tres razones reales son todas internas y de incentivos. Esa es la clave para descartarla: Christensen explica el conservadurismo por la lógica interna de la empresa, no por barreras del entorno.",
+ ref:"M02 L2"},
+
+{n:31, mod:"02", lec:"L2", tema:"Dilema del innovador", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una compañía enorme, con miles de empleados, sigue asumiendo el riesgo de crear categorías de productos nuevas en lugar de proteger lo que ya le funciona. Según la lección, eso significa que:",
+ op:["Es víctima del dilema del innovador","Resuelve bien el dilema del innovador","No está sujeta a la destrucción creativa","Opera fuera de la economía de mercado"],
+ ok:1,
+ just:"Es la descripción textual de Apple en el PDF, presentada como ejemplo de una empresa que asume el riesgo antes que priorizar lo logrado.",
+ dist:"La opción a es el error de lectura más frecuente: se asume que si una empresa aparece bajo el título del dilema es porque lo sufre. Apple aparece como la excepción que lo supera. La opción c confunde dos cosas: ninguna empresa está fuera de la destrucción creativa, lo que Apple hace es adelantarse a ella.",
+ ref:"M02 L2"},
+
+{n:32, mod:"02", lec:"L2", tema:"Emprendedores", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Según el material, hay evento emprendedor cada vez que:",
+ op:["Se funda una empresa nueva con capital de riesgo","Se produce el encaje entre el problema de alguien y la solución que se crea","Un emprendedor imagina un producto innovador","Se consigue el primer cliente que paga"],
+ ok:1,
+ just:"El texto dice que, más allá del tipo de negocio, del sector, de las características personales del emprendedor y del grado de innovación, hay evento emprendedor cada vez que se produce ese encaje.",
+ dist:"La opción c es el distractor central y el material lo desmiente en el apartado de oportunidad: si es un invento o imaginación del emprendedor, sirve para un soñador o un inventor, no constituye oportunidad. Las opciones a y d agregan condiciones de financiamiento y de facturación que el texto descarta explícitamente.",
+ ref:"M02 L2"},
+
+{n:33, mod:"02", lec:"L2", tema:"Lean startup", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El Business Model Canvas y el método lean startup corresponden, respectivamente, a:",
+ op:["2011 y 2009","2009 y 2011","2006 y 2009","2011 y 2012"],
+ ok:1,
+ just:"El Canvas revolucionó en 2009 la metodología para imaginar y diseñar un negocio, y en 2011 Eric Ries hizo lo propio con la metodología para probarlo y ejecutarlo.",
+ dist:"La opción a invierte los dos años, que es la confusión más frecuente. La opción d usa 2012, que es el año de la edición en español del libro de Ries y aparece en la bibliografía de la lección, lo cual la vuelve engañosa. 2006 es el año del long tail, de la lección siguiente.",
+ ref:"M02 L2"},
+
+{n:34, mod:"02", lec:"L2", tema:"Lean startup", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Una startup, según la definición de Eric Ries que cita la cátedra, se caracteriza por:",
+ op:["Tener menos de cincuenta empleados","Estar diseñada para crear productos bajo condiciones de extrema incertidumbre, y dejar de serlo al validar en el mercado","Operar exclusivamente con tecnología digital","Haber recibido inversión externa"],
+ ok:1,
+ just:"La definición tiene dos partes y las dos importan: la condición de extrema incertidumbre, y el hecho de que una vez que crea y valida sus productos pasa a ser una empresa.",
+ dist:"Las opciones a, c y d usan criterios de tamaño, de sector y de financiamiento. Son las tres formas habituales de definir una startup en el uso corriente, y ninguna aparece en el material. Lo que define a una startup en esta materia es un estado, no una escala.",
+ ref:"M02 L2"},
+
+{n:35, mod:"02", lec:"L2", tema:"Lean startup", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La diferencia entre el producto mínimo viable y el prototipo es que:",
+ op:["El MPV es más barato de construir","El MPV permite dar una vuelta entera al circuito de crear, medir y aprender, mientras que el prototipo es una representación temprana del aspecto","El prototipo es físico y el MPV es digital","El prototipo se valida con clientes y el MPV no"],
+ ok:1,
+ just:"La cátedra presenta el MPV como una evolución del prototipo, y la diferencia está en la función: el prototipo muestra cómo va a ser la oferta, el MPV habilita el ciclo de aprendizaje.",
+ dist:"La opción a toma un rasgo real del MPV, el menor costo posible, y lo convierte en el criterio de distinción, que no lo es. La opción c inventa una diferencia de soporte que el material desmiente al enumerar que un MPV puede ser un modelo físico, un diseño digital, un diagrama, una infografía o una simulación. La opción d invierte la relación.",
+ ref:"M02 L2"},
+
+{n:115, mod:"02", lec:"L2", tema:"Lean startup", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"El circuito que el producto mínimo viable permite recorrer entero es el de __________.",
+ op:["Planificar, ejecutar, controlar","Diseñar, construir, lanzar","Crear, medir y aprender","Probar, corregir, escalar"],
+ ok:2,
+ just:"La cita de Ries define el MPV como aquella versión del producto que permite dar una vuelta entera al circuito de crear, medir y aprender con un mínimo de esfuerzo y el mínimo tiempo de desarrollo.",
+ dist:"Las tres opciones incorrectas son ciclos de gestión y de desarrollo que suenan familiares en el trabajo diario y ninguna es la de Ries. El orden del circuito real importa: empieza por crear, no por planificar ni por probar.",
+ ref:"M02 L2"},
+
+{n:116, mod:"02", lec:"L2", tema:"Lean startup", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Para que haya pivote, según el material, hacen falta dos condiciones:",
+ op:["Que el equipo cambie de dirección y que haya nuevos inversores","Que se haya probado un MPV y que el cambio se funde en aprendizaje validado en el mercado","Que el producto fracase comercialmente y que exista una alternativa lista","Que la tecnología quede obsoleta y que el mercado lo demande"],
+ ok:1,
+ just:"El pivote simboliza el cambio que se decide hacer cuando se advierte que el producto o servicio, <b>ya probado a través de un MPV</b>, no se adapta bien a las necesidades del consumidor <b>según el aprendizaje validado</b> por el equipo emprendedor.",
+ dist:"Las tres incorrectas describen cambios de rumbo por motivos externos: financiamiento, fracaso comercial u obsolescencia. Cualquiera de esos puede llevar a una empresa a cambiar, pero para la cátedra no constituye un pivote si no hubo MPV probado y aprendizaje validado.",
+ ref:"M02 L2"},
+
+/* ===== Módulo 02 · Lección 3 ===== */
+{n:36, mod:"02", lec:"L3", tema:"Long tail", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El término long tail fue acuñado por:",
+ op:["Philip Kotler, en 2003","Chris Anderson, en 2006","Eric Ries, en 2011","Clayton Christensen, en 1997"],
+ ok:1,
+ just:"Anderson encontró el término en 2006 para reflejar la economía digital que se configuraba con la expansión de internet.",
+ dist:"Kotler es el distractor más fuerte porque aparece en la misma lección, cinco párrafos después, aportando la definición de nicho de mercado. Los otros dos son autores del módulo pero de la lección anterior. La cátedra puede armar la pregunta al revés y pedir quién definió el nicho.",
+ ref:"M02 L3"},
+
+{n:37, mod:"02", lec:"L3", tema:"Long tail", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Un nicho de mercado, según Kotler, requiere necesidades o deseos específicos, voluntad de satisfacerlos y:",
+ op:["Un tamaño mínimo de mercado","Capacidad económica para realizar la compra","Acceso a canales digitales","Baja competencia en el sector"],
+ ok:1,
+ just:"La definición tiene tres condiciones y las tres son necesarias. La capacidad económica es la que se olvida al repetirla de memoria.",
+ dist:"La opción a introduce un umbral de tamaño, cuando la definición va en sentido contrario: el nicho es más pequeño que un segmento. La opción c suena lógica porque estamos en la lección de economía digital, pero el acceso a canales no forma parte de la definición. La opción d describe una condición de negocio, no del nicho.",
+ ref:"M02 L3"},
+
+{n:38, mod:"02", lec:"L3", tema:"GAFA y plataformas", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La sigla GAFA corresponde a Google, Amazon, Facebook y Apple. Según el material, el problema que representan es que:",
+ op:["Compiten deslealmente con empresas más pequeñas","Su masividad concentra poder y socava las bases del long tail, que son la democratización y la diversidad","No pagan impuestos en los países donde operan","Impiden el desarrollo de nuevas tecnologías"],
+ ok:1,
+ just:"El texto dice que el símbolo de la problemática son las GAFA, y que su capacidad de manejar datos de millones de personas llega a socavar las bases mismas de la economía del long tail, que son la democratización y la diversidad.",
+ dist:"Las tres incorrectas son críticas habituales a las grandes tecnológicas en el debate público, y ninguna es la que el material formula. El argumento de la cátedra es más fino y por eso más preguntable: las GAFA son la negación de lo que la larga cola prometía, no un problema de competencia ni fiscal.",
+ ref:"M02 L3"},
+
+{n:117, mod:"02", lec:"L3", tema:"Long tail", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"El caso de Lego está puesto en la lección para demostrar que:",
+ op:["Las empresas de juguetes deben digitalizarse para sobrevivir","El long tail no se aplica exclusivamente a productos digitales puros","La producción física es incompatible con la economía digital","Los marketplaces desplazan a las jugueterías tradicionales"],
+ ok:1,
+ just:"Lego vende plástico, es decir átomos y no bits, y aun así su tienda online supera la limitación de inventario y exhibición de las jugueterías físicas, con más de mil variantes de productos y la invitación a los chicos a diseñar los suyos.",
+ dist:"La opción a convierte un ejemplo conceptual en una recomendación de gestión. La opción c dice lo contrario de lo que el caso demuestra. La opción d es un efecto lateral que el material menciona al pasar, con Mercado Libre como ejemplo de tienda de terceros, pero no es lo que el caso viene a probar.",
+ ref:"M02 L3"},
+
+{n:118, mod:"02", lec:"L3", tema:"GAFA y plataformas", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Según la definición del material, lo que define a un negocio de plataformas es que:",
+ op:["Opera íntegramente en la nube con arquitecturas escalables","Baja al mínimo posible la fricción entre oferta y demanda","Tiene millones de usuarios registrados","No posee los activos que comercializa"],
+ ok:1,
+ just:"La definición de la ficha empieza por ahí, y recién después habla de las cantidades crecientes de usuarios registrados y monitoreados como consecuencia.",
+ dist:"La opción a es la definición técnica de plataforma que se usa en el trabajo diario y es el distractor diseñado para quien viene de sistemas. La opción c toma una consecuencia y la presenta como definición. La opción d describe un rasgo de Airbnb y de Uber, que son ejemplos, no la definición del modelo.",
+ ref:"M02 L3"},
+
+{n:119, mod:"02", lec:"L3", tema:"GAFA y plataformas", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"El efecto red en las empresas basadas en plataforma funciona así:",
+ op:["A más usuarios, menores costos unitarios de producción","El conocimiento barato de los usuarios permite propuestas que atraen más usuarios, y esa expansión incrementa la oferta","La plataforma sube sus precios a medida que crece su base de clientes","Las plataformas se integran entre sí formando redes de servicios"],
+ ok:1,
+ just:"Es el circuito de tres eslabones que describe el material, con Uber, Booking, Airbnb y LinkedIn como ejemplos.",
+ dist:"La opción a describe economías de escala, que es un concepto vecino y que aparece en la misma página al hablar del diseño organizacional aplanado. Confundir efecto red con economía de escala es el error conceptual que esta pregunta busca detectar. Las opciones c y d no tienen apoyo en el texto.",
+ ref:"M02 L3"},
+
+{n:120, mod:"02", lec:"L3", tema:"Long tail", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Los costos decrecientes, en la economía digital, significan que:",
+ op:["Los precios de venta bajan de manera sostenida","Producir unidades adicionales de bienes o servicios es cada vez más barato","Las empresas reducen sus costos fijos mediante la automatización","La inversión inicial en tecnología se amortiza más rápido"],
+ ok:1,
+ just:"La definición del material se refiere a la unidad adicional, y agrega que eso es positivo para las sociedades porque costos más bajos pueden traducirse en precios más accesibles.",
+ dist:"La opción a es el distractor fino: la baja de precios es una consecuencia posible, formulada con cautela por la cátedra, no la definición. Las opciones c y d describen efectos financieros sobre costos fijos y amortización, que son otra cosa que el costo de la unidad adicional.",
+ ref:"M02 L3"},
+
+{n:121, mod:"02", lec:"L3", tema:"Datos como capital", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Los cuatro pasos que el material menciona sobre los datos, previos a poner en marcha algoritmos y modelos predictivos, son:",
+ op:["Extracción, transformación, carga y consumo","Definición, recolección, almacenamiento y relacionamiento","Captura, limpieza, modelado y visualización","Adquisición, procesamiento, análisis y decisión"],
+ ok:1,
+ just:"El texto dice que es a partir de la correcta definición, recolección, almacenamiento y relacionamiento de datos que podemos poner en marcha algoritmos matemáticos y modelos predictivos.",
+ dist:"Las tres incorrectas son secuencias reales del trabajo con datos, y por eso son distractores fuertes justamente para quien trabaja en el rubro. La opción a es el ETL clásico. La cátedra usa un vocabulario propio y el paso que la distingue es <b>relacionamiento</b>, que no figura en ninguna de las otras.",
+ ref:"M02 L3"},
+
+{n:205, mod:"02", lec:"L3", tema:"GAFA y plataformas", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná las compañías que integran la sigla GAFA según el material.",
+ op:["Google","Amazon","Microsoft","Facebook","Tesla","Apple","Alibaba"],
+ ok:[0,1,3,5],
+ just:"La sigla está formada por Google, Amazon, Facebook y Apple.",
+ dist:"Microsoft, Tesla y Alibaba aparecen en la misma página, pero el material las nombra de forma explícita como compañías que despliegan desempeños exitosos en la economía digital <b>sin</b> formar parte de las GAFA. Es un distractor tomado literalmente del texto.",
+ ref:"M02 L3"},
+
+/* ===== Módulo 02 · Lección 4 ===== */
+{n:39, mod:"02", lec:"L4", tema:"Transformación digital", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una empresa con años de historia decide comprar software y hardware de última generación y crear un sitio web atractivo. Según el caso de la cuarta lección, eso:",
+ op:["Constituye una transformación digital completa","Es insuficiente, porque la transformación digital exige cambiar la concepción, la cultura, el mindset, los procesos y los equipos","Es innecesario, porque la tecnología no interviene en la transformación digital","Solo sirve si la empresa es nativa digital"],
+ ok:1,
+ just:"El caso de la juguetería está armado como elección entre dos cursos de acción, y la opción correcta es la que cambia la concepción y la cultura empresarial, con la tecnología y la capacitación como medios para hacerlo efectivo.",
+ dist:"La opción a es el distractor principal de todo el módulo y está diseñado para ser tentador, porque adquirir tecnología es una acción razonable y concreta. La opción c exagera en el sentido contrario: la opción correcta del caso <b>sí</b> incluye incorporar tecnología de última generación, solo que después del cambio de mentalidad y acompañada de un plan de capacitación.",
+ ref:"M02 L4"},
+
+{n:40, mod:"02", lec:"L4", tema:"Empresa biónica", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El modelo de la empresa biónica fue creado por:",
+ op:["McKinsey","El Foro Económico Mundial","El Boston Consulting Group","Gartner"],
+ ok:2,
+ just:"El material lo atribuye al Boston Consulting Group y aclara que lo elige entre muchos modelos posibles por considerarlo especialmente apto para comprender el proceso.",
+ dist:"McKinsey y Gartner son consultoras y analistas reales que no aparecen en el material, puestas ahí porque suenan igualmente plausibles. El Foro Económico Mundial es el distractor más fuerte porque sí aparece en estos módulos, pero asociado a Klaus Schwab y a la Cuarta Revolución Industrial.",
+ ref:"M02 L4"},
+
+{n:122, mod:"02", lec:"L4", tema:"Empresa biónica", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"El modelo se llama de empresas biónicas porque:",
+ op:["Los procesos de la empresa se automatizan con robótica avanzada","Es la biología, es decir la humanidad, la que puede y debe ser potenciada por la electrónica y la tecnología","Combina inteligencia artificial con sistemas de producción físicos","Las decisiones se toman de forma híbrida entre personas y algoritmos"],
+ ok:1,
+ just:"El texto lo explica así y remata con que es la humanidad revalorizada por las nuevas tecnologías la que prima al repensar una empresa.",
+ dist:"El orden de la relación es lo que se evalúa acá, y las tres incorrectas lo pierden. La opción a pone la tecnología como sujeto y las personas desaparecen. La opción d parece correcta porque habla de personas y algoritmos, pero los pone en pie de igualdad, cuando el modelo es explícito en que la humanidad es lo que prima y la tecnología lo que potencia.",
+ ref:"M02 L4"},
+
+{n:123, mod:"02", lec:"L4", tema:"Empresa biónica", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En el modelo de la empresa biónica, la noción de propósito surge de la pregunta \"¿para qué estamos juntos?\" y se la considera:",
+ op:["Previa y superior a la estrategia","Tan importante como la estrategia para actuar","Un complemento de la comunicación interna","Una consecuencia de la transformación digital"],
+ ok:1,
+ just:"El material dice textualmente que aparece la noción de propósito, tan importante como la de estrategia para actuar.",
+ dist:"La opción a va un paso más allá de lo que el texto sostiene y es el distractor fino: la cátedra equipara, no jerarquiza. Las opciones c y d degradan el propósito a un tema de comunicación o a un resultado, cuando en el modelo es el punto de partida del que se desprenden los habilitadores.",
+ ref:"M02 L4"},
+
+{n:124, mod:"02", lec:"L4", tema:"Empresa biónica", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Sobre los habilitadores en los que toda empresa necesita trabajar para lograr resultados a partir de la transformación digital, el material sostiene que son:",
+ op:["Cuatro: dos del campo de la tecnología y dos del terreno humano","Dos: la plataforma tecnológica y las personas","Tres: tecnología, procesos y cultura","Cinco, uno por cada eje del modelo biónico"],
+ ok:0,
+ just:"La lección de cátedra dice que son cuatro grandes habilitadores, dos propios del campo de la tecnología y otros dos propios del terreno humano. No los nombra: el bloque que los desarrollaba quedó vacío en el PDF.",
+ dist:"La opción b no es un invento, es lo que aporta el anexo de Expansión en boca de un socio de BCG, que habla de dos grandes elementos habilitadores. Encaja con el reparto pero no reemplaza la cifra de la cátedra. Si la consigna pregunta por la lectura, la respuesta es cuatro. Si preguntara por el anexo, serían esos dos bloques.",
+ ref:"M02 L4"},
+
+{n:125, mod:"02", lec:"L4", tema:"Nuevas economías", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Los recursos clave que el material identifica para que las empresas sean eficaces en los entornos digitales actuales son:",
+ op:["Talento, capital y tecnología","Obtención y gestión de datos, modelo de negocios basado en plataformas, y transformación digital de la organización","Datos, algoritmos y capacidad de cómputo","Agilidad, innovación y escala"],
+ ok:1,
+ just:"Son los tres recursos de la ficha, y coinciden exactamente con los tres temas de las lecciones 3 y 4 del módulo.",
+ dist:"Las tres incorrectas arman tríadas plausibles con vocabulario de management o de sistemas. La clave para reconocer la correcta es que los tres recursos del material <b>no</b> son insumos sino capacidades organizacionales, y que el tercero es la transformación digital completa de la organización, no una tecnología.",
+ ref:"M02 L4"},
+
+{n:126, mod:"02", lec:"L4", tema:"Transformación digital", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Las tres empresas que el material nombra como superadas por competidores más ágiles y asertivos con el mercado son:",
+ op:["Kodak, Blockbuster y Blackberry","Nokia, Yahoo y MySpace","Kodak, Xerox y Polaroid","Blockbuster, Sears y Toys R Us"],
+ ok:0,
+ just:"El PDF las nombra juntas y agrega que sus casos desparraman pánico en la comunidad empresarial del mundo.",
+ dist:"Las tres opciones incorrectas están armadas con empresas que efectivamente fracasaron por no adaptarse y que aparecen en cualquier artículo sobre el tema. Ninguna figura en el material. Es una pregunta de memoria literal, no de razonamiento.",
+ ref:"M02 L4"},
+
+{n:127, mod:"02", lec:"L4", tema:"Transformación digital", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Según la cuarta lección, existen sectores y empresas que, por su naturaleza artesanal o por su tamaño, quedan al margen del cambio empresarial que trae la economía digital.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"Es falso. La lección abre con un condicional encadenado que termina en la cláusula: estamos ante un cambio empresarial de grandes proporciones y <b>no hay empresas inmunes a ello</b>. El caso de la juguetería artesanal está puesto justamente para mostrarlo.",
+ dist:"El enunciado suena razonable porque apela a la intuición de que lo artesanal está fuera de lo digital. La cátedra elige el ejemplo más artesanal posible, juguetes de madera hechos a mano, precisamente para desactivar esa intuición.",
+ ref:"M02 L4"},
+
+{n:128, mod:"02", lec:"L4", tema:"Nuevas economías", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Bajo el paraguas de las nuevas economías, el material advierte que se proyecta cierta inclinación a:",
+ op:["Sustituir el trabajo humano por sistemas automatizados","Proponer fórmulas superadoras al capitalismo tradicional y a las empresas basadas solo en el lucro y el beneficio a los accionistas","Concentrar el poder económico en las grandes plataformas","Regular con mayor severidad el uso de los datos personales"],
+ ok:1,
+ just:"Es la frase con la que la lección cierra el módulo y abre el módulo 3, que trata empresas sociales y de triple impacto.",
+ dist:"La opción c describe el problema de las GAFA de la lección anterior, que es una tendencia real del material pero de signo contrario a esta. Las opciones a y d toman temas presentes en los dos módulos, automatización y marco normativo de la Unesco, y los ponen donde no van.",
+ ref:"M02 L4"},
+
+{n:206, mod:"02", lec:"L4", tema:"Nuevas economías", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los recursos que el material identifica como clave para las empresas en entornos digitales actuales.",
+ op:["Obtención y gestión de datos","Modelo de negocios basados en plataformas","Inversión en infraestructura de nube","Transformación digital de la empresa u organización","Alianzas con proveedores tecnológicos"],
+ ok:[0,1,3],
+ just:"Son los tres recursos de la ficha de la lección, y resumen los temas de las lecciones 3 y 4.",
+ dist:"La inversión en infraestructura de nube y las alianzas con proveedores son acciones concretas de un plan de sistemas. La cátedra habla de capacidades organizacionales, no de compras. Es el mismo criterio que separa la respuesta correcta de la incorrecta en el caso de la juguetería.",
+ ref:"M02 L4"}
+];
+
+/* ---------- Banco 2 · sin instancias tomadas todavía ---------- */
+const TPS=[];
+
+/* ---------- Banco 3 · Repaso de cátedra ---------- */
+const PREG=[
+{n:2001, orig:1, inst:"Repaso Módulo 01", tema:"Ventajas de las TIC", tipo:"ms", fid:"catedra",
+ q:"¿Cuáles son las ventajas de las TIC?",
+ op:["Acceso al conocimiento","Impiden la educación a distancia","Unifican los medios de información","Generación de nuevas industrias","Fuente de distracción","Comunicación instantánea","Generan adicción"],
+ ok:[0,2,3,5],
+ just:"Las siete opciones son las del propio PDF, en su orden original. Las cuatro correctas son las formuladas como beneficio.",
+ dist:"Las tres incorrectas comparten una marca de forma: están escritas en negativo o como perjuicio. Ese es el criterio con el que la cátedra armó esta actividad y conviene registrarlo, porque es la única señal directa que hay sobre cómo construye distractores en esta materia.",
+ ref:"M01 L2"},
+
+{n:2002, orig:1, inst:"Repaso Módulo 02", tema:"Emprendedores", tipo:"vf", fid:"catedra",
+ q:"Las personas comunes con sensibilidad para percibir las necesidades y capacidad para ver las oportunidades, pueden ser emprendedores.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Verdadero. Es la tesis explícita del apartado sobre emprendedores: son personas comunes con alto estándar de sensibilidad para percibir problemáticas, y las habilidades técnicas y emocionales que se requieren pueden adquirirse y desarrollarse si existe voluntad y determinación.",
+ dist:"El enunciado y las dos opciones son los del PDF. La lectura equivocada sería suponer que emprender exige talentos extraordinarios. El material dice que los talentos personales pesan, pero no son condición.",
+ ref:"M02 L2"},
+
+{n:2003, orig:1, inst:"Repaso Módulo 02", tema:"Transformación digital", tipo:"vf", fid:"catedra",
+ q:"La transformación digital de las empresas y organizaciones es un camino inevitable para la actuación eficaz y eficiente en los entornos actuales.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Verdadero. Se apoya en la cláusula de apertura de la lección: estamos ante un cambio empresarial de grandes proporciones y no hay empresas inmunes a ello.",
+ dist:"El enunciado y las dos opciones son los del PDF. El adjetivo <b>inevitable</b> es el que podría hacer dudar, porque los absolutos suelen ser señal de opción incorrecta. Acá no: es una de las afirmaciones que la cátedra hace de manera deliberadamente absoluta.",
+ ref:"M02 L4"},
+
+{n:2004, orig:2, inst:"Repaso Módulo 02", tema:"Transformación digital", tipo:"mc", fid:"mixto",
+ q:"Sos dueño de una fábrica de juguetes artesanales de madera y la competencia de los grandes conglomerados erosiona tus ventas. Decidís embarcarte en una transformación digital. ¿Cuál es el cambio necesario para que esa transformación realmente se produzca?",
+ op:["Dar un salto en adquisición de tecnologías, software y hardware, para los procesos de producción, e incorporar un sitio web atractivo y fácil de navegar para los clientes","Cambiar la concepción y la cultura empresarial, con un cambio radical en el mindset, los procesos y los equipos, e incorporar tecnología de última generación en procesos y gestión con un plan de capacitación para los colaboradores","Contratar un equipo de marketing digital y abrir canales de venta en redes sociales","Tercerizar la producción en un proveedor con procesos ya digitalizados"],
+ ok:1,
+ just:"La opción correcta es la que empieza por el cambio de concepción y cultura. La tecnología entra después, como medio para hacerlo efectivo, y viene acompañada de capacitación.",
+ dist:"Las dos primeras opciones son textuales del PDF y son las únicas que la cátedra ofreció. Las opciones c y d fueron agregadas para completar el formato de elección múltiple, y siguen el mismo patrón que la opción a: acciones concretas y razonables que se quedan en la superficie tecnológica o comercial sin tocar la cultura ni los procesos.",
+ ref:"M02 L4"}
+];
+
+/* ---------- En palabras ---------- */
+const D_TEC=`<b>Tecnología</b>, para esta materia, no es un aparato. Es conocimiento que alguien ordenó y condensó para poder resolver un problema concreto. La escritura es tecnología. Una receta de cocina anotada es tecnología. Un método para enseñar también. Lo que define a la tecnología es que hay conocimiento organizado detrás y un problema real adelante, no que haya cables en el medio. La palabra viene de dos raíces griegas: <i>tekne</i>, que es la técnica o el oficio, y <i>logos</i>, que es la ciencia o el conocimiento.`;
+
+const D_ONG=`Walter Ong, un investigador que estudió cómo cambia la manera de pensar según cómo se guarda lo que se sabe, dice que hubo cuatro grandes momentos. Primero solo se hablaba, y todo lo que se sabía había que recordarlo: eso es la <b>oralidad</b>. Después se pudo escribir, y el conocimiento dejó de depender de la memoria: la <b>escritura</b>. Después se pudo copiar rápido y barato con la <b>imprenta</b>, y el conocimiento se multiplicó. Y ahora hay dispositivos que producen y transmiten conocimiento todo el tiempo: las <b>TIC</b>. Cada fase no borra la anterior, se apoya en ella.`;
+
+const D_PACEY=`Cuando una empresa o una sociedad adopta una tecnología, pasan tres cosas a la vez, no una. Arnold Pacey las llama dimensiones. La <b>técnica</b> es lo obvio: las máquinas, los materiales, los conocimientos necesarios. La <b>organizativa</b> es quién manda, quién usa la tecnología, cómo se reparte el trabajo, qué dicen los sindicatos. Y la <b>ideológica-cultural</b> es qué creemos que está bien, qué valores tenemos, si creemos o no en el progreso. Un sistema nuevo puede ser técnicamente impecable y fracasar porque las otras dos dimensiones no se tocaron.`;
+
+const D_PATRON=`Cada vez que aparece una tecnología nueva hay gente que se resiste, y con razones: en el corto plazo suele afectar trabajos y costumbres. La cátedra dice que, pasada esa transición, se repite una cadena de tres pasos. Con la tecnología nueva se produce más en menos tiempo, eso es <b>productividad</b>. Con más productividad se producen más bienes y servicios. Y con más bienes y servicios la economía en conjunto crece. Lo importante es el orden: la productividad es el primer eslabón, no el último.`;
+
+const D_KUHN=`Thomas Kuhn se preguntó cómo cambia la ciencia de verdad, y encontró que no avanza sumando descubrimientos de a poco. Un <b>paradigma</b> es la manera de ver el mundo que una época da por buena. Se cae cuando aparecen hechos que esa manera de ver no puede explicar, que Kuhn llama <b>anomalías</b>. Las anomalías acumuladas generan una <b>crisis</b>, de la crisis salen <b>teorías nuevas</b>, y el pasaje de las viejas a las nuevas es la <b>revolución científica</b>. Ninguna autoridad decide el cambio: lo empujan los hechos que no encajan.`;
+
+const D_REV=`Las revoluciones industriales son tres saltos grandes, y la manera más fácil de ordenarlos es por la energía que usaban. Antes de todo, la fuerza de personas y animales, más el agua y el viento de los molinos. La <b>Primera</b>, desde 1760, trae la máquina de vapor, y se apoya en la habilidad práctica de los inventores más que en la ciencia. La <b>Segunda</b>, entre 1870 y 1914, trae la electricidad, la fábrica organizada y la producción en serie. La <b>Tercera</b>, desde los años 50, trae la computadora e internet, y acá la ciencia ya manda sobre la técnica.`;
+
+const D_ENERGIA=`<b>Energía</b>, en esta materia, es cualquier fuerza capaz de mover o transformar algo. Lo que la vuelve tan importante para la historia humana son dos cosas: se puede <b>medir</b>, así que se sabe cuánta hay, y se puede <b>guardar</b>, así que se puede usar más tarde. Poder guardarla es lo que permite planificar. Un molino solo sirve cuando hay viento, una batería o un tanque de carbón sirven cuando uno decide.`;
+
+const D_SIEMENS=`Siemens es la empresa que la cátedra usa como hilo conductor, porque atravesó las tres revoluciones sin morir. La fundaron en <b>Berlín en 1847</b>, la fundó <b>Werner von Siemens</b> y arrancó con <b>10 personas</b>. Su primer negocio fue el telégrafo, que no inventó: lo mejoró y lo vendió en todo el mundo. En <b>1866</b> desarrolló un generador eléctrico que hizo la electricidad mucho más accesible para la industria. Hoy se apoya en tres pilares: electrificación, automatización y digitalización.`;
+
+const D_R4=`La <b>Cuarta Revolución Industrial</b> es el nombre que le puso <b>Klaus Schwab</b>, el que dirige el Foro Económico Mundial de Davos, en un libro de 2016. Su idea es que estamos al principio de algo que cambia de raíz cómo vivimos, trabajamos y nos relacionamos, y que por su escala, alcance y complejidad no se parece a nada anterior. Nace de la digitalización que internet hizo posible. Cuando esa presión llega a las empresas y las obliga a cambiar procesos y cultura, se la llama <b>Industria 4.0</b>.`;
+
+const D_IMP=`Schwab agrupa las tecnologías de esta revolución en tres dominios. Los <b>físicos</b> son las cosas que se tocan, como vehículos autónomos o impresión 3D. Los <b>digitales</b> son los que viven en datos y software. Y los <b>biológicos</b> son los que tocan la vida misma, como la genética. La figura del PDF lo escribe como una cuenta: tecnologías más dominios da inteligencia artificial. Lo que hay que recordar de memoria son los tres dominios, porque el detalle de cada uno se perdió en el PDF.`;
+
+const D_R5=`La <b>Quinta Revolución</b>, o industria 5.0, es lo que la cátedra ve venir. La diferencia con la Cuarta no es que traiga aparatos más potentes. Es que el centro se corre de los aparatos a los <b>modelos operacionales</b>, es decir a las maneras nuevas de organizar y hacer las cosas. Las cinco tendencias que nombra son computación cuántica junto con IA, sistemas de agentes de IA, robótica, humanos sintéticos y experiencias invisibles.`;
+
+const D_IA=`<b>Inteligencia artificial</b>, según esta materia, es ciencia y tecnología que busca resolver problemas imitando capacidades que creíamos exclusivas de la mente humana. La definición que hay que saber es la de <b>Andrew Moore</b>, de la Universidad Carnegie Mellon, de 2017: la ciencia y la ingeniería para hacer que las computadoras se comporten de una manera que hasta hace poco pensábamos que requería inteligencia humana. Y funciona porque hay muchísimos datos y máquinas capaces de procesarlos rápido. Por eso la cátedra la llama la <b>nueva electricidad</b>: así como la electricidad ahorró esfuerzo físico, esto ahorra esfuerzo de interpretar y decidir.`;
+
+const D_BIGDATA=`<b>Big data</b> es la enorme cantidad de datos que hoy se generan, más las herramientas y los procedimientos para manejarlos y sacarles algo útil. Lo que la cátedra subraya es de dónde salen esos datos: de la <b>desmaterialización</b>, o paso de átomos a bits. Todo lo que pasa en el mundo físico puede convertirse en dato, incluso cosas que no parecen medibles, como los estados emocionales. Esa es la lista que da el PDF: formas, luces, colores, olores, sonidos, imágenes, temperaturas y estados emocionales.`;
+
+const D_ML=`<b>Machine learning</b>, o aprendizaje automático, es cuando el programa mejora solo a fuerza de ver datos, en vez de que alguien le escriba todas las reglas de antemano. Antes había que imaginar todos los casos posibles y programarlos. Ahora el sistema ajusta su propio funcionamiento con cada vuelta. El costado incómodo, que la cátedra menciona, es que después de muchas vueltas el modelo ya no se parece al que sus creadores diseñaron, y a ellos mismos les cuesta explicar por qué decide lo que decide.`;
+
+const D_ETICA=`Frente a la IA hay dos posturas en el material. <b>Stephen Hawking</b>, en 2014, advirtió que una IA completa podría significar el fin de la raza humana. <b>Maurice Conti</b>, en 2023, dice lo contrario: nos va a aumentar de tres maneras, las computadoras nos ayudan a pensar, los robots a hacer, y un sistema nervioso digital nos conecta con el mundo. La cátedra se queda con la segunda. Para que salga bien hacen falta reglas: la <b>Unesco</b> armó un marco normativo en 2021, y <b>Cynthia Breazeal</b>, del MIT, propone cinco principios.`;
+
+const D_AIRBNB=`<b>Airbnb</b> es la empresa de alojamientos más grande del mundo y no tiene un solo hotel. Su capital son los datos, que ella misma define como la voz de sus usuarios en escala. Tiene cien personas dedicadas a ciencia de datos, pero su idea es que los datos no sean asunto de esas cien: creó la <b>Data University</b> para que los veintidós mil empleados de sus 22 oficinas sepan decidir con datos. Su modelo tiene tres patas: que los datos estén al alcance de todos, que haya herramientas para usarlos, y que la gente sepa cómo.`;
+
+const D_TD1=`La <b>transformación digital</b> no es comprar tecnología. Es cambiar la forma de pensar y de trabajar de una empresa, y usar tecnología para que ese cambio ocurra de verdad. La cátedra lo plantea con un caso: una juguetería artesanal que pierde ventas puede comprar máquinas y hacer una página web, o puede cambiar la cabeza, los procesos y los equipos, e incorporar tecnología y capacitación para sostener ese cambio. La segunda es la transformación digital. La primera es una compra.`;
+
+const D_MERCADO=`La <b>economía</b> es la ciencia social que estudia cómo repartir recursos que nunca alcanzan para todo lo que se quiere. Por eso también se la llama la ciencia de la escasez. El <b>mercado</b> es el lugar, físico o virtual, donde se encuentran los que ofrecen y los que necesitan, y donde los dos tratan de llegar a un acuerdo que les sirva. No hace falta que sea una feria: una plataforma de compraventa es un mercado igual.`;
+
+const D_CAP=`El <b>capitalismo</b> es el sistema donde las personas y las empresas tienen bastante libertad para crear, invertir, producir y vender, y donde los medios para producir, como edificios, tierras, máquinas y patentes, son de propiedad privada. Nació en la <b>Europa del siglo XIII</b>, cuando empezó a caerse el feudalismo, ese mundo de señores dueños de la tierra y vasallos sin ninguna posibilidad de progresar. Ojo con un detalle: el capitalismo no significa cero reglas. Significa que el gobierno no decide de forma centralizada qué se produce y a qué precio.`;
+
+const D_VALOR=`Hay <b>creación de valor</b> cuando alguien trabaja, usando dinero y tecnología, y produce algo que otra persona quiere y necesita. Las tres palabras clave son trabajo, capital y tecnología, y la condición final es que alguien lo acepte. La distinción más importante es esta: la creación de valor es un <b>flujo</b>, algo que está pasando, como una canilla abierta. La <b>riqueza</b> es un <b>stock</b>, lo que quedó acumulado en el balde. Son cosas distintas: se puede tener la canilla abierta y el balde vacío, por derroche, o el balde lleno y la canilla cerrada, por herencia.`;
+
+const D_EXTRAC=`<b>Extracción de valor</b> es cuando alguien se queda con parte del valor económico en forma de ganancias o rentas. Suena feo pero no lo es: de ahí sale la plata para volver a invertir, y sin eso el ciclo se corta. El problema aparece cuando en una economía hay más gente sacando valor que gente creándolo, o cuando las dos cosas se emparejan. El ejemplo que da la cátedra es el dinero puesto en instrumentos financieros para multiplicarse solo, en vez de estar invertido en producir algo.`;
+
+const D_DALIO=`<b>Ray Dalio</b> manejó uno de los fondos de inversión más grandes del mundo, Bridgewater Associates, y escribió un libro llamado <i>Principios</i>. Su crítica al capitalismo se resume en una frase: es muy bueno para <b>agrandar el pastel</b>, o sea para crear riqueza, pero malo para <b>repartirlo</b>. Y aclara de dónde no viene el problema: no es que los ricos exploten a propósito ni que los pobres sean vagos. El problema es el dinero que se multiplica solo. <b>Muhammad Yunus</b> lo dice parecido: la plata va a quien más tiene y no a quien más necesita.`;
+
+const D_DC=`<b>Destrucción creativa</b> es la idea de que en una economía de mercado las empresas que no se adaptan cierran, y que eso no es una desgracia sino el motor del sistema: cuando cierran, liberan gente, locales, máquinas y clientes que las empresas nuevas aprovechan para hacer algo mejor. El concepto lo inventó un sociólogo llamado <b>Werner Sombart</b>, pero quien lo hizo famoso fue <b>Schumpeter</b>, en un libro de 1942, y él la llamó la esencia misma del capitalismo.`;
+
+const D_DILEMA=`El <b>dilema del innovador</b> es el problema de la empresa grande que ya le va bien. Aparece un competidor chico con algo nuevo, y la empresa grande tiene que elegir: defender lo que ya tiene y le da plata, o arriesgarse a construir lo nuevo. Casi siempre elige defender, porque hay inversiones que amortizar, miedo a lo no probado, y la costumbre de mirar por encima del hombro a los competidores chicos. Lo describió <b>Clayton Christensen</b> en 1997, y su aporte es decir que esto pasa siempre, no solo en las crisis.`;
+
+const D_EMP=`Un <b>emprendedor</b> es alguien que se da cuenta de que hay gente con un problema, imagina una solución que se puede vender, y arma un equipo para llevarla a cabo. La palabra viene del francés <i>entrepreneur</i>. Lo que la cátedra insiste en aclarar es que no hace falta ser un genio: son personas comunes con buen olfato para detectar necesidades, y las habilidades que hacen falta se aprenden. Hay <b>evento emprendedor</b> cuando encaja el problema de alguien con la solución que se crea, y no antes.`;
+
+const D_LEAN=`<b>Lean startup</b> es el método que Eric Ries publicó en 2011 para que armar un negocio nuevo no dependa del olfato sino de la evidencia. Antes, en 2009, el Business Model Canvas había servido para diseñar el negocio en un papel. El método de Ries sirve para probarlo. Su herramienta central es el <b>producto mínimo viable (MPV)</b>: la versión más chica posible que igual permite dar una vuelta entera al circuito de <b>crear, medir y aprender</b>. Si esa vuelta muestra que el producto no sirve, se hace un <b>pivote</b>, que es cambiar de rumbo con evidencia en la mano.`;
+
+const D_STARTUP=`Una <b>startup</b>, según Eric Ries, es una organización armada para crear productos nuevos en una situación de <b>incertidumbre extrema</b>, o sea cuando nadie sabe si eso va a funcionar. Lo interesante es que es un estado transitorio: cuando el producto se valida en el mercado, la startup deja de serlo y pasa a ser una empresa. No tiene nada que ver con el tamaño, con la edad ni con si usa tecnología.`;
+
+const D_LT=`<b>Long tail</b>, o larga cola, es la idea de <b>Chris Anderson</b>, de 2006. Antes, para ganar plata había que vender mucho de pocos productos, porque tener muchos productos distintos costaba caro: había que fabricarlos, guardarlos y moverlos. Con internet eso cambió: se puede tener miles de variedades y vender poquito de cada una, a gente repartida por todo el mundo, y que igual cierre el número. Por eso aparece el espacio de lo <b>pequeño y global</b>. Un <b>nicho</b>, según Kotler, es un grupo más chico que un segmento, con una necesidad específica, ganas de resolverla y plata para pagarla.`;
+
+const D_PLAT=`Un <b>negocio de plataformas</b> es el que se pone en el medio entre los que ofrecen y los que buscan, y hace que encontrarse cueste lo menos posible. A eso la cátedra le llama bajar la <b>fricción</b>. Una vez que hay mucha gente usándola, aparece el <b>efecto red</b>: como la plataforma conoce bien y barato a sus usuarios, ofrece cosas que atraen más usuarios, y más usuarios atraen más oferta, y así en círculo. El riesgo es que ese círculo termina dejando un solo ganador por mercado.`;
+
+const D_GAFA=`<b>GAFA</b> son cuatro empresas: Google, Amazon, Facebook y Apple. La cátedra las separa de otras grandes como Microsoft o Alibaba por una razón: su tamaño no tiene techo y cada vez compran más empresas chicas, así que acumulan un poder que queda en muy pocas manos. Y hay una ironía que el material subraya: la larga cola prometía que internet iba a repartir el juego entre muchos, y estas cuatro empresas terminan haciendo lo contrario.`;
+
+const D_DATOS=`En la economía digital los datos son <b>capital</b>, al mismo nivel que un edificio o una máquina. Pero no sirven crudos. La cátedra da cuatro pasos antes de poder usarlos: <b>definir</b> qué se va a medir, <b>recolectar</b>, <b>almacenar</b> y <b>relacionar</b> unos datos con otros. Recién ahí entran los algoritmos y los modelos que predicen. Cuando una organización trabaja así, cambia por dentro: se decide con evidencia en lugar de con intuición, y la planificación larga se reemplaza por análisis continuo.`;
+
+const D_BIO=`La <b>empresa biónica</b> es un modelo del <b>Boston Consulting Group</b>. Biónico, acá, significa una persona potenciada por la tecnología, no una máquina que reemplaza personas. Ese orden es todo el punto del modelo: la humanidad primero, la tecnología como amplificador. El modelo arranca preguntando <b>¿para qué estamos juntos?</b>, y de esa pregunta sale el <b>propósito</b>, que la cátedra pone al mismo nivel que la estrategia. Después dice que hacen falta cuatro habilitadores, dos tecnológicos y dos humanos, y ahí el PDF se queda sin contenido.`;
+
+const D_NE=`Las <b>nuevas economías</b> son el nombre que la cátedra le da a las maneras de hacer negocios que están apareciendo y que, dice, tienden a proponer fórmulas mejores que el capitalismo de siempre, ese que solo mira el beneficio de los accionistas. Para moverse en ese terreno hacen falta tres cosas: saber obtener y manejar datos, entender el modelo de plataformas, y haber transformado digitalmente la organización. Esas tres frases resumen las dos últimas lecciones del módulo.`;
+
+const DEF={};
+const asignar=(txt,ns)=>ns.forEach(n=>DEF[n]=txt);
+asignar(D_TEC,[1,3,101,102,201]);
+asignar(D_ONG,[2]);
+asignar(D_PACEY,[4,6]);
+asignar(D_PATRON,[5]);
+asignar(D_KUHN,[7,103]);
+asignar(D_REV,[8,9,10,11,12,202]);
+asignar(D_ENERGIA,[104]);
+asignar(D_SIEMENS,[105,107]);
+asignar(D_R4,[13,106,110]);
+asignar(D_IMP,[14,108]);
+asignar(D_R5,[15,109]);
+asignar(D_IA,[16,17,111]);
+asignar(D_BIGDATA,[]);
+asignar(D_ML,[113]);
+asignar(D_ETICA,[18,112,203]);
+asignar(D_AIRBNB,[19]);
+asignar(D_TD1,[20,39,126,127,2003,2004]);
+asignar(D_MERCADO,[]);
+asignar(D_CAP,[21,22,114]);
+asignar(D_VALOR,[23,24,25,204]);
+asignar(D_EXTRAC,[26]);
+asignar(D_DALIO,[27]);
+asignar(D_DC,[28]);
+asignar(D_DILEMA,[29,30,31]);
+asignar(D_EMP,[32,2002]);
+asignar(D_LEAN,[33,35,115,116]);
+asignar(D_STARTUP,[34]);
+asignar(D_LT,[36,37,117,120]);
+asignar(D_PLAT,[38,118,119]);
+asignar(D_GAFA,[205]);
+asignar(D_DATOS,[121]);
+asignar(D_BIO,[40,122,123,124]);
+asignar(D_NE,[125,128,206]);
+asignar(D_REV,[2001]);
+
+/* ---------- Teoría completa ---------- */
+const T_ONG=`<p>Las cuatro fases de Ong, con el aporte que la figura 3 asigna a cada una:</p>
+<table><thead><tr><th>#</th><th>Fase</th><th>Qué aporta</th></tr></thead><tbody>
+<tr><td>1</td><td>Oralidad</td><td>Lenguaje: posibilita construir y entregar información y conocimientos</td></tr>
+<tr><td>2</td><td>Escritura</td><td>Almacenamiento de la información: posibilita plasmar en formato tangible la información de la oralidad</td></tr>
+<tr><td>3</td><td>Imprenta</td><td>Depósito mecánico para generar impresiones: posibilita la difusión y circulación del conocimiento de manera exponencial</td></tr>
+<tr><td>4</td><td>TIC</td><td>Dispositivos disponibles para producir y transmitir conocimiento</td></tr>
+</tbody></table>
+<p>La cuarta fase la cátedra la rotula <b>TICS</b> en la figura, no digitalización ni internet. Ong publicó <i>Oralidad y alfabetización</i> en <b>1982</b>.</p>`;
+
+const T_TEC=`<p>Las dos definiciones de tecnología que conviven en la lección 1, y que se preguntan por separado:</p>
+<p><b>La de la figura 1.</b> Conjunto de conocimiento condensado para lograr una aplicación concreta para resolver un problema real.</p>
+<p><b>La sistémica.</b> La tecnología es un sistema interrelacionado de conocimientos, artefactos, habilidades, recursos naturales, estimaciones económicas, valores éticos, pautas culturales y acuerdos sociales. Son ocho componentes.</p>
+<p>Sobre el origen del conocimiento que produce tecnologías, el desplazamiento histórico es de la <b>técnica</b>, que son habilidades de aplicación como las que produjeron la imprenta mecánica, hacia la <b>ciencia</b> y su método de comprobación empírica. Ese arco se completa en la lección 2, donde la Tercera Revolución recibe el nombre de revolución científico-tecnológica.</p>
+<p>El cierre de la lección introduce el <b>sistema sociotécnico</b>: las tecnologías se desarrollan en interacción constante con las prácticas y valoraciones culturales de cada momento histórico, y la responsabilidad de lo que se haga con ellas es de las personas y las sociedades.</p>`;
+
+const T_PACEY=`<p>Las tres dimensiones de la tecnología como práctica social, según Pacey, 1990, con el contenido de la figura 5:</p>
+<table><thead><tr><th>Dimensión</th><th>Qué abarca</th></tr></thead><tbody>
+<tr><td>Técnica</td><td>Conocimientos, capacidades, destrezas técnicas, instrumentos, herramientas y maquinarias, recursos humanos y materiales, materias primas, productos obtenidos, desechos y residuos</td></tr>
+<tr><td>Organizativa</td><td>Política administrativa y gestión, aspectos de mercado, economía e industria, agentes sociales como empresarios y sindicatos, cuestiones de la actividad profesional productiva, distribución de productos, usuarios y consumidores</td></tr>
+<tr><td>Ideológica-cultural</td><td>Finalidades y objetivos, sistemas de valores y códigos éticos, creencia en el progreso</td></tr>
+</tbody></table>
+<p><b>Errata del PDF.</b> La figura rotula la tercera dimensión como ideológica-cultural y el párrafo inmediatamente posterior, en la misma página, la llama <b>social</b>. Es una contradicción interna del material. Para el examen la respuesta más segura es la de la figura, porque es la que cita explícitamente a Pacey, y conviene tener presente que social puede aparecer como opción válida.</p>
+<p>El argumento que la cátedra construye con esto: solo abordando las tres dimensiones de manera amplia, en un contexto específico de espacio y tiempo, los procesos de creación y adopción tecnológica ofrecen resultados homogéneos y sostenibles.</p>`;
+
+const T_REV=`<p>Las tres primeras revoluciones industriales, ordenadas por la variable que la cátedra usa como eje, que es la energía:</p>
+<table><thead><tr><th></th><th>Primera</th><th>Segunda</th><th>Tercera</th></tr></thead><tbody>
+<tr><td>Período</td><td>Desde 1760, hasta al menos 1830</td><td>1870 a 1914</td><td>Desde los años 50</td></tr>
+<tr><td>Energía</td><td>Vapor</td><td>Electricidad y petróleo</td><td>Información</td></tr>
+<tr><td>Tecnologías</td><td>Máquina de hilar, telar mecánico, máquina de vapor</td><td>Máquinas de coser y de escribir, bicicletas, radios, automóviles</td><td>Computador, internet</td></tr>
+<tr><td>Base</td><td>Más la técnica que la ciencia</td><td>Mecanización y organización del trabajo</td><td>La ciencia sobre la técnica</td></tr>
+</tbody></table>
+<p><b>Las cinco características de la Segunda:</b></p>
+<table><thead><tr><th>Característica</th><th>Contenido</th></tr></thead><tbody>
+<tr><td>Energía eléctrica</td><td>Triunfo de la energía eléctrica masiva, a través de los avances en electricidad y petróleo</td></tr>
+<tr><td>Nuevos materiales</td><td>Acero, zinc, aluminio, níquel, cobre y hierro</td></tr>
+<tr><td>Producción en serie</td><td>Diagramas de tiempos y movimientos para maximizar la eficiencia. Taylorismo y fordismo</td></tr>
+<tr><td>Globalización económica</td><td>Mayor escala y diversidad del comercio internacional, por los avances en transporte, producción y comunicación</td></tr>
+<tr><td>Surgimiento del proletariado</td><td>Exceso de horas y condiciones insalubres derivan en sindicalización y reglamentación laboral</td></tr>
+</tbody></table>
+<p>Dos detalles preguntables: el <b>petróleo está dentro de la ficha de energía eléctrica</b>, no en una ficha propia, y el acceso a los artefactos de esta época <b>seguía siendo limitado para las mayorías</b>.</p>
+<p><b>La Tercera</b> recibe el nombre de revolución científico-tecnológica porque la fusión entre exploración científica y diseño de artefactos nunca había sido tan estrecha. Su epicentro es la convergencia de <b>microelectrónica, informática y telecomunicaciones</b>, que forma un <b>sistema teleinformático</b>. El computador es el principal invento, por ser el primer portador tecnológico de información interactiva, e <b>internet</b> es el eslabón que lleva la sociedad del conocimiento a su máxima expresión.</p>`;
+
+const T_R4=`<p>Los íconos que la cátedra asigna a cada revolución previa, y de los que la Cuarta es heredera:</p>
+<table><thead><tr><th>Revolución</th><th>Ícono</th></tr></thead><tbody>
+<tr><td>Primera</td><td>La máquina de vapor</td></tr>
+<tr><td>Segunda</td><td>La energía eléctrica a gran escala</td></tr>
+<tr><td>Tercera</td><td>El ordenador en red, es decir internet</td></tr>
+</tbody></table>
+<p><b>Klaus Schwab</b>, fundador y director del <b>Foro Económico Mundial de Davos</b>, conceptualizó la Cuarta Revolución Industrial en su libro de <b>2016</b>. La cita, que puede pedirse literal:</p>
+<blockquote>Nos encontramos al principio de una revolución que está cambiando de manera fundamental la manera de vivir, trabajar y relacionarnos unos con otros. En su <b>escala</b>, <b>alcance</b> y <b>complejidad</b>, lo que considero la Cuarta Revolución Industrial no se parece a nada que la humanidad haya experimentado antes. (Schwab, 2016, p. 13)</blockquote>
+<p><b>Industria 4.0</b> es el concepto asociado, que presiona a empresas y organizaciones a avanzar en la transformación digital de sus procesos y culturas.</p>
+<p>Los <b>tres grupos de impulsores</b> se presentan como una ecuación: tecnologías más dominios igual inteligencia artificial. Los dominios son <b>físicos, digitales y biológicos</b>. El detalle de qué tecnologías agrupa cada dominio quedó en bloques vacíos del PDF, así que el material no permite ir más lejos.</p>
+<p>A esa reseña la cátedra <b>agrega por su cuenta</b> tres tecnologías: nuevas energías, el metaverso y la inteligencia artificial. No son parte de la clasificación de Schwab.</p>`;
+
+const T_R5=`<p>La <b>Quinta Revolución Industrial o industria 5.0</b> se distingue porque no se centra únicamente en artefactos o dispositivos tecnológicos, sino también en <b>modelos operacionales</b>. Sus cinco tendencias, en el orden en que la cátedra las numera:</p>
+<table><thead><tr><th>#</th><th>Tendencia</th><th>Lo que dice el material</th></tr></thead><tbody>
+<tr><td>1</td><td>Computación cuántica y la IA</td><td>No es solo un nuevo nivel de velocidad, es una nueva forma de pensar. El ejemplo nombrado es TensorFlow Quantum de Google, que añade capas cuánticas al aprendizaje automático</td></tr>
+<tr><td>2</td><td>Sistemas de agentes de IA</td><td>Mientras los grandes modelos lingüísticos funcionan como un experto solitario, los agentes emulan un entorno colaborativo. La analogía es un redactor, un investigador, un editor y un verificador de datos produciendo juntos</td></tr>
+<tr><td>3</td><td>Robótica</td><td>Democratización de los robots, que pasan de tareas repetitivas a decisiones autónomas. Crecerá en sectores regulados como la salud y en sectores costosos como manufactura y construcción</td></tr>
+<tr><td>4</td><td>Humanos sintéticos</td><td>Amigos digitales que representan a las empresas, crean conexiones emocionales y le dan a la IA un rostro humano</td></tr>
+<tr><td>5</td><td>Experiencias invisibles</td><td>Una IA que se anticipa a las necesidades antes de que se noten y entiende emociones, contexto y deseos tácitos</td></tr>
+</tbody></table>
+<p>El retorno de Kuhn: la humanidad enfrenta <b>anomalías sociales</b> que no puede resolver con el conocimiento y las tecnologías existentes, y eso impulsa las inversiones que incuban soluciones.</p>`;
+
+const T_IA=`<p>La definición de <b>Andrew Moore</b>, decano de Ciencias de la Naturaleza y Computación de la <b>Universidad Carnegie Mellon</b>, en <b>2017</b>:</p>
+<blockquote>La inteligencia artificial es la ciencia y la ingeniería para hacer que las computadoras se comporten de una manera que, hasta hace poco, pensábamos que requería inteligencia humana.</blockquote>
+<p><b>Los tres rasgos de la figura 4:</b></p>
+<ul>
+<li>Propone mejorar la <b>asertividad de las decisiones humanas</b></li>
+<li>Utiliza y genera datos que permiten <b>predecir la realidad</b></li>
+<li>Está basada en <b>sistemas metodológicos e interdisciplinarios</b></li>
+</ul>
+<p><b>La esencia de la IA</b>, en tres pasos: generar y almacenar grandes cantidades de datos, interpretarlos con base en patrones o algoritmos, y generar predicciones más o menos acertadas. Los ejemplos son Amazon, Mercado Libre y Netflix.</p>
+<p>Lo disruptivo, según la cátedra, no es digitalizar los datos que una empresa ya tiene. Es <b>ampliar el espectro de generación de datos</b> a situaciones donde hasta ahora se perdían: imágenes, voces, rostros, entendidos por patrones a pesar de su naturaleza no estandarizada.</p>
+<p><b>Choque de vocabulario.</b> La palabra <b>asertividad</b> en el trabajo pertenece al vocabulario de habilidades blandas. Acá significa acierto o precisión de una decisión, y aparece dos veces con ese sentido.</p>`;
+
+const T_BREAZEAL=`<p>Los cinco principios de <b>Cynthia Breazeal</b>, del laboratorio de medios del <b>MIT</b>, para guiar la IA bajo un enfoque humanista:</p>
+<table><thead><tr><th>#</th><th>Principio</th><th>Contenido</th></tr></thead><tbody>
+<tr><td>1</td><td>Debe estar para ayudar a la humanidad</td><td>Respetar siempre la autonomía humana. Los robots pueden tomar los trabajos más feos, sucios y peligrosos, pero habilitando nuevas tareas humanas</td></tr>
+<tr><td>2</td><td>Debe ser transparente</td><td>Las reglas que la hacen funcionar deben ser conocidas por todos los usuarios. Máquinas inteligentes, pero también inteligibles</td></tr>
+<tr><td>3</td><td>Debe maximizar su eficacia sin destruir la dignidad de la gente</td><td>La diversidad humana no debe verse afectada. Debe protegernos contra sesgos y prejuicios humanos, nunca reproducirlos</td></tr>
+<tr><td>4</td><td>Debe estar diseñada para una privacidad inteligente</td><td>Solo con respeto y resguardo de la información personal se edifica la confianza para operar a gran escala</td></tr>
+<tr><td>5</td><td>Debe contar con un medio algorítmico de rendición de cuentas</td><td>Los seres humanos debemos conservar el poder de suspender o apagar los sistemas si causan más daños que beneficios</td></tr>
+</tbody></table>
+<p>El quinto es el que más se olvida al recitar la lista. La frase <b>máquinas inteligentes, pero también inteligibles</b> es candidata a cita literal.</p>
+<p><b>El resto del marco ético de la lección:</b> Stephen Hawking advirtió en <b>2014</b>, a la BBC, que la inteligencia artificial completa podría significar el fin de la raza humana. Maurice Conti, en <b>2023</b>, describe tres aumentos: los sistemas computacionales nos ayudarán a <b>pensar</b>, los robóticos a <b>hacer</b>, y un <b>sistema nervioso digital</b> nos conectará con el mundo. La <b>Unesco</b>, en <b>2021</b>, elaboró un marco normativo para tecnologías controvertidas como el reconocimiento facial y los sistemas de recomendación. La cátedra adhiere de forma explícita a la hipótesis del fortalecimiento de la condición humana.</p>`;
+
+const T_AIRBNB=`<p>Los datos del caso <b>Airbnb</b>, que es el más desarrollado del módulo 1:</p>
+<table><thead><tr><th>Dato</th><th>Valor</th></tr></thead><tbody>
+<tr><td>Qué es</td><td>La compañía de alojamientos más grande del mundo, que no posee propiedades propias</td></tr>
+<tr><td>Cómo define los datos</td><td>La voz de sus usuarios en escala</td></tr>
+<tr><td>Equipo especializado</td><td>100 expertos en ciencia de datos</td></tr>
+<tr><td>Oficinas</td><td>22 alrededor del mundo</td></tr>
+<tr><td>Premisa organizacional</td><td>Que <b>todos</b> los empleados estén preparados para decidir con datos</td></tr>
+<tr><td>Iniciativa</td><td>Data University</td></tr>
+</tbody></table>
+<p><b>El modelo de tres ejes:</b> accesibilidad a los datos para todos, herramientas adecuadas para gestionarlos, y conocimiento amplio sobre cómo utilizarlos.</p>
+<p>La conclusión que la cátedra extrae: los datos se convirtieron en el <b>verdadero capital</b> para gestionar un negocio, siempre que puedan procesarse, comprenderse y utilizarse de manera adecuada.</p>
+<p><b>Los casos menores de la lección:</b> Volvo usa cámaras y sensores para reconocer fatiga, ebriedad o sufrimiento del conductor. McDonald's empezó con un sistema para recibir pedidos y hoy tiene un local completamente automatizado. Universidad Siglo 21 usa <b>Klarway</b>, sistema de proctoring con IA, y le atribuye cuatro características: agilidad, flexibilidad, seguridad y comodidad.</p>`;
+
+const T_TD=`<p><b>El caso de la juguetería</b>, planteado como elección entre dos cursos de acción:</p>
+<table><thead><tr><th>Opción</th><th>Contenido</th><th>Veredicto</th></tr></thead><tbody>
+<tr><td>A</td><td>Salto en adquisición de tecnologías, software y hardware, para los procesos de producción, más un sitio web atractivo y fácil de navegar</td><td>Insuficiente. Es adquisición de tecnología, no transformación</td></tr>
+<tr><td>B</td><td>Cambiar la concepción y la cultura empresarial. Cambio radical en el mindset, en los procesos y en los equipos. Una nueva manera de funcionar hacia adentro y hacia afuera, y para hacerlo efectivo incorporar tecnología de última generación en procesos y gestión, con un plan de capacitación para los colaboradores</td><td>La correcta</td></tr>
+</tbody></table>
+<p>La diferencia no es que la opción B no tenga tecnología. La tiene. La diferencia es el <b>orden</b>: primero el cambio de mentalidad, procesos y equipos, y la tecnología como medio, con capacitación.</p>
+<p>Los tres contraejemplos del material son <b>Kodak, Blockbuster y Blackberry</b>, superadas por competidores más ágiles y asertivos con el mercado.</p>
+<p>La cláusula de apertura de la lección, que funciona como enunciado de verdadero o falso: estamos ante un cambio empresarial de grandes proporciones y <b>no hay empresas inmunes a ello</b>.</p>
+<p><b>Nativas digitales frente a establecidas.</b> En las nativas, que el material ejemplifica con Uber, Airbnb, Apple, Facebook, Tesla, Amazon, Mercado Libre y Zipcar, lo digital deja de ser un insumo de la cadena de valor y se convierte en componente central del modelo de negocios. Sus cuatro rasgos son <b>agilidad, integración de sistemas, alianzas estratégicas y omnicanalidad</b>.</p>`;
+
+const T_CAP=`<p><b>Economía</b>, en las dos formulaciones que conviven en la lección: la ciencia social que estudia la forma de administrar los recursos escasos y disponibles para satisfacer necesidades humanas, y la herramienta que brinda los medios para tomar las mejores decisiones al administrar. También se la llama <b>la ciencia de la escasez</b>.</p>
+<p><b>Mercado:</b> espacio físico o virtual en los que oferta y demanda se encuentran, se cruzan e intentan lograr equilibrios para sostener la actividad económica. Se analiza por cuatro ejes: <b>tamaño, destinatarios, necesidad y dinamismo</b>. Los mercados son considerados, más allá de posiciones ideológicas, el mecanismo más eficiente y transparente para la asignación de recursos.</p>
+<p><b>Capitalismo.</b> Orígenes en la <b>Europa del siglo XIII</b>, con la caída del feudalismo, ese sistema de señores propietarios de la tierra y vasallos sin horizonte de progreso ni ascenso social. Su definición tiene cuatro componentes:</p>
+<ul>
+<li>Amplios márgenes de <b>libertad</b> para crear, invertir, producir y comercializar</li>
+<li>Es la <b>libertad económica en acción</b></li>
+<li>Funciona <b>sin intervención centralizada</b> del gobierno, aunque con distintos niveles de regulación</li>
+<li>Existe <b>propiedad privada de los factores de la producción</b>: edificios, tierras, máquinas, patentes</li>
+</ul>
+<p>Se expandió por dos capacidades demostradas: llevar la producción a la escala necesaria e incrementar la <b>productividad</b>. Y porque es el sistema más afín a la naturaleza creativa de las personas.</p>
+<p><b>Teoría del derrame:</b> la creación de valor genera externalidades positivas, además de pagar salarios, cumplir con impuestos y dar rentabilidad a los dueños. Las cuatro externalidades son <b>empleos indirectos, nuevos conocimientos e innovaciones, ascenso social y elevación de la calidad de vida</b>.</p>`;
+
+const T_VALOR=`<p>La definición de <b>creación de valor</b>, con las tres palabras que el original pone en mayúsculas:</p>
+<blockquote>Siempre que una manifestación de <b>TRABAJO</b> humano, soportado por un <b>CAPITAL</b> y <b>TECNOLOGÍA</b>, es aceptado y demandado por alguien que lo ve útil y necesario, existe creación de valor.</blockquote>
+<p>La condición que se olvida al repetirla es la última: alguien tiene que <b>aceptarlo y demandarlo</b>. Los ejemplos del material son una bicicleta eléctrica, como resultado tangible, y una metodología para formar personas para los nuevos trabajos, como intangible.</p>
+<p><b>Flujo contra stock</b>, la distinción más evaluable del módulo:</p>
+<table><thead><tr><th></th><th>Creación de valor</th><th>Riqueza</th></tr></thead><tbody>
+<tr><td>Naturaleza</td><td>Flujo o proceso</td><td>Stock</td></tr>
+<tr><td>Qué es</td><td>Combinación de elementos que produce un resultado demandado</td><td>Medida determinada de algo que se tiene y se acumula</td></tr>
+</tbody></table>
+<p>La cátedra insiste en lo que la creación de valor <b>no</b> es: nunca un stock determinado, ni una dotación de recursos naturales, ni un compendio de recursos heredados. Y da los dos cruces que prueban que son independientes: fuerte creación sin riqueza sostenida, por derroche o fallos de comercialización, y bajo nivel de creación con mucha riqueza acumulada, por patrimonio o monopolios.</p>
+<p>El valor se cuantifica traduciéndose en <b>precios</b> que alguien define y alguien paga.</p>
+<p><b>Extracción de valor:</b> captura del valor económico por personas u organizaciones en forma de rentas y beneficios. Es <b>válida</b>, y de esas apropiaciones vienen los procesos de reinversión. El problema emerge cuando la extracción es más fuerte que la creación, o cuando logra equipararla. El sector señalado es el financiero, con la advertencia de la cátedra: en general, no siempre.</p>
+<p><b>La crítica de Dalio y de Yunus.</b> Ray Dalio, de Bridgewater Associates, autor de <i>Principios</i> (2018): el capitalismo se ha mostrado muy eficiente para agrandar el pastel, pero no para repartirlo. Y todas las cosas buenas llevadas al extremo pueden ser autodestructivas. Ese extremo es el <b>componente rentista</b>, el dinero puesto en derivados financieros en lugar de en creación de valor. Muhammad Yunus: el dinero termina fluyendo hacia quien más lo tiene y no a quien más lo necesita, premiando más a los <b>capturadores de rentas</b> que a los <b>creadores de riquezas</b>.</p>
+<p>Dos aclaraciones que la cátedra hace por la negativa y que son preguntables: las falencias del capitalismo <b>no</b> provienen de personas ricas que explotan deliberadamente, ni de una condición de incapaces y perezosos de los sectores rezagados.</p>`;
+
+const T_DC=`<p><b>La autoría, que es la trampa mejor plantada del módulo.</b> El concepto de destrucción creativa fue <b>originalmente introducido por el sociólogo Werner Sombart</b>, pero <b>Schumpeter</b> fue quien lo fortaleció y popularizó, en <i>Capitalismo, socialismo y democracia</i>, de <b>1942</b>. Si la consigna pregunta quién lo introdujo, es Sombart. Si pregunta quién lo popularizó o a quién se lo asocia, es Schumpeter.</p>
+<blockquote>La destrucción creativa es el proceso mediante el cual las empresas que no son capaces de innovar y mantener relevancia tienden a desaparecer, dejando sitio a las empresas innovadoras que mejor se adaptan a las necesidades de los consumidores.</blockquote>
+<p>Schumpeter la consideró <b>la esencia misma del sistema capitalista</b>.</p>
+<p><b>El mecanismo concreto:</b> las nuevas empresas capturan los <b>recursos o factores de producción liberados</b> por las que cierran. No es que una muera y otra nazca por casualidad, es que los factores se liberan y se reasignan.</p>
+<p><b>El trasfondo de los ciclos económicos</b>, en cuatro momentos:</p>
+<ol>
+<li>En expansión y alto consumo, las empresas existentes atraviesan procesos de distensión</li>
+<li>Eso se traduce en menores eficiencias: engordan operaciones, gastan de más y reducen la tensión de la productividad</li>
+<li>Cuando llega la recesión, muchas no pueden acomodar sus operaciones, se endeudan, pierden la conexión con el mercado y cierran</li>
+<li>Aparecen nuevos emprendimientos que interpretan con energía las demandas del mercado</li>
+</ol>
+<p><b>El dilema del innovador</b>, de <b>Clayton Christensen</b>, <b>1997</b>. Renueva el enfoque: las empresas establecidas, <b>más allá de los ciclos de la economía</b>, siempre tienen mayor dificultad para innovar que las compañías pequeñas y de reciente creación. El dilema es la disyuntiva de la empresa amenazada: <b>resistir, proteger y reforzar</b> sus productos, o <b>lanzarse a construir lo nuevo y riesgoso</b>.</p>
+<p>Las tres razones del sesgo conservador: amortizar al máximo las inversiones ya realizadas, aversión a explorar tecnologías no validadas del todo, y tendencia a subestimar el impacto de las propuestas de nuevos competidores.</p>
+<p><b>Apple</b> ilustra los dos conceptos: destrucción creativa por su capacidad, a fines de los 70 y principios de los 80, de imaginar el futuro de la tecnología de uso individual, y dilema del innovador por seguir asumiendo el riesgo de crear categorías nuevas siendo una compañía enorme. Es decir, <b>lo resuelve bien</b>. La cita de Gary Hamel (2012, p. 101) la ubica entre las tres compañías más extraordinarias de la historia, junto a <b>Ford</b>, que inventó la producción en masa, y <b>General Electric</b>, que lideró las buenas prácticas de gestión por más de un siglo.</p>`;
+
+const T_LEAN=`<p><b>Emprendedor</b>, del francés <i>entrepreneur</i>. La definición de la ficha: persona que identifica una necesidad de mercado y es capaz de imaginar y poner en marcha una propuesta con solución viable de ser comercializada, a partir de la organización de un equipo y de procesos de trabajo.</p>
+<p>Hay <b>evento emprendedor</b> cada vez que se produce el encaje entre el problema o necesidad de alguien y la solución que se crea. No importa el tipo de negocio, el sector, las características personales ni el grado de innovación.</p>
+<p><b>El modelo de Timmons</b> (2007) plantea tres grandes cuestiones combinadas. El PDF solo desarrolla la <b>oportunidad</b>: hay oportunidad cuando se visualiza un colectivo de personas u organizaciones con un problema real, fundamentado con <b>evidencias concretas</b>, no un invento del emprendedor. Las otras dos cuestiones del modelo son equipo y recursos, pero el material no las nombra.</p>
+<p><b>Las dos metodologías y sus años:</b></p>
+<table><thead><tr><th>Año</th><th>Metodología</th><th>Para qué</th></tr></thead><tbody>
+<tr><td>2009</td><td>Business Model Canvas</td><td>Imaginar y <b>diseñar</b> un nuevo negocio</td></tr>
+<tr><td>2011</td><td>Lean startup, de Eric Ries</td><td><b>Probar y ejecutar</b> el negocio</td></tr>
+</tbody></table>
+<p><b>Startup:</b> organización diseñada para crear nuevos productos y servicios bajo condiciones de <b>extrema incertidumbre</b> y que, una vez que los crea y los valida en el mercado, <b>pasa a ser una empresa</b>. Es un estado transitorio, no un tamaño.</p>
+<p>El aporte de Ries es pasar de la <b>intuición</b> a la <b>evidencia</b>, y afirmar que el emprendimiento requiere un tipo de management especialmente pensado para la creación de un nuevo negocio. El material dice que el método se basa en cinco grandes principios y no los enumera.</p>
+<p><b>Producto mínimo viable</b>, que la cátedra abrevia <b>MPV</b>:</p>
+<blockquote>Aquella versión del producto que permite dar una vuelta entera al circuito de crear, medir y aprender con un mínimo de esfuerzo y el mínimo tiempo de desarrollo. (Ries, 2011, p. 91)</blockquote>
+<p>Puede ser un modelo físico, un diseño digital, un diagrama, una infografía o una simulación. Se distingue del <b>prototipo</b>, que es una representación temprana del aspecto que tendrá la oferta: el MPV se define por habilitar la vuelta completa del circuito.</p>
+<p><b>Pivote:</b> el cambio que se decide cuando el producto, ya probado a través de un MPV, no se adapta bien a las necesidades del consumidor según el <b>aprendizaje validado</b> en el mercado. Las dos condiciones son MPV probado y aprendizaje validado.</p>
+<p>El caso de startup es <b>Kilimo</b>, argentina, empezó poco antes de 2016, enfocada en la gestión del agua en la agricultura. La oportunidad que vio: la industria agrícola en países en vía de desarrollo utiliza arriba del <b>85 %</b> del agua de la región.</p>`;
+
+const T_LT=`<p><b>Chris Anderson</b>, en <b>2006</b>, en <i>The long tail: why the future of business is selling less of more</i>, acuñó el término. Long tail se traduce como <b>larga cola</b>.</p>
+<table><thead><tr><th>Antes de internet, la nube y los móviles</th><th>Con productos y servicios digitales</th></tr></thead><tbody>
+<tr><td>Producir, comercializar y entregar era más caro</td><td>Se multiplican las posibilidades de atender nichos dispersos geográficamente</td></tr>
+<tr><td>Fuertes limitaciones de espacios físicos y logística</td><td>Sin alterar las premisas de rentabilidad del negocio</td></tr>
+</tbody></table>
+<p>La tesis: <b>dejó de ser necesario ser masivos, los grandes hits, para ser rentables</b>. Se abre un espacio de lo <b>pequeño y global</b>, porque la digitalización tiende puentes a <b>costos decrecientes</b> que todas las empresas pueden usar, sin importar su tamaño.</p>
+<p><b>Nicho de mercado</b>, según <b>Philip Kotler</b> (2003): un grupo de personas, <b>más pequeño que un segmento</b>, con necesidades o deseos específicos, <b>voluntad</b> para satisfacerlos y <b>capacidad económica</b> para realizar la compra. Las tres condiciones son necesarias.</p>
+<p><b>Bits y átomos</b>, con los ejemplos que da el material:</p>
+<table><thead><tr><th>Tipo</th><th>Ejemplos</th></tr></thead><tbody>
+<tr><td>Digitales puros, en bits</td><td>Spotify, Netflix, Amazon, Salesforce, Dropbox, Slack</td></tr>
+<tr><td>Físicos, en átomos</td><td>Apple, Samsung, LG, Beats, Nike, L'Oréal</td></tr>
+</tbody></table>
+<p>El long tail <b>no es exclusivo</b> de los digitales puros. El caso de <b>Lego</b>, fabricante danés de juguetes, está puesto para demostrarlo: en jugueterías físicas se topaba con límites de inventario y exhibición, y en su tienda online o en la de terceros ofrece más de mil variantes e invita a la comunidad de niños a diseñar sus propios juguetes.</p>
+<p><b>Costos decrecientes:</b> producir unidades adicionales de bienes o servicios es cada vez más barato gracias a las tecnologías interconectadas. La consecuencia, formulada con cautela por la cátedra, es que costos más bajos <b>pueden</b> traducirse en precios más accesibles.</p>`;
+
+const T_PLAT=`<p><b>Los datos como capital fundamental.</b> La IA es la tecnología más transversal de la Cuarta Revolución y su insumo son los datos. Para que sirvan, el material da cuatro pasos en orden: <b>definición, recolección, almacenamiento y relacionamiento</b>. Recién ahí entran los algoritmos matemáticos y modelos predictivos.</p>
+<p><b>Qué cambia en una organización con estrategia de datos:</b> la lentitud de los organigramas con muchos gerentes y mandos medios cede ante la agilidad, gracias a tableros virtuales con actualización en tiempo real. Las decisiones pasan a basarse en evidencia y en modelos, bajando la carga de intuición y subjetividad. Los largos ejercicios de deliberación y planificación se transforman en <b>instancias analíticas continuas, no lineales y horizontales</b>.</p>
+<p><b>Las GAFA:</b> Google, Amazon, Facebook y Apple. Son las cuatro grandes corporaciones que lideran la era de la digitalización. La cátedra las separa explícitamente de Microsoft, Tesla, Alibaba y Uber, que también tienen desempeños exitosos. Lo que dispara la alerta es la <b>masividad sin límites</b>, la diversificación constante y la cantidad de empresas menores adquiridas, que concentran poder en muy pocas manos corporativas. Y el argumento fino: las GAFA <b>socavan las bases mismas de la economía del long tail</b>, que son la <b>democratización</b> y la <b>diversidad</b>.</p>
+<p><b>Negocio de plataformas:</b> modelo que permite bajar al mínimo posible la <b>fricción</b> entre oferta y demanda y logra cantidades crecientes de usuarios y clientes registrados y monitoreados.</p>
+<p><b>Efecto red</b>, en tres eslabones circulares: al tener mucho conocimiento de los usuarios de forma barata, pueden ofrecer propuestas de valor que generan atracción de usuarios, esa expansión se traduce en incrementos constantes de la oferta, y así sigue. Ejemplos: Uber, Booking, Airbnb, LinkedIn. De ahí el riesgo del <b>ganador que se lleva todo</b> un mercado.</p>
+<p><b>Diseño organizacional:</b> pueden tener oficinas locales y empleados, pero en general el diseño es <b>aplanado</b> y propio de las economías de escala. Un subtipo son las plataformas cuyas prestaciones las realiza una red de colaboradores reclutados y preparados por la compañía, pero <b>sin relación de dependencia</b>: Uber, Lyft y Rappi.</p>
+<p><b>Choque de vocabulario.</b> En el trabajo, plataforma nombra infraestructura. Para la cátedra es un <b>modelo de negocio</b> definido por la fricción y el efecto red.</p>`;
+
+const T_BIO=`<p>El modelo de <b>empresas biónicas</b> fue creado por el <b>Boston Consulting Group</b>. La cátedra lo elige entre muchos modelos posibles por considerarlo especialmente apto.</p>
+<p>Por qué se llama biónica, en palabras del material: es la <b>biología, es decir la humanidad</b>, la que puede y debe ser potenciada por la <b>electrónica y la tecnología</b> para generar adaptación al entorno y mejores resultados. Es <b>la humanidad revalorizada por las nuevas tecnologías</b> la que prima al repensar una empresa. El orden es lo contrario de lo intuitivo.</p>
+<p>La pregunta que el modelo pone en el centro es <b>¿para qué estamos juntos?</b>, y de ella surge la noción de <b>propósito</b>, que la cátedra declara <b>tan importante como la de estrategia</b> para actuar.</p>
+<p><b>Los cuatro habilitadores, y el hueco del material.</b> Toda empresa necesita trabajar sobre cuatro grandes habilitadores: <b>dos propios del campo de la tecnología y dos propios del terreno humano</b>. El bloque que los desarrollaba quedó vacío en el PDF, así que el material no los nombra. Si el parcial los pidiera, lo defendible es responder por el reparto.</p>
+<p>Lo más cercano está en el anexo de Expansión (De las Casas, 2020), donde Llorenç Mitjavila, socio responsable de BCG Gamma, habla de <b>dos grandes elementos habilitadores</b> que deben ser parte estructural del proceso: la <b>plataforma tecnológica</b> y las <b>personas</b>. Encaja con el reparto de la cátedra pero no completa los cuatro nombres.</p>
+<p>Del mismo anexo, dos definiciones utilizables: la esencia de la compañía biónica es aumentar la inteligencia humana con capacidades digitales para conseguir empresas más adaptables, y la empresa biónica es una compañía que, a partir de un sentido del propósito y una estrategia bien definida, es capaz de priorizar objetivos de negocio ligados a la digitalización.</p>
+<p>Félix Bejarano, de BCG, agrega el contraste más aprovechable para quien trabaja en datos: ya no existen proyectos de tres a cinco años basados en grandes inversiones <b>de caja negra</b>, cuyo éxito no se conoce hasta la finalización. Lo que corresponde es partir de <b>pilotos con valor para el negocio</b> y escalar de forma incremental, sobre una <b>nueva capa de datos desacoplados de los sistemas transaccionales</b> que BCG llama plataforma digital y de datos.</p>`;
+
+const T_NE=`<p><b>Los tres recursos clave</b> que el material identifica para ser eficaces en entornos digitales actuales:</p>
+<ol>
+<li>Obtención y gestión de datos</li>
+<li>Modelo de negocios basado en plataformas</li>
+<li>Transformación digital de la empresa u organización</li>
+</ol>
+<p>Los tres coinciden exactamente con los temas de las lecciones 3 y 4 del módulo, así que la lista funciona como resumen del bloque.</p>
+<p><b>Hacia dónde apuntan las nuevas economías.</b> La cátedra advierte que bajo ese paraguas se proyecta cierta inclinación a proponer <b>fórmulas superadoras al capitalismo tradicional</b> y a las empresas habituales basadas en el lucro y el beneficio a los accionistas. Esa frase es el puente al módulo 3, que trata empresas sociales y de triple impacto, y cierra el arco que abrió Dalio en la primera lección del módulo con el capitalismo que agranda el pastel pero no lo reparte.</p>
+<p>La condición de posibilidad que el material repite: es imprescindible la digitalización que permite el manejo más eficiente de grandes volúmenes de información y datos.</p>`;
+
+const AMP={};
+const ampliar=(txt,ns)=>ns.forEach(n=>AMP[n]=txt);
+ampliar(T_TEC,[1,3,101,102,201]);
+ampliar(T_ONG,[2]);
+ampliar(T_PACEY,[4,6]);
+ampliar(T_TEC,[5]);
+ampliar(T_REV,[7,8,9,10,11,12,103,104,105,202,2001]);
+ampliar(T_R4,[13,14,106,107,108,110]);
+ampliar(T_R5,[15,109]);
+ampliar(T_IA,[16,17,111,113]);
+ampliar(T_BREAZEAL,[18,112,203]);
+ampliar(T_AIRBNB,[19]);
+ampliar(T_TD,[20,39,126,127,2003,2004]);
+ampliar(T_CAP,[21,22,114]);
+ampliar(T_VALOR,[23,24,25,26,27,204]);
+ampliar(T_DC,[28,29,30,31]);
+ampliar(T_LEAN,[32,33,34,35,115,116,2002]);
+ampliar(T_LT,[36,37,117,120]);
+ampliar(T_PLAT,[38,118,119,121,205]);
+ampliar(T_BIO,[40,122,123,124]);
+ampliar(T_NE,[125,128,206]);
+
+/* ---------- Estado ---------- */
+const HKEY="s21.tecnologia.p1.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const LETRA=k=>"abcdefg"[k]||"?";
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"para el examen del índice",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  preguntero:"preguntero, verificada contra el material",
+  errado:"el preguntero se equivoca acá"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["catedra"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Las de Para el examen":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué instancia" : "Elegí qué bloque del preguntero";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else {
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll("input").forEach(x=>x.disabled=true);
+    $("chk").disabled=true;
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(LETRA).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de las secciones Para el examen más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de pregunteros de circulación libre, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período, en los dos TP online y en las dos autoevaluaciones de actividad práctica. El enunciado y la respuesta correcta salen del registro de cada instancia, parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>

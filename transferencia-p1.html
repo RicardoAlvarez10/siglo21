@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transferencia · Parcial 1 · Autoevaluación interactiva</title>
+<style>
+  :root{
+    --texto:#1A1A1A;
+    --titulo:#3D3D3D;
+    --acento:#2D4A3E;
+    --fondo:#FAF9F7;
+    --panel:#FFFFFF;
+    --borde:#E7E5E4;
+    --ok:#2D4A3E;
+    --okBg:#EAF1ED;
+    --mal:#8C2F2F;
+    --malBg:#F7EBEB;
+    --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--fondo);
+    color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap;
+  }
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{
+    background:var(--panel);border:1px solid var(--borde);border-radius:4px;
+    padding:24px 24px 20px;
+  }
+  .meta{
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px;
+  }
+  .enunciado{font-size:17px;margin:0 0 18px}
+  .enunciado b{font-weight:bold}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{
+    text-align:left;font-family:Georgia,serif;font-size:15.5px;line-height:1.45;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start;
+  }
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{
+    font-family:'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+  }
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .btn{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;padding:9px 18px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;
+    border-radius:3px;cursor:pointer;
+  }
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{
+    font-family:'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px;
+  }
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 10px;font-size:15px}
+  .bloque .rot{
+    font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px;
+  }
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:20px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:40px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600;
+  }
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .flash .enunciado{font-size:16.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .aviso{
+    font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px;
+  }
+  .amp{overflow-x:auto;font-size:14.5px}
+  .amp table{width:100%;border-collapse:collapse;font-size:13.5px;margin:9px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{
+    background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:11px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600;
+  }
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{
+    margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic;
+  }
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:11px 15px;border-radius:0 3px 3px 0;font-size:15px}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{
+    font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0;
+  }
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Transferencia e Innovación Tecnológica · Parcial 1</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 01 y 02 · Ricardo Alvarez · Legajo VROB003882</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido armado sobre el paquete de estudio del Parcial 1, secciones 2, 7, 8, 9 y 11, y sobre los ocho resúmenes de teoría de los módulos 01 y 02 con sus índices. No hay trabajos prácticos online ni actividades prácticas archivadas de esta materia, así que los bancos de preguntas ya tomadas y de repaso de cátedra quedaron vacíos.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 73 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+
+/* ---------- Banco 1: autoevaluación, sección 9 del paquete ---------- */
+const QUIZ = [
+{n:1, mod:"01", lec:"L1", tema:"Elementos del accionar humano", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Las tres nociones que el género humano utiliza como elementos básicos de su accionar son:",
+ op:["Creatividad, invención e innovación","Cambio, acción y mejoramiento","Análisis, formulación e implementación","Generación, transmisión y transferencia"],
+ ok:1,
+ just:"Varela Villegas arranca por el nivel antropológico: el ser humano busca progreso y desarrollo, y para eso usa cambio, acción y mejoramiento, que forman un ciclo continuo e incesante.",
+ dist:"Las tres opciones incorrectas son tríadas reales de la materia, puestas ahí justamente por eso. La A es la tríada de la sección 3 de esta misma lección, la C son las etapas de la acción estratégica de M01 L4 y la D son las funciones de la universidad. El par que la cátedra explota es cambio-acción-mejoramiento contra creatividad-invención-innovación.",
+ ref:"M01 L1"},
+
+{n:2, mod:"01", lec:"L1", tema:"Creatividad, invención e innovación", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Un laboratorio desarrolla un prototipo funcional de un dispositivo nuevo, lo patenta y lo guarda sin comercializarlo. Según la cátedra, eso es:",
+ op:["Innovación, porque hay materialización y protección legal","Innovación incremental, porque mejora lo existente","Invención, porque hay materialización sin integración al mercado","Creatividad, porque todavía no hay producto"],
+ ok:2,
+ just:"La invención es la materialización de una idea creativa en un prototipo o modelo. La innovación exige que eso se integre al mercado y se ofrezca para ser adquirido por clientes, cosa que acá no pasa.",
+ dist:"La A agrega la patente como si fuera prueba de innovación, y no lo es: la patente protege, no comercializa. La D confunde con creatividad, que es la etapa anterior, cuando todavía no hay objeto. El par caro es invención contra innovación, y el criterio único es la llegada al mercado.",
+ ref:"M01 L1"},
+
+{n:3, mod:"01", lec:"L1", tema:"Definiciones de innovación", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"La definición «cualquier forma de hacer las cosas de modo distinto en la vida económica» corresponde a:",
+ op:["Drucker, 1981","Schumpeter, 1934","Knight, 1967","Manual de Oslo, 2005"],
+ ok:1,
+ just:"Es la primera entrada de la tabla de nueve definiciones que recoge González Sabater, y la más antigua de todas.",
+ dist:"Drucker define innovación como un cambio en la conducta de las personas como consumidores o productores. Knight habla de adopción de un cambio novedoso. El Manual de Oslo define por cuatro objetos: producto, proceso, marketing y organización. La cátedra pregunta estas definiciones por autor y año, así que conviene fijar al menos los extremos de la tabla.",
+ ref:"M01 L1"},
+
+{n:4, mod:"01", lec:"L1", tema:"Condiciones de la innovación", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Según la cátedra, para que una intervención se considere innovación es necesario que:",
+ op:["Incorpore tecnología nueva y reduzca costos","Su nueva versión sea mejor que la anterior, aporte valor y genere novedad","Provenga de un invento previamente patentado","Sea liderada desde el nivel corporativo"],
+ ok:1,
+ just:"Son las tres condiciones que la lección fija, y tienen que cumplirse a la vez. Ninguna de las tres menciona tecnología.",
+ dist:"La A mete tecnología como condición necesaria, que es el error más repetido del módulo: la innovación tecnológica es una especie dentro del género. La C contradice la aclaración explícita de que la innovación opera sobre actos creativos sean inventos o no. La D importa un concepto de M01 L4 que no tiene nada que ver.",
+ ref:"M01 L1"},
+
+{n:5, mod:"01", lec:"L2", tema:"Fuentes de oportunidad de Drucker", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Las fuentes básicas de oportunidad que propone Drucker para la búsqueda organizada y sistemática son:",
+ op:["Cuatro","Cinco","Siete","Nueve"],
+ ok:2,
+ just:"Son siete: lo inesperado, lo incongruente, la necesidad de mejorar un proceso existente, el desmoronamiento de una estructura industrial o de mercado, los cambios demográficos, los cambios de percepción y los nuevos conocimientos.",
+ dist:"El cuatro y el cinco están puestos porque son las cantidades de las otras dos listas de la misma lección: cuatro componentes de la innovación y cinco factores de desarrollo. El nueve es la cantidad de definiciones de innovación de M01 L1. Las preguntas de cantidad exacta son el formato más frecuente en esta materia.",
+ ref:"M01 L2"},
+
+{n:6, mod:"01", lec:"L2", tema:"Los cuatro componentes", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una empresa audita la legislación ambiental y las tendencias de consumo del país donde va a operar. Está trabajando sobre el componente:",
+ op:["Competencia, que es el elemento complementario","Procesos, que es la fase operativa","Personas, que es el elemento indispensable","Entorno, que es el elemento estratégico"],
+ ok:3,
+ just:"El entorno es donde se investiga y audita el lugar donde la empresa está inserta, con foco en los factores legales, culturales, ambientales y tecnológicos, más las tendencias sociales y de consumo.",
+ dist:"Las tres incorrectas nombran los otros tres componentes con su etiqueta correcta, así que el error no está en la etiqueta sino en la asignación. La cátedra también arma la variante inversa: da el componente correcto con la etiqueta equivocada. Conviene tener las cuatro parejas memorizadas juntas.",
+ ref:"M01 L2"},
+
+{n:7, mod:"01", lec:"L2", tema:"Índice de competitividad", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El Growth Competitiveness Index del Foro Económico Mundial está compuesto por:",
+ op:["Dos índices: competitividad tecnológica y ambiente macroeconómico","Tres índices: competitividad tecnológica, instituciones públicas y ambiente macroeconómico","Cuatro índices, uno por cada componente de la innovación","Cinco índices, uno por cada factor de desarrollo"],
+ ok:1,
+ just:"Son tres. El que se olvida siempre es el segundo, instituciones públicas, que mide estabilidad, disposiciones jurídicas, independencia de los jueces, apertura a licitantes internacionales y efectos de la corrupción y el crimen organizado.",
+ dist:"La A saca justamente el índice que se olvida. La C y la D atan la cantidad a otras listas del módulo para tentar a quien recuerda un número pero no sabe de qué lista era.",
+ ref:"M01 L2"},
+
+{n:8, mod:"01", lec:"L3", tema:"Insight y negocios disruptivos", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Un insight, según la cátedra, se define como:",
+ op:["Un resultado de investigación de mercado con base estadística","Una ventaja competitiva sostenible en el tiempo","Un indicador latente, una clave inicial con características emocionales y racionales de la persona","Una propuesta de valor que entrega un grupo de satisfactores"],
+ ok:2,
+ just:"La palabra que decide es latente. El insight todavía no está medido ni declarado por nadie, y por eso se llega a él con observación y empatía, no con encuesta.",
+ dist:"La A es la trampa principal y la más intuitiva para alguien que trabaja con datos: convierte el insight en un output de análisis, que es exactamente lo contrario de latente. La D define negocio disruptivo, que es el concepto que viene inmediatamente después en la misma lección.",
+ ref:"M01 L3"},
+
+{n:9, mod:"01", lec:"L3", tema:"Tipos de innovación", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una empresa de electrodomésticos rediseña el panel de control de sus lavarropas para que sea más simple, sin cambiar la tecnología ni el mercado objetivo. Es innovación:",
+ op:["Radical, porque genera novedad","Substancial, porque mejora la experiencia de usabilidad","Incremental, porque es una renovación sencilla donde la tecnología no entra en juego","Disruptiva, porque está centrada en la persona"],
+ ok:2,
+ just:"Renovación sencilla, mismo foco de mercado y sin tecnología como factor de diferenciación. Es la definición literal de incremental.",
+ dist:"La B es la opción cara: usa la frase «mejora la experiencia de usabilidad», que la cátedra sí asocia a la innovación substancial, pero esa mejora tiene que venir de la tecnología, y acá no hay tecnología nueva. La A confunde novedad con redefinición de categoría. La D mezcla el tipo de innovación con el tipo de negocio.",
+ ref:"M01 L3"},
+
+{n:10, mod:"01", lec:"L3", tema:"Tipos de innovación", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"En la innovación substancial, a diferencia de la incremental:",
+ op:["Se conserva el mismo nicho y grupo objetivo","El uso e impacto de la tecnología en el core business es clave","No se altera la curva de crecimiento de la empresa","Se redefine por completo la categoría de negocio"],
+ ok:1,
+ just:"El rol de la tecnología es el único criterio que separa estos dos tipos. En la incremental la tecnología no entra en juego, en la substancial es el factor de diferenciación.",
+ dist:"La A es verdadera para la substancial, pero también lo es para la incremental, así que no las diferencia: es el distractor más elegante de la pregunta. La D describe la radical. Cuando una opción es cierta pero no responde la pregunta, suele ser la que la cátedra puso a propósito.",
+ ref:"M01 L3"},
+
+{n:11, mod:"01", lec:"L3", tema:"Negocios disruptivos", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Entre las características de los negocios disruptivos, la cátedra afirma que la mayoría tiene vinculación estrecha con la tecnología, pero:",
+ op:["Siempre requiere una plataforma digital propia","A veces se puede prescindir de ella","Solo en mercados externos al inicial","Únicamente durante la etapa de arranque"],
+ ok:1,
+ just:"Es la novena y última de las características que enumera la lección, y la que impide leer disrupción como sinónimo de tecnología.",
+ dist:"La A afirma lo contrario con una redacción absoluta, que es la forma típica del distractor en esta lección. La C toma la quinta característica, la expansión a mercados externos, y la usa fuera de lugar.",
+ ref:"M01 L3"},
+
+{n:12, mod:"01", lec:"L4", tema:"Niveles de administradores de estrategias", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"El CEO de una empresa con cuatro unidades de negocio define en qué países operará la compañía durante los próximos cinco años. Ese es el nivel:",
+ op:["Funcional","De negocio","Corporativo","Técnico de gestión"],
+ ok:2,
+ just:"Define dónde opera el negocio, lo lidera el director general ejecutivo y la empresa tiene más de una unidad de negocio, que es la condición de aplicabilidad del nivel corporativo.",
+ dist:"La D no pertenece a esta clasificación: es uno de los cuatro niveles de personas involucradas en la transferencia de tecnología, que está en la misma lección. Mezclar las dos listas de esa lección es el error más frecuente de M01 L4.",
+ ref:"M01 L4"},
+
+{n:13, mod:"01", lec:"L4", tema:"Funciones de la universidad", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Las tres funciones clave de las universidades y organismos de investigación en las economías basadas en el conocimiento son:",
+ op:["Investigación, docencia y extensión","Generación, transmisión y transferencia del conocimiento","Análisis, formulación e implementación","Promoción, negociación y asistencia técnica"],
+ ok:1,
+ just:"Generación mediante actividades de I+D, transmisión mediante la formación y la publicación de resultados, transferencia para proporcionar soluciones a los problemas de las empresas.",
+ dist:"La A es la tríada clásica de la universidad argentina y suena perfectamente razonable, pero no es la que usa la cátedra: es el distractor más peligroso de la pregunta. La C son las etapas de la acción estratégica y la D son labores de dos de los cuatro niveles de personas en la transferencia.",
+ ref:"M01 L4"},
+
+{n:14, mod:"01", lec:"L4", tema:"Funciones de la universidad", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Una universidad publica en una revista los resultados de una investigación. Según la cátedra, esa actividad corresponde a:",
+ op:["La transferencia del conocimiento, es decir la tercera misión","La generación del conocimiento","La transmisión del conocimiento","La intermediación"],
+ ok:2,
+ just:"Transmitir es formar y publicar. La transferencia recién ocurre cuando el conocimiento proporciona soluciones a los problemas de una empresa.",
+ dist:"La A es el error central del módulo: dar por transferido lo que solo fue publicado. La D importa un término del anexo de Estébanez del Módulo 02, que sí existe pero designa otra cosa, la instancia vinculante entre productores y usuarios del conocimiento.",
+ ref:"M01 L4"},
+
+{n:15, mod:"01", lec:"L4", tema:"Qué es tecnología", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Completar: según la cátedra, tecnología es ante todo una forma de hacer cosas que implica a la vez un objetivo, un modo y un __________, y constituye la dimensión social de la técnica.",
+ op:["mercado","saber","proceso","recurso"],
+ ok:1,
+ just:"Objetivo, modo y saber. Los tres juntos, y el saber es el que define que la tecnología transforme un saber abstracto en un saber-hacer.",
+ dist:"Proceso y recurso son palabras que aparecen en el mismo párrafo, y mercado es el término central de M01 L1. La cátedra usa mucho el formato de completar con guion bajo, y siempre viene con opciones.",
+ ref:"M01 L4"},
+
+{n:16, mod:"02", lec:"L1", tema:"Contexto interno y externo", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Según la cátedra, del contexto interno de una organización se identifican:",
+ op:["Oportunidades y amenazas","Fortalezas y debilidades","Fortalezas y oportunidades","Debilidades y amenazas"],
+ ok:1,
+ just:"El contexto interno es la cultura organizacional, con sus costumbres, prácticas, valores y creencias, y de ahí salen las fortalezas, que se potencian, y las debilidades, que se compensan.",
+ dist:"Las opciones C y D son las dos combinaciones cruzadas, una positiva y otra negativa, y son las que hacen caer a quien recuerda los cuatro términos pero no de qué lado va cada uno. La regla corta es que lo interno depende de la organización y lo externo no.",
+ ref:"M02 L1"},
+
+{n:17, mod:"02", lec:"L1", tema:"Análisis PEST", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El análisis PEST examina factores:",
+ op:["Internos, que la organización puede controlar","Externos, que están fuera del control de la organización","Del entorno competitivo del sector","De la capacidad estratégica de la organización"],
+ ok:1,
+ just:"PEST mira lo externo y fuera de control, y permite estudiar la diferencia de impacto entre una organización y otra aunque pertenezcan al mismo sector.",
+ dist:"La C describe lo que analizan las cinco fuerzas de Porter y la D la mitad interna del DAFO. La lección presenta las tres herramientas juntas, así que la pregunta más probable es justamente cuál sirve para qué.",
+ ref:"M02 L1"},
+
+{n:18, mod:"02", lec:"L1", tema:"Cinco fuerzas de Porter", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Respecto de las cinco fuerzas de Porter, la cátedra sostiene que:",
+ op:["En los sectores rentables las cinco fuerzas tienen poca significación","En los sectores rentables las cinco fuerzas tienen un peso muy importante","Las cinco fuerzas actúan a favor de la rentabilidad del sector","Solo tres de las cinco fuerzas afectan la rentabilidad"],
+ ok:0,
+ just:"Las cinco actúan permanentemente en contra de la rentabilidad del sector, de modo que un sector rentable es aquel donde pesan poco.",
+ dist:"La B invierte exactamente la regla y es la respuesta intuitiva de quien asocia fuerza con potencia. La C la invierte de forma más burda. Es la pregunta que más se falla de la lección, porque la palabra fuerza sugiere lo contrario de lo que el modelo dice.",
+ ref:"M02 L1"},
+
+{n:19, mod:"02", lec:"L1", tema:"Factores del entorno", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"El elemento del entorno que la cátedra describe como el más sencillo de comprender y cuantificar, y raíz de muchos cambios en la sociedad, es:",
+ op:["La inflación","La legislación laboral","La demografía","La innovación tecnológica"],
+ ok:2,
+ just:"La demografía incluye edad de la población, niveles crecientes o decrecientes de riqueza, cambios en la composición étnica, distribución geográfica y disparidad en el nivel de ingresos.",
+ dist:"Las otras tres son ejemplos reales de los factores económico, político y tecnológico de PEST, puestos para que la pregunta se confunda con la de asignar ejemplo a factor. Acá lo que se pregunta es un calificativo textual de la cátedra, no una clasificación.",
+ ref:"M02 L1"},
+
+{n:20, mod:"02", lec:"L1", tema:"Análisis DAFO", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Una organización detecta que no cuenta con personal capacitado en una tecnología que necesita. En términos del análisis DAFO, eso es:",
+ op:["Una amenaza, y debe mitigarse","Una debilidad, y debe compensarse","Una oportunidad, y debe aprovecharse","Una fortaleza, y debe potenciarse"],
+ ok:1,
+ just:"Depende de la organización, por lo tanto es interno, y lo interno negativo es debilidad. El verbo que la cátedra asocia a las debilidades es compensar.",
+ dist:"La A es la trampa: suena razonable llamar amenaza a algo que pone en riesgo el proyecto, pero las amenazas son siempre externas para esta cátedra. Además el verbo importa, porque cada uno de los cuatro elementos tiene el suyo y la cátedra los empareja.",
+ ref:"M02 L1"},
+
+{n:21, mod:"02", lec:"L2", tema:"Principios de Quintanilla", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Los dos principios de Quintanilla Fisac sobre ciencia y cultura científica son, en orden:",
+ op:["No toda la cultura científica es parte de la ciencia, y la ciencia es siempre parte de la cultura","La ciencia es siempre parte de la cultura de una sociedad, y no toda la cultura científica de una sociedad es parte de la ciencia","La ciencia es objetiva en sus resultados, y subjetiva en su proceso social","La cultura científica es la cultura de los científicos, y la ciencia popular es su divulgación"],
+ ok:1,
+ just:"El orden es el que fija el autor y la cátedra lo cita textual con la numeración 1 y 2.",
+ dist:"La A tiene los dos principios correctos pero invertidos, y es la opción que más elige quien los recuerda sueltos. La C es la tesis de Lage Dávila y la D mezcla las acepciones a) y b) del mismo apartado. Tres de las cuatro opciones son afirmaciones verdaderas del material.",
+ ref:"M02 L2"},
+
+{n:22, mod:"02", lec:"L2", tema:"Usos de cultura científica", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"La actividad característica de la cultura científica entendida como fragmento de la ciencia compartido por la mayoría de los miembros de una sociedad es:",
+ op:["La investigación científica","La evaluación por pares","La divulgación científica","La transferencia de tecnología"],
+ ok:2,
+ just:"Es la acepción b), prácticamente sinónimo de ciencia popular, y la cátedra le asigna explícitamente la divulgación como actividad característica.",
+ dist:"La A es la actividad de la acepción a), la cultura de los científicos. La D importa el concepto central del Módulo 01. El par que se explota es a) contra b), es decir los científicos contra el público.",
+ ref:"M02 L2"},
+
+{n:23, mod:"02", lec:"L2", tema:"Encuestas de los noventa", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"Las encuestas sobre comprensión pública de la ciencia realizadas en los países avanzados en la última década del siglo XX mostraron que:",
+ op:["Una mayor cualificación educativa se relacionaba con una menor desconfianza hacia el progreso científico","Una mayor cualificación educativa ya no se relacionaba con una menor desconfianza hacia ciertos aspectos del progreso científico y tecnológico","El modelo unidireccional de comunicación resultaba plenamente confirmado","La alfabetización científica había dejado de ser medible"],
+ ok:1,
+ just:"Es el hallazgo contraintuitivo que obligó a los especialistas a dar cuenta de los contextos particulares de transferencia social de la ciencia.",
+ dist:"La A es lo que se suponía antes del giro, y por eso es la respuesta que elige quien no leyó el apartado. La C afirma lo contrario del efecto que tuvieron esas encuestas. El dato importa porque es la bisagra de toda la lección.",
+ ref:"M02 L2"},
+
+{n:24, mod:"02", lec:"L2", tema:"Ciencia abierta", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Según Cano y Rolón, la ciencia abierta permite un avance del conocimiento científico:",
+ op:["Lineal más que exponencial","Exponencial más que lineal","Progresivo y acumulativo en partes iguales","Restringido a la comunidad de expertos"],
+ ok:1,
+ just:"La cita habla de un avance exponencial más que lineal, y alcanzando a una población más amplia.",
+ dist:"La A es la misma frase invertida, que es la forma más barata y más efectiva de armar un distractor sobre una cita textual. La D contradice el sentido mismo del movimiento.",
+ ref:"M02 L2"},
+
+{n:25, mod:"02", lec:"L3", tema:"Ciencia y tecnología", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"El criterio con el que la cátedra diferencia a las ciencias de las tecnologías es:",
+ op:["El grado de complejidad de los conocimientos que utilizan","La antigüedad histórica de cada una","Su objetivo final","El tipo de institución que las practica"],
+ ok:2,
+ just:"Las ciencias buscan comprender el universo y su funcionamiento, las tecnologías lo modifican para adaptarlo a las necesidades humanas. Todo lo demás se desprende de ahí.",
+ dist:"La B tienta porque la lección sí afirma que la tecnología se desarrolló antes que la ciencia, pero eso es una observación histórica, no el criterio de distinción. Una opción verdadera que no responde la pregunta es el distractor preferido de esta cátedra.",
+ ref:"M02 L3"},
+
+{n:26, mod:"02", lec:"L3", tema:"Componentes de la ciencia", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"Los componentes fundamentales de la ciencia, según Cañedo Andalia, son:",
+ op:["Humano, social, cognitivo y material","Técnico, organizativo, ideológico y afectivo","Político, económico, social y tecnológico","Humano, económico, cognitivo y simbólico"],
+ ok:0,
+ just:"Cuatro factores. Las leyes, como forma del conocimiento científico, están dentro del factor cognitivo.",
+ dist:"La B son las dimensiones de la práctica tecnológica de Acevedo Díaz, que están en la misma lección. La C son los factores de PEST, de M02 L1. La D es la lista correcta con dos elementos cambiados. Esta lección tiene tres listas de cuatro elementos que se prestan a confusión entre sí.",
+ ref:"M02 L3"},
+
+{n:27, mod:"02", lec:"L3", tema:"Modelos de Niiniluoto", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Sostener que la tecnología es simplemente ciencia aplicada, y que puede reducirse a ella, corresponde al modelo de Niiniluoto:",
+ op:["1, dualista","2, dualista","3, monista","5, monista"],
+ ok:2,
+ just:"El modelo 3 subordina la tecnología a la ciencia y afirma que puede reducirse a ella, lo que lo vuelve monista.",
+ dist:"La D es el modelo de la tecnociencia posmoderna, donde no se diferencian ontológicamente: parece lo mismo pero no lo es, porque ahí ninguna se subordina a la otra. Las dos primeras son dualistas y por definición no admiten reducción. El par más caro es el 3 contra el 4, que invierte quién se reduce a quién.",
+ ref:"M02 L3"},
+
+{n:28, mod:"02", lec:"L4", tema:"Etapas y diseño de indicadores", nivel:"recordar", tipo:"mc", src:"paquete",
+ q:"En el proceso de creación de una empresa, los indicadores para medir las metas se diseñan en la etapa de:",
+ op:["Oportunidad de empresa","Evaluación y decisión","Plan de empresa","Crecimiento y desarrollo"],
+ ok:2,
+ just:"En la cuarta etapa, plan de empresa, se establecen los componentes, el entorno, las metas y el diseño de los indicadores para medirlas.",
+ dist:"La D es la sexta etapa, donde se mide el logro de las metas con los indicadores ya diseñados. Diseñar y medir en etapas distintas es justo lo que la cátedra quiere que quede claro, y por eso la pregunta suele venir con las dos opciones juntas.",
+ ref:"M02 L4"},
+
+{n:29, mod:"02", lec:"L4", tema:"Organismos productores", nivel:"comprender", tipo:"mc", src:"paquete",
+ q:"El organismo que la cátedra describe como líder mundial en el desarrollo de manuales metodológicos de ciencia, tecnología e innovación es:",
+ op:["La UNESCO","La RICYT","La OCDE","EUROSTAT"],
+ ok:2,
+ just:"La OCDE armoniza internacionalmente la producción y el tratamiento de los indicadores de I+D+i de sus países miembros. Es además la autora del Manual de Oslo y del documento de 1996 sobre economías basadas en el conocimiento.",
+ dist:"La UNESCO produce indicadores de innovación y la RICYT define los campos temáticos que se usan en la desagregación: las dos son respuestas plausibles para quien recuerda que aparecen en la lista. De los siete organismos, la OCDE es el único con un rasgo distintivo fuerte, así que las preguntas directas suelen ser sobre ella.",
+ ref:"M02 L4"},
+
+{n:30, mod:"02", lec:"L4", tema:"Criterios de Sebastián", nivel:"aplicar", tipo:"mc", src:"paquete",
+ q:"Un país mide el balance entre investigadores propios y extranjeros que participan en sus productos de I+D internacional. El criterio de Sebastián que está aplicando es:",
+ op:["Asociabilidad","Simetría","Género","Concentración"],
+ ok:1,
+ just:"Simetría es el balance entre participantes del país y del extranjero.",
+ dist:"Género es el otro balance de la lista, pero entre mujeres y hombres: las dos opciones usan la misma palabra clave y por eso forman uno de los pares más caros del módulo. Asociabilidad mide amplitud de países participantes y concentración mira cómo se reparten los proyectos dentro de la comunidad científica nacional.",
+ ref:"M02 L4"},
+
+/* --- Preguntas escritas sobre el material, fuera de la sección 9 --- */
+{n:101, mod:"01", lec:"L1", tema:"Definiciones de innovación", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"El Manual de Oslo (2005) define la innovación como la puesta en práctica de un producto, proceso, sistema de marketing o método organizativo, __________.",
+ op:["rentable y sostenible","nuevo o mejorado","tecnológicamente avanzado","validado por el mercado"],
+ ok:1,
+ just:"La fórmula exacta es «nuevo o mejorado», y esa disyunción es la que habilita a que una mejora cuente como innovación sin ser una novedad absoluta.",
+ dist:"Las tres incorrectas agregan requisitos que la definición no tiene. La A y la D suenan a criterio de negocio y la C mete tecnología, que es el agregado indebido más frecuente en esta lección.",
+ ref:"M01 L1"},
+
+{n:102, mod:"01", lec:"L1", tema:"Innovación tecnológica", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según Shilling, la innovación tecnológica es el inductor más importante del éxito competitivo en cualquier área de la empresa. Las áreas que la cátedra enumera son:",
+ op:["Productos, procesos, organización y marketing","Productos, servicios, personas y entorno","Investigación, desarrollo, producción y venta","Entorno, competencia, procesos y personas"],
+ ok:0,
+ just:"Son las mismas cuatro que usa el Manual de Oslo para definir innovación, de modo que la lección mantiene coherencia interna.",
+ dist:"La D son los cuatro componentes de la innovación de M01 L2, que también son cuatro y comparten dos palabras con la respuesta correcta. Es el cruce de listas más probable del módulo.",
+ ref:"M01 L1"},
+
+{n:103, mod:"01", lec:"L1", tema:"Creatividad", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Para la cátedra, la creatividad sirve únicamente para generar ideas que resuelvan problemas ya existentes.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La lección aclara que la creatividad también sirve para descubrir problemas aún no detectados y resolverlos. Restringirla a los problemas existentes deja afuera la mitad de la definición.",
+ dist:"La afirmación es una verdad a medias, que es el formato habitual del verdadero o falso en esta cátedra: toma una parte real de la definición y la presenta como si fuera toda.",
+ ref:"M01 L1"},
+
+{n:104, mod:"01", lec:"L1", tema:"Innovación tecnológica", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Las tres razones por las que la innovación tecnológica es, según González Sabater, la forma más relevante de producir innovaciones son:",
+ op:["Reducción de costos, aumento de ventas y mejora de la imagen de marca","Diferenciación a medio y largo plazo, valor añadido difícil de imitar y altas barreras de entrada","Rapidez de implementación, bajo riesgo y retorno inmediato","Patentabilidad, escalabilidad y transferibilidad"],
+ ok:1,
+ just:"Las tres razones son de sostenibilidad en el tiempo, no de impacto inmediato. Esa es la idea que la cátedra quiere dejar.",
+ dist:"La C afirma exactamente lo contrario, retorno inmediato, y por eso funciona para quien recuerda que había tres ventajas pero no cuáles. La A enumera beneficios comerciales genéricos que no están en el texto.",
+ ref:"M01 L1"},
+
+{n:105, mod:"01", lec:"L2", tema:"Los cuatro componentes", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La etiqueta que la cátedra le asigna al componente competencia dentro del proceso de innovación es:",
+ op:["Elemento estratégico","Elemento complementario","Fase operativa","Elemento indispensable"],
+ ok:1,
+ just:"Complementario, porque permite verificar primero la proyección de innovación que tienen los otros y con eso agilizar el diseño propio, pero no es condición de arranque.",
+ dist:"Las otras tres son las etiquetas reales de entorno, procesos y personas. El examen intercambia las cuatro parejas, así que conviene memorizarlas como bloque y no de a una.",
+ ref:"M01 L2"},
+
+{n:106, mod:"01", lec:"L2", tema:"Índice de competitividad", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Entre los sesenta primeros puestos del GCI que presenta la cátedra, el país latinoamericano mejor ubicado es:",
+ op:["México, en el puesto 55","Chile, en el puesto 23","Uruguay, en el puesto 54","Colombia, en el puesto 57"],
+ ok:1,
+ just:"Chile 23, Uruguay 54, México 55, El Salvador 56 y Colombia 57 son los cinco únicos países de América Latina entre los sesenta primeros.",
+ dist:"Las tres incorrectas son países y puestos reales de la lista, así que la pregunta se juega en el orden. Como el ranking completo es una imagen que no se recuperó del PDF escaneado, estos cinco pares son lo único verificable del material.",
+ ref:"M01 L2"},
+
+{n:107, mod:"01", lec:"L2", tema:"Factores de desarrollo", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Varela enumera cinco factores de desarrollo y acompaña a tres de ellos con una negación explícita. Una de esas negaciones es:",
+ op:["Recursos naturales, y no solo la tierra","Redes empresariales, y no solo alianzas","Recursos tecnológicos, y no solo maquinaria","Liderazgo, y no solo jerarquía"],
+ ok:0,
+ just:"Las tres negaciones del texto son: recursos naturales y no solo la tierra, recursos humanos capacitados y no solo mano de obra, recursos financieros y no solo capital.",
+ dist:"Las otras tres opciones inventan negaciones verosímiles sobre los dos factores que no la llevan. Es donde la cátedra arma distractores, porque la forma de la frase es idéntica.",
+ ref:"M01 L2"},
+
+{n:108, mod:"01", lec:"L2", tema:"Origen de las ideas", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Según Varela, la gran mayoría de las ideas empresariales surge de la experiencia previa del empresario y no de la investigación sistemática de mercado.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"La experiencia puede ser laboral, del área de formación o del ambiente en el que vivió.",
+ dist:"Marcar Falso es suponer que el camino formal del estudio de mercado es el habitual. Es el que enseñan los manuales, no el que registra Varela.",
+ ref:"M01 L2"},
+
+{n:109, mod:"01", lec:"L2", tema:"Agentes y destinatarios", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Según la cátedra, el área empresarial que más se ha estudiado es la identificación de las características de:",
+ op:["Los destinatarios o usuarios del conocimiento","Los agentes que transfieren","Los intermediarios institucionales","Los competidores del mismo rubro"],
+ ok:1,
+ just:"Es una afirmación textual de Varela, que la lección cita con página. De los agentes que transfieren se estudian historia, cultura, organización y política, más características motivacionales, de comportamiento, físicas e intelectuales.",
+ dist:"La A es la otra mitad del par y tiene su propio tratamiento en el texto, con la segmentación por edad, nivel socioeconómico, ubicación geográfica, género y nivel educativo. La C importa un término del Módulo 02.",
+ ref:"M01 L2"},
+
+{n:110, mod:"01", lec:"L3", tema:"Habilidades blandas", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Las dos habilidades que la cátedra destaca como claves iniciales para diseñar y desarrollar propuestas de valor con impacto son:",
+ op:["Creatividad e inteligencia emocional","Observación y empatía","Negociación y asertividad","Escucha activa y comunicación eficaz"],
+ ok:1,
+ just:"La lección dice que las empresas que lideran los rankings usaron la observación y la empatía como claves iniciales. Las dos están además entre las doce habilidades blandas del listado.",
+ dist:"Las tres incorrectas también están en la lista de doce, así que todas son habilidades del material. Lo que se pregunta es cuáles dos recibieron ese estatus especial.",
+ ref:"M01 L3"},
+
+{n:111, mod:"01", lec:"L3", tema:"Imperativos del cambio", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Dentro de los indicadores de los imperativos del cambio empresarial, la herramienta que la cátedra asocia a eliminar los residuos y desperdicios en procesos y procedimientos es:",
+ op:["Design thinking","Cool hunting","Lean thinking","Business intelligence"],
+ ok:2,
+ just:"Lean thinking va con la gestión operativa y táctica que elimina residuos y desperdicios. Design thinking va con la innovación centrada en la persona.",
+ dist:"La A es el par caro: las dos terminan en thinking y están en indicadores contiguos de la misma lista. Cool hunting va con el uso de tendencias sociales, culturales y de consumo, y business intelligence con la transformación digital.",
+ ref:"M01 L3"},
+
+{n:112, mod:"01", lec:"L3", tema:"Casos de la Figura 1", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"En la Figura 1 de la lección, la paradoja «la tienda comercializadora más famosa no tiene inventarios» corresponde a:",
+ op:["Amazon","Alibaba","Airbnb","Uber"],
+ ok:1,
+ just:"Los cuatro casos son Uber sin vehículos, Facebook sin contenido propio, Airbnb sin propiedades y Alibaba sin inventarios.",
+ dist:"Amazon no aparece en el material y es justamente la respuesta que da el sentido común. Airbnb comparte inicial con Alibaba y está en la misma figura. Conviene fijar los cuatro pares completos, porque la pregunta puede venir en cualquier dirección.",
+ ref:"M01 L3"},
+
+{n:113, mod:"01", lec:"L3", tema:"Disrupción", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Sobre cómo se da hoy el movimiento disruptivo en el mundo empresario, la cátedra sostiene que:",
+ op:["Se da de manera plausible y tranquila, como en décadas pasadas","Es radical y brusco, por lo que necesita tratamiento comercial rápido","Es siempre tecnológico y por lo tanto previsible","Solo afecta a las empresas que no invierten en I+D"],
+ ok:1,
+ just:"La lección contrasta las décadas pasadas, donde la disrupción era plausible y tranquila, con el presente, donde es radical y brusca.",
+ dist:"La A es exactamente la descripción del pasado, presentada como si fuera del presente. Los casos de Kodak, Blockbuster y Lehman Brothers se usan para ilustrar qué pasa cuando no se atiende ese cambio de ritmo.",
+ ref:"M01 L3"},
+
+{n:114, mod:"01", lec:"L3", tema:"Tipos de innovación", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"El criterio que la cátedra usa para clasificar los tres tipos de innovación es:",
+ op:["El tamaño de la inversión necesaria","El nivel y la calidad de la idea presentada, y su impacto en el core business","El grado de novedad tecnológica incorporada","El tiempo que tarda en llegar al mercado"],
+ ok:1,
+ just:"Es la formulación textual de la lección, y de ahí se desprende después el papel de la tecnología en cada tipo.",
+ dist:"La C es la trampa: el rol de la tecnología es lo que separa incremental de substancial, pero no es el criterio general de la clasificación, que es más amplio. Confundir el criterio con uno de sus efectos es el error fino de esta pregunta.",
+ ref:"M01 L3"},
+
+{n:115, mod:"01", lec:"L4", tema:"Gestión y estrategia", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Según la definición que toma la cátedra, gestión es la acción y efecto de gestionar, lo que implica:",
+ op:["Planificar, organizar, dirigir y controlar","Conducir, administrar, organizar y generar el funcionamiento","Analizar, formular, implementar y evaluar","Decidir, delegar, supervisar y corregir"],
+ ok:1,
+ just:"Son los cuatro verbos de la definición de la Real Academia Española que la lección reproduce.",
+ dist:"La A es el ciclo administrativo clásico y es la respuesta que da cualquiera que estudió administración: es el distractor más peligroso porque es correcto en otro marco. La C son las etapas de la acción estratégica de esta misma lección.",
+ ref:"M01 L4"},
+
+{n:116, mod:"01", lec:"L4", tema:"Macroentorno y microentorno", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Los proveedores, los intermediarios y los stakeholders forman parte del:",
+ op:["Macroentorno","Microentorno","Entorno de la demanda","Contexto interno"],
+ ok:1,
+ just:"El microentorno son clientes internos, proveedores, intermediarios, públicos objetivos y stakeholders. El macroentorno son las fuerzas políticas y las variables económicas, sociales, culturales y demográficas.",
+ dist:"La C es un término real de M01 L2, el entorno de la demanda, que designa otra cosa. La D pertenece a M02 L1 y nombra la cultura organizacional. Las tres incorrectas son conceptos del material usados fuera de lugar.",
+ ref:"M01 L4"},
+
+{n:117, mod:"01", lec:"L4", tema:"Personas en la transferencia", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Las labores de promoción, marketing y negociación dentro del proceso de transferencia de tecnología corresponden al:",
+ op:["Nivel directivo","Nivel técnico de gestión","Nivel técnico científico y tecnológico","Nivel de apoyo"],
+ ok:1,
+ just:"Los cuatro niveles son directivo, con planificación y decisión estratégica, técnico de gestión, con promoción, marketing y negociación, técnico científico y tecnológico, con implementación y asistencia técnica, y de apoyo, con administración.",
+ dist:"La C es el otro nivel técnico, y como los dos se llaman igual salvo por el paréntesis, es el par que la cátedra explota. Un distractor probable en otra versión de la pregunta es presentarlos como un solo nivel, lo que daría tres en vez de cuatro.",
+ ref:"M01 L4"},
+
+{n:118, mod:"01", lec:"L4", tema:"Transferencia de conocimiento", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"El pasaje del término «transferencia de tecnología» a «transferencia de conocimiento» ocurre:",
+ op:["A comienzos de los años noventa, con la globalización","A finales de los noventa, a partir de los estudios sobre economías basadas en el conocimiento de la OCDE de 1996","En 2008, con el trabajo de Castro Martínez y colaboradores","En 1996, exactamente, con la publicación del documento de la OCDE"],
+ ok:1,
+ just:"Hasta finales de los noventa el término más empleado era transferencia de tecnología. El disparador del cambio fue el documento Knowledge-Based Economy de la OCDE, de 1996.",
+ dist:"La D es la opción fina: 1996 es el año del documento, no el año en que cambió el uso del término. La cátedra escribe «a partir de entonces y coincidiendo con», que marca un proceso y no una fecha. La C toma el año del trabajo que lo cuenta.",
+ ref:"M01 L4"},
+
+{n:119, mod:"01", lec:"L4", tema:"Sociedad del conocimiento", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La sociedad del conocimiento se define como aquella capaz de __________ nuevo conocimiento para atender sus necesidades y construir su propio futuro.",
+ op:["generar, transmitir y transferir","producir, almacenar y distribuir","generar, apropiar y utilizar","crear, proteger y comercializar"],
+ ok:2,
+ just:"Generar, apropiar y utilizar. El verbo del medio, apropiar, es el que se olvida y el que distingue esta definición de las demás tríadas de la lección.",
+ dist:"La A son las tres funciones de la universidad, que están en el mismo apartado y a pocas líneas de distancia: es el cruce más probable de toda la lección. Las otras dos inventan tríadas plausibles.",
+ ref:"M01 L4"},
+
+{n:120, mod:"02", lec:"L1", tema:"Evento empresarial", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"El modelo del evento empresarial que toma la cátedra de Varela Villegas integra tres factores:",
+ op:["Entorno, empresario y empresa","Idea, oportunidad y plan","Recursos, capacidades y resultados","Mercado, producto y cliente"],
+ ok:0,
+ just:"El entorno condiciona al empresario y a la empresa, no al revés. El empresario, inmerso en ese entorno, identifica la oportunidad, le define valor, consigue los recursos, crea la organización, la gestiona y distribuye valor a la sociedad.",
+ dist:"La B toma tres de las seis etapas de creación de una empresa, que están en M02 L4 y son del mismo autor. Que las dos figuras vengan de Varela hace que se mezclen con facilidad.",
+ ref:"M02 L1"},
+
+{n:121, mod:"02", lec:"L1", tema:"Cinco fuerzas de Porter", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La primera de las cinco fuerzas competitivas, tal como la numera la cátedra, es la amenaza de nuevos entrantes, que se asocia a:",
+ op:["La rivalidad entre competidores del sector","Las barreras de entrada","El poder de negociación de los proveedores","La amenaza de productos sustitutivos"],
+ ok:1,
+ just:"La cátedra escribe textualmente «la amenaza de nuevos entrantes (barreras de entrada)», de modo que los dos términos van juntos.",
+ dist:"Las tres incorrectas son las otras fuerzas de la misma lista, lo que obliga a recordar el emparejamiento y no solo los cinco nombres. Barreras de entrada altas significa amenaza de nuevos entrantes baja, y esa inversión es otra pregunta posible.",
+ ref:"M02 L1"},
+
+{n:122, mod:"02", lec:"L1", tema:"Análisis del entorno", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"El verbo que la cátedra asocia a las oportunidades dentro del proceso de análisis del entorno es:",
+ op:["Potenciar","Compensar","Aprovechar","Mitigar"],
+ ok:2,
+ just:"Los cuatro verbos van emparejados: potenciar las fortalezas, compensar las debilidades, aprovechar las oportunidades y mitigar las amenazas.",
+ dist:"Los cuatro verbos de la lista aparecen como opciones, así que la pregunta se juega enteramente en el emparejamiento. La cátedra los enumera en una sola frase y en ese orden, lo que ayuda a memorizarlos de a pares.",
+ ref:"M02 L1"},
+
+{n:123, mod:"02", lec:"L1", tema:"Anexos del módulo", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Según el estudio de Estébanez sobre ciencia, tecnología y políticas sociales en Argentina, la relación entre el sistema científico y la gestión pública:",
+ op:["Responde a un modelo lineal, donde la investigación se traduce directamente en política","Es interactiva, y las vinculaciones son informales, personalizadas y no institucionalizadas","Está plenamente institucionalizada a través de convenios de largo plazo","Se limita al financiamiento de proyectos de investigación"],
+ ok:1,
+ just:"La autora descarta explícitamente el modelo lineal e ingenieril. En Argentina el conocimiento viene incorporado en personas más que en sistemas o productos.",
+ dist:"La A es el modelo que el estudio refuta y es el que se supone por defecto. La C afirma lo contrario del hallazgo central. Este anexo aparece como lectura recomendada en el PDF de la lección, así que es material evaluable.",
+ ref:"M02 L1"},
+
+{n:124, mod:"02", lec:"L2", tema:"Modelo unidireccional", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En el esquema unidireccional con el que se entendía la apropiación social de la ciencia, la audiencia se concebía como:",
+ op:["Activa, capaz de reinterpretar el mensaje","Pasiva, receptora de un mensaje cuyo núcleo permanece inalterado","Co-productora del conocimiento junto con los expertos","Filtro crítico de las controversias tecnocientíficas"],
+ ok:1,
+ just:"Emisor experto, audiencia pasiva y mensaje cuyo núcleo significante permanece inalterado durante la acción comunicativa. Bajo ese supuesto la apropiación se reducía a un cambio cognitivo medible con pruebas de alfabetización.",
+ dist:"La C es la posición que defienden los anexos de la lección, sobre todo la entrevista a Giraudo, pero no es lo que describe este apartado. Es la confusión entre lo que la cátedra describe como modelo vigente y lo que propone como alternativa.",
+ ref:"M02 L2"},
+
+{n:125, mod:"02", lec:"L2", tema:"Culturas de la ciencia", nivel:"recordar", tipo:"vf", src:"propia",
+ q:"Para la cátedra, dos sociedades con el mismo nivel de desarrollo de la ciencia necesariamente tienen la misma configuración de cultura científica.",
+ op:["Verdadero","Falso"],
+ ok:1,
+ just:"La lección afirma lo contrario y lo repite dos veces: para un mismo nivel de desarrollo de la ciencia puede haber diferentes configuraciones de la cultura científica.",
+ dist:"Que la cátedra repita una afirmación en dos párrafos distintos suele indicar que la va a preguntar. La razón está en el segundo componente de la tercera acepción: las valoraciones referidas a la ciencia no forman parte de la ciencia y varían entre sociedades.",
+ ref:"M02 L2"},
+
+{n:126, mod:"02", lec:"L2", tema:"Transdisciplina", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"En la entrevista que cierra el módulo, Giraudo distingue enfoques. El que implica que varias disciplinas analizan un problema pero no interaccionan entre sí es:",
+ op:["La multidisciplina transversal","La interdisciplina","La transdisciplina","La biología de la conservación"],
+ ok:0,
+ just:"En la multidisciplina ninguna disciplina influye sobre las otras. En la interdisciplina se entrecruzan y generan conocimiento nuevo que no es la mera suma. La transdisciplina incluye a la interdisciplina y suma participantes no académicos y saberes ancestrales.",
+ dist:"Los tres términos se parecen y se ordenan en escalera, así que la cátedra puede preguntar por cualquiera de los tres peldaños. El par más caro es interdisciplina contra transdisciplina, donde lo que decide es la presencia de participantes no académicos.",
+ ref:"M02 L2"},
+
+{n:127, mod:"02", lec:"L2", tema:"Lage Dávila", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Según Lage Dávila, el método científico regula:",
+ op:["Tanto la formulación de las preguntas como la evaluación de las respuestas","Cómo se responden las preguntas, pero no cómo se formulan","La objetividad del proceso social que produce el conocimiento","La velocidad a la que se acumulan los descubrimientos"],
+ ok:1,
+ just:"De ahí sale todo su argumento: si la formulación de la pregunta depende de la intuición, la creatividad y el conocimiento tácito, entonces depende de la cultura, y por eso se puede hacer ciencia en todas partes pero se hace de manera diferente.",
+ dist:"La C invierte la tesis del autor: el carácter objetivo vale para los resultados, no para el proceso social que los produce. La A es la posición del sentido común sobre el método científico.",
+ ref:"M02 L2"},
+
+{n:128, mod:"02", lec:"L3", tema:"Dimensiones de la práctica tecnológica", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Sobre la dimensión afectiva o emotiva de la práctica tecnológica, Acevedo Díaz sostiene que:",
+ op:["Es la primera de las tres dimensiones del modelo","Debería añadirse a las anteriores y subyace a ellas","Reemplaza a la dimensión ideológica y cultural","Solo aplica a las tecnologías de uso doméstico"],
+ ok:1,
+ just:"Las dimensiones originales son tres, técnica, organizativa e ideológica-cultural. La afectiva es una propuesta de agregado, y el autor dice que subyace a las anteriores.",
+ dist:"La A la incorpora como si fuera parte del modelo original, que es el error más común. Por eso conviene responder con cuidado a las preguntas de cantidad en este punto: si preguntan cuántas dimensiones tiene el modelo, son tres.",
+ ref:"M02 L3"},
+
+{n:129, mod:"02", lec:"L3", tema:"Ciencia y tecnología", nivel:"comprender", tipo:"vf", src:"propia",
+ q:"Según Cervera, en la tecnología entra por definición la economía y por lo tanto la política, mientras que en la ciencia no.",
+ op:["Verdadero","Falso"],
+ ok:0,
+ just:"Ese es el eje del artículo, y de ahí sale el problema que plantea sobre la frontera entre las dos.",
+ dist:"Marcar Falso es asumir que economía y política atraviesan por igual a las dos. La asimetría es justamente lo que el texto quiere mostrar.",
+ ref:"M02 L3"},
+
+{n:130, mod:"02", lec:"L3", tema:"Ciencia y tecnología", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Sobre el orden histórico entre ciencia y tecnología, la cátedra afirma que:",
+ op:["La ciencia se desarrolló antes, y la tecnología es su aplicación","La tecnología se desarrolló antes, porque respondía a la necesidad práctica e inmediata","Surgieron simultáneamente en la Revolución Industrial","No es posible determinar cuál precedió a cuál"],
+ ok:1,
+ just:"Cañedo Andalia lo ejemplifica: el ser humano aprendió a producir el fuego mucho antes de preguntarse sus causas, y a domesticar animales y construir casas sin poseer los conceptos de la genética ni del equilibrio.",
+ dist:"La A es el modelo 3 de Niiniluoto presentado como si fuera un hecho histórico, y es la respuesta del sentido común. Que la cátedra presente los cinco modelos sin elegir uno indica que la reducción de la tecnología a ciencia aplicada no es la posición correcta por defecto.",
+ ref:"M02 L3"},
+
+{n:131, mod:"02", lec:"L3", tema:"Fuerzas productivas", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Completar la fórmula de Cañedo Andalia: si el conocimiento representa la transformación del objeto material en ideal, el movimiento de la ciencia hacia la esfera productiva representa un proceso de transformación de __________.",
+ op:["lo ideal en material","lo material en ideal","lo individual en colectivo","lo teórico en experimental"],
+ ok:0,
+ just:"Es una simetría invertida, y ese es justamente el motivo por el que se pregunta.",
+ dist:"La B repite la primera mitad de la frase, que es el error más natural cuando se recuerda la fórmula a medias. La cátedra usa este tipo de construcción espejada varias veces en el módulo.",
+ ref:"M02 L3"},
+
+{n:132, mod:"02", lec:"L3", tema:"Invenciones y cambios", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Varela menciona estudios según los cuales el conocimiento e invenciones logrados en los últimos veinte años superan a lo producido en:",
+ op:["Los cincuenta años anteriores","Los cien años anteriores","Los trescientos años anteriores","Toda la historia previa de la humanidad"],
+ ok:2,
+ just:"Los dos números, veinte y trescientos, se preguntan tal cual. La conclusión que saca la cátedra es que hay que actualizar conocimientos e información en períodos cortos.",
+ dist:"La D es la versión exagerada del mismo dato y suena más impactante, lo que la vuelve tentadora. Las otras dos ofrecen cifras redondas plausibles. En las preguntas de dato duro conviene no razonar y responder el número del texto.",
+ ref:"M02 L3"},
+
+{n:133, mod:"02", lec:"L4", tema:"Formalización de indicadores", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"Entre los seis elementos a considerar para definir un indicador, los dos últimos que enumera la cátedra son:",
+ op:["Forma de cálculo y forma de representación","Definición de responsabilidades y definición de umbrales y objetivos","Selección y denominación del indicador","Fuente de información y frecuencia de seguimiento"],
+ ok:1,
+ just:"Los seis, en orden, son selección, denominación, forma de cálculo con su fuente, forma de representación, definición de responsabilidades y definición de umbrales y objetivos. Los dos últimos son los que se olvidan.",
+ dist:"La D mezcla dos conceptos que sí existen pero pertenecen a la parte de seguimiento de indicadores de M02 L1. Las otras dos ofrecen elementos reales de la lista, pero no los últimos.",
+ ref:"M02 L4"},
+
+{n:134, mod:"02", lec:"L4", tema:"Validación de indicadores", nivel:"comprender", tipo:"mc", src:"propia",
+ q:"Entre las preguntas con las que se valida un indicador diseñado, la cátedra incluye una que compara el costo con el beneficio. Su formulación es:",
+ op:["¿Es útil el indicador?","¿Se compensa el costo de obtención de la información con su utilidad?","¿El indicador sirve para tomar decisiones?","¿Su representación gráfica es clara?"],
+ ok:1,
+ just:"Es una de las seis preguntas de validación, y junto con la de compatibilidad entre indicadores es la más distintiva, porque no aparece en ninguna otra parte del material.",
+ dist:"Las tres incorrectas son también preguntas reales de la misma lista, de modo que la pregunta se juega en identificar cuál corresponde al criterio económico. Validar un indicador no es sobre la calidad del dato sino sobre si representa el concepto y si conviene obtenerlo.",
+ ref:"M02 L4"},
+
+{n:135, mod:"02", lec:"L4", tema:"Proyectos conjuntos", nivel:"aplicar", tipo:"mc", src:"propia",
+ q:"Un proyecto en el que participan investigadores del país junto con investigadores de otros dos países se clasifica como:",
+ op:["Bilateral","Trilateral","Multilateral","Red de investigación"],
+ ok:1,
+ just:"Bilateral es con investigadores de cualquier otro país, trilateral con investigadores de otros dos países, y multilateral con investigadores de más de tres países.",
+ dist:"La C y la D son la misma categoría, porque la cátedra dice que el caso multilateral puede considerarse una red de investigación. Conviene saber además que la definición literal deja sin categoría el caso de exactamente tres países contraparte, lo que es una falla del texto fuente registrada en las erratas.",
+ ref:"M02 L4"},
+
+{n:136, mod:"02", lec:"L4", tema:"Indicadores de I+D+i", nivel:"recordar", tipo:"mc", src:"propia",
+ q:"La definición de los indicadores de ciencia, tecnología e innovación que da el OVTT los presenta como instrumentos de:",
+ op:["Control, auditoría y certificación","Medición, análisis y comparación internacional","Planificación, ejecución y seguimiento","Recolección, almacenamiento y visualización"],
+ ok:1,
+ just:"Las tres funciones son medición, análisis y comparación internacional, y permiten comprender cómo evolucionan las actividades de I+D+i en los sistemas de ciencia, tecnología e innovación.",
+ dist:"La D usa vocabulario de gestión de datos, que es exactamente el vocabulario profesional que en el examen hay que dejar de lado. La C describe un ciclo de proyecto y no la función de un indicador.",
+ ref:"M02 L4"},
+
+/* --- Respuestas múltiples, el formato que la sección 9 no cubre --- */
+{n:201, mod:"01", lec:"L1", tema:"Condiciones de la innovación", nivel:"comprender", tipo:"ms", src:"propia",
+ q:"Seleccioná las tres condiciones que, según la cátedra, deben cumplirse a la vez para que una intervención se considere innovación.",
+ op:["Que la nueva versión sea mejor que la anterior","Que aporte valor","Que incorpore tecnología nueva","Que genere novedad en el lugar donde se implementó","Que esté protegida por una patente","Que reduzca los costos operativos"],
+ ok:[0,1,3],
+ just:"Son las tres que la lección fija y tienen que darse juntas. El efecto esperado es una modificación para bien de la estructura en la que se enfocó.",
+ dist:"La tecnología, la patente y la reducción de costos son los tres agregados indebidos más frecuentes. Ninguno figura entre las condiciones, y la tecnología además contradice la aclaración de que la innovación opera sobre actos creativos sean inventos o no.",
+ ref:"M01 L1"},
+
+{n:202, mod:"01", lec:"L3", tema:"Negocios disruptivos", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"De las siguientes afirmaciones, seleccioná las que la cátedra incluye entre las nueve características de los negocios disruptivos.",
+ op:["Presentan alta dosis de novedad","Están enfocados plenamente en las necesidades humanas","Todos tienen un organigrama y una estructura empresarial clásica","Su expansión a otros territorios es intensa","Requieren siempre una base tecnológica propia","Su rentabilidad y retorno de inversión evidencian buenos indicadores"],
+ ok:[0,1,3,5],
+ just:"Las cuatro seleccionadas son características literales de la lista de nueve.",
+ dist:"Las dos incorrectas son las versiones absolutas de dos características reales, que en el texto están formuladas al revés: no todos tienen organigrama clásico, y aunque la mayoría tiene vinculación estrecha con la tecnología, a veces se puede prescindir de ella. Cuando una opción usa «todos», «siempre» o «nunca» en esta lección, conviene desconfiar.",
+ ref:"M01 L3"},
+
+{n:203, mod:"01", lec:"L4", tema:"Personas en la transferencia", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los cuatro niveles de personal involucrado en el proceso de transferencia de tecnología, tal como los nombra la cátedra.",
+ op:["Nivel directivo","Nivel corporativo","Nivel técnico de gestión","Nivel de negocio","Nivel técnico científico y tecnológico","Nivel de apoyo","Nivel funcional"],
+ ok:[0,2,4,5],
+ just:"Directivo, técnico de gestión, técnico científico y tecnológico, y de apoyo. Los dos del medio se llaman los dos nivel técnico y se distinguen por el paréntesis.",
+ dist:"Corporativo, de negocio y funcional son los tres niveles de administradores de estrategias, que están en la misma lección apenas unos párrafos antes. Esta pregunta existe justamente porque mezclar las dos listas es el error más frecuente de M01 L4.",
+ ref:"M01 L4"},
+
+{n:204, mod:"02", lec:"L1", tema:"Análisis PEST", nivel:"aplicar", tipo:"ms", src:"propia",
+ q:"Seleccioná los ejemplos que la cátedra ubica dentro del factor político del análisis PEST.",
+ op:["Cambios en la legislación laboral","Evolución del PIB y del ciclo económico","Ayudas e incentivos por parte del Gobierno","Nuevos estilos de vida y tendencias","Prevención de riesgos","Internet y comercio virtual"],
+ ok:[0,2,4],
+ just:"Los tres ejemplos del factor político son cambios políticos y en la legislación laboral, ayudas e incentivos del Gobierno y prevención de riesgos.",
+ dist:"La opción «Evolución del PIB y del ciclo económico» es del factor económico, la cuarta del social y demográfico y la sexta del tecnológico. La asignación de ejemplos a factores es lo que más se confunde, y conviene saber que la Figura 3 del PDF llegó desarmada del escaneo: la ubicación de «acciones del Gobierno» quedó dudosa y está registrada en las erratas.",
+ ref:"M02 L1"},
+
+{n:205, mod:"02", lec:"L2", tema:"Ciencia abierta", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los componentes que la UNESCO incluye dentro de la ciencia abierta, según la figura de la lección.",
+ op:["Código abierto","Evaluación abierta","Patentes abiertas","Ciencia ciudadana","Financiación colectiva","Mercado abierto","Cuadernos de notas abiertos"],
+ ok:[0,1,3,4,6],
+ just:"Los once componentes son código abierto, acceso abierto, datos abiertos, evaluación abierta, equipos abiertos, recursos educativos abiertos, laboratorios abiertos, cuadernos de notas abiertos, ciencia ciudadana, financiación colectiva e innovación abierta.",
+ dist:"Patentes abiertas y mercado abierto suenan coherentes con el movimiento pero no están en la lista. Dos aclaraciones útiles: la evaluación abierta y los cuadernos de notas abiertos son los dos que más se olvidan, y como la figura del PDF llegó como palabras sueltas del escaneo, la cantidad de once conviene verificarla contra el original.",
+ ref:"M02 L2"},
+
+{n:206, mod:"02", lec:"L3", tema:"Modelos de Niiniluoto", nivel:"comprender", tipo:"ms", src:"propia",
+ q:"Seleccioná los modelos de relación entre ciencia y tecnología que Niiniluoto clasifica como monistas.",
+ op:["Son independientes ontológica y causalmente","Tienen independencia ontológica pero hay interacción entre ambas","La tecnología se subordina a la ciencia y puede reducirse a ella","La ciencia se subordina a la tecnología y puede reducirse a ella","Son la misma cosa, la tecnociencia posmoderna"],
+ ok:[2,3,4],
+ just:"Los dos primeros modelos son dualistas y los tres siguientes monistas. Dualismo es independencia ontológica, con interacción o sin ella. Monismo es reducción de una a la otra, o identidad.",
+ dist:"El segundo modelo es el que más se cuela entre los monistas, porque la palabra interacción sugiere que ya no son independientes. La independencia que define al dualismo es ontológica, no causal: dos cosas pueden interactuar y seguir teniendo entidad propia.",
+ ref:"M02 L3"},
+
+{n:207, mod:"02", lec:"L4", tema:"Indicadores de I+D+i", nivel:"recordar", tipo:"ms", src:"propia",
+ q:"Seleccioná los tipos de indicadores de I+D+i que enumera el OVTT.",
+ op:["Indicadores bibliométricos","Indicadores de patentes","Indicadores de rentabilidad","Indicadores sobre cultura científica","Indicadores de satisfacción del usuario","Indicadores sobre vinculación universidad-empresa","Indicadores sobre formación y movilidad"],
+ ok:[0,1,3,5,6],
+ just:"Los diez tipos son de contexto, de actividad en I+D, de patentes, de innovación, bibliométricos, sobre talento en I+D+i, sobre cultura científica, sobre vinculación universidad-empresa, sobre emprendimiento, y sobre formación y movilidad.",
+ dist:"Rentabilidad y satisfacción del usuario son indicadores de gestión empresarial y no figuran en esta lista, que es específica de ciencia, tecnología e innovación. Dos de los tipos correctos cierran el círculo del parcial: cultura científica remite a M02 L2 y vinculación universidad-empresa a la tercera misión de M01 L4.",
+ ref:"M02 L4"},
+];
+
+/* ---------- Bancos sin contenido en este parcial ---------- */
+const TPS = [];
+const PREG = [];
+
+/* ---------- Definición en castellano, por concepto ---------- */
+const D_TRIADA=`<b>Las tres nociones del accionar humano</b> son la forma en que la cátedra explica por qué el ser humano cambia las cosas. Primero está el <b>cambio</b>, que es darse cuenta de que algo podría ser distinto. Después la <b>acción</b>, que es hacer efectivamente lo que hace falta para que ese cambio ocurra: sin esto la idea queda en la cabeza. Y por último el <b>mejoramiento</b>, que es asegurarse de que lo nuevo sea mejor que lo viejo y de que el ciclo vuelva a empezar. Lo importante es que no terminan: la cátedra dice que el ciclo es continuo e incesante.`;
+
+const D_TRIADA_INNOV=`<b>Creatividad, invención e innovación son tres momentos de una misma historia.</b> La creatividad es cuando se te ocurre la idea, y todavía no existe nada fuera de tu cabeza. La invención es cuando construís el objeto y funciona, aunque no lo use nadie: existe la cosa pero no existe el cliente. La innovación recién aparece cuando eso llega al mercado y alguien lo adquiere o lo usa. Un prototipo brillante encerrado en un laboratorio es invención, no innovación, por más patentes que tenga.`;
+
+const D_CONDICIONES=`<b>No toda mejora es innovación.</b> La cátedra pide tres cosas al mismo tiempo: que la versión nueva sea mejor que la anterior, que aporte valor, y que genere novedad en el lugar donde se implementó. Fijate que ninguna de las tres menciona tecnología. Se puede innovar cambiando la forma de organizar un equipo, sin comprar un solo equipo nuevo.`;
+
+const D_DEFINICIONES=`<b>La cátedra recoge nueve definiciones de innovación de nueve autores distintos</b>, ordenadas de 1934 a 2009. No hay que elegir la correcta: hay que saber de quién es cada una, porque el examen pregunta por autor y año. Las dos que más conviene tener fijas son la primera, de Schumpeter, que habla de hacer las cosas de modo distinto en la vida económica, y la del Manual de Oslo de 2005, que define por cuatro objetos: producto, proceso, marketing y organización.`;
+
+const D_INNOVTEC=`<b>La innovación tecnológica es una especie dentro del género innovación</b>, no un sinónimo. Se llama así cuando la innovación se consigue usando tecnología o conocimiento científico, o cuando introduce un cambio técnico en un producto o proceso. La cátedra la destaca porque sus ventajas duran: diferenciación a medio y largo plazo, valor difícil de copiar y barreras que le cuesta cruzar a quien quiera entrar al mercado. Ninguna de las tres razones habla de resultado rápido.`;
+
+const D_CREATIVIDAD=`<b>La creatividad tiene dos caras y la segunda se olvida.</b> La primera es la conocida: generar ideas para resolver problemas que ya existen. La segunda es descubrir problemas que nadie había detectado todavía, y después resolverlos. Esta segunda cara es la que conecta con el concepto de insight, que también es algo que está ahí sin que nadie lo haya dicho en voz alta.`;
+
+const D_DRUCKER=`<b>Drucker propone siete lugares donde mirar para encontrar oportunidades de innovación.</b> La idea de fondo es que buscar oportunidades es un trabajo sistemático y no una cuestión de inspiración. Las cuatro primeras miran hacia adentro de la industria o del proceso: algo que sorprende, algo que no cierra, un proceso que pide arreglo, una industria que se desarma. Las tres últimas vienen de afuera: cambia la población, cambia cómo la gente ve las cosas, aparece conocimiento nuevo.`;
+
+const D_COMPONENTES=`<b>Los cuatro componentes son las cuatro patas que hay que mirar para implementar innovación</b>, y cada una tiene un rótulo fijo que la cátedra pregunta. El <b>entorno</b> es estratégico: es lo que habilita o bloquea el proyecto, la ley, la cultura, el ambiente. La <b>competencia</b> es complementaria: mirar qué hacen los otros ayuda pero no es condición de arranque. Los <b>procesos</b> son la fase operativa: manuales, sistemas, gestión del proyecto. Y las <b>personas</b> son el elemento indispensable y ocupan la escena central, en sus dos roles, el usuario de afuera y el colaborador de adentro.`;
+
+const D_GCI=`<b>El GCI es un ranking de competitividad entre países</b> que publica todos los años el Foro Económico Mundial, que tiene sede en Suiza. No es un número solo: se arma con tres índices. Uno mide lo tecnológico, otro mide qué tan confiables son las instituciones públicas, y el tercero mide la estabilidad de la economía. El dato que la cátedra remarca es que entre los sesenta primeros puestos hay apenas cinco países latinoamericanos.`;
+
+const D_FACTORES=`<b>Los cinco factores de desarrollo son los recursos que hacen falta para que una región crezca</b>, y tres de ellos vienen con una advertencia pegada: recursos naturales y no solo la tierra, recursos humanos capacitados y no solo mano de obra, recursos financieros y no solo capital. Los otros dos son los recursos tecnológicos y de información y las redes empresariales. La aclaración que cierra el punto es que juntar todo eso no alcanza: hace falta alguien que lo integre, y ese alguien es el líder empresarial.`;
+
+const D_IDEAS=`<b>De dónde salen las ideas de negocio.</b> Contra lo que uno supondría, la cátedra dice que la gran mayoría no sale de estudiar el mercado sino de la experiencia previa de la persona: de su trabajo, de lo que estudió, del barrio donde vivió, de problemas que vio de cerca o de cosas que a ella misma le faltaban. Es la misma lógica del insight: lo que sirve está latente en la experiencia, no en un informe.`;
+
+const D_AGENTES=`<b>En una transferencia hay dos partes y se estudian distinto.</b> Los <b>agentes que transfieren</b> son quienes producen y ceden el conocimiento: grupos de investigación, el instituto donde están, la organización a la que pertenecen, con su historia y su cultura. Los <b>destinatarios</b> son quienes lo reciben: una empresa, un gobierno, un consumidor, hasta un grupo informal. De los primeros se estudia cómo son por dentro, de los segundos se estudia cómo segmentarlos.`;
+
+const D_INSIGHT=`<b>Un insight no es un dato.</b> Es algo que la persona siente o necesita pero todavía no puso en palabras, ni siquiera para sí misma: por eso la cátedra lo llama <b>latente</b>. Tiene una parte racional y una parte emocional, y se llega a él mirando y poniéndose en el lugar del otro, no preguntando en una encuesta. Si ya salió en un informe de mercado, dejó de ser un insight y pasó a ser un dato.`;
+
+const D_DISRUPTIVO=`<b>Un negocio disruptivo es el que entrega algo valioso diseñado a partir de un insight</b>, y no a partir de mejorar lo que ya existe. La cátedra le reconoce nueve características, pero la que hay que tener presente es la última: la mayoría usa tecnología, aunque a veces se pueda prescindir de ella. Los cuatro ejemplos de la figura comparten la misma rareza: el líder de la categoría no posee el activo que define a esa categoría.`;
+
+const D_TIPOS=`<b>Los tres tipos de innovación se distinguen sobre todo por una pregunta: qué papel juega la tecnología.</b> En la <b>incremental</b> la tecnología no entra en juego: son cambios chicos, mejora continua, el mismo mercado de siempre. En la <b>substancial</b> la tecnología es el factor que hace la diferencia, aunque el cliente siga siendo el mismo. En la <b>radical</b> se redefine la categoría entera y directamente no hay competidores viejos contra quienes medirse. Las dos primeras se llaman también innovaciones de apoyo.`;
+
+const D_DISRUPCION=`<b>Disrupción quiere decir rotura, interrupción brusca.</b> Es cuando un orden establecido se modifica. La cátedra remarca un cambio de ritmo: antes esto pasaba despacio y se podía acompañar, ahora pasa de golpe y hay que reaccionar rápido. Los tres ejemplos de empresas que no reaccionaron a tiempo son Kodak, Blockbuster y Lehman Brothers.`;
+
+const D_HABILIDADES=`<b>Las doce habilidades blandas</b> son las capacidades personales con las que, según la cátedra, se diseñan negocios nuevos. La lista empieza con empatía y termina con negociación, y cierra con un etcétera, lo que significa que no es cerrada. Dos de ellas tienen estatus especial porque la lección las nombra antes, como claves iniciales para diseñar propuestas de valor: <b>observación y empatía</b>.`;
+
+const D_IMPERATIVOS=`<b>Los imperativos del cambio empresarial son las razones que obligan a una empresa a rediseñar lo que ofrece.</b> Imperativo, acá, quiere decir exigencia inexcusable: no es una sugerencia. La cátedra lista ocho indicadores para detectarlos, y a cuatro de ellos les pega una herramienta con nombre en inglés. Las dos que más se confunden son <b>design thinking</b>, que va con poner a la persona en el centro, y <b>lean thinking</b>, que va con sacar desperdicios de los procesos.`;
+
+const D_GESTION=`<b>Gestionar, para esta cátedra, son cuatro verbos concretos:</b> conducir, administrar, organizar y generar el funcionamiento de una iniciativa o proyecto. Vale la pena fijarlos así porque quien estudió administración tiende a contestar con el ciclo clásico de planificar, organizar, dirigir y controlar, que es correcto en otro marco pero no es lo que pide el examen.`;
+
+const D_ESTRATEGIA=`<b>Estrategia, según Hill, es un conjunto de acciones relacionadas que ejecutan los administradores con la intención de mejorar el desempeño de su compañía.</b> Tres cosas: son acciones que se relacionan entre sí, las ejecuta alguien que administra, y hay una intención de mejorar. El concepto viene del mundo militar y se pasó al empresarial como marco para planificar cómo competir.`;
+
+const D_MACROMICRO=`<b>Macroentorno y microentorno se separan por cuánto puede incidir la empresa.</b> En el <b>macroentorno</b> no incide: la política nacional e internacional, la economía, lo social, lo cultural, lo demográfico. En el <b>microentorno</b> interactúa todos los días: clientes internos, proveedores, intermediarios, públicos objetivos y stakeholders. La palabra stakeholder, que en el trabajo se usa para cualquier interesado, acá cae claramente del lado micro.`;
+
+const D_NIVELES=`<b>Los tres niveles de administradores de estrategias responden a quién decide qué.</b> El <b>corporativo</b> lo lleva el CEO y define el rumbo de toda la compañía, pero solo existe si la empresa tiene más de una unidad de negocio. El <b>de negocio</b> lo lleva un gerente de área y busca un posicionamiento propio para su unidad, a mediano y corto plazo. El <b>funcional</b> lo llevan los mandos medios y es el día a día: compras, recursos humanos, atención al cliente.`;
+
+const D_PERSONAS=`<b>En una transferencia de tecnología participan cuatro niveles de personas.</b> El <b>directivo</b> planifica y decide. El <b>técnico de gestión</b> promociona, hace marketing y negocia. El <b>técnico científico y tecnológico</b> implementa la tecnología y da asistencia técnica. El <b>de apoyo</b> administra. Ojo con los dos del medio: los dos se llaman nivel técnico y solo los distingue lo que va entre paréntesis.`;
+
+const D_TECNOLOGIA=`<b>Para esta cátedra, tecnología no es sinónimo de aparatos modernos.</b> Es una forma de hacer cosas que junta tres cosas a la vez: un objetivo, un modo y un saber. Por eso dice que la tecnología es la dimensión social de la técnica, y que lo que define a una tecnología no es si viene de las ciencias o de las letras, sino si logra convertir un saber abstracto en un saber-hacer. Toda sociedad humana, incluso la más antigua, fue tecnológica.`;
+
+const D_CAMBIOTERMINO=`<b>Por qué se dejó de decir transferencia de tecnología.</b> Hasta finales de los noventa ese era el término habitual. Después empezó a usarse transferencia de conocimiento, por dos motivos: el término nuevo abarca tanto el objeto físico como el saber que va con él, y además deja entrar a las ciencias humanas y sociales, que no producen objetos. El disparador fue el estudio de la OCDE sobre economías basadas en el conocimiento, de 1996, pero el cambio de uso fue posterior y gradual.`;
+
+const D_UNIVERSIDAD=`<b>La universidad hace tres cosas distintas con el conocimiento y conviene no mezclarlas.</b> <b>Generar</b> es producirlo, y se hace con investigación y desarrollo. <b>Transmitir</b> es difundirlo, y se hace formando gente y publicando resultados. <b>Transferir</b> es resolver con él un problema concreto de una empresa. Publicar un artículo, por más que lo lea todo el mundo, es transmitir. Esa tercera función se llama la tercera misión de la universidad.`;
+
+const D_SOCCONOC=`<b>Sociedad del conocimiento</b> es aquella capaz de generar, apropiar y utilizar conocimiento nuevo para atender sus necesidades y construir su futuro. El verbo del medio es el que se olvida: apropiar significa hacerlo propio, incorporarlo, no solo recibirlo. Cuidado con confundir estos tres verbos con las tres funciones de la universidad, que están en el mismo apartado.`;
+
+const D_INTEXT=`<b>El entorno de una organización se parte en dos.</b> Lo <b>interno</b> es lo que depende de ella, sobre todo su cultura: costumbres, prácticas, valores, creencias. De ahí salen fortalezas, que se potencian, y debilidades, que se compensan. Lo <b>externo</b> es lo que pasa afuera: de ahí salen oportunidades, que se aprovechan, y amenazas, que se mitigan. La regla corta para no equivocarse: si depende de vos, es interno.`;
+
+const D_EVENTO=`<b>El evento empresarial</b> es el modelo con el que Varela explica que nadie emprende en el vacío. Son tres piezas: el <b>entorno</b>, el <b>empresario</b> y la <b>empresa</b>, y el entorno condiciona a las otras dos. El empresario hace seis cosas en secuencia: identifica la oportunidad, le define valor, consigue recursos, crea la organización, la gestiona y devuelve valor a la sociedad.`;
+
+const D_PEST=`<b>PEST es una lista de control para mirar lo que pasa afuera y no se puede controlar.</b> Son cuatro casilleros: político, económico, social y demográfico, y tecnológico. La advertencia que hace la cátedra es que el mismo hecho no pega igual en todas las organizaciones, ni siquiera entre las del mismo rubro. Y destaca a la demografía como el factor más fácil de medir y la raíz de muchos cambios sociales.`;
+
+const D_PORTER=`<b>Las cinco fuerzas de Porter miden cuánta presión hay en un sector</b>, y la regla que hay que tener clara es contraintuitiva: <b>las cinco actúan en contra de la rentabilidad</b>. Cuanto más pesan, menos rentable es el sector. Por eso un sector rentable es aquel donde las cinco tienen poca importancia, y uno malo es donde alguna pesa mucho. Las cinco son: nuevos entrantes, clientes, proveedores, sustitutos y rivalidad interna.`;
+
+const D_DAFO=`<b>DAFO es la herramienta que cruza los dos planos a la vez.</b> Del lado interno pone Debilidades y Fortalezas, del externo Amenazas y Oportunidades. Cada una tiene su verbo: potenciar fortalezas, compensar debilidades, aprovechar oportunidades, mitigar amenazas. En Argentina se dice FODA, pero en el examen va DAFO, que es como la nombra la cátedra.`;
+
+const D_ESTEBANEZ=`<b>El anexo de Estébanez estudia cómo se usa el conocimiento científico en los programas sociales del Estado argentino.</b> Su conclusión es que la relación no funciona como una cadena de montaje, donde la investigación entra por un lado y sale política por el otro, sino como un ida y vuelta. Y que en Argentina esos vínculos son informales y dependen de personas concretas: el conocimiento «viene incorporado en personas», no en instituciones.`;
+
+const D_QUINTANILLA=`<b>Ciencia y cultura científica no son lo mismo, y Quintanilla lo ordena con dos principios.</b> El primero: la ciencia siempre es parte de la cultura de una sociedad. El segundo: no todo lo que llamamos cultura científica es ciencia. El orden importa porque la cátedra los cita numerados. Y el término se usa de tres formas distintas: como sinónimo de ciencia, como la parte de la ciencia que comparte el público en general, y como la franja de cultura que es compatible con la actividad científica.`;
+
+const D_ENCUESTAS=`<b>Lo que descubrieron las encuestas de los años noventa.</b> Se daba por hecho que cuanto más educada era la gente, más confiaba en la ciencia y la tecnología. Las encuestas mostraron que eso ya no se cumplía. El resultado obligó a cambiar el enfoque: dejó de alcanzar con medir cuánto sabía la gente y hubo que mirar en qué contexto se apropia de la ciencia y cuánto se involucra con ella.`;
+
+const D_CIENCIAABIERTA=`<b>La ciencia abierta busca que lo que produce la ciencia esté disponible para cualquiera</b>, sea investigador, aficionado o profesional, y con más razón si se pagó con fondos públicos. La frase que la cátedra repite es que permite un avance <b>exponencial más que lineal</b> del conocimiento. La UNESCO la descompone en once piezas, que van desde el acceso a los artículos hasta los laboratorios, la evaluación y hasta cómo se financia la investigación.`;
+
+const D_TRANSDISCIPLINA=`<b>Tres formas de juntar disciplinas, de menor a mayor integración.</b> En la <b>multidisciplina</b> cada una mira el problema desde su lado y no se hablan entre sí. En la <b>interdisciplina</b> se cruzan, se ponen objetivos comunes y producen algo que ninguna habría producido sola. En la <b>transdisciplina</b> pasa todo eso y además entra gente que no es académica: comunidades, saberes ancestrales, quienes viven el problema.`;
+
+const D_LAGE=`<b>El argumento de Lage en una línea: el método científico te dice cómo contestar, no qué preguntar.</b> Y como la pregunta sale de la intuición, de lo que uno vivió y de lo que sabe sin poder explicarlo, entonces sale de la cultura. De ahí su frase: se puede hacer ciencia en todas partes, pero se hace de manera diferente. Los resultados de la ciencia son objetivos, el proceso social que los produce no.`;
+
+const D_CIENCIATEC=`<b>Ciencia y tecnología se separan por para qué existe cada una.</b> Las ciencias quieren <b>entender</b> cómo funciona el universo, y lo que producen son teorías. Las tecnologías quieren <b>cambiar</b> el mundo para que nos sirva mejor, y siempre son «para» algo. De ahí sale la consecuencia que más le importa a Cervera: en tecnología se discute si conviene hacer algo, porque hay plata y política de por medio, pero los hechos que describe la ciencia no se discuten por conveniencia.`;
+
+const D_COMPCIENCIA=`<b>Cañedo Andalia descompone la ciencia en cuatro partes.</b> El factor <b>humano</b> son los científicos y quienes los acompañan. El <b>social</b> son las relaciones de trabajo que arman entre ellos: sociedades, grupos, equipos. El <b>cognitivo</b> es el conocimiento en sí y cómo circula, e incluye a las leyes científicas. El <b>material</b> son los instrumentos, los equipos y los edificios donde todo eso pasa.`;
+
+const D_DIMENSIONES=`<b>La práctica tecnológica tiene tres dimensiones, y una cuarta que se propone agregar.</b> La <b>técnica</b> es la que todos imaginan y la más pobre. La <b>organizativa</b> mete lo social y lo político. La <b>ideológica y cultural</b> mete los valores de quienes diseñan. Y Acevedo Díaz propone sumar una <b>afectiva</b>, la de lo que uno siente al usar tecnología, que según él está por debajo de las otras tres. Si preguntan cuántas dimensiones tiene el modelo, son tres.`;
+
+const D_NIINILUOTO=`<b>Cinco maneras posibles de entender la relación entre ciencia y tecnología.</b> Las dos primeras son <b>dualistas</b>: cada una tiene entidad propia, y la diferencia entre ellas es si además interactúan o no. Las tres siguientes son <b>monistas</b>: o la tecnología se reduce a la ciencia, o la ciencia se reduce a la tecnología, o directamente son lo mismo. Decir que la tecnología es ciencia aplicada es el modelo 3. La cátedra presenta los cinco sin elegir ninguno.`;
+
+const D_FUERZAS=`<b>Una simetría que conviene memorizar entera.</b> Conocer algo es pasar lo material a lo ideal: el objeto existe afuera y termina siendo una idea en la cabeza. Aplicar ciencia a la producción es el camino inverso: la idea existe primero y termina siendo un objeto. La cátedra también contrasta que los sistemas biológicos se adaptan al medio mientras que la sociedad humana lo modifica.`;
+
+const D_INVENCIONES=`<b>Datos duros sobre la aceleración del conocimiento.</b> La cátedra cita una lista de las diez invenciones más importantes según un relevamiento de 1997, que arranca con electricidad, microprocesadores, computadores y ADN. Y cita estudios según los cuales lo producido en los últimos veinte años supera a lo producido en los trescientos años anteriores. Los números se preguntan tal cual, sin razonar.`;
+
+const D_ETAPAS=`<b>Crear una empresa tiene seis etapas, y los indicadores aparecen en dos de ellas.</b> Primero la idea, después la oportunidad, después evaluar y decidir. En la <b>cuarta</b>, cuando se arma el plan de empresa, es cuando se <b>diseñan</b> los indicadores junto con las metas. Después viene el arranque. Y en la <b>sexta</b>, crecimiento y desarrollo, es cuando se <b>mide</b> si esas metas se cumplieron. Diseñar y medir nunca pasan en la misma etapa.`;
+
+const D_FORMALIZACION=`<b>Formalizar un indicador es bastante más que escribir la fórmula.</b> Son seis pasos: elegir qué medir, ponerle nombre, definir cómo se calcula y de dónde sale el dato, decidir cómo se muestra, decir quién responde por él y fijar a partir de qué valor hay que preocuparse. Los dos últimos son los que se saltean siempre. Y hay seis preguntas para validarlo después, entre ellas si representa lo que se quiere conocer y si vale lo que cuesta conseguirlo.`;
+
+const D_INDICADORES=`<b>Los indicadores de ciencia, tecnología e innovación sirven para tres cosas:</b> medir, analizar y comparar entre países. Con ellos se ve cómo evolucionan las actividades de I+D+i, que quiere decir investigación, desarrollo e innovación. El OVTT los agrupa en diez tipos, y dos de esos tipos conectan con el resto del parcial: los de cultura científica y los de vinculación entre universidad y empresa.`;
+
+const D_ORGANISMOS=`<b>Siete organismos producen indicadores de ciencia y tecnología, y solo uno tiene un rasgo propio.</b> La <b>OCDE</b> es la líder mundial en manuales metodológicos: es la que pone las reglas con las que todos los demás miden. Los otros seis se describen casi con la misma frase y se distinguen por qué tipo de indicador aportan. La OCDE además es la autora del Manual de Oslo y del documento de 1996 sobre economías basadas en el conocimiento: es el organismo que más veces aparece en todo el parcial.`;
+
+const D_SEBASTIAN=`<b>Los diez criterios de Sebastián miden distintos aspectos de una misma cosa:</b> los resultados concretos de trabajar con otros países en investigación. Agrupados quedan más fáciles: cuánto se produjo (intensidad), con cuánta variedad de países, temas e instituciones (las tres diversificaciones), cuántos países entran en cada trabajo y qué tan repartidos están los investigadores locales (asociabilidad y concentración), dos balances (mujeres y hombres, locales y extranjeros) y qué pasa después con lo producido (visibilidad e impacto).`;
+
+const D_PROYECTOS=`<b>Los proyectos internacionales se cuentan por cuántos países participan además del propio.</b> Con uno más es <b>bilateral</b>, con dos más es <b>trilateral</b>, y con más de tres es <b>multilateral</b>, caso en el que ya se habla de una red de investigación. La definición tal como está escrita deja un hueco en el caso de exactamente tres países contraparte, y eso es una falla del texto fuente, no un error de lectura.`;
+
+const DEF = {
+1:D_TRIADA, 2:D_TRIADA_INNOV, 3:D_DEFINICIONES, 4:D_CONDICIONES, 5:D_DRUCKER,
+6:D_COMPONENTES, 7:D_GCI, 8:D_INSIGHT, 9:D_TIPOS, 10:D_TIPOS, 11:D_DISRUPTIVO,
+12:D_NIVELES, 13:D_UNIVERSIDAD, 14:D_UNIVERSIDAD, 15:D_TECNOLOGIA,
+16:D_INTEXT, 17:D_PEST, 18:D_PORTER, 19:D_PEST, 20:D_DAFO,
+21:D_QUINTANILLA, 22:D_QUINTANILLA, 23:D_ENCUESTAS, 24:D_CIENCIAABIERTA,
+25:D_CIENCIATEC, 26:D_COMPCIENCIA, 27:D_NIINILUOTO, 28:D_ETAPAS, 29:D_ORGANISMOS, 30:D_SEBASTIAN,
+101:D_DEFINICIONES, 102:D_INNOVTEC, 103:D_CREATIVIDAD, 104:D_INNOVTEC,
+105:D_COMPONENTES, 106:D_GCI, 107:D_FACTORES, 108:D_IDEAS, 109:D_AGENTES,
+110:D_HABILIDADES, 111:D_IMPERATIVOS, 112:D_DISRUPTIVO, 113:D_DISRUPCION, 114:D_TIPOS,
+115:D_GESTION, 116:D_MACROMICRO, 117:D_PERSONAS, 118:D_CAMBIOTERMINO, 119:D_SOCCONOC,
+120:D_EVENTO, 121:D_PORTER, 122:D_INTEXT, 123:D_ESTEBANEZ,
+124:D_ENCUESTAS, 125:D_QUINTANILLA, 126:D_TRANSDISCIPLINA, 127:D_LAGE,
+128:D_DIMENSIONES, 129:D_CIENCIATEC, 130:D_CIENCIATEC, 131:D_FUERZAS, 132:D_INVENCIONES,
+133:D_FORMALIZACION, 134:D_FORMALIZACION, 135:D_PROYECTOS, 136:D_INDICADORES,
+201:D_CONDICIONES, 202:D_DISRUPTIVO, 203:D_PERSONAS, 204:D_PEST,
+205:D_CIENCIAABIERTA, 206:D_NIINILUOTO, 207:D_INDICADORES
+};
+
+/* ---------- Teoría completa, por concepto ---------- */
+const T_TRIADA=`<p>Varela Villegas arranca la materia por el nivel antropológico. Para buscar progreso, desarrollo, bienestar y superación, el género humano usa tres nociones básicas, y el orden en que se enumeran es el que pregunta la cátedra.</p>
+<table><tr><th>#</th><th>Noción</th><th>Qué aporta</th></tr>
+<tr><td>1</td><td>Cambio, modificación</td><td>Buscar formas nuevas y creativas de resolver problemas y limitaciones, identificar oportunidades, atender necesidades y deseos. Es decir, innovar</td></tr>
+<tr><td>2</td><td>Acción, realización</td><td>Llevar a cabo las actividades requeridas para que los cambios se implementen efectivamente</td></tr>
+<tr><td>3</td><td>Mejoramiento, superación</td><td>Dirigir los cambios hacia mejores situaciones y resultados, y lograr que el ciclo sea continuo e incesante</td></tr></table>
+<p>El ciclo se llama <b>ciclo cambio-acción-mejoramiento</b> y reaparece en la Lección 2 bajo el nombre de <b>modelo de transformación</b>, con esta correspondencia: identificación de oportunidad y solución innovadora va con cambio, acción va con acción, y mejoramiento continuo va con mejoramiento.</p>
+<p><b>Choque de vocabulario.</b> En el trabajo con datos, detectar un problema es un ticket, arreglarlo es un fix y medir que no vuelva a pasar es monitoreo. Para la cátedra son cambio, acción y mejoramiento, y lo que convierte un arreglo puntual en ciclo es justamente el tercero.</p>`;
+
+const T_TRIADA_INNOV=`<p>La distinción es el contenido de mayor rendimiento del Módulo 01 y se evalúa pidiendo clasificar un ejemplo.</p>
+<table><tr><th>Concepto</th><th>Definición de la cátedra</th><th>Marca distintiva</th></tr>
+<tr><td><b>Creatividad</b></td><td>Capacidad de lograr generar una idea útil y original. El momento fulgurante en que se encuentra una nueva línea de acción</td><td>La idea. Todavía no existe nada fuera de la cabeza</td></tr>
+<tr><td><b>Invención</b></td><td>Desarrollo y materialización de una idea creativa, universalmente nueva, en un prototipo, modelo, concepto o idea</td><td>El prototipo. Existe la cosa, no existe el mercado</td></tr>
+<tr><td><b>Innovación</b></td><td>Proceso por el cual esos prototipos, modelos, conceptos o ideas se integran al mercado y se ofrecen como bienes para ser adquiridos por los clientes</td><td>El mercado. Alguien lo adquiere</td></tr></table>
+<p>Dos precisiones que la cátedra deja explícitas. La innovación se caracteriza por <b>altos niveles de creatividad y de practicabilidad</b>. Y opera sobre actos creativos en general, <b>sean inventos o no</b>, de modo que no hace falta inventar para innovar.</p>
+<p>El camino completo que describe Varela Villegas tiene cinco escalones: de idea, a idea empresarial, a oportunidad empresarial, a plan de empresa, a empresa en desarrollo y crecimiento.</p>
+<p><b>Choque de vocabulario.</b> Una prueba de concepto que nunca sale a producción es invención. Y una puesta en producción que nadie usa tampoco alcanza: el criterio de la cátedra es que el destinatario lo adquiera o lo use, no que esté desplegado.</p>`;
+
+const T_DEFINICIONES=`<p>La cátedra despliega nueve definiciones ordenadas cronológicamente, tomadas de González Sabater (2009, p. 13). Se preguntan por autor y año.</p>
+<table><tr><th>Autor</th><th>Año</th><th>Definición</th></tr>
+<tr><td>Schumpeter</td><td>1934</td><td>Cualquier forma de hacer las cosas de modo distinto en la vida económica</td></tr>
+<tr><td>Knight</td><td>1967</td><td>Adopción de un cambio novedoso para la empresa y el entorno</td></tr>
+<tr><td>Pavón y Goodman</td><td>1976</td><td>Introducción con éxito en el mercado de una nueva idea en forma de productos, procesos, servicios o técnicas de gestión y organización</td></tr>
+<tr><td>Drucker</td><td>1981</td><td>Un cambio en la conducta de las personas como consumidores o productores</td></tr>
+<tr><td>Tushman y Nadler</td><td>1986</td><td>Crear cualquier producto, servicio o proceso nuevo para la unidad de negocio</td></tr>
+<tr><td>Morcillo</td><td>1995</td><td>Realizar lo que nadie ha imaginado todavía</td></tr>
+<tr><td>Real Academia</td><td>2001</td><td>Mudar o alterar algo, introduciendo novedades</td></tr>
+<tr><td>Manual de Oslo</td><td>2005</td><td>Puesta en práctica de un producto, proceso, sistema de marketing o método organizativo, nuevo o mejorado</td></tr>
+<tr><td>González Alorda y Huete</td><td>2009</td><td>Ofrecer al mercado un modelo de negocio distinto al de la competencia</td></tr></table>
+<p>El arco completo va de Schumpeter, que mira la vida económica, a González Alorda y Huete, que miran el modelo de negocio frente a la competencia. La etimología que abre la lección es de la Real Academia: innovar es mudar o alterar algo introduciendo novedades.</p>`;
+
+const T_INNOVTEC=`<p>Se habla de innovación tecnológica cuando la innovación se consigue mediante el uso de la tecnología o de los conocimientos científicos y tecnológicos, o cuando supone la introducción de un <b>cambio técnico</b> en productos o procesos (Escorsa y Valls, 2003, en González Sabater, 2009).</p>
+<p>Shilling (2008) la describe como el inductor más importante del éxito competitivo, en cualquiera de estas cuatro áreas, que son las mismas que usa el Manual de Oslo:</p>
+<ul><li>Productos</li><li>Procesos</li><li>Organización</li><li>Marketing</li></ul>
+<p>Las tres razones por las que es la forma más relevante de producir innovaciones, según González Sabater (2009, p. 14), son todas de sostenibilidad temporal y no de impacto inmediato:</p>
+<ul>
+<li>Produce diferenciación y ventajas competitivas a medio y largo plazo.</li>
+<li>Crea valor añadido difícil de imitar en productos y servicios.</li>
+<li>Levanta altas barreras de entrada para el resto de las empresas.</li></ul>
+<p><b>Errata registrada.</b> El PDF de esta lección vino escaneado y se procesó con reconocimiento óptico. En varios lugares «I+D» quedó leído como «l+D» o «1+D», por confusión entre la I mayúscula, la ele minúscula y el número uno.</p>`;
+
+const T_DRUCKER=`<p>Para emprender un camino de innovación estratégica hace falta buscar oportunidades de forma <b>organizada y sistemática</b>. Drucker (2014) da siete fuentes básicas, y el orden es el que usa la cátedra.</p>
+<table><tr><th>#</th><th>Fuente</th><th>Cómo reconocerla</th></tr>
+<tr><td>1</td><td>Lo inesperado</td><td>La sorpresa</td></tr>
+<tr><td>2</td><td>Lo incongruente</td><td>La diferencia entre lo que es y lo que debería ser</td></tr>
+<tr><td>3</td><td>La necesidad de proceso</td><td>Mejorar un proceso existente</td></tr>
+<tr><td>4</td><td>El desmoronamiento</td><td>Cambios de una estructura industrial o de mercado</td></tr>
+<tr><td>5</td><td>Los cambios demográficos</td><td>Composición de la población</td></tr>
+<tr><td>6</td><td>Los cambios de percepción</td><td>Modalidad y significado</td></tr>
+<tr><td>7</td><td>Los nuevos conocimientos</td><td>Científicos y no científicos</td></tr></table>
+<p>Las cuatro primeras son internas a la industria o al proceso, las tres últimas vienen de afuera. Esa partición no está explicitada en el PDF pero ayuda a retener el orden.</p>`;
+
+const T_COMPONENTES=`<p>Para implementar innovación hay que considerar cuatro grandes componentes. Los adjetivos que la cátedra le asigna a cada uno son lo más preguntado, y el distractor habitual consiste en intercambiarlos.</p>
+<table><tr><th>Componente</th><th>Rol</th><th>Checklist de la cátedra</th></tr>
+<tr><td><b>Entorno</b></td><td>Elemento estratégico</td><td>Información legal, ambiental, cultural, económica y política circundante a la empresa</td></tr>
+<tr><td><b>Competencia</b></td><td>Elemento complementario</td><td>Nuevos productos, servicios o experiencias de otras compañías y marcas del mismo rubro</td></tr>
+<tr><td><b>Procesos</b></td><td>Fase operativa</td><td>Manuales operativos y de procesos, recursos tecnológicos y financieros disponibles</td></tr>
+<tr><td><b>Personas</b></td><td>Elemento indispensable, ocupa la escena central</td><td>Recursos humanos disponibles</td></tr></table>
+<p>Del <b>entorno</b> se investigan los factores y viabilidades legales, culturales, ambientales y tecnológicos, más las tendencias sociales, culturales y de consumo, que además funcionan como fuentes de inspiración. Las fuerzas del macroentorno afectan la relación de intercambio y la efectividad de los proyectos.</p>
+<p>De las <b>personas</b> importan dos roles a la vez: el usuario o cliente externo, para identificar necesidades y deseos, y el cliente interno o colaborador, para evaluar sus cualidades cognitivas y emocionales.</p>
+<p><b>Errata registrada.</b> La numeración de apartados del PDF está rota: «Entorno» y «Personas» aparecen sin número aunque son componentes del mismo nivel que «Competencia» y «Procesos», que sí lo llevan.</p>`;
+
+const T_GCI=`<p>El <i>Growth Competitiveness Index</i> lo produce anualmente el Foro Económico Mundial, con sede en Suiza, y se compone de tres índices.</p>
+<table><tr><th>#</th><th>Índice</th><th>Qué mide</th></tr>
+<tr><td>1</td><td>Nivel de competitividad tecnológica</td><td>Grado de innovación y transformación tecnológica, gasto en I+D, patentes por millón de habitantes, población con educación universitaria, inversión extranjera en áreas tecnológicas, licencias tecnológicas, uso de Internet, telefonía, computadoras</td></tr>
+<tr><td>2</td><td>Las instituciones públicas</td><td>Estabilidad, disposiciones jurídicas, independencia de los jueces, apertura a licitantes internacionales, efectos negativos de la corrupción y del crimen organizado</td></tr>
+<tr><td>3</td><td>El ambiente macroeconómico</td><td>Estabilidad macroeconómica, políticas crediticias, buen manejo de los recursos estatales</td></tr></table>
+<p>Entre los sesenta primeros puestos hay solo cinco países de América Latina: <b>Chile 23, Uruguay 54, México 55, El Salvador 56 y Colombia 57</b>.</p>
+<p><b>Errata registrada.</b> La Tabla 1 del PDF, con el ranking completo, es una imagen y no se recuperó. Del ranking solo se conocen esos cinco países, que el texto nombra después de la tabla. Si el examen preguntara por un país fuera de esa lista, no hay material con qué responder.</p>`;
+
+const T_TIPOS=`<p>La taxonomía central del módulo. El criterio de clasificación es doble: el nivel y la calidad de la idea presentada, y su impacto en el <i>core business</i>.</p>
+<table><tr><th></th><th>Incremental</th><th>Substancial</th><th>Radical</th></tr>
+<tr><th>Tecnología</th><td>No entra en juego</td><td>Es clave, factor de diferenciación</td><td>No es el criterio definitorio</td></tr>
+<tr><th>Qué cambia</th><td>Pequeños cambios, renovación sencilla</td><td>Cambios significativos que la tecnología facilita, optimiza y mejora</td><td>Transformación completa de la categoría</td></tr>
+<tr><th>Mercado</th><td>Mismo foco, no altera las unidades básicas de negocio</td><td>Mismo nicho y grupo objetivo, puede captar nuevos clientes</td><td>Genera conflicto en categorías similares, sin competidores antiguos</td></tr>
+<tr><th>Otros nombres</th><td>De apoyo, evolutiva</td><td>También de apoyo</td><td>Asociada a los cambios disruptivos</td></tr></table>
+<p>La cátedra aclara que en este primer módulo se enfatiza la incremental, porque apunta a la mejora continua y la renovación empresarial, mientras que las otras dos apuntan a la administración, el uso hábil de la tecnología y el diseño de un nuevo plan de negocio disruptivo.</p>
+<p><b>Ejemplos que da el PDF de la incremental:</b> cambios de colores y diseño de un producto, servicio, marca o logo; renovaciones simples en el uso o manipulación de objetos; mejora de procesos y procedimientos organizacionales; lanzamiento de un producto que conserve las características esenciales del portafolio. Palabras clave: renovación y mejora continua.</p>
+<p><b>Choque de vocabulario.</b> Optimizar una consulta es incremental aunque se haga con tecnología, porque el foco de mercado no cambia. Reemplazar el proceso por ingesta en tiempo real es substancial. Vender un servicio de predicción donde antes nadie compraba eso es radical.</p>`;
+
+const T_DISRUPTIVO=`<p>Un negocio disruptivo es una propuesta de valor que entrega un grupo de satisfactores, diseñada con base en el <i>insight</i> encontrado, descubierto o buscado. Sus nueve características son lista cerrada y el examen suele pedir cuál no pertenece.</p>
+<ol>
+<li>Presentan alta dosis de novedad.</li>
+<li>Suelen generar conflicto con las categorías de negocios similares, porque se enmarcan en innovaciones radicales.</li>
+<li>Su receptividad puede ser alta y sostenida, o construirse paulatinamente.</li>
+<li>Están enfocados plenamente en las necesidades humanas.</li>
+<li>Su expansión a otros territorios es intensa.</li>
+<li>Las empresas tradicionales captan su esencia y la adaptan a su <i>core business</i>.</li>
+<li>No todos tienen un organigrama y una estructura empresarial clásica.</li>
+<li>La rentabilidad y el retorno de inversión evidencian buenos indicadores.</li>
+<li>La mayoría tiene vinculación estrecha con la tecnología, pero <b>a veces se puede prescindir de ella</b>.</li></ol>
+<p>Los cuatro casos de la Figura 1 comparten la misma paradoja:</p>
+<table><tr><th>Empresa</th><th>Paradoja</th></tr>
+<tr><td>Uber</td><td>La compañía más grande de taxi no posee vehículos propios</td></tr>
+<tr><td>Facebook</td><td>El medio más popular del mundo no genera contenido</td></tr>
+<tr><td>Airbnb</td><td>El proveedor más grande de alojamiento no posee propiedades</td></tr>
+<tr><td>Alibaba</td><td>La tienda comercializadora más famosa no tiene inventarios</td></tr></table>
+<p><b>Sobre la fuente.</b> Toda esta lección se apoya en un único documento de Scribd sin fecha ni editorial, atribuido a Chayle. Es el respaldo bibliográfico más débil del material del parcial. Para el examen se responde con lo que dice la cátedra, pero conviene saberlo.</p>`;
+
+const T_IMPERATIVOS=`<p>Imperativo es un deber o exigencia inexcusable (RAE, definición 2). Los imperativos del cambio empresarial son las causas, motivos y demandas que impactan en el <i>core business</i> y obligan a rediseñar la propuesta de valor. Si la empresa los ignora se ve afectada en cinco puntos: proyección en el mercado, retorno de inversión, posicionamiento marcario, captación de nuevos clientes y activaciones de venta.</p>
+<table><tr><th>#</th><th>Indicador</th><th>Herramienta asociada</th></tr>
+<tr><td>1</td><td>Mentalidad que ve la crisis y el cambio como oportunidad</td><td></td></tr>
+<tr><td>2</td><td>Uso de tendencias sociales, culturales y de consumo</td><td><i>cool hunting</i></td></tr>
+<tr><td>3</td><td>Transformación digital como opción de diseño</td><td><i>big data</i>, <i>business intelligence</i></td></tr>
+<tr><td>4</td><td>Innovación centrada en la persona, usuario externo e interno</td><td><i>design thinking</i></td></tr>
+<tr><td>5</td><td>Gestión operativa y táctica que elimina residuos y desperdicios</td><td><i>lean thinking</i></td></tr>
+<tr><td>6</td><td>Consideración del medio ambiente en la creación de bienes</td><td></td></tr>
+<tr><td>7</td><td>Creatividad e innovación como <i>drivers</i> de toda gestión</td><td></td></tr>
+<tr><td>8</td><td>Repensar el rol del nuevo consumidor</td><td></td></tr></table>
+<p>Las doce habilidades blandas, en orden: empatía, asertividad, interpelación, indagación, escucha activa, comunicación eficaz, observación, creatividad, inteligencia emocional, autorregulación, tolerancia a la frustración, negociación. La lista cierra con un etcétera.</p>
+<p><b>Errata registrada.</b> La lista numerada de habilidades blandas quedó ilegible en los dos PDF escaneados donde aparece: los números del 1 al 12 se leyeron como cadenas sin sentido. Los doce nombres se recuperaron y el orden se reconstruyó cruzando ambos archivos, así que conviene verificarlo contra el original antes de memorizar el orden exacto.</p>`;
+
+const T_NIVELES=`<p>En toda organización aparecen tres niveles distintos de administradores de estrategias, y por lo tanto de aplicación de la innovación.</p>
+<table><tr><th>Nivel</th><th>Quién lo lidera</th><th>Qué decide</th><th>Horizonte</th></tr>
+<tr><td><b>Corporativo</b></td><td>CEO y miembros directos del <i>staff</i> corporativo</td><td>Metas estratégicas y rumbo. Dónde opera el negocio y cuál es la clave del portafolio. Seguimiento de la estrategia competitiva nacional e internacional</td><td>Estratégico</td></tr>
+<tr><td><b>De negocio</b></td><td>Gerente del área, piso o departamento</td><td>Recepta la planificación corporativa e implementa. Busca un posicionamiento marcario único y valioso</td><td>Mediano y corto plazo</td></tr>
+<tr><td><b>Funcional</b></td><td>Supervisores o mandos medios</td><td>Estrategias situadas. Recursos humanos, compras, servicio al cliente, comunicación en redes</td><td>Operaciones diarias, parte táctica</td></tr></table>
+<p><b>Condición de aplicabilidad.</b> El nivel corporativo aplica solo a empresas que disponen de <b>más de una unidad de negocio</b>. Es la única condición que la cátedra le pone a un nivel, y por eso se usa como trampa.</p>
+<p>Las tres etapas de la acción estratégica, en orden: análisis estratégico, formulación de la estrategia, implementación estratégica. La definición de estrategia es de Hill: «un conjunto de acciones relacionadas que ejecutan los administradores con la intención de mejorar el desempeño de su compañía».</p>
+<p><b>Errata registrada.</b> El cuerpo del PDF cita a «Charles Hill (2005)» y la lista de referencias del mismo archivo dice 2015. La edición correcta es la de 2015.</p>`;
+
+const T_PERSONAS=`<p>Dado que la tecnología se considera un servicio, hay que planificar funciones, responsabilidades y recursos asignados al personal, tanto investigadores, que son los inventores de la tecnología, como gestores o administradores.</p>
+<table><tr><th>Nivel</th><th>Labores</th></tr>
+<tr><td><b>Directivo</b> (dirección funcional, alta dirección)</td><td>Planificación y decisión estratégica</td></tr>
+<tr><td><b>Técnico de gestión</b></td><td>Promoción y marketing. Negociación</td></tr>
+<tr><td><b>Técnico científico y tecnológico</b></td><td>Implementación de la tecnología. Asistencia técnica</td></tr>
+<tr><td><b>De apoyo</b></td><td>Administración</td></tr></table>
+<p>Los dos niveles del medio se llaman los dos «nivel técnico» y se distinguen por el paréntesis. La cátedra escribe «Nivel técnico (gestión)» y «Nivel técnico (científico y tecnológico)». Un distractor probable es presentarlos como uno solo, lo que daría tres niveles en vez de cuatro.</p>
+<p><b>No confundir con los tres niveles de administradores de estrategias</b> de la misma lección, que son corporativo, de negocio y funcional. Son dos listas distintas separadas por pocos párrafos, y mezclarlas es el error más frecuente de M01 L4.</p>`;
+
+const T_UNIVERSIDAD=`<p>En las economías basadas en el conocimiento (OCDE, 1996), el papel de las universidades y organismos de investigación es contribuir a tres funciones clave.</p>
+<table><tr><th>Función</th><th>Mediante qué</th><th>Para qué</th></tr>
+<tr><td><b>Generación</b> del conocimiento</td><td>Las actividades de I+D</td><td>Producir conocimiento nuevo</td></tr>
+<tr><td><b>Transmisión</b> del conocimiento</td><td>La formación y la publicación de los resultados</td><td>Difundirlo</td></tr>
+<tr><td><b>Transferencia</b> del conocimiento</td><td>Actividades hacia el entorno productivo</td><td>Proporcionar soluciones a los problemas de las empresas</td></tr></table>
+<p>La tercera se llama <b>la tercera misión de las universidades</b> (Molas-Gallart et al., 2002). Conlleva un fuerte componente de servicio hacia la colectividad, lo que transforma a la universidad en un polo de las estrategias de desarrollo local y regional.</p>
+<p><b>Sociedad del conocimiento:</b> aquella capaz de <b>generar, apropiar y utilizar</b> nuevo conocimiento para atender sus necesidades y construir su propio futuro. Participan no solo las empresas sino también los poderes públicos y otros agentes económicos o sociales, como colectivos de profesionales, ONG y sindicatos.</p>
+<p><b>Errata registrada.</b> El apartado del PDF que contiene esta cita se titula «Etapas para la gestión satisfactoria de acuerdos de transferencia de tecnología» y no desarrolla ninguna etapa. Si el examen pregunta por esas etapas, no hay material con qué responder: es el segundo hueco declarado del parcial.</p>`;
+
+const T_TECNOLOGIA=`<p>La definición conceptual que da la cátedra, y que el Módulo 02 retoma:</p>
+<blockquote>El concepto de tecnología hoy dominante es, ante todo, una forma de hacer cosas que implica a la vez un objetivo, un modo y un saber.</blockquote>
+<p>La tecnología es, en su sentido más radical, una producción: un proceso que hace aparecer lo que no existía. De ahí la fórmula que la cátedra repite: <b>la tecnología constituye la dimensión social de la técnica</b>. Es técnica aplicada en un contexto, procedimiento basado en un conocimiento, efectividad derivada de una idealidad.</p>
+<p>El argumento etimológico: el sentido original de <i>téchne</i> en griego entronca con el verbo <i>tícto</i>, que significa producir (Heidegger, 1994). Y la conclusión:</p>
+<blockquote>Lo que caracteriza a una tecnología no es ser «de ciencias» o «de letras», sino ser capaz de transformar un saber abstracto en un «saber-hacer».</blockquote>
+<p>La cátedra corrige además la noción intuitiva de tecnología, que la confunde con el <i>hightech</i>, la concibe como algo privativo de las ciencias duras y olvida que <b>todas las sociedades humanas son y han sido tecnológicas</b>.</p>
+<p><b>Errata registrada.</b> En el PDF escaneado de la Lección 1, el verbo griego <i>tícto</i> quedó leído como «fícto». Se verificó contra el PDF de la Lección 4, que trae el mismo pasaje con texto extraíble.</p>`;
+
+const T_ENTORNO=`<p>La tesis de apertura del Módulo 02 es que la capacidad de las organizaciones para <b>predecir los cambios en su entorno</b> asegura o acerca su éxito o supervivencia, y que la ciencia y la tecnología no quedan exentas.</p>
+<table><tr><th>Contexto</th><th>Qué contiene</th><th>Qué se identifica</th></tr>
+<tr><td><b>Interno</b></td><td>Cultura organizacional: costumbres, prácticas, valores y creencias</td><td>Fortalezas, que se potencian. Debilidades, que se compensan</td></tr>
+<tr><td><b>Externo</b></td><td>Lo que rodea a la organización</td><td>Oportunidades, que se aprovechan. Amenazas, que se mitigan</td></tr></table>
+<p>Las tres herramientas de la lección, con su alcance:</p>
+<table><tr><th>Herramienta</th><th>Qué analiza</th><th>Perspectiva</th></tr>
+<tr><td>Análisis PEST</td><td>Factores externos fuera del control de la organización</td><td>Externa, entorno general</td></tr>
+<tr><td>Cinco fuerzas de Porter</td><td>Entorno competitivo del sector</td><td>Externa, entorno competitivo</td></tr>
+<tr><td>Análisis DAFO</td><td>Entorno de la actividad y capacidad estratégica</td><td>Externa e interna a la vez</td></tr></table>
+<p>Los cuatro factores de PEST con los ejemplos que da la cátedra: <b>político</b>, con cambios políticos, legislación laboral, ayudas e incentivos del Gobierno y prevención de riesgos. <b>Económico</b>, con PIB, ciclo económico, demanda, empleo, inflación y costos de energía y materias primas. <b>Social y demográfico</b>, con nivel de riqueza, composición étnica y nuevos estilos de vida. <b>Tecnológico</b>, con innovaciones tecnológicas, Internet y comercio virtual.</p>
+<p><b>Errata registrada.</b> La Figura 3, que contiene los cuatro factores con sus ejemplos, llegó desarmada del escaneo. Tres asignaciones están confirmadas por el texto posterior. La de «acciones del Gobierno» quedó dentro del recuadro tecnológico cuando por sentido corresponde al político, y conviene verificarla contra el original.</p>`;
+
+const T_PORTER=`<p>Modelo desarrollado por Porter en 1987, según la cátedra. Las cinco fuerzas competitivas básicas, en el orden en que las numera:</p>
+<ol>
+<li>La amenaza de nuevos entrantes, es decir las barreras de entrada.</li>
+<li>El poder de negociación de los clientes.</li>
+<li>El poder de negociación de los proveedores.</li>
+<li>La amenaza de productos y servicios sustitutivos.</li>
+<li>La intensidad de la rivalidad entre competidores de un sector.</li></ol>
+<blockquote>Las cinco actúan permanentemente en contra de la rentabilidad del sector. En los sectores rentables, las cinco fuerzas tienen poca significación, mientras que en los poco rentables puede haber una o más de una de estas fuerzas que tendrán un peso muy importante.</blockquote>
+<p><b>Cómo se resuelve un caso.</b> Se evalúa fuerza por fuerza y se mira el conjunto. Barreras de entrada altas significa amenaza de nuevos entrantes baja. Clientes muchos y pequeños significa poder de los clientes bajo. Una sola fuerza alta no invierte el resultado del conjunto.</p>
+<p><b>Nota de fecha.</b> La cátedra atribuye las cinco fuerzas a Porter 1987, por la edición de <i>Ser competitivo</i> que usa como referencia. El modelo fue publicado originalmente a fines de los años setenta. En el examen va 1987.</p>`;
+
+const T_QUINTANILLA=`<p>Quintanilla Fisac (2010) sostiene que no deben confundirse ciencia y cultura científica, y lo fundamenta en dos principios que la cátedra cita textualmente:</p>
+<blockquote>1) La ciencia es siempre una parte de la cultura de una sociedad. 2) No toda la cultura científica de una sociedad es parte de la ciencia. (p. 33)</blockquote>
+<p>El término se usa de manera imprecisa, con tres acepciones:</p>
+<table><tr><th>Uso</th><th>Qué designa</th><th>Actividad característica</th></tr>
+<tr><td>a) Equivalente a ciencia</td><td>La información creada, generada, transmitida y aplicada por los científicos. «La cultura científica es la cultura de la ciencia o la cultura de los científicos»</td><td>La investigación</td></tr>
+<tr><td>b) Fragmento compartido por la mayoría</td><td>Lo que comparten los miembros de una sociedad aunque no sean científicos. Prácticamente sinónimo de ciencia popular</td><td>La divulgación científica</td></tr>
+<tr><td>c) Parte de la cultura compatible con la actividad científica</td><td>La acepción que la cátedra adopta y desarrolla</td><td></td></tr></table>
+<p>En la acepción c) se distinguen dos componentes: las reglas de actuación, creencias y valores científicos propiamente dichos, que son la cultura científica <b>en sentido estricto</b>, y las reglas de comportamiento y valoraciones referidas a la ciencia y compatibles con ella <b>pero que no forman parte de la ciencia</b>. De ahí que para un mismo nivel de desarrollo de la ciencia puedan existir configuraciones distintas de cultura científica.</p>
+<p><b>Frente abierto.</b> El título de esta lección anuncia «culturas» y <b>estilos</b> de la ciencia, y el PDF nunca define qué es un estilo. No hay definición, tipología ni autor asociado. Es el hueco más importante del parcial y conviene llevarlo a la tutoría.</p>`;
+
+const T_CIENCIAABIERTA=`<p>La lección introduce la ciencia abierta a partir del artículo de Cano y Rolón (2020), publicado en el sitio del CONICET, que la considera una cuestión fundamental de Derechos Humanos.</p>
+<blockquote>La importancia de la Ciencia Abierta radica en facilitar la investigación colaborativa y el intercambio de información en beneficio de la ciencia y la sociedad, permitiendo además un avance exponencial más que lineal en cuanto al conocimiento científico, alcanzando a una población más amplia.</blockquote>
+<p>Es un <b>movimiento global</b> que busca que la producción científica y tecnológica sea accesible para todos los ciudadanos, sean investigadores, aficionados o profesionales, <b>en especial si esos conocimientos son resultados financiados con fondos públicos</b>.</p>
+<p>Los once componentes según la UNESCO: código abierto, acceso abierto, datos abiertos, evaluación abierta, equipos abiertos, recursos educativos abiertos, laboratorios abiertos, cuadernos de notas abiertos, ciencia ciudadana, financiación colectiva, innovación abierta.</p>
+<p>Audrey Azoulay, Directora General de la UNESCO, asocia la ciencia abierta a valores de <b>solidaridad e inteligencia colectiva</b>. El caso que usa el anexo es la pandemia: los científicos chinos publicaron el genoma de una cepa al inicio, lo que impulsó diagnósticos, tratamientos y vacunas.</p>
+<p><b>Errata registrada.</b> La Figura 2 del PDF escaneado llegó como palabras sueltas, sin posición ni agrupamiento. Los once nombres se recuperaron, pero la cantidad exacta conviene verificarla contra el original porque un rótulo cortado pudo haberse perdido.</p>`;
+
+const T_CIENCIATEC=`<p>La lección entera consiste en deshacer la identificación entre ciencia y tecnología. El criterio es <b>el objetivo final</b>.</p>
+<table><tr><th></th><th>Ciencias</th><th>Tecnologías</th></tr>
+<tr><th>Objetivo final</th><td>Comprender el universo y su funcionamiento</td><td>Modificar el mundo para adaptarlo a las necesidades humanas</td></tr>
+<tr><th>Relación con el mundo</th><td>Descriptivas: contemplan los fenómenos e intentan explicar sus mecanismos</td><td>Transformadoras: moldean el universo para hacerlo mejor para nosotros</td></tr>
+<tr><th>Papel del conocimiento</th><td>El conocimiento es el fin</td><td>El conocimiento tiene como objetivo su aplicación</td></tr>
+<tr><th>Resultado final</th><td>Las teorías</td><td>Objetos, procesos y soluciones</td></tr>
+<tr><th>Finalidad</th><td>El entendimiento</td><td>Utilitaria</td></tr></table>
+<p>El argumento de Cervera: en la tecnología entra por definición la economía y por lo tanto la política, en la ciencia no. Sus tres pares de casos:</p>
+<table><tr><th>Se puede y se debe discutir</th><th>No es razonable</th></tr>
+<tr><td>Cuál es la mejor manera de poner límites al cambio climático</td><td>Negar la existencia del calentamiento global medido por la ciencia</td></tr>
+<tr><td>Si los calendarios de vacunación son los más eficientes</td><td>Afirmar que las vacunas tienen efectos secundarios no descritos</td></tr>
+<tr><td>Si conviene usar organismos modificados genéticamente</td><td>Usar acusaciones infundadas y hechos falsos en esa discusión</td></tr></table>
+<p>La observación histórica que acompaña: <b>la tecnología se desarrolló antes que la ciencia</b>, porque respondía a la necesidad práctica e inmediata. El ser humano aprendió a producir el fuego mucho antes de preguntarse sus causas.</p>`;
+
+const T_NIINILUOTO=`<p>Los cinco modelos que Acevedo Díaz (2006) presenta a partir de Niiniluoto (1997). Lo primero que hay que fijar es la partición.</p>
+<table><tr><th>#</th><th>Modelo</th><th>Postura</th></tr>
+<tr><td>1</td><td>Independientes desde el punto de vista ontológico, cada una con su entidad. También causalmente independientes o cuasi-independientes</td><td>Dualista</td></tr>
+<tr><td>2</td><td>Independencia ontológica, pero con interacción entre ambas</td><td>Dualista</td></tr>
+<tr><td>3</td><td>La tecnología se subordina a la ciencia y puede reducirse a ella</td><td>Monista</td></tr>
+<tr><td>4</td><td>La ciencia se subordina a la tecnología y puede reducirse a ella</td><td>Monista</td></tr>
+<tr><td>5</td><td>Son la misma cosa, la tecnociencia posmoderna</td><td>Monista</td></tr></table>
+<p>Dualismo significa <b>independencia ontológica</b>, con interacción o sin ella. Monismo significa que una se reduce a la otra o que son lo mismo. El modelo 3 es el del sentido común, la tecnología como ciencia aplicada, y la cátedra lo presenta como uno más entre cinco, no como el correcto.</p>
+<p><b>Errata registrada.</b> La Figura 2 del PDF escaneado perdió el rótulo «Modelos monistas», que necesariamente estaba en el gráfico. El contenido de los cinco modelos sí se recuperó del texto.</p>`;
+
+const T_COMPCIENCIA=`<p>Cañedo Andalia (2001) descompone la ciencia en cuatro factores. Es una enumeración cerrada y de nombres cortos, lo que la vuelve muy preguntable.</p>
+<table><tr><th>Factor</th><th>Qué comprende</th></tr>
+<tr><td><b>Humano</b></td><td>Los científicos y el personal que colabora con la actividad científica</td></tr>
+<tr><td><b>Social</b></td><td>El conjunto de relaciones de trabajo que los científicos mantienen, y que se manifiestan al constituir sociedades, grupos y equipos</td></tr>
+<tr><td><b>Cognitivo</b></td><td>Los procesos generadores de conocimientos teóricos, metodológicos y prácticos. Incluye las <b>leyes</b>, que permiten transformar la realidad objetiva de manera consciente y controlada</td></tr>
+<tr><td><b>Material</b></td><td>Instrumentos, equipos y herramientas usados en el proceso cognoscitivo, y las instalaciones como laboratorios y edificios</td></tr></table>
+<p><b>No confundir</b> con las otras dos listas de cuatro elementos que circulan cerca: las dimensiones de la práctica tecnológica (técnica, organizativa, ideológica-cultural y la afectiva propuesta) y los factores de PEST (político, económico, social, tecnológico).</p>
+<p><b>Errata registrada.</b> El PDF de esta lección no tiene apartado numerado 1: la numeración arranca en 2. La misma falla aparece en la Lección 4 del módulo, lo que sugiere un problema de plantilla y la posibilidad de que falte un bloque de contenido al inicio.</p>`;
+
+const T_INDICADORES=`<p>La finalidad de los indicadores es proporcionar información sobre <b>parámetros asociados al funcionamiento</b> de una organización, lo que permite tomar decisiones con base en datos específicos. Un indicador <b>no debe dar lugar a diferentes interpretaciones</b>.</p>
+<p>Las seis etapas de creación de una empresa, con el lugar de los indicadores:</p>
+<table><tr><th>#</th><th>Etapa</th><th>Indicadores</th></tr>
+<tr><td>1</td><td>Idea de empresa</td><td></td></tr>
+<tr><td>2</td><td>Oportunidad de empresa</td><td></td></tr>
+<tr><td>3</td><td>Evaluación y decisión</td><td></td></tr>
+<tr><td>4</td><td><b>Plan de empresa</b></td><td>Acá se <b>diseñan</b> los indicadores para medir las metas</td></tr>
+<tr><td>5</td><td>Arranque</td><td></td></tr>
+<tr><td>6</td><td><b>Crecimiento y desarrollo</b></td><td>Acá se <b>mide</b> el logro de las metas</td></tr></table>
+<p><b>Los seis elementos de formalización:</b> selección del indicador, denominación, forma de cálculo con especificación y fuente, forma de representación, definición de responsabilidades, definición de umbrales y objetivos.</p>
+<p><b>Las seis preguntas de validación:</b> si es útil, si sirve para tomar decisiones, si simboliza y representa el concepto que se quiere conocer, si es compatible con los otros indicadores, si se compensa el costo de obtención con su utilidad, y si su representación gráfica es clara.</p>
+<p><b>Los diez tipos de indicadores de I+D+i:</b> de contexto, de actividad en I+D, de patentes, de innovación, bibliométricos, sobre talento en I+D+i, sobre cultura científica, sobre vinculación universidad-empresa, sobre emprendimiento, sobre formación y movilidad.</p>
+<p><b>Errata registrada.</b> La Figura 1 del PDF escaneado perdió el orden de las etapas. Las posiciones 4 y 6 son seguras porque el texto las nombra. Las posiciones 1, 2, 3 y 5 son reconstrucción y conviene verificarlas contra el original.</p>`;
+
+const T_ORGANISMOS=`<p>Las organizaciones que producen y difunden indicadores pueden ser <b>internacionales, regionales, nacionales y especializadas</b>. La cátedra desarrolla siete.</p>
+<table><tr><th>Sigla</th><th>Nombre</th><th>Qué aporta</th></tr>
+<tr><td><b>OCDE</b></td><td>Organización para la Cooperación y el Desarrollo Económico</td><td><b>Líder mundial en el desarrollo de manuales metodológicos.</b> Armoniza internacionalmente la producción y el tratamiento de los indicadores</td></tr>
+<tr><td>UNESCO</td><td>Instituto de Estadística de la ONU para la Educación, la Ciencia y la Cultura</td><td>Principal organismo internacional en producción de indicadores de innovación</td></tr>
+<tr><td>CEPAL</td><td>Comisión Económica para América Latina y el Caribe</td><td>Indicadores socioeconómicos</td></tr>
+<tr><td>RICYT</td><td>Red Iberoamericana e Interamericana de Indicadores de Ciencia y Tecnología</td><td>Indicadores de I+D+i. Define los campos temáticos</td></tr>
+<tr><td>BID</td><td>Banco Interamericano de Desarrollo</td><td>Indicadores socioeconómicos para la innovación</td></tr>
+<tr><td>EUROSTAT</td><td>Oficina Estadística de la Unión Europea</td><td>Indicadores de ciencia, tecnología e innovación</td></tr>
+<tr><td>OCTS-OEI</td><td>Observatorio de CTI de la Organización de Estados Iberoamericanos</td><td>Estudios estratégicos en Iberoamérica, impulso de la cultura científica</td></tr></table>
+<p>Solo la OCDE tiene un rasgo distintivo fuerte. Los otros seis se describen casi con la misma frase, «aportando datos estadísticos útiles para la inteligencia tecnológica», y se distinguen por el tipo de indicador.</p>
+<p><b>Dato de coherencia interna.</b> La OCDE es además la responsable del Manual de Oslo, del que sale la definición de innovación del Módulo 01, y del documento <i>Knowledge-Based Economy</i> de 1996 que produjo el cambio de «transferencia de tecnología» a «transferencia de conocimiento». Es el organismo que más veces aparece en todo el parcial.</p>`;
+
+const T_SEBASTIAN=`<p>Los diez criterios de Sebastián (2007, p. 67) se definen todos sobre lo mismo, <b>los productos tangibles resultado de las actividades internacionales de I+D</b>. Lo que cambia es qué aspecto se mide.</p>
+<table><tr><th>Criterio</th><th>Qué mide</th></tr>
+<tr><td>Intensidad</td><td>La cantidad de productos tangibles</td></tr>
+<tr><td>Diversificación geográfica</td><td>El número de países con los que se generaron productos</td></tr>
+<tr><td>Diversificación temática</td><td>La variedad de campos temáticos</td></tr>
+<tr><td>Diversificación institucional</td><td>La variedad de tipos de instituciones extranjeras con las que se colaboró</td></tr>
+<tr><td>Asociabilidad</td><td>La amplitud en el número de países participantes</td></tr>
+<tr><td>Concentración</td><td>La concentración entre la comunidad científica nacional de los participantes</td></tr>
+<tr><td>Género</td><td>El balance entre mujeres y hombres</td></tr>
+<tr><td>Simetría</td><td>El balance entre participantes del país y del extranjero</td></tr>
+<tr><td>Visibilidad</td><td>La capacidad de colocar los resultados en los flujos de información científica internacional</td></tr>
+<tr><td>Impacto</td><td>La integración de los productos en el acervo de conocimientos y su utilización</td></tr></table>
+<p><b>Los dos pares que más se confunden.</b> Diversificación geográfica cuenta con cuántos países distintos se produjo algo a lo largo del período, mientras que asociabilidad mide cuántos países participan dentro de cada producto. Género y simetría son los dos balances, pero uno es mujeres contra hombres y el otro nacionales contra extranjeros.</p>
+<p><b>Tipos de proyecto conjunto:</b> bilateral con investigadores de cualquier otro país, trilateral con investigadores de otros dos países, multilateral con investigadores de más de tres países, caso en el que puede considerarse una red de investigación. La formulación literal deja sin categoría el caso de exactamente tres países contraparte, lo que es una falla del texto fuente.</p>`;
+
+const T_ESTEBANEZ=`<p>El anexo de Estébanez (2007) estudia la vinculación entre el sistema científico y los programas sociales del Estado argentino, con entrevistas a coordinadores de programas de los Ministerios de Desarrollo Social y de Salud realizadas entre noviembre de 2003 y febrero de 2004.</p>
+<p><b>Tres ideas que aporta al módulo:</b></p>
+<ul>
+<li>La relación entre ciencia y gestión pública <b>no responde a un modelo lineal ni ingenieril</b>, sino interactivo. El uso del conocimiento no es un evento discreto ni necesariamente instrumental.</li>
+<li>En Argentina las vinculaciones existen pero son <b>informales, personalizadas y no institucionalizadas</b>. El conocimiento «viene incorporado en personas» más que en sistemas o productos.</li>
+<li>La <b>intermediación</b> es la instancia vinculante entre los productores de conocimiento científico y tecnológico y los ámbitos institucionales potencialmente usuarios.</li></ul>
+<p><b>Los cuatro usos estatales del conocimiento</b> en el área social: diseño de políticas y programas, evaluación y monitoreo y seguimiento, elaboración y aplicación de normativas y legislación, capacitación y asistencia técnica.</p>
+<p><b>Los tres sentidos de utilidad</b> que los funcionarios atribuyen al conocimiento: conceptual, que ayuda a pensar y da un marco que ordena; instrumental, que da información para definir una acción concreta; y legitimador, donde el discurso científico funciona como fuente de aceptación.</p>
+<p>El otro anexo de la lección es la alocución del Director General de la OMS del 10 de septiembre de 2020, que aporta el caso del Acelerador ACT: lanzado en abril de 2020 junto con la Comisión Europea, con 2.700 millones de dólares recibidos, menos del 10 % de lo necesario, y un déficit de 35.000 millones. La amenaza de entorno que nombra es el nacionalismo en materia de vacunas.</p>`;
+
+const AMP = {
+1:T_TRIADA, 2:T_TRIADA_INNOV, 3:T_DEFINICIONES, 4:T_TRIADA_INNOV, 5:T_DRUCKER,
+6:T_COMPONENTES, 7:T_GCI, 8:T_DISRUPTIVO, 9:T_TIPOS, 10:T_TIPOS, 11:T_DISRUPTIVO,
+12:T_NIVELES, 13:T_UNIVERSIDAD, 14:T_UNIVERSIDAD, 15:T_TECNOLOGIA,
+16:T_ENTORNO, 17:T_ENTORNO, 18:T_PORTER, 19:T_ENTORNO, 20:T_ENTORNO,
+21:T_QUINTANILLA, 22:T_QUINTANILLA, 23:T_QUINTANILLA, 24:T_CIENCIAABIERTA,
+25:T_CIENCIATEC, 26:T_COMPCIENCIA, 27:T_NIINILUOTO, 28:T_INDICADORES, 29:T_ORGANISMOS, 30:T_SEBASTIAN,
+101:T_DEFINICIONES, 102:T_INNOVTEC, 104:T_INNOVTEC,
+105:T_COMPONENTES, 106:T_GCI,
+110:T_IMPERATIVOS, 111:T_IMPERATIVOS, 112:T_DISRUPTIVO, 113:T_DISRUPTIVO, 114:T_TIPOS,
+115:T_NIVELES, 117:T_PERSONAS, 118:T_TECNOLOGIA, 119:T_UNIVERSIDAD,
+120:T_ENTORNO, 121:T_PORTER, 122:T_ENTORNO, 123:T_ESTEBANEZ,
+124:T_QUINTANILLA, 125:T_QUINTANILLA, 127:T_QUINTANILLA,
+128:T_CIENCIATEC, 129:T_CIENCIATEC, 130:T_CIENCIATEC,
+133:T_INDICADORES, 134:T_INDICADORES, 135:T_SEBASTIAN, 136:T_INDICADORES,
+201:T_TRIADA_INNOV, 202:T_DISRUPTIVO, 203:T_PERSONAS, 204:T_ENTORNO,
+205:T_CIENCIAABIERTA, 206:T_NIINILUOTO, 207:T_INDICADORES
+};
+
+/* ---------- Estado ---------- */
+const HKEY="s21.transferencia.p1.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const esc=document.getElementById("escenario");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
+
+const LETRA=k=>"abcdefg"[k]||"?";
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"para el examen del índice",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  preguntero:"preguntero, verificada contra el material",
+  errado:"el preguntero se equivoca acá"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["catedra"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Las de Para el examen":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué instancia" : "Elegí qué bloque del preguntero";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<button class="flag" id="flag"></button></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else {
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll("input").forEach(x=>x.disabled=true);
+    $("chk").disabled=true;
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(LETRA).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de las secciones Para el examen más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de pregunteros de circulación libre, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período, en los dos TP online y en las dos autoevaluaciones de actividad práctica. El enunciado y la respuesta correcta salen del registro de cada instancia, parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>
