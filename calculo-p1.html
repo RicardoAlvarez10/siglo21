@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cálculo · Parcial 1 · Autoevaluación interactiva</title>
 <style>
   :root{
@@ -200,6 +200,14 @@
     border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
     display:inline-flex;align-items:center;gap:6px;line-height:1}
   .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .votos{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+  .voto{background:none;border:1px solid var(--borde);color:var(--tenue);border-radius:14px;
+    padding:4px 9px;cursor:pointer;line-height:1;display:inline-flex;align-items:center}
+  .voto svg{width:14px;height:14px;display:block}
+  .voto:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .voto:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  #vUp[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:#fff}
+  #vDn[aria-pressed="true"]{background:var(--mal);border-color:var(--mal);color:#fff}
   .flag b{font-size:13px;line-height:1;font-weight:normal}
   .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
   .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
@@ -255,6 +263,78 @@
   .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
   footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
 </style>
+<style>
+  /* Las insignias .est.vacio heredaban el padding de 30px del estado .vacio
+     y estiraban cada fila del indice de temas. */
+  .est.vacio{padding:0 7px;font-style:normal;text-align:center}
+  /* ---------- Ajustes para celular 2026-10-20 ----------
+     Solo pantallas de 640 px o menos, pensado para usar con una mano:
+     Temas y Siguiente quedan abajo, al alcance del pulgar, con objetivos de
+     toque de 44 px y opciones mas separadas. */
+  @media (max-width:640px){
+    .burger,.btn,.modo,.arbol button,.opcion,.flag{min-height:44px}
+    .cerrarPanel{min-width:44px;min-height:44px;display:inline-flex;
+      align-items:center;justify-content:center}
+    .voto{min-width:44px;min-height:44px;justify-content:center}
+    .pieArbol button{min-height:44px;display:inline-flex;align-items:center}
+    .opciones{gap:12px}
+    /* Temas, flotando abajo a la izquierda */
+    .burger,body.fijo .burger{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+      z-index:26;width:112px;min-height:52px;justify-content:center;border-radius:6px;
+      box-shadow:0 3px 14px rgba(26,26,26,.16)}
+    /* Siguiente, al lado y hasta el borde derecho */
+    .flot{position:fixed;left:136px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+      top:auto;transform:none;width:auto;border-radius:6px;flex-direction:row;
+      justify-content:center;align-items:center;gap:10px;min-height:52px;padding:12px 16px;
+      box-shadow:0 3px 16px rgba(45,74,62,.28)}
+    .flot.visible{display:flex}
+    .flot small{display:none}
+    .wrap{padding-bottom:calc(124px + env(safe-area-inset-bottom))}
+    /* Que deslizar de costado no dispare el volver atras del navegador. */
+    html,body{overscroll-behavior-x:none}
+    .pistaGestos{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));
+      z-index:27;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;
+      background:var(--titulo);color:#fff;border-radius:6px;padding:11px 14px;text-align:center;
+      pointer-events:none;opacity:0;transition:opacity .3s ease}
+    .pistaGestos.visible{opacity:.94}
+  }
+  .pistaGestos{display:none}
+  @media (max-width:640px){.pistaGestos{display:block}}
+</style>
+<style>
+  /* ---------- Mejoras de uso 2026-10-25 ----------
+     Rotulos por tipo de pregunta, contador de respuestas multiples, ayuda de
+     atajos, barra de progreso por segmentos, racha, foco visible y movimiento
+     reducido. */
+  .rotulo-ms{text-transform:none;letter-spacing:.01em;font-size:12.5px}
+  .msPie{justify-content:flex-start}
+  .contador{font-family:'Segoe UI',sans-serif;font-size:13px;color:var(--tenue)}
+  .contador.tope{color:#7A5A22}
+  .veredicto .parcialMs{text-transform:none;letter-spacing:0;font-weight:normal;
+    color:var(--titulo);margin-left:10px}
+  .pistaTeclas{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue);
+    opacity:.75;margin:12px 0 0}
+  @media (pointer:coarse){.pistaTeclas{display:none}}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+    white-space:nowrap;margin:-1px;padding:0;border:0}
+  .racha{display:inline-block;margin-left:8px;padding:0 8px;border:1px solid var(--borde);
+    border-radius:10px;color:var(--acento);font-weight:600;font-size:12px}
+  .progreso{height:6px;background:none;border-radius:0;overflow:visible}
+  .progreso #barra{width:100%;height:100%;background:none;display:flex;transition:none}
+  #barra.segmentos{gap:2px}
+  #barra i{display:block;height:100%;background:var(--borde);border-radius:2px}
+  #barra.segmentos i{flex:1 1 0}
+  #barra.continua{background:var(--borde);border-radius:3px;overflow:hidden}
+  #barra.continua i{border-radius:0}
+  #barra i.ok{background:var(--ok)}
+  #barra i.mal{background:var(--mal)}
+  #barra i.actual{background:#C9C6C3}
+  button:focus-visible,.opcion:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  @media (max-width:640px),(pointer:coarse){.opcion,.btn{min-height:44px}}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -289,7 +369,7 @@
     </div>
   </div>
   <div class="barra-modo">
-  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 86 preguntas</button>
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 139 preguntas</button>
   <button class="modo" data-modo="preg" aria-pressed="false">Repaso de cátedra · 4 preguntas</button>
   </div>
   <div class="arbol" id="chips"></div>
@@ -359,6 +439,112 @@ const QUIZ=[
  just:"El grado del numerador es 1 y el del denominador es 2. Cuando el grado de abajo es mayor, el límite es cero.",
  dist:"Responder 1 sale de mirar solo los términos líderes sin comparar grados. La divergencia corresponde al caso opuesto, con el grado mayor arriba.",
  ref:"M01 L1"},
+
+/* ===== M01 L1 · Sucesiones · prácticos nuevos ===== */
+{n:3001,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: lím(n→∞) (5n³ − 2n) / (2n³ + 7).",
+ op:["5/2", "0", "∞", "−2/7"],ok:0,
+ just:"Grados iguales (3 y 3): el límite es el cociente de los coeficientes principales, 5/2.",
+ dist:"«−2/7» divide los términos independientes, no los principales. «0» y «∞» corresponden a grados distintos.",
+ ref:"M01 L1"},
+{n:3002,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: lím(n→∞) (4n + 1) / (n² + 3).",
+ op:["0", "4", "∞", "1/3"],ok:0,
+ just:"El numerador es de grado 1 y el denominador de grado 2. Numerador de menor grado: el límite es 0.",
+ dist:"«4» toma el coeficiente del numerador sin comparar grados. «∞» invierte la regla: diverge cuando el numerador es el de mayor grado.",
+ ref:"M01 L1"},
+{n:3003,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: lím(n→∞) sen(n) / n.",
+ op:["0", "1", "No existe, porque sen(n) oscila", "∞"],ok:0,
+ just:"Compresión: −1/n ≤ sen(n)/n ≤ 1/n, y los dos extremos tienden a 0.",
+ dist:"«1» confunde con el límite notable sen(x)/x cuando x → 0, que es otro caso. «No existe» olvida que el denominador crece y aplasta la oscilación.",
+ ref:"M01 L1"},
+{n:3004,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Decidir: ¿converge aₙ = (−1)ⁿ · n/(n + 1)?",
+ op:["No: oscila entre valores cercanos a −1 y a 1", "Sí, converge a 1", "Sí, converge a 0", "Sí, converge a −1"],ok:0,
+ just:"n/(n+1) tiende a 1, pero el (−1)ⁿ alterna el signo: los términos pares se acercan a 1 y los impares a −1. No hay un único límite.",
+ dist:"«Converge a 1» mira solo n/(n+1). «Converge a 0» aplica el corolario del valor absoluto, que solo vale cuando el límite de |aₙ| es 0, y acá es 1.",
+ ref:"M01 L1"},
+{n:3005,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para aₙ = 3 − 1/n, ¿qué se concluye?",
+ op:["Es creciente y acotada, y converge a 3", "Es decreciente y converge a 3", "Es creciente y no está acotada, diverge", "Es creciente y acotada, y converge a 2"],ok:0,
+ just:"Al crecer n se resta cada vez menos, así que crece. Está entre 2 y 3. Acotada y monótona converge, y como 1/n → 0, el límite es 3.",
+ dist:"«Converge a 2» toma el primer término (n = 1) como límite. «Decreciente» lee mal el signo: se resta una cantidad que se achica.",
+ ref:"M01 L1"},
+
+/* ===== M01 L2 · Series: familias ===== */
+{n:3042,mod:"01",lec:"L2",tema:"Series: familias",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En la serie 3 + 6 + 12 + 24 + ..., ¿a qué familia pertenece y cuánto vale r?",
+ op:["Serie p, con p = 2","Aritmética, con diferencia 3","Geométrica, con r = 2","Geométrica, con r = 3"],ok:2,
+ just:"Cada término es el anterior por 2 (6/3 = 12/6 = 2). Razón constante entre términos consecutivos: geométrica con r = 2.",
+ dist:"«r = 3» toma el primer término como razón. «Aritmética» mira solo la primera diferencia (6 − 3 = 3), que no se repite: 12 − 6 = 6.",
+ ref:"M01 L2"},
+{n:3043,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La serie 3 + 6 + 12 + 24 + ..., ¿converge o diverge?",
+ op:["Diverge, porque |r| = 2 ≥ 1","Converge a 3/(1 − 2) = −3","Converge, porque es geométrica","Diverge, porque el primer término es mayor que 1"],ok:0,
+ just:"Una geométrica converge solo si |r| < 1. Acá |r| = 2 ≥ 1, así que diverge.",
+ dist:"«Converge a −3» aplica a/(1 − r) sin chequear antes que |r| < 1. La fórmula solo vale cuando la serie converge.",
+ ref:"M01 L2"},
+{n:3044,mod:"01",lec:"L2",tema:"Series: familias",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"En la serie 10 + 5 + 2,5 + 1,25 + ..., ¿cuánto vale r y qué pasa con la serie?",
+ op:["r = 2, diverge","r = −5, diverge","r = 1/2, diverge porque tiene infinitos términos","r = 1/2, converge"],ok:3,
+ just:"r = 5/10 = 1/2. Como |r| = 1/2 < 1, la geométrica converge.",
+ dist:"«r = 2» divide al revés (10/5). «Diverge porque tiene infinitos términos» confunde infinitos términos con suma infinita.",
+ ref:"M01 L2"},
+{n:3045,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Cuánto vale la suma de 10 + 5 + 2,5 + 1,25 + ...?",
+ op:["15","20","5","−5"],ok:1,
+ just:"Geométrica con a = 10 y r = 1/2: S = a/(1 − r) = 10/(1/2) = 20.",
+ dist:"«5» multiplica 10 por r en vez de dividir por 1 − r. «15» se queda con la suma de los dos primeros términos (10 + 5).",
+ ref:"M01 L2"},
+{n:3046,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La serie 1 − 2 + 4 − 8 + ..., ¿qué es y qué pasa con ella?",
+ op:["Alternante, converge porque los signos se alternan","Geométrica con r = −2, converge a 1/(1 − (−2)) = 1/3","Geométrica con r = −2, diverge porque |r| = 2 ≥ 1","Geométrica con r = −1/2, converge"],ok:2,
+ just:"Cada término es el anterior por −2. Geométrica con r = −2, y como |r| = 2 ≥ 1, diverge.",
+ dist:"«Converge a 1/3» aplica a/(1 − r) sin chequear |r| < 1. «Alternante, converge» olvida que el criterio de alternantes exige términos que tiendan a 0, y acá crecen.",
+ ref:"M01 L2"},
+{n:3047,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Cuánto vale la suma de Σ (1/3)ⁿ, con n desde 1 hasta ∞?",
+ op:["3/2","1/2","1/3","2/3"],ok:1,
+ just:"Desde n = 1, el primer término es a = 1/3 y r = 1/3: S = (1/3)/(1 − 1/3) = (1/3)/(2/3) = 1/2.",
+ dist:"«3/2» toma a = 1, como si la suma empezara en n = 0. Ese término sobra: 3/2 − 1 = 1/2.",
+ ref:"M01 L2"},
+{n:3048,mod:"01",lec:"L2",tema:"Series: familias",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Σ 1/n², con n desde 1. ¿A qué familia pertenece, cuánto vale p y qué pasa con la serie?",
+ op:["Geométrica con r = 1/2, converge","Serie p con p = 2, diverge porque p > 1","Serie p con p = 1/2, diverge","Serie p con p = 2, converge"],ok:3,
+ just:"Forma 1/nᵖ con p = 2. La serie p converge si p > 1 y diverge si p ≤ 1. Como 2 > 1, converge.",
+ dist:"«Diverge porque p > 1» invierte el criterio. «Geométrica» confunde la potencia del denominador (n²) con una base elevada a la n.",
+ ref:"M01 L2"},
+{n:3049,mod:"01",lec:"L2",tema:"Series: familias",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Σ 1/n, con n desde 1. ¿A qué familia pertenece y qué pasa con la serie?",
+ op:["Armónica (serie p con p = 1), diverge","Armónica, converge porque 1/n → 0","Geométrica con r = 1, converge","Serie p con p = 1, converge porque p ≥ 1"],ok:0,
+ just:"Es la armónica, la serie p con p = 1. Como p ≤ 1, diverge, aunque sus términos tiendan a 0.",
+ dist:"«Converge porque 1/n → 0» usa al revés el criterio del término general: que el término tienda a 0 es necesario, pero no alcanza.",
+ ref:"M01 L2"},
+{n:3050,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/√n, con n desde 1. ¿Cuánto vale p y qué pasa con la serie?",
+ op:["p = 2, converge","p = 1/2, diverge porque p ≤ 1","p = 1/2, converge porque 1/√n → 0","p = −1/2, diverge"],ok:1,
+ just:"1/√n = 1/n^(1/2), entonces p = 1/2. Como p ≤ 1, la serie p diverge.",
+ dist:"«Converge porque 1/√n → 0» toma la condición necesaria como suficiente. «p = 2» lee la raíz cuadrada como una potencia 2.",
+ ref:"M01 L2"},
+{n:3051,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/(n√n), con n desde 1. ¿Cuánto vale p y qué pasa con la serie?",
+ op:["p = 1/2, diverge","p = 1, diverge porque es la armónica","p = 3/2, diverge porque p ≥ 1","p = 3/2, converge porque p > 1"],ok:3,
+ just:"n√n = n¹ · n^(1/2) = n^(3/2), entonces p = 3/2. Como p > 1, la serie p converge.",
+ dist:"«p = 1/2» se queda con la raíz y pierde la n de afuera. Las potencias de igual base se suman: 1 + 1/2 = 3/2.",
+ ref:"M01 L2"},
+{n:3052,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La serie 1 − 1/2 + 1/3 − 1/4 + ..., ¿qué es y qué pasa con ella?",
+ op:["Alternante, converge porque sin signos los términos decrecen y tienden a 0","Alternante, diverge porque sin signos es la armónica","Geométrica con r = −1/2, converge","Armónica, diverge"],ok:0,
+ just:"Los signos se alternan y, sin signos, 1, 1/2, 1/3, ... decrece y tiende a 0. Por el criterio de las alternantes, converge.",
+ dist:"«Diverge porque sin signos es la armónica» mira la serie de valores absolutos. Que esa diverja no impide que la alternante converja.",
+ ref:"M01 L2"},
+{n:3053,mod:"01",lec:"L2",tema:"Series: familias",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"La serie 1 − 1 + 1 − 1 + ..., ¿qué es y qué pasa con ella?",
+ op:["Alternante, converge a 0 agrupando de a pares","Geométrica con r = −1, converge a 1/(1 − (−1)) = 1/2","Alternante, diverge porque sin signos los términos valen siempre 1 y no tienden a 0","Alternante, converge porque los signos se cancelan"],ok:2,
+ just:"Sin signos, los términos valen siempre 1 y no tienden a 0, así que diverge por el criterio del término general. Las sumas parciales oscilan entre 1 y 0.",
+ dist:"«Converge a 0 agrupando de a pares» reordena una serie que no converge: agrupando distinto da 1. «Converge a 1/2» aplica a/(1 − r) con |r| = 1, donde la fórmula no vale.",
+ ref:"M01 L2"},
 
 /* ===== M01 L2 · Series ===== */
 {n:7,mod:"01",lec:"L2",tema:"Series",nivel:"recordar",tipo:"mc",src:"paquete",
@@ -440,6 +626,38 @@ const QUIZ=[
  dist:"Las opciones alternativas mezclan hipótesis de otros teoremas del módulo, sobre todo del teorema de la sucesión monótona, que sí pide monótona y acotada.",
  ref:"M01 L2"},
 
+/* ===== M01 L2 · Series · prácticos nuevos ===== */
+{n:3006,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: Σ(n=1 a ∞) 3·(1/4)ⁿ⁻¹.",
+ op:["4", "3/4", "12", "Diverge"],ok:0,
+ just:"Geométrica con a = 3 y r = 1/4. Como |r| < 1, la suma es a/(1 − r) = 3/(3/4) = 4.",
+ dist:"«3/4» multiplica en vez de dividir. «12» usa a/r. «Diverge» no aplica: |r| < 1.",
+ ref:"M01 L2"},
+{n:3007,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: Σ(n=1 a ∞) (1/3)ⁿ.",
+ op:["1/2", "3/2", "1/3", "2/3"],ok:0,
+ just:"Reescribir con exponente n − 1: (1/3)ⁿ = (1/3)·(1/3)ⁿ⁻¹. Entonces a = 1/3 y r = 1/3, y la suma es (1/3)/(2/3) = 1/2.",
+ dist:"«3/2» aplica 1/(1 − r) sin reindexar, el error más frecuente con exponente n. «2/3» es el denominador 1 − r.",
+ ref:"M01 L2"},
+{n:3008,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Decidir la naturaleza de Σ n!/5ⁿ.",
+ op:["Diverge: el cociente da L = ∞", "Converge: el cociente da L = 1/5", "No se concluye: el cociente da L = 1", "Converge, porque 5ⁿ crece muy rápido"],ok:0,
+ just:"aₙ₊₁/aₙ = (n+1)/5, que tiende a ∞. Con L > 1 la serie diverge. El factorial crece más rápido que cualquier potencia.",
+ dist:"«L = 1/5» olvida el factor (n+1) que deja el factorial. «5ⁿ crece muy rápido» es cierto, pero n! crece más.",
+ ref:"M01 L2"},
+{n:3009,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)ⁿ / n².",
+ op:["Absolutamente convergente", "Condicionalmente convergente", "Divergente", "Convergente, pero no se puede saber de qué tipo"],ok:0,
+ just:"En valor absoluto queda Σ 1/n², serie p con p = 2 > 1, que converge. Entonces es absolutamente convergente.",
+ dist:"«Condicionalmente» corresponde a Σ (−1)ⁿ/n, donde el valor absoluto da la armónica. Acá p = 2.",
+ ref:"M01 L2"},
+{n:3010,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Decidir la naturaleza de Σ (n/(2n + 1))ⁿ.",
+ op:["Converge absolutamente: la raíz da L = 1/2", "Diverge: la raíz da L = 2", "No se concluye: la raíz da L = 1", "Diverge por el término general"],ok:0,
+ just:"Hay potencia n-ésima: criterio de la raíz. ⁿ√|aₙ| = n/(2n+1), que tiende a 1/2 < 1.",
+ dist:"«L = 2» invierte el cociente de coeficientes. «Término general» no sirve: (n/(2n+1))ⁿ tiende a 0.",
+ ref:"M01 L2"},
+
 /* ===== M01 L3 · Fórmula de Taylor ===== */
 {n:15,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"paquete",
  q:"La fórmula general del polinomio de Taylor de grado n centrado en a es __________.",
@@ -514,6 +732,38 @@ const QUIZ=[
  dist:"La arcotangente se parece mucho al seno en su forma, con potencias impares y signos alternados, y por eso se le asigna radio infinito por analogía. La diferencia está en que la arcotangente no lleva factorial en el denominador.",
  ref:"M01 L3"},
 
+/* ===== M01 L3 · Fórmula de Taylor · prácticos nuevos ===== */
+{n:3011,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: polinomio de Maclaurin de grado 3 de f(x) = e^(2x).",
+ op:["1 + 2x + 2x² + (4/3)x³", "1 + 2x + 4x² + 8x³", "1 + x + x²/2 + x³/6", "1 + 2x + x² + (1/3)x³"],ok:0,
+ just:"f⁽ⁱ⁾(0) = 2ⁱ. Coeficientes 2ⁱ/i!: 1, 2, 4/2 = 2, 8/6 = 4/3.",
+ dist:"«1 + 2x + 4x² + 8x³» olvida dividir por i!. «1 + x + x²/2 + x³/6» es el desarrollo de eˣ, sin la regla de la cadena.",
+ ref:"M01 L3"},
+{n:3012,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: polinomio de Taylor de grado 2 de f(x) = ln(x) centrado en a = 1.",
+ op:["(x − 1) − (x − 1)²/2", "(x − 1) − (x − 1)²", "1 + (x − 1) − (x − 1)²/2", "x − x²/2"],ok:0,
+ just:"f(1) = 0, f'(x) = 1/x da f'(1) = 1, f''(x) = −1/x² da f''(1) = −1. Coeficiente cuadrático −1/2!.",
+ dist:"«(x − 1) − (x − 1)²» olvida el 2!. «x − x²/2» centra en 0 en vez de en 1. «1 + ...» toma f(1) = 1, pero ln(1) = 0.",
+ ref:"M01 L3"},
+{n:3013,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Con f(x) = √x y centro a = 9, T₂(10) aproxima √10 en __________.",
+ op:["683/216 ≈ 3,1620", "19/6 ≈ 3,1667", "3", "341/108 ≈ 3,1574"],ok:0,
+ just:"f(9) = 3, f'(9) = 1/6, f''(9) = −1/108. T₂(10) = 3 + 1/6 − 1/216 = 683/216. El valor real es 3,1623.",
+ dist:"«19/6» es T₁, sin el término cuadrático. «341/108» usa −1/108 sin dividir por 2!.",
+ ref:"M01 L3"},
+{n:3014,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: polinomio de Maclaurin de grado 3 de cos(x).",
+ op:["1 − x²/2", "1 − x²/2 + x³/6", "1 − x²", "x − x³/6"],ok:0,
+ just:"cos(x) = 1 − x²/2! + x⁴/4! − ... Solo tiene potencias pares, así que el término de grado 3 vale 0.",
+ dist:"«x − x³/6» es el desarrollo de sen(x). «1 − x²/2 + x³/6» agrega un término impar que el coseno no tiene.",
+ ref:"M01 L3"},
+{n:3015,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"En el desarrollo de Maclaurin de sen(x), el coeficiente de x⁵ es __________.",
+ op:["1/120", "1/5", "−1/120", "1/24"],ok:0,
+ just:"sen(x) = x − x³/3! + x⁵/5! − ... El signo alterna: + para x, − para x³, + para x⁵. 5! = 120.",
+ dist:"«−1/120» se equivoca en la alternancia de signos. «1/5» es el patrón de arctan, sin factorial. «1/24» usa 4!.",
+ ref:"M01 L3"},
+
 /* ===== M01 L4 · Usos del polinomio de Taylor ===== */
 {n:22,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"comprender",tipo:"mc",src:"paquete",
  q:"Al multiplicar dos polinomios de Taylor de orden 3, ¿qué paso adicional hay que hacer?",
@@ -562,6 +812,38 @@ const QUIZ=[
  op:["n+1 y (n+1)!","n y n!","n+1 y n!","n y (n+1)!"],ok:0,
  just:"Los dos índices suben juntos. Si el polinomio es de grado 2, la cota usa la derivada tercera y divide por 3!.",
  dist:"Las opciones cruzadas son el error más caro: usar la derivada correcta con el factorial equivocado da una cota que puede quedar por debajo del error real, y entonces deja de ser una garantía.",
+ ref:"M01 L4"},
+
+/* ===== M01 L4 · Usos del polinomio de Taylor · prácticos nuevos ===== */
+{n:3016,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: polinomio de Taylor de orden 2 en a = 0 de f(x) = eˣ · cos(x).",
+ op:["1 + x", "1 + x + x²", "1 + x − x²/2", "1 + x + x²/2"],ok:0,
+ just:"eˣ ≈ 1 + x + x²/2 y cos x ≈ 1 − x²/2. Al multiplicar y truncar en grado 2: 1 + x + x²/2 − x²/2 = 1 + x.",
+ dist:"«1 + x + x²/2» olvida el aporte −x²/2 del coseno. «1 + x − x²/2» olvida el x²/2 de eˣ.",
+ ref:"M01 L4"},
+{n:3017,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: polinomio de Taylor de orden 3 en a = 0 de f(x) = sen(x) + eˣ.",
+ op:["1 + 2x + x²/2", "1 + 2x + x²/2 + x³/3", "1 + x + x²/2 + x³/6", "2x + x²/2"],ok:0,
+ just:"Sumar los dos de orden 3: (x − x³/6) + (1 + x + x²/2 + x³/6). Los términos de grado 3 se cancelan.",
+ dist:"«... + x³/3» suma los x³/6 en vez de restar el del seno. «2x + x²/2» pierde el 1 de eˣ.",
+ ref:"M01 L4"},
+{n:3018,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para f(x) = eˣ con a = 0 y |x| ≤ 0,1, la cota de |R₁| es aproximadamente __________.",
+ op:["0,0055", "0,0018", "0,0500", "0,0110"],ok:0,
+ just:"f''(x) = eˣ, máxima en x = 0,1: M = e^0,1 ≈ 1,1052. |R₁| ≤ M/2! · 0,1² ≈ 0,0055.",
+ dist:"«0,0110» olvida dividir por 2!. «0,0500» usa |x − a| sin elevar al cuadrado. «0,0018» divide por 3! como si fuera R₂.",
+ ref:"M01 L4"},
+{n:3019,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Para f(x) = sen(x) con a = 0 y |x| ≤ 0,5, la cota de |R₂| es aproximadamente __________.",
+ op:["0,0208", "0,0625", "0,1250", "0,0417"],ok:0,
+ just:"f'''(x) = −cos(x), y |−cos x| ≤ 1, así que M = 1. |R₂| ≤ 1/3! · 0,5³ = 0,125/6 ≈ 0,0208.",
+ dist:"«0,1250» olvida el 3!. «0,0625» divide por 2! en vez de 3!. «0,0417» usa 0,5² en vez de 0,5³.",
+ ref:"M01 L4"},
+{n:3020,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Usando T₂ de eˣ en a = 0, e^0,2 se aproxima por __________.",
+ op:["1,22", "1,2", "1,24", "1,2213"],ok:0,
+ just:"T₂(x) = 1 + x + x²/2. T₂(0,2) = 1 + 0,2 + 0,02 = 1,22. El valor real es 1,2214.",
+ dist:"«1,2» es T₁. «1,24» olvida dividir x² por 2. «1,2213» es el valor real redondeado, no la aproximación pedida.",
  ref:"M01 L4"},
 
 /* ===== M02 L1 · Vectores ===== */
@@ -644,6 +926,50 @@ const QUIZ=[
  dist:"El área de una cara sale de |b×c| sin el producto escalar. Entregar el determinante con signo, sin valor absoluto, es el otro error habitual.",
  ref:"M02 L1"},
 
+/* ===== M02 L1 · Vectores · prácticos nuevos ===== */
+{n:3021,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ⟨1, −2, 3⟩ · ⟨4, 0, −1⟩.",
+ op:["1", "7", "⟨4, 0, −3⟩", "−1"],ok:0,
+ just:"Producto escalar: 1·4 + (−2)·0 + 3·(−1) = 4 + 0 − 3 = 1. Da un número, no un vector.",
+ dist:"«⟨4, 0, −3⟩» multiplica componente a componente pero no suma. «7» ignora el signo del −3.",
+ ref:"M02 L1"},
+{n:3022,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la norma de ⟨2, −1, 2⟩.",
+ op:["3", "9", "√5", "5"],ok:0,
+ just:"|a| = √(2² + (−1)² + 2²) = √9 = 3.",
+ dist:"«9» olvida la raíz. «5» suma componentes sin elevar al cuadrado y con el signo mal.",
+ ref:"M02 L1"},
+{n:3023,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ⟨1, 0, 2⟩ × ⟨0, 3, 1⟩.",
+ op:["⟨−6, −1, 3⟩", "⟨−6, 1, 3⟩", "⟨6, −1, −3⟩", "5"],ok:0,
+ just:"i: 0·1 − 2·3 = −6. j: −(1·1 − 2·0) = −1. k: 1·3 − 0·0 = 3.",
+ dist:"«⟨−6, 1, 3⟩» olvida el signo menos del término j. «⟨6, −1, −3⟩» es b × a. «5» confunde con el producto escalar.",
+ ref:"M02 L1"},
+{n:3024,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Son perpendiculares ⟨1, 2, −1⟩ y ⟨3, −1, 1⟩?",
+ op:["Sí, porque su producto escalar es 0", "No, porque su producto escalar es 6", "Sí, porque su producto cruz es 0", "No, porque tienen distinta norma"],ok:0,
+ just:"1·3 + 2·(−1) + (−1)·1 = 3 − 2 − 1 = 0. Producto escalar 0 significa perpendiculares.",
+ dist:"«Producto cruz 0» es la condición de paralelismo, no de perpendicularidad. La norma no decide el ángulo.",
+ ref:"M02 L1"},
+{n:3025,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la proyección escalar comp_a b, con a = ⟨3, 4, 0⟩ y b = ⟨1, 1, 1⟩.",
+ op:["7/5", "7/25", "7/√3", "⟨21/25, 28/25, 0⟩"],ok:0,
+ just:"comp_a b = (a·b)/|a| = (3 + 4 + 0)/5 = 7/5.",
+ dist:"«7/25» divide por |a|² (eso va en la vectorial). «7/√3» divide por |b|. La opción vectorial es proy_a b, que da un vector.",
+ ref:"M02 L1"},
+{n:3026,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el plano que pasa por (1, 2, 3) con vector normal ⟨2, −1, 4⟩.",
+ op:["2x − y + 4z = 12", "x + 2y + 3z = 12", "2x − y + 4z = 0", "2x − y + 4z = 14"],ok:0,
+ just:"2(x − 1) − (y − 2) + 4(z − 3) = 0, o sea 2x − y + 4z = 2 − 2 + 12 = 12.",
+ dist:"«x + 2y + 3z = 12» intercambia punto y normal. «= 0» olvida el punto. «= 14» suma mal el término independiente.",
+ ref:"M02 L1"},
+{n:3027,mod:"02",lec:"L1",tema:"Vectores",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el área del paralelogramo determinado por ⟨1, 1, 0⟩ y ⟨0, 1, 1⟩.",
+ op:["√3", "√3/2", "1", "3"],ok:0,
+ just:"El producto cruz es ⟨1, −1, 1⟩ y su norma es √3. Esa norma es el área del paralelogramo.",
+ dist:"«√3/2» es el área del triángulo. «1» es el producto escalar. «3» olvida la raíz.",
+ ref:"M02 L1"},
+
 /* ===== M02 L2 · Derivación de un vector ===== */
 {n:33,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"paquete",
  q:"Para r(t) = ⟨3t, 4t, 5⟩, el vector tangente unitario T(0) es __________.",
@@ -686,6 +1012,38 @@ const QUIZ=[
  op:["⟨0, √2/2, √2/2⟩","⟨0, 1, 1⟩","⟨0, 1, 0⟩","⟨2, 1, 1⟩"],ok:0,
  just:"r'(t) = ⟨2t, eᵗ, cos t⟩, que en t = 0 vale ⟨0,1,1⟩, con norma √2. Dividiendo queda ⟨0, √2/2, √2/2⟩, cuya norma es 1.",
  dist:"La opción «⟨0, 1, 1⟩» es r'(0) sin normalizar. La cuarta deriva mal t², evaluando 2t como si fuera 2.",
+ ref:"M02 L2"},
+
+/* ===== M02 L2 · Derivación de un vector · prácticos nuevos ===== */
+{n:3028,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para r(t) = ⟨t³, cos t, e^(2t)⟩, el valor de r'(0).",
+ op:["⟨0, 0, 2⟩", "⟨0, 1, 2⟩", "⟨0, 0, 1⟩", "⟨3, 0, 2⟩"],ok:0,
+ just:"r'(t) = ⟨3t², −sen t, 2e^(2t)⟩. En t = 0: ⟨0, 0, 2⟩.",
+ dist:"«⟨0, 1, 2⟩» evalúa cos(0) = 1 en vez de derivarlo. «⟨0, 0, 1⟩» olvida la regla de la cadena en e^(2t).",
+ ref:"M02 L2"},
+{n:3029,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la longitud de r(t) = ⟨3cos t, 3sen t, 4t⟩ para 0 ≤ t ≤ π.",
+ op:["5π", "7π", "25π", "√7·π"],ok:0,
+ just:"r'(t) = ⟨−3sen t, 3cos t, 4⟩. |r'(t)| = √(9 + 16) = 5. L = ∫₀^π 5 dt = 5π.",
+ dist:"«25π» integra |r'|² sin la raíz. «7π» suma 3 + 4 en vez de usar la norma.",
+ ref:"M02 L2"},
+{n:3030,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el vector tangente unitario T(1) de r(t) = ⟨t, t², 0⟩.",
+ op:["⟨1/√5, 2/√5, 0⟩", "⟨1, 2, 0⟩", "⟨1/3, 2/3, 0⟩", "⟨1/√2, 1/√2, 0⟩"],ok:0,
+ just:"r'(t) = ⟨1, 2t, 0⟩, r'(1) = ⟨1, 2, 0⟩, |r'(1)| = √5. T(1) = r'(1)/√5.",
+ dist:"«⟨1, 2, 0⟩» no normaliza. «⟨1/3, 2/3, 0⟩» divide por la suma de componentes en vez de por la norma.",
+ ref:"M02 L2"},
+{n:3031,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la longitud de r(t) = ⟨1 + 2t, 3t, −t⟩ para 0 ≤ t ≤ 2.",
+ op:["2√14", "√14", "8", "28"],ok:0,
+ just:"r'(t) = ⟨2, 3, −1⟩, constante. |r'| = √(4 + 9 + 1) = √14. L = 2√14.",
+ dist:"«√14» olvida multiplicar por el largo del intervalo. «8» suma las componentes con el signo cambiado. «28» integra |r'|².",
+ ref:"M02 L2"},
+{n:3032,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: lím(t→0) ⟨sen t / t, t² + 1, eᵗ⟩.",
+ op:["⟨1, 1, 1⟩", "⟨0, 1, 1⟩", "⟨1, 0, 1⟩", "No existe, porque sen t / t se indetermina"],ok:0,
+ just:"Límite componente a componente: sen t / t → 1, t² + 1 → 1, eᵗ → 1.",
+ dist:"«⟨0, 1, 1⟩» reemplaza t = 0 en sen t / t sin resolver la indeterminación. El límite notable da 1.",
  ref:"M02 L2"},
 
 /* ===== M02 L3 · Funciones de varias variables ===== */
@@ -744,6 +1102,32 @@ const QUIZ=[
  dist:"El subíndice 1 hace pensar en un orden de derivación. En un examen la misma derivada puede aparecer con cualquiera de las seis escrituras, y eso solo se resuelve conociendo la tabla.",
  ref:"M02 L3"},
 
+/* ===== M02 L3 · Funciones de varias variables · prácticos nuevos ===== */
+{n:3033,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para f(x, y) = 3x²y − y³, las derivadas parciales fₓ y f_y.",
+ op:["fₓ = 6xy, f_y = 3x² − 3y²", "fₓ = 6xy − 3y², f_y = 3x² − 3y²", "fₓ = 6x, f_y = −3y²", "fₓ = 6xy, f_y = 3x²"],ok:0,
+ just:"fₓ: y es constante, 3x²y da 6xy y −y³ da 0. f_y: x es constante, 3x²y da 3x² y −y³ da −3y².",
+ dist:"«fₓ = 6xy − 3y²» deriva −y³ respecto de x, cuando es constante. «fₓ = 6x» pierde el factor y.",
+ ref:"M02 L3"},
+{n:3034,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para f(x, y) = eˣ·sen y, la derivada cruzada fₓᵧ.",
+ op:["eˣ·cos y", "eˣ·sen y", "−eˣ·cos y", "cos y"],ok:0,
+ just:"fₓ = eˣ sen y. Derivando respecto de y: eˣ cos y. Por Clairaut, f_yx da lo mismo.",
+ dist:"«−eˣ cos y» le pone el signo de la derivada del coseno. «cos y» pierde el factor eˣ, que es constante respecto de y.",
+ ref:"M02 L3"},
+{n:3035,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para f(x, y) = ln(x² + y²), la derivada parcial fₓ.",
+ op:["2x / (x² + y²)", "1 / (x² + y²)", "2x", "(2x + 2y) / (x² + y²)"],ok:0,
+ just:"Regla de la cadena: la derivada de ln u es u'/u, y u' respecto de x es 2x.",
+ dist:"«1/(x² + y²)» olvida multiplicar por la derivada de adentro. «(2x + 2y)/...» deriva también y, que es constante.",
+ ref:"M02 L3"},
+{n:3036,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para f(x, y) = x³y² + 4xy, el valor de fₓ(1, −1).",
+ op:["−1", "7", "3", "−4"],ok:0,
+ just:"fₓ = 3x²y² + 4y. En (1, −1): 3·1·1 + 4·(−1) = 3 − 4 = −1.",
+ dist:"«7» toma 4y como +4. «3» olvida el término 4y. «−4» olvida el primer término.",
+ ref:"M02 L3"},
+
 /* ===== M02 L4 · Regla de la cadena y gradiente ===== */
 {n:39,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"paquete",
  q:"Para f(x,y) = x² + 3xy, la derivada direccional en (1,1) en la dirección de ⟨1,1⟩ vale __________.",
@@ -798,6 +1182,38 @@ const QUIZ=[
  op:["cero, y se recorre la curva de nivel","el máximo, |∇f|","el mínimo, −|∇f|","no está definida"],ok:0,
  just:"Como D_u f = |∇f| cos θ, con θ = 90 grados el coseno se anula. Moverse perpendicular al gradiente es moverse a lo largo de la curva de nivel, donde la función no cambia.",
  dist:"Las opciones del máximo y el mínimo corresponden a θ = 0 y θ = 180 grados. Los tres casos son parte del mismo teorema y por eso se confunden entre sí.",
+ ref:"M02 L4"},
+
+/* ===== M02 L4 · Regla de la cadena y gradiente · prácticos nuevos ===== */
+{n:3037,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el gradiente de f(x, y) = x²y + y³ en (1, 2).",
+ op:["⟨4, 13⟩", "⟨4, 12⟩", "⟨2, 13⟩", "17"],ok:0,
+ just:"∇f = ⟨2xy, x² + 3y²⟩. En (1, 2): ⟨4, 1 + 12⟩ = ⟨4, 13⟩.",
+ dist:"«⟨4, 12⟩» olvida el x² de f_y. «17» suma las componentes: el gradiente es un vector, no un número.",
+ ref:"M02 L4"},
+{n:3038,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la derivada direccional de f(x, y) = xy en (2, 3) en la dirección de ⟨3, 4⟩.",
+ op:["17/5", "17", "18/5", "√13"],ok:0,
+ just:"∇f = ⟨y, x⟩ = ⟨3, 2⟩. Versor u = ⟨3/5, 4/5⟩. D_u f = 9/5 + 8/5 = 17/5.",
+ dist:"«17» no normaliza el vector, el error más evaluado del tema. «√13» es |∇f|, el máximo posible, no el valor en esa dirección.",
+ ref:"M02 L4"},
+{n:3039,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: si z = x² + y² con x = t² e y = 2t, el valor de dz/dt en t = 1.",
+ op:["12", "8", "6", "4"],ok:0,
+ just:"dz/dt = 2x·(2t) + 2y·2. En t = 1: x = 1, y = 2, entonces 2·1·2 + 2·2·2 = 4 + 8 = 12.",
+ dist:"«6» olvida multiplicar por dx/dt y dy/dt. «4» toma solo el término de x. «8» toma solo el de y.",
+ ref:"M02 L4"},
+{n:3040,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el valor máximo de la derivada direccional de f(x, y) = x² + y² en (3, 4).",
+ op:["10", "14", "100", "5"],ok:0,
+ just:"∇f = ⟨2x, 2y⟩ = ⟨6, 8⟩. El máximo es |∇f| = √(36 + 64) = 10.",
+ dist:"«14» suma componentes. «100» olvida la raíz. «5» es la distancia del punto al origen, no la norma del gradiente.",
+ ref:"M02 L4"},
+{n:3041,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el plano tangente a z = xy en el punto (1, 2, 2).",
+ op:["z = 2x + y − 2", "z = x + 2y − 2", "z = 2x + y", "z = 2x + y + 2"],ok:0,
+ just:"fₓ = y = 2 y f_y = x = 1 en (1, 2). z − 2 = 2(x − 1) + 1(y − 2), o sea z = 2x + y − 2.",
+ dist:"«z = x + 2y − 2» intercambia fₓ con f_y. «z = 2x + y» olvida el término independiente.",
  ref:"M02 L4"},
 
 /* ===== Respuestas múltiples ===== */
@@ -1107,7 +1523,7 @@ const AMP={};
 [39,40,135,136,137,138,139,140,141,204].forEach(n=>AMP[n]=T_GRAD);
 
 /* ---------- Estado ---------- */
-const HKEY="s21.calculo.p1.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+const HKEY="s21.calculo.p1.v1", FKEY=HKEY+".flags", VKEY=HKEY+".votos", PKEY=HKEY+".pin2";
 const LETRA=k=>"abcdefg"[k]||"?";
 let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
 const $=id=>document.getElementById(id);
@@ -1128,6 +1544,29 @@ try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
 try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
 function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
 function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+/* ---------- Calificacion interna (pulgares). Solo guarda, no cambia nada de la pagina ---------- */
+let votos={};
+try{votos=JSON.parse(localStorage.getItem(VKEY)||"{}")}catch(e){votos={}}
+function votar(p,v){
+  const k=modo+":"+p.n;
+  if(votos[k]&&votos[k].v===v) delete votos[k];
+  else votos[k]={v:v,banco:modo,n:p.n,tema:p.tema||"",nivel:p.nivel||"",tipo:p.tipo||"",ref:p.ref||"",
+    q:String(p.q||"").replace(/<[^>]+>/g,"").slice(0,300),f:new Date().toISOString().slice(0,10)};
+  try{localStorage.setItem(VKEY,JSON.stringify(votos))}catch(e){}
+}
+function pintarVotos(p){
+  const k=modo+":"+p.n, v=votos[k]?votos[k].v:0;
+  $("vUp").setAttribute("aria-pressed",v===1); $("vDn").setAttribute("aria-pressed",v===-1);
+}
+function exportarVotos(){
+  const d={pagina:HKEY,exportado:new Date().toISOString(),votos:votos};
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,1)],{type:"application/json"}));
+  a.download=HKEY.replace(/\./g,"-")+"-votos.json";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function revisarHashVotos(){if(location.hash==="#votos")setTimeout(exportarVotos,400)}
+window.addEventListener("hashchange",revisarHashVotos); revisarHashVotos();
 function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
 function marcadas(){return BANCO().filter(q=>flags[q.n])}
 function alternarFlag(n,btn){
@@ -1157,9 +1596,12 @@ function arbol(){
     const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
     let hojas;
     if(modo==="quiz"){
-      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
-        const s2=sub.filter(x=>x.lec===l);
-        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().flatMap(l=>{
+        const s1=sub.filter(x=>x.lec===l);
+        return [...new Set(s1.map(x=>x.tema))].map(t=>{
+          const s2=s1.filter(x=>x.tema===t);
+          return {k:"q:"+c+"|"+l+"|"+t,t:l+" · "+t,c:s2.length,e:estado(s2)};
+        });
       });
     } else {
       hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
@@ -1189,6 +1631,8 @@ function aplicar(){
   else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
   else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
   else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("q:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.mod===pt[0]&&x.lec===pt[1]&&x.tema===pt[2]);}
   else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
     lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
   else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
@@ -1269,11 +1713,84 @@ function pintarChips(){
   if(_pan) _pan.scrollTop=_sc;
 }
 
+/* ---------- Mejoras de uso 2026-10-25 ----------
+   Respuestas multiples con tope y contador, atajos de teclado, barra por
+   segmentos (continua si son mas de 40) y racha de aciertos. */
+let pistaTeclasVista=false, avisoMs=0;
+function pistaTeclas(){
+  if(pistaTeclasVista) return "";
+  pistaTeclasVista=true;
+  return '<p class="pistaTeclas">Atajos: letra para elegir, Enter para seguir</p>';
+}
+function contarMs(p,tope){
+  const c=$("cont"), chk=$("chk");
+  if(!c||!chk||$("fb").classList.contains("visible")) return;
+  const n=p.ok.length, m=esc.querySelectorAll(".opcion.elegida").length;
+  clearTimeout(avisoMs);
+  chk.disabled = m!==n;
+  c.classList.toggle("tope",!!tope);
+  if(tope){
+    c.textContent="Ya marcaste "+n+", desmarcá una para cambiar";
+    avisoMs=setTimeout(()=>contarMs(p),2000);
+    return;
+  }
+  c.textContent = m<n ? (n-m===1?"Te falta 1":"Te faltan "+(n-m)) : "Listo, marcaste "+n;
+}
+function alternarMs(p,b){
+  const on=b.getAttribute("aria-pressed")!=="true";
+  if(on && esc.querySelectorAll(".opcion.elegida").length>=p.ok.length){contarMs(p,true);return}
+  b.setAttribute("aria-pressed",on);
+  b.classList.toggle("elegida",on);
+  contarMs(p);
+}
+/* Letras a-g o numeros 1-9 eligen la opcion; en V/F, V y F. En multiples la
+   tecla alterna la marca y Enter comprueba. */
+function teclaOpcion(e){
+  if(e.ctrlKey||e.metaKey||e.altKey) return false;
+  const t=e.target;
+  if(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable)) return false;
+  const p=lista[i];
+  if(!p||!["mc","ms","vf"].includes(p.tipo)) return false;
+  const ops=[...esc.querySelectorAll(".opcion")];
+  if(!ops.length||ops[0].disabled) return false;
+  const k0=e.key.toLowerCase();
+  if(k0==="enter"){
+    if(p.tipo!=="ms") return false;
+    if(t && t.tagName==="BUTTON" && !t.classList.contains("opcion") && t.id!=="chk") return false;
+    e.preventDefault();
+    if(!$("chk").disabled) $("chk").click();
+    return true;
+  }
+  let k=-1;
+  if(p.tipo==="vf") k = (k0==="v"||k0==="1")?0 : (k0==="f"||k0==="2")?1 : -1;
+  else if(/^[a-g]$/.test(k0)) k=k0.charCodeAt(0)-97;
+  else if(/^[1-9]$/.test(k0)) k=+k0-1;
+  if(k<0||k>=ops.length) return false;
+  e.preventDefault();
+  ops[k].focus({preventScroll:true});
+  ops[k].click();
+  return true;
+}
+
 function cabecera(){
-  const tot=lista.length;
-  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
-  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
-  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+  const tot=lista.length, hechas=resultados.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot+" · Quedan "+(tot-hechas) : "";
+  let racha=0;
+  for(let k=hechas-1;k>=0&&resultados[k].bien;k--) racha++;
+  $("marcador").innerHTML = hechas? aciertos+" de "+hechas+" correctas"+
+    (racha>=3?'<span class="racha">Racha de '+racha+'</span>':"") : "";
+  const b=$("barra");
+  b.setAttribute("aria-hidden","true");
+  if(!tot){b.className="";b.innerHTML="";return}
+  if(tot>40){
+    b.className="continua";
+    b.innerHTML='<i class="ok" style="width:'+(aciertos/tot*100)+'%"></i>'+
+      '<i class="mal" style="width:'+((hechas-aciertos)/tot*100)+'%"></i>';
+  } else {
+    b.className="segmentos";
+    b.innerHTML=lista.map((_,k)=>'<i class="'+
+      (k<hechas?(resultados[k].bien?"ok":"mal"):(k===i?"actual":""))+'"></i>').join("");
+  }
 }
 
 function render(){
@@ -1304,17 +1821,19 @@ function pregunta(p){
   $("flot").classList.remove("visible");
   let cuerpo="";
   if(p.tipo==="ms"){
-    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+    cuerpo='<p class="rotulo-ms">Elegí '+p.ok.length+' de '+p.op.length+' opciones</p><div class="opciones">'+p.op.map((o,k)=>
       '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
       LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
-      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
-      '<button class="btn" id="chk">Comprobar</button></div>';
+      '<div class="msPie"><button class="btn" id="chk" disabled>Comprobar</button>'+
+      '<span class="contador" id="cont" aria-live="polite"></span></div>';
   } else if(p.tipo==="mc"||p.tipo==="vf"){
-    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+    cuerpo='<p class="rotulo-ms">'+(p.tipo==="vf"?"Verdadero o falso":
+      "Una respuesta correcta · "+p.op.length+" opciones")+'</p><div class="opciones">'+p.op.map((o,k)=>
       '<button class="opcion" data-k="'+k+'"><span class="letra">'+
       (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
   }
 
+  if(["mc","ms","vf"].includes(p.tipo)) cuerpo+=pistaTeclas();
   const cab = modo==="quiz"
     ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
     : p.inst+' · pregunta '+p.orig+' · '+p.tema;
@@ -1323,22 +1842,23 @@ function pregunta(p){
    '<div class="tarjeta">'+
      '<div class="metaFila"><div class="meta">'+cab+
        ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
-       '<button class="flag" id="flag"></button></div>'+
+       '<div class="votos"><button class="voto" id="vUp" title="Calificacion interna: se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="voto" id="vDn" title="Calificacion interna: no se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scale(-1,-1)"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="flag" id="flag"></button></div></div>'+
      '<p class="enunciado">'+p.q+'</p>'+
      cuerpo+
+     '<div class="sr" id="vivo" aria-live="polite"></div>'+
      '<div class="feedback" id="fb"></div>'+
    '</div>';
 
   const bf=$("flag");
   pintarFlag(bf,p.n);
   bf.onclick=()=>alternarFlag(p.n,bf);
+  pintarVotos(p);
+  $("vUp").onclick=()=>{votar(p,1);pintarVotos(p)};
+  $("vDn").onclick=()=>{votar(p,-1);pintarVotos(p)};
 
   if(p.tipo==="ms"){
-    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
-      const on=b.getAttribute("aria-pressed")!=="true";
-      b.setAttribute("aria-pressed",on);
-      b.classList.toggle("elegida",on);
-    });
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>alternarMs(p,b));
+    contarMs(p);
     $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
   } else if(p.tipo==="mc"||p.tipo==="vf"){
     esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
@@ -1378,7 +1898,9 @@ function responder(p,elegido){
                  : p.op[p.ok];
 
   $("fb").innerHTML=
-    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    '<div class="veredicto '+(bien?"bien":"mal")+'" aria-live="polite">'+(bien?"Correcta":"Incorrecta")+
+      (p.tipo==="ms"?'<span class="parcialMs">Acertaste '+elegido.filter(k=>p.ok.includes(k)).length+
+        ' de '+p.ok.length+'</span>':'')+'</div>'+
     (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
     (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
     '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
@@ -1386,6 +1908,9 @@ function responder(p,elegido){
     (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
     '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
     '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  if($("cont")) $("cont").textContent="";
+  if($("vivo")) $("vivo").textContent=(bien?"Correcta":"Incorrecta")+
+    (p.tipo==="ms"?". Acertaste "+elegido.filter(k=>p.ok.includes(k)).length+" de "+p.ok.length:"");
   $("fb").classList.add("visible");
   $("sig").onclick=()=>{i++;render()};
   $("sig").focus({preventScroll:true});
@@ -1467,6 +1992,9 @@ function resumen(){
 
 /* ---------- Panel ---------- */
 const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+/* En celular el menu nunca queda anclado: arranca cerrado y se abre con Temas. */
+const MOVIL=window.matchMedia("(max-width:640px)");
+function anclado(){return fijo && !MOVIL.matches}
 let fijo=true;
 try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
 
@@ -1478,24 +2006,28 @@ function pintarFijar(){
 }
 function aplicarFijo(guardar){
   document.body.classList.toggle("fijo",fijo);
-  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  if(anclado()){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  else if(MOVIL.matches){panel.classList.remove("abierto");fondo.classList.remove("abierto");
+    btnAbrir.setAttribute("aria-expanded","false")}
   pintarFijar();
   if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
 }
 function abrirPanel(){panel.classList.add("abierto");
-  if(!fijo)fondo.classList.add("abierto");
+  if(!anclado())fondo.classList.add("abierto");
   btnAbrir.setAttribute("aria-expanded","true")}
 function cerrarPanel(){
-  if(fijo) return;
+  if(anclado()) return;
   panel.classList.remove("abierto");fondo.classList.remove("abierto");
   btnAbrir.setAttribute("aria-expanded","false")}
 
 btnAbrir.onclick=abrirPanel;
 btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
-$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+$("cerrar").onclick=()=>{if(MOVIL.matches){cerrarPanel();return}
+  fijo=false;aplicarFijo(true);cerrarPanel()};
 fondo.onclick=cerrarPanel;
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){cerrarPanel();return}
+  if(teclaOpcion(e)) return;
   if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
     e.preventDefault(); $("flot").click();
   }
@@ -1511,6 +2043,76 @@ document.querySelectorAll(".modo").forEach(b=>{
 });
 aplicar();
 
+</script>
+<script>
+/* ---------- Ajustes para celular 2026-10-20 ----------
+   Gestos para usar con una mano, solo en pantallas de 640 px o menos:
+   deslizar a la derecha abre Temas, a la izquierda lo cierra, y con la
+   pregunta ya respondida deslizar a la izquierda pasa a la siguiente.
+   El boton Atras del telefono cierra el panel en vez de salir de la pagina. */
+(function(){
+  const MOVIL=window.matchMedia("(max-width:640px)");
+  const panel=document.getElementById("panel"), fondo=document.getElementById("fondo"),
+        btnTemas=document.getElementById("abrir"), flot=document.getElementById("flot");
+  if(!panel||!fondo||!btnTemas||!flot) return;
+  /* En celular el menu nunca queda anclado, asi que la clase refleja si esta a la vista. */
+  const abierto=()=>panel.classList.contains("abierto");
+  const abrir=()=>{if(!abierto()) btnTemas.click()};
+  const cerrar=()=>{if(abierto()) fondo.click()};
+
+  /* No robar el gesto a lo que ya se desplaza de costado (tablas, figuras anchas). */
+  function desplazableDeCostado(el){
+    for(;el && el!==document.body;el=el.parentElement){
+      if(el===panel) return false;
+      const ox=getComputedStyle(el).overflowX;
+      if((ox==="auto"||ox==="scroll") && el.scrollWidth>el.clientWidth+2) return true;
+    }
+    return false;
+  }
+  let ini=null;
+  document.addEventListener("touchstart",e=>{
+    ini=null;
+    if(!MOVIL.matches || e.touches.length!==1) return;
+    const t=e.touches[0];
+    /* Los bordes de la pantalla son del navegador (volver atras en iPhone y Android). */
+    if(t.clientX<24 || t.clientX>innerWidth-24) return;
+    if(!abierto() && desplazableDeCostado(e.target)) return;
+    ini={x:t.clientX,y:t.clientY,t:Date.now()};
+  },{passive:true});
+  document.addEventListener("touchend",e=>{
+    if(!ini) return;
+    const t=e.changedTouches[0], dx=t.clientX-ini.x, dy=t.clientY-ini.y, dt=Date.now()-ini.t;
+    ini=null;
+    if(dt>700 || Math.abs(dx)<60 || Math.abs(dx)<Math.abs(dy)*1.6) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(abierto()){ if(dx<0) cerrar(); return }
+    if(dx>0) abrir();
+    else if(flot.classList.contains("visible")) flot.click();
+  },{passive:true});
+
+  /* Boton Atras: con el panel abierto lo cierra. */
+  new MutationObserver(()=>{
+    if(!MOVIL.matches) return;
+    const st=history.state||{};
+    if(abierto() && !st.temas) history.pushState(Object.assign({},st,{temas:1}),"");
+    else if(!abierto() && st.temas) history.back();
+  }).observe(panel,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("popstate",()=>{if(abierto()) cerrar()});
+
+  /* La primera vez que se entra desde el celular, una pista de los gestos. */
+  const CLAVE="s21-gestos-visto";
+  let visto=false;
+  try{visto=localStorage.getItem(CLAVE)==="1"}catch(e){}
+  if(MOVIL.matches && !visto){
+    const p=document.createElement("div");
+    p.className="pistaGestos";p.setAttribute("role","status");
+    p.textContent="Deslizá hacia la derecha para ver los temas. Con la pregunta respondida, deslizá hacia la izquierda para seguir.";
+    document.body.appendChild(p);
+    requestAnimationFrame(()=>p.classList.add("visible"));
+    setTimeout(()=>{p.classList.remove("visible");setTimeout(()=>p.remove(),400)},6000);
+    try{localStorage.setItem(CLAVE,"1")}catch(e){}
+  }
+})();
 </script>
 </body>
 </html>
