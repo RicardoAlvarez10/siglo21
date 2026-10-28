@@ -335,6 +335,20 @@
     *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
   }
 </style>
+<style>
+  /* ---------- Pregunta anterior 2026-10-27 ----------
+     Anterior al lado de Siguiente y un flotante debajo del de Siguiente;
+     en celular queda a la izquierda de Siguiente, en la barra de abajo. */
+  .navPreg{display:flex;gap:9px;align-items:center}
+  #flotAnt{top:calc(50% + 54px);transform:none}
+  @media (max-width:900px){#flotAnt{top:calc(50% + 44px)}}
+  @media (max-width:640px){
+    .pie .navPreg .btn{width:auto;flex:1 1 0}
+    #flotAnt{top:auto;left:136px;right:auto;width:60px;padding:12px 0}
+    #flotAnt span{display:none}
+    #flotAnt.visible + #flot{left:206px}
+  }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -353,6 +367,7 @@
 </div>
 <div class="progreso"><div id="barra"></div></div>
 <div id="escenario"></div>
+<button class="flot" id="flotAnt" title="Volver a la pregunta anterior"><b>&#8592;</b><span>Anterior</span><small>&#8592;</small></button>
 <button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
 
 <footer class="ui">Contenido tomado de los resúmenes de teoría de los módulos 01 y 02 de Cálculo Avanzado, de sus dos índices y del paquete de estudio del Parcial 1. Las preguntas del banco de repaso son las cuatro que traen las propias lecturas de cátedra, con su enunciado y sus opciones registrados. Esta materia todavía no tiene trabajos prácticos ni actividades prácticas archivadas. Ojo con una cosa: Cálculo Avanzado es una matemática de desarrollo, así que esta página mide identificación de conceptos y resolución de ejercicios cortos, no reemplaza haber resuelto a mano los procedimientos de las secciones 4 y 5 del paquete de estudio.</footer>
@@ -544,6 +559,192 @@ const QUIZ=[
  op:["Alternante, converge a 0 agrupando de a pares","Geométrica con r = −1, converge a 1/(1 − (−1)) = 1/2","Alternante, diverge porque sin signos los términos valen siempre 1 y no tienden a 0","Alternante, converge porque los signos se cancelan"],ok:2,
  just:"Sin signos, los términos valen siempre 1 y no tienden a 0, así que diverge por el criterio del término general. Las sumas parciales oscilan entre 1 y 0.",
  dist:"«Converge a 0 agrupando de a pares» reordena una serie que no converge: agrupando distinto da 1. «Converge a 1/2» aplica a/(1 − r) con |r| = 1, donde la fórmula no vale.",
+ ref:"M01 L2"},
+
+/* ===== M01 L2 · Series geometricas · practica por familia ===== */
+{n:3054,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular la suma de Σ(n=1 a ∞) 5·(1/4)^(n−1).",
+ op:["20/3","5/4","20","15/4"],ok:0,
+ just:"Ya viene con exponente n−1: a = 5 y r = 1/4. Como |r| < 1, S = 5/(1 − 1/4) = 5/(3/4) = 20/3.",
+ dist:"«20» divide por r en vez de por 1 − r. «5/4» es el segundo término de la serie, no la suma.",
+ ref:"M01 L2"},
+{n:3055,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular la suma de Σ(n=0 a ∞) (2/3)ⁿ.",
+ op:["2","3","2/3","1/3"],ok:1,
+ just:"Desde n = 0 el primer término es (2/3)⁰ = 1, así que a = 1 y r = 2/3. S = 1/(1 − 2/3) = 3.",
+ dist:"«2» es la suma desde n = 1, donde a = 2/3. Mirar siempre desde dónde arranca el índice para sacar el a correcto.",
+ ref:"M01 L2"},
+{n:3056,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular la suma de Σ(n=1 a ∞) 3ⁿ/4ⁿ.",
+ op:["4","3/4","3","Diverge, porque 3ⁿ crece sin freno"],ok:2,
+ just:"3ⁿ/4ⁿ = (3/4)ⁿ. Desde n = 1: a = 3/4 y r = 3/4. S = (3/4)/(1/4) = 3.",
+ dist:"«4» toma a = 1, como si arrancara en n = 0. «Diverge» mira solo el numerador: lo que decide es el cociente 3/4, que es menor que 1.",
+ ref:"M01 L2"},
+{n:3057,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Qué pasa con Σ(n=1 a ∞) 4ⁿ/3ⁿ?",
+ op:["Converge a −4","Diverge, porque |r| = 4/3 ≥ 1","Converge a 3","Converge, porque toda geométrica converge"],ok:1,
+ just:"4ⁿ/3ⁿ = (4/3)ⁿ, geométrica con r = 4/3. Como |r| ≥ 1, diverge.",
+ dist:"«Converge a −4» aplica a/(1 − r) = (4/3)/(−1/3) sin chequear |r| < 1. Un resultado negativo sumando términos positivos ya es señal de error.",
+ ref:"M01 L2"},
+{n:3058,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular la suma de 2 − 2/3 + 2/9 − 2/27 + ...",
+ op:["3","3/2","1","Diverge, porque los signos alternan"],ok:1,
+ just:"a = 2 y r = (−2/3)/2 = −1/3. |r| < 1, converge. S = 2/(1 − (−1/3)) = 2/(4/3) = 3/2.",
+ dist:"«3» usa r = 1/3 y pierde el signo. Con r negativa, 1 − r queda 1 + |r|.",
+ ref:"M01 L2"},
+{n:3059,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular la suma de Σ(n=1 a ∞) 2^(n+1)/5ⁿ.",
+ op:["4/3","2/3","10/3","5/3"],ok:0,
+ just:"Primer término (n = 1): 2²/5 = 4/5. Razón: 2/5. S = (4/5)/(1 − 2/5) = (4/5)/(3/5) = 4/3.",
+ dist:"«2/3» es Σ(2/5)ⁿ y se olvida del factor 2 que sale de 2^(n+1) = 2·2ⁿ. «10/3» toma ese factor pero arranca en n = 0.",
+ ref:"M01 L2"},
+{n:3060,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"El número 0,333... se escribe como 3/10 + 3/100 + 3/1000 + ... ¿Cuánto vale esa serie?",
+ op:["1/3","3/10","10/3","Diverge, porque tiene infinitos términos"],ok:0,
+ just:"Geométrica con a = 3/10 y r = 1/10. S = (3/10)/(9/10) = 1/3.",
+ dist:"«3/10» se queda con el primer término. «Diverge» confunde infinitos términos con suma infinita.",
+ ref:"M01 L2"},
+{n:3061,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Para qué valores de x converge Σ(n=1 a ∞) x^(n−1)?",
+ op:["|x| < 1","x < 1","|x| ≤ 1","x > 1"],ok:0,
+ just:"Es geométrica con a = 1 y r = x. Converge si y solo si |r| < 1, o sea −1 < x < 1.",
+ dist:"«x < 1» deja entrar x = −2, que diverge. «|x| ≤ 1» incluye x = 1 (1 + 1 + 1 + ...) y x = −1 (1 − 1 + 1 − ...), que divergen.",
+ ref:"M01 L2"},
+{n:3062,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Calcular la suma de Σ(n=1 a ∞) (−1/2)ⁿ.",
+ op:["2/3","1/3","−1","−1/3"],ok:3,
+ just:"Desde n = 1: a = −1/2 y r = −1/2. S = (−1/2)/(1 + 1/2) = (−1/2)/(3/2) = −1/3.",
+ dist:"«2/3» es la suma desde n = 0. «1/3» pierde el signo de a: el primer término es negativo.",
+ ref:"M01 L2"},
+{n:3063,mod:"01",lec:"L2",tema:"Series geométricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Qué pasa con Σ(n=1 a ∞) 7·(1,01)^(n−1)?",
+ op:["Converge a −700","Diverge, porque r = 1,01 ≥ 1","Converge, porque r está muy cerca de 1","Converge a 7"],ok:1,
+ just:"r = 1,01 y |r| ≥ 1, así que diverge. No hay grados: apenas por encima de 1 ya alcanza.",
+ dist:"«Converge a −700» aplica 7/(1 − 1,01) sin chequear la condición. «Muy cerca de 1» no cuenta: el criterio es |r| < 1 estricto.",
+ ref:"M01 L2"},
+
+/* ===== M01 L2 · Serie p y armonica · practica por familia ===== */
+{n:3064,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/n⁴, con n desde 1. ¿Cuánto vale p y qué pasa con la serie?",
+ op:["p = 4, converge","p = 4, diverge porque p > 1","p = 1/4, diverge","Geométrica con r = 1/4, converge"],ok:0,
+ just:"Forma 1/nᵖ con p = 4. Como p > 1, converge.",
+ dist:"«Geométrica» confunde n⁴ (n en la base) con 4ⁿ (n en el exponente). En la serie p la n está en la base.",
+ ref:"M01 L2"},
+{n:3065,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/n^0,9, con n desde 1. ¿Qué pasa con la serie?",
+ op:["Converge, porque p está muy cerca de 1","Diverge, porque p = 0,9 ≤ 1","Converge, porque 1/n^0,9 → 0","Diverge por el criterio del término general"],ok:1,
+ just:"p = 0,9 ≤ 1, así que la serie p diverge.",
+ dist:"«Término general» llega a la respuesta por un camino inválido: 1/n^0,9 → 0, así que ese criterio no dice nada.",
+ ref:"M01 L2"},
+{n:3066,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/∛(n²), con n desde 1. ¿Cuánto vale p y qué pasa con la serie?",
+ op:["p = 3/2, converge","p = 2/3, converge","p = 2/3, diverge","p = 2, converge"],ok:2,
+ just:"∛(n²) = n^(2/3), entonces p = 2/3. Como p ≤ 1, diverge.",
+ dist:"«p = 3/2» invierte la fracción. En la raíz, la potencia de adentro va arriba y el índice abajo: ∛(n²) = n^(2/3).",
+ ref:"M01 L2"},
+{n:3067,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ n/n³, con n desde 1. ¿Qué pasa con la serie?",
+ op:["Diverge, porque el numerador crece","p = 3, converge","p = 2, converge","p = 2, diverge"],ok:2,
+ just:"Simplificar primero: n/n³ = 1/n². Serie p con p = 2 > 1, converge.",
+ dist:"«p = 3» lee el denominador sin simplificar. Antes de identificar p hay que dejar el término como 1/nᵖ.",
+ ref:"M01 L2"},
+{n:3068,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ √n/n², con n desde 1. ¿Cuánto vale p y qué pasa con la serie?",
+ op:["p = 3/2, converge","p = 5/2, converge","p = 1/2, diverge","p = 4, converge"],ok:0,
+ just:"√n/n² = n^(1/2)/n² = 1/n^(2 − 1/2) = 1/n^(3/2). p = 3/2 > 1, converge.",
+ dist:"«p = 5/2» suma los exponentes. En un cociente de igual base los exponentes se restan.",
+ ref:"M01 L2"},
+{n:3069,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 5/n, con n desde 1. ¿Qué pasa con la serie?",
+ op:["Converge a 5","Diverge, porque es 5 veces la armónica","Converge, porque 5/n → 0","Es serie p con p = 5, converge"],ok:1,
+ just:"Σ 5/n = 5·Σ 1/n. Multiplicar una serie divergente por una constante distinta de 0 no la hace converger.",
+ dist:"«p = 5» toma el numerador como exponente. El exponente de n en el denominador sigue siendo 1.",
+ ref:"M01 L2"},
+{n:3070,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/n^π, con n desde 1. ¿Qué pasa con la serie?",
+ op:["Diverge, porque π no es entero","Converge, porque p = π > 1","No es serie p","Diverge, porque p = π ≥ 1"],ok:1,
+ just:"p puede ser cualquier número real. π ≈ 3,14 > 1, así que converge.",
+ dist:"«No es entero» inventa una condición que el criterio no pide. «Diverge porque p ≥ 1» invierte la regla.",
+ ref:"M01 L2"},
+{n:3071,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"La serie Σ 1/nᵖ converge si y solo si __________.",
+ op:["p ≥ 1","p > 1","p < 1","p > 0"],ok:1,
+ just:"Converge si p > 1 y diverge si p ≤ 1. El caso límite p = 1 es la armónica, que diverge.",
+ dist:"«p ≥ 1» mete adentro a la armónica. «p > 0» solo asegura que el término tienda a 0, y eso no alcanza.",
+ ref:"M01 L2"},
+{n:3072,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Σ 1/n^(−2), con n desde 1. ¿Qué pasa con la serie?",
+ op:["p = −2, diverge","p = 2, converge","p = −2, converge porque p < 1","p = 1/2, diverge"],ok:0,
+ just:"1/n^(−2) = n². p = −2 ≤ 1, diverge. Además el término general n² → ∞, así que también diverge por el término general.",
+ dist:"«p = 2» se come el signo del exponente. «Converge porque p < 1» invierte el criterio.",
+ ref:"M01 L2"},
+{n:3073,mod:"01",lec:"L2",tema:"Serie p y armónica",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Σ 1/(n+1), con n desde 1, es 1/2 + 1/3 + 1/4 + ... ¿Qué pasa con la serie?",
+ op:["Converge, porque no es exactamente la armónica","Diverge: es la armónica sin su primer término","Converge a 1","Es serie p con p = 2"],ok:1,
+ just:"Es la armónica menos el 1 inicial. Sacar un término no cambia la naturaleza: si esta convergiera, sumándole 1 convergería la armónica, y no lo hace.",
+ dist:"«No es exactamente la armónica» busca la forma exacta 1/nᵖ y no ve que es la misma serie corrida un lugar.",
+ ref:"M01 L2"},
+
+/* ===== M01 L2 · Series alternantes · practica por familia ===== */
+{n:3074,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)^(n+1)/n².",
+ op:["Condicionalmente convergente","Absolutamente convergente","Divergente","Converge, pero no se puede saber de qué tipo"],ok:1,
+ just:"En valor absoluto queda Σ 1/n², serie p con p = 2 > 1, que converge. Entonces es absolutamente convergente.",
+ dist:"«Condicionalmente» es lo que se elige al aplicar solo el criterio alternante y no mirar el valor absoluto.",
+ ref:"M01 L2"},
+{n:3075,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)ⁿ/n.",
+ op:["Absolutamente convergente","Divergente, porque la armónica diverge","Condicionalmente convergente","No se puede decidir"],ok:2,
+ just:"bₙ = 1/n decrece y tiende a 0: converge por el criterio alternante. En valor absoluto es la armónica, que diverge. Converge pero no absolutamente.",
+ dist:"«Divergente» confunde la serie con su valor absoluto. Es el ejemplo 7.5 de la lección.",
+ ref:"M01 L2"},
+{n:3076,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"¿Qué pasa con Σ (−1)ⁿ · n/(n+1)?",
+ op:["Converge por el criterio alternante","Diverge, porque n/(n+1) → 1 y el término general no tiende a 0","Condicionalmente convergente","Absolutamente convergente"],ok:1,
+ just:"bₙ = n/(n+1) tiende a 1, no a 0. No se cumple la segunda condición del criterio alternante, y el término general no tiende a 0: diverge.",
+ dist:"«Converge por el criterio alternante» supone que alternar alcanza. Las dos condiciones (decrecer y tender a 0) se verifican siempre.",
+ ref:"M01 L2"},
+{n:3077,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)ⁿ/∛n.",
+ op:["Absolutamente convergente","Condicionalmente convergente","Divergente","Diverge, porque p = 1/3 ≤ 1"],ok:1,
+ just:"bₙ = 1/n^(1/3) decrece y tiende a 0: converge. En valor absoluto es serie p con p = 1/3, que diverge. Condicional.",
+ dist:"«Diverge porque p ≤ 1» aplica el criterio de la serie p a la alternante. Ese criterio decide el valor absoluto, no la serie con signos.",
+ ref:"M01 L2"},
+{n:3078,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Para aplicar el criterio de las alternantes a Σ (−1)ⁿ bₙ, con bₙ > 0, hay que verificar __________.",
+ op:["bₙ₊₁ ≤ bₙ y lím bₙ = 0","solo lím bₙ = 0","solo que bₙ decrezca","que Σ bₙ converja"],ok:0,
+ just:"Son las dos condiciones del criterio: decrecer y tender a 0. Con las dos, la serie converge.",
+ dist:"«Que Σ bₙ converja» es convergencia absoluta: alcanza para concluir, pero no es el criterio alternante y pide mucho más.",
+ ref:"M01 L2"},
+{n:3079,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)ⁿ/(n√n).",
+ op:["Condicionalmente convergente","Divergente","Absolutamente convergente","Converge, pero no se puede saber de qué tipo"],ok:2,
+ just:"En valor absoluto queda 1/n^(3/2), serie p con p = 3/2 > 1, que converge. Absolutamente convergente.",
+ dist:"«Condicionalmente» se queda en el criterio alternante. Siempre hay que chequear el valor absoluto para saber el tipo.",
+ ref:"M01 L2"},
+{n:3080,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)ⁿ/(2n + 1).",
+ op:["Condicionalmente convergente","Absolutamente convergente","Divergente","Absolutamente, porque 1/(2n+1) < 1/n"],ok:0,
+ just:"bₙ = 1/(2n+1) decrece y tiende a 0: converge. En valor absoluto, por comparación por el límite con 1/n (el límite del cociente es 1/2), diverge. Condicional.",
+ dist:"«1/(2n+1) < 1/n» compara con una divergente por debajo, y estar debajo de una divergente no prueba nada.",
+ ref:"M01 L2"},
+{n:3081,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)ⁿ · (1/2)ⁿ.",
+ op:["Condicionalmente convergente","Absolutamente convergente, porque Σ (1/2)ⁿ converge","Divergente","Diverge, porque los signos alternan"],ok:1,
+ just:"En valor absoluto es la geométrica Σ (1/2)ⁿ con r = 1/2, que converge. Absolutamente convergente.",
+ dist:"«Condicionalmente» no mira el valor absoluto. También se ve directo como geométrica con r = −1/2, |r| < 1.",
+ ref:"M01 L2"},
+{n:3082,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"Si Σ |aₙ| converge, ¿qué pasa con Σ aₙ?",
+ op:["Converge: absoluta implica convergente","Puede diverger","Converge solo si es alternante","No se puede decir nada"],ok:0,
+ just:"Es el resultado de la lección: toda serie absolutamente convergente es convergente.",
+ dist:"«Puede diverger» confunde con el recíproco, que es falso: Σ (−1)ⁿ/n converge y Σ 1/n no.",
+ ref:"M01 L2"},
+{n:3083,mod:"01",lec:"L2",tema:"Series alternantes",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Clasificar Σ (−1)^(n+1)/n!.",
+ op:["Condicionalmente convergente","Divergente","Absolutamente convergente","No se puede decidir con los criterios del módulo"],ok:2,
+ just:"En valor absoluto queda Σ 1/n!. Por el cociente: (1/(n+1)!)/(1/n!) = 1/(n+1) → 0 < 1, converge. Absolutamente convergente.",
+ dist:"«No se puede decidir» olvida el criterio del cociente, que es justo el indicado cuando hay factoriales.",
  ref:"M01 L2"},
 
 /* ===== M01 L2 · Series ===== */
@@ -1526,6 +1727,7 @@ const AMP={};
 const HKEY="s21.calculo.p1.v1", FKEY=HKEY+".flags", VKEY=HKEY+".votos", PKEY=HKEY+".pin2";
 const LETRA=k=>"abcdefg"[k]||"?";
 let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+let revisando=false;
 const $=id=>document.getElementById(id);
 const esc=document.getElementById("escenario");
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
@@ -1795,10 +1997,25 @@ function cabecera(){
 
 function render(){
   cabecera();
+  pintarAnt();
   if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
   if(i>=lista.length){resumen();return}
-  pregunta(lista[i]);
+  if(i<resultados.length) revisar(resultados[i]); else pregunta(lista[i]);
 }
+
+/* ---------- Pregunta anterior 2026-10-27 ----------
+   Volver muestra la pregunta ya respondida tal como quedo, con la opcion
+   elegida y su correccion, sin volver a puntuarla ni a responderla. */
+function irAnterior(){if(i>0&&i<=lista.length){i--;render()}}
+function pintarAnt(){$("flotAnt").classList.toggle("visible",i>0&&i<lista.length)}
+function revisar(r){
+  const p=r.p;
+  if(Array.isArray(r.op)){p.op=r.op.slice();p.ok=Array.isArray(r.ok)?r.ok.slice():r.ok}
+  revisando=true; pregunta(p); revisando=false;
+  esc.querySelectorAll("input").forEach((x,k)=>x.value=r.vals[k]||"");
+  responder(p,Array.isArray(r.el)?r.el.slice():r.el,true);
+}
+$("flotAnt").onclick=irAnterior;
 
 /* ---------- Orden de las opciones ----------
    Se baraja en cada render, así la posición de la correcta nunca es una pista,
@@ -1817,7 +2034,7 @@ function barajar(p){
 }
 
 function pregunta(p){
-  barajar(p);
+  if(!revisando) barajar(p);
   $("flot").classList.remove("visible");
   let cuerpo="";
   if(p.tipo==="ms"){
@@ -1865,14 +2082,18 @@ function pregunta(p){
   }
 }
 
-function responder(p,elegido){
+function responder(p,elegido,rev){
   const bien = p.tipo==="ms"
       ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
       : elegido===p.ok;
-  if(bien) aciertos++;
-  resultados.push({p:p,bien:bien});
-  marcar(p.n,bien);
-  pintarChips();
+  if(!rev){
+    if(bien) aciertos++;
+    resultados.push({p:p,bien:bien,el:Array.isArray(elegido)?elegido.slice():elegido,
+      op:Array.isArray(p.op)?p.op.slice():p.op,ok:Array.isArray(p.ok)?p.ok.slice():p.ok,
+      vals:[...esc.querySelectorAll("input")].map(x=>x.value)});
+    marcar(p.n,bien);
+    pintarChips();
+  }
 
   if(p.tipo==="ms"){
     $("chk").disabled=true;
@@ -1907,12 +2128,14 @@ function responder(p,elegido){
     '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
     (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
     '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
-    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+    '<span class="navPreg"><button class="btn sec" id="ant"'+(i===0?' disabled':'')+'>Anterior</button>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></span></div>';
   if($("cont")) $("cont").textContent="";
   if($("vivo")) $("vivo").textContent=(bien?"Correcta":"Incorrecta")+
     (p.tipo==="ms"?". Acertaste "+elegido.filter(k=>p.ok.includes(k)).length+" de "+p.ok.length:"");
   $("fb").classList.add("visible");
   $("sig").onclick=()=>{i++;render()};
+  $("ant").onclick=irAnterior;
   $("sig").focus({preventScroll:true});
 
   const fl=$("flot");
@@ -2028,6 +2251,12 @@ fondo.onclick=cerrarPanel;
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){cerrarPanel();return}
   if(teclaOpcion(e)) return;
+  const t=e.target;
+  if((e.key==="ArrowLeft"||e.key==="ArrowRight") && (e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||
+     (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable)))) return;
+  if(e.key==="ArrowLeft" && $("flotAnt").classList.contains("visible")){
+    e.preventDefault(); irAnterior(); return;
+  }
   if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
     e.preventDefault(); $("flot").click();
   }

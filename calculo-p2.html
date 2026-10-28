@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cálculo · Parcial 2 · Autoevaluación interactiva</title>
 <style>
   :root{
@@ -195,6 +195,14 @@
     border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
     display:inline-flex;align-items:center;gap:6px;line-height:1}
   .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .votos{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+  .voto{background:none;border:1px solid var(--borde);color:var(--tenue);border-radius:14px;
+    padding:4px 9px;cursor:pointer;line-height:1;display:inline-flex;align-items:center}
+  .voto svg{width:14px;height:14px;display:block}
+  .voto:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .voto:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  #vUp[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:#fff}
+  #vDn[aria-pressed="true"]{background:var(--mal);border-color:var(--mal);color:#fff}
   .flag b{font-size:13px;line-height:1;font-weight:normal}
   .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
   .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
@@ -250,6 +258,92 @@
   .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
   footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
 </style>
+<style>
+  /* Las insignias .est.vacio heredaban el padding de 30px del estado .vacio
+     y estiraban cada fila del indice de temas. */
+  .est.vacio{padding:0 7px;font-style:normal;text-align:center}
+  /* ---------- Ajustes para celular 2026-10-20 ----------
+     Solo pantallas de 640 px o menos, pensado para usar con una mano:
+     Temas y Siguiente quedan abajo, al alcance del pulgar, con objetivos de
+     toque de 44 px y opciones mas separadas. */
+  @media (max-width:640px){
+    .burger,.btn,.modo,.arbol button,.opcion,.flag{min-height:44px}
+    .cerrarPanel{min-width:44px;min-height:44px;display:inline-flex;
+      align-items:center;justify-content:center}
+    .voto{min-width:44px;min-height:44px;justify-content:center}
+    .pieArbol button{min-height:44px;display:inline-flex;align-items:center}
+    .opciones{gap:12px}
+    /* Temas, flotando abajo a la izquierda */
+    .burger,body.fijo .burger{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+      z-index:26;width:112px;min-height:52px;justify-content:center;border-radius:6px;
+      box-shadow:0 3px 14px rgba(26,26,26,.16)}
+    /* Siguiente, al lado y hasta el borde derecho */
+    .flot{position:fixed;left:136px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+      top:auto;transform:none;width:auto;border-radius:6px;flex-direction:row;
+      justify-content:center;align-items:center;gap:10px;min-height:52px;padding:12px 16px;
+      box-shadow:0 3px 16px rgba(45,74,62,.28)}
+    .flot.visible{display:flex}
+    .flot small{display:none}
+    .wrap{padding-bottom:calc(124px + env(safe-area-inset-bottom))}
+    /* Que deslizar de costado no dispare el volver atras del navegador. */
+    html,body{overscroll-behavior-x:none}
+    .pistaGestos{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));
+      z-index:27;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;
+      background:var(--titulo);color:#fff;border-radius:6px;padding:11px 14px;text-align:center;
+      pointer-events:none;opacity:0;transition:opacity .3s ease}
+    .pistaGestos.visible{opacity:.94}
+  }
+  .pistaGestos{display:none}
+  @media (max-width:640px){.pistaGestos{display:block}}
+</style>
+<style>
+  /* ---------- Mejoras de uso 2026-10-25 ----------
+     Rotulos por tipo de pregunta, contador de respuestas multiples, ayuda de
+     atajos, barra de progreso por segmentos, racha, foco visible y movimiento
+     reducido. */
+  .rotulo-ms{text-transform:none;letter-spacing:.01em;font-size:12.5px}
+  .msPie{justify-content:flex-start}
+  .contador{font-family:'Segoe UI',sans-serif;font-size:13px;color:var(--tenue)}
+  .contador.tope{color:#7A5A22}
+  .veredicto .parcialMs{text-transform:none;letter-spacing:0;font-weight:normal;
+    color:var(--titulo);margin-left:10px}
+  .pistaTeclas{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue);
+    opacity:.75;margin:12px 0 0}
+  @media (pointer:coarse){.pistaTeclas{display:none}}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+    white-space:nowrap;margin:-1px;padding:0;border:0}
+  .racha{display:inline-block;margin-left:8px;padding:0 8px;border:1px solid var(--borde);
+    border-radius:10px;color:var(--acento);font-weight:600;font-size:12px}
+  .progreso{height:6px;background:none;border-radius:0;overflow:visible}
+  .progreso #barra{width:100%;height:100%;background:none;display:flex;transition:none}
+  #barra.segmentos{gap:2px}
+  #barra i{display:block;height:100%;background:var(--borde);border-radius:2px}
+  #barra.segmentos i{flex:1 1 0}
+  #barra.continua{background:var(--borde);border-radius:3px;overflow:hidden}
+  #barra.continua i{border-radius:0}
+  #barra i.ok{background:var(--ok)}
+  #barra i.mal{background:var(--mal)}
+  #barra i.actual{background:#C9C6C3}
+  button:focus-visible,.opcion:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  @media (max-width:640px),(pointer:coarse){.opcion,.btn{min-height:44px}}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  }
+</style>
+<style>
+  /* ---------- Pregunta anterior 2026-10-27 ----------
+     Anterior al lado de Siguiente y un flotante debajo del de Siguiente;
+     en celular queda a la izquierda de Siguiente, en la barra de abajo. */
+  .navPreg{display:flex;gap:9px;align-items:center}
+  #flotAnt{top:calc(50% + 54px);transform:none}
+  @media (max-width:900px){#flotAnt{top:calc(50% + 44px)}}
+  @media (max-width:640px){
+    .pie .navPreg .btn{width:auto;flex:1 1 0}
+    #flotAnt{top:auto;left:136px;right:auto;width:60px;padding:12px 0}
+    #flotAnt span{display:none}
+    #flotAnt.visible + #flot{left:206px}
+  }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -268,6 +362,7 @@
 </div>
 <div class="progreso"><div id="barra"></div></div>
 <div id="escenario"></div>
+<button class="flot" id="flotAnt" title="Volver a la pregunta anterior"><b>&#8592;</b><span>Anterior</span><small>&#8592;</small></button>
 <button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
 
 <footer class="ui">Contenido tomado de los ocho resúmenes de teoría de los módulos 03 y 04 de Cálculo Avanzado: integrales dobles, coordenadas polares, integrales triples, centro de masa, transformaciones del plano, jacobiano, coordenadas cilíndricas y esféricas, y cambio de variables en R³. Estas lecturas no traen preguntas de repaso y la materia no tiene trabajos prácticos archivados de estos módulos, así que todas las preguntas están escritas para practicar sobre el material. Cuando una pregunta toca una errata del PDF, la respuesta usa el valor correcto y la teoría completa lo avisa. Esta página mide identificación de conceptos y resolución de ejercicios cortos, no reemplaza haber resuelto a mano los casos de cada lección.</footer>
@@ -284,7 +379,7 @@
     </div>
   </div>
   <div class="barra-modo">
-  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 100 preguntas</button>
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 134 preguntas</button>
   </div>
   <div class="arbol" id="chips"></div>
 </aside>
@@ -371,6 +466,32 @@ const QUIZ=[
  just:"Es la definición. Una partición finita, por fina que sea, da una aproximación.",
  dist:"Marcar Falso es confundir una buena aproximación con el valor exacto. Refinar la partición acerca el resultado, y el límite es lo que lo vuelve exacto.",
  ref:"M03 L1"},
+
+/* ===== M03 L1 · Integrales dobles · prácticos nuevos ===== */
+{n:3001,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∫₀¹ ∫₀² (x + y) dy dx.",
+ op:["3", "2", "4", "3/2"],ok:0,
+ just:"Integral interna en y: [xy + y²/2] de 0 a 2 = 2x + 2. Externa: ∫₀¹ (2x + 2) dx = 1 + 2 = 3.",
+ dist:"«2» olvida el término y²/2. «4» olvida el 1/2 al integrar 2x.",
+ ref:"M03 L1"},
+{n:3002,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∬_R x·y² dA con R = [0, 2] × [0, 3].",
+ op:["18", "36", "54", "9"],ok:0,
+ just:"Rectángulo y producto de funciones: (∫₀² x dx)(∫₀³ y² dy) = 2 · 9 = 18.",
+ dist:"«36» olvida el 1/2 de x²/2. «54» olvida el 1/3 de y³/3. «9» toma solo el factor en y.",
+ ref:"M03 L1"},
+{n:3003,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∬_R e^(x+y) dA con R = [0, 1] × [0, 1].",
+ op:["(e − 1)²", "e² − 1", "e − 1", "e²"],ok:0,
+ just:"e^(x+y) = eˣ·eʸ, así que se separa: (∫₀¹ eˣ dx)(∫₀¹ eʸ dy) = (e − 1)(e − 1).",
+ dist:"«e² − 1» evalúa e^(x+y) en (1,1) menos en (0,0), sin integrar en dos pasos. «e − 1» integra una sola variable. «e²» toma el valor máximo de la función.",
+ ref:"M03 L1"},
+{n:3004,mod:"03",lec:"L1",tema:"Integrales dobles",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∫₀^π ∫₀¹ y·sen x dy dx.",
+ op:["1", "2", "1/2", "0"],ok:0,
+ just:"Interna: ∫₀¹ y dy = 1/2. Externa: (1/2)·∫₀^π sen x dx = (1/2)·2 = 1.",
+ dist:"«2» olvida el 1/2 de la integral en y. «1/2» calcula solo la integral en y. «0» calcula mal ∫₀^π sen x, que vale 2 y no 0.",
+ ref:"M03 L1"},
 /* ===== M03 L2 · Coordenadas polares ===== */
 {n:114,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
  q:"El punto de coordenadas polares (r, θ) = (2, π/3) tiene coordenadas cartesianas __________.",
@@ -443,6 +564,38 @@ const QUIZ=[
  op:["Verdadero","Falso"],ok:0,
  just:"El arcotangente devuelve ángulos entre −π/2 y π/2, así que nunca cae en esos dos cuadrantes por sí solo.",
  dist:"Marcar Falso es confiar en la calculadora sin mirar dónde está el punto. Es el error más caro al pasar a polares.",
+ ref:"M03 L2"},
+
+/* ===== M03 L2 · Coordenadas polares · prácticos nuevos ===== */
+{n:3005,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el punto polar (r, θ) = (4, π/6) en coordenadas cartesianas.",
+ op:["(2√3, 2)", "(2, 2√3)", "(4, π/6)", "(√3, 1)"],ok:0,
+ just:"x = r cos θ = 4·(√3/2) = 2√3. y = r sen θ = 4·(1/2) = 2.",
+ dist:"«(2, 2√3)» intercambia seno y coseno. «(√3, 1)» olvida multiplicar por r = 4. «(4, π/6)» no convierte.",
+ ref:"M03 L2"},
+{n:3006,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∬_D e^(x² + y²) dA con D el disco de radio 1 centrado en el origen.",
+ op:["π(e − 1)", "2π(e − 1)", "π e", "(e − 1)/2"],ok:0,
+ just:"En polares: ∫₀^{2π} ∫₀¹ e^(r²)·r dr dθ. La interna da (e − 1)/2 y la externa multiplica por 2π: π(e − 1).",
+ dist:"«2π(e − 1)» olvida el 1/2 de la sustitución. «(e − 1)/2» olvida la integral en θ. «π e» evalúa solo el extremo superior.",
+ ref:"M03 L2"},
+{n:3007,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el área del semicírculo superior de radio 3 usando polares.",
+ op:["9π/2", "9π", "3π", "9/2"],ok:0,
+ just:"∫₀^π ∫₀³ r dr dθ = π · 9/2 = 9π/2.",
+ dist:"«9π» integra θ hasta 2π (círculo entero). «3π» olvida el factor r del jacobiano. «9/2» olvida la integral en θ.",
+ ref:"M03 L2"},
+{n:3008,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∬_D (x² + y²) dA con D la corona 1 ≤ r ≤ 2.",
+ op:["15π/2", "3π", "15π/4", "14π/3"],ok:0,
+ just:"x² + y² = r². ∫₀^{2π} ∫₁² r²·r dr dθ = 2π · (16 − 1)/4 = 15π/2.",
+ dist:"«14π/3» olvida el r del jacobiano e integra r². «15π/4» toma θ solo hasta π. «3π» es el área de la corona, sin la función.",
+ ref:"M03 L2"},
+{n:3009,mod:"03",lec:"L2",tema:"Coordenadas polares",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∬_D x dA con D el semidisco superior de radio 1.",
+ op:["0", "2/3", "1/3", "π/2"],ok:0,
+ just:"∫₀^π ∫₀¹ (r cos θ)·r dr dθ = (1/3)·∫₀^π cos θ dθ = (1/3)·0 = 0. El semidisco es simétrico respecto del eje y.",
+ dist:"«2/3» es el resultado de ∬ y dA, que sí es positivo. «1/3» olvida integrar cos θ.",
  ref:"M03 L2"},
 /* ===== M03 L3 · Integrales triples ===== */
 {n:126,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"recordar",tipo:"mc",src:"propia",
@@ -523,6 +676,32 @@ const QUIZ=[
  just:"Si g(−y) = g(y), la integral entre −1 y 1 es el doble de la de 0 a 1. El 2 se cancela con el 1/2 que había adelante.",
  dist:"Si fuera impar, la integral entre −1 y 1 daría 0, que es otra propiedad. Generalizar a cualquier integrando es aplicar la simetría sin chequear la paridad, una trampa del resumen.",
  ref:"M03 L3"},
+
+/* ===== M03 L3 · Integrales triples · prácticos nuevos ===== */
+{n:3010,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∭_B (x + y + z) dV con B = [0, 1] × [0, 1] × [0, 1].",
+ op:["3/2", "1/2", "3", "1"],ok:0,
+ just:"Cada término aporta 1/2 por simetría: ∭ x dV = 1/2, y lo mismo con y y z. Total 3/2.",
+ dist:"«1/2» calcula un solo término. «3» olvida el 1/2 de cada integral. «1» es el volumen del cubo.",
+ ref:"M03 L3"},
+{n:3011,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∭_B 2x dV con B = [0, 1] × [0, 2] × [0, 3].",
+ op:["6", "12", "3", "1"],ok:0,
+ just:"∫₀¹ 2x dx = 1. Multiplicado por el largo en y (2) y en z (3): 6.",
+ dist:"«12» olvida el 1/2 de x². «3» olvida el largo en y. «1» calcula solo la integral en x.",
+ ref:"M03 L3"},
+{n:3012,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el volumen de E = {0 ≤ x ≤ 1, 0 ≤ y ≤ 1, 0 ≤ z ≤ x + y}.",
+ op:["1", "2", "1/2", "1/3"],ok:0,
+ just:"V = ∫₀¹ ∫₀¹ (x + y) dy dx = ∫₀¹ (x + 1/2) dx = 1/2 + 1/2 = 1.",
+ dist:"«1/2» integra solo x. «2» toma x + y = 2 en todo el cuadrado, que es su valor máximo. «1/3» integra como si fuera un tetraedro.",
+ ref:"M03 L3"},
+{n:3013,mod:"03",lec:"L3",tema:"Integrales triples",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el volumen del sólido bajo z = 4 − x² − y² sobre el cuadrado [0, 1] × [0, 1].",
+ op:["10/3", "4", "11/3", "8/3"],ok:0,
+ just:"V = ∫₀¹ ∫₀¹ (4 − x² − y²) dy dx = 4 − 1/3 − 1/3 = 10/3.",
+ dist:"«4» olvida restar x² e y². «11/3» resta solo uno de los dos. «8/3» resta 2/3 por cada término en vez de 1/3.",
+ ref:"M03 L3"},
 /* ===== M03 L4 · Centro de masa ===== */
 {n:139,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"recordar",tipo:"mc",src:"propia",
  q:"Si ρ(x,y,z) es la densidad del cuerpo E, su masa es __________.",
@@ -602,6 +781,32 @@ const QUIZ=[
  just:"La revisión del módulo nombra un barco en el mar, un avión en el aire y un dron en suspensión, como casos de equilibrio estático o dinámico.",
  dist:"Puente, grúa y auto son ejemplos razonables de ingeniería, pero no son los que trae el material. La lista es preguntable tal cual.",
  ref:"M03 L4"},
+
+/* ===== M03 L4 · Centro de masa · prácticos nuevos ===== */
+{n:3014,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la masa del cubo [0, 2] × [0, 2] × [0, 2] con densidad ρ(x, y, z) = x + y + z.",
+ op:["24", "8", "12", "48"],ok:0,
+ just:"∭ x dV = (∫₀² x dx)·2·2 = 2·4 = 8. Por simetría y y z aportan lo mismo: 3·8 = 24.",
+ dist:"«8» calcula un solo término. «48» olvida el 1/2 de x². «12» evalúa la densidad en el centro (3) y multiplica por 4, el área de una cara, en vez del volumen 8.",
+ ref:"M03 L4"},
+{n:3015,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el centro de masa de la lámina [0, 1] × [0, 1] con densidad ρ(x, y) = y.",
+ op:["(1/2, 2/3)", "(1/2, 1/2)", "(2/3, 1/2)", "(1/2, 1/3)"],ok:0,
+ just:"m = ∬ y dA = 1/2. ȳ = (∬ y·y dA)/m = (1/3)/(1/2) = 2/3. En x la densidad no cambia, así que x̄ = 1/2.",
+ dist:"«(1/2, 1/2)» es el centroide con densidad constante. «(1/2, 1/3)» olvida dividir por la masa.",
+ ref:"M03 L4"},
+{n:3016,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la coordenada z̄ del centro de masa de E = [0, 1] × [0, 1] × [0, 2] con densidad ρ = z.",
+ op:["4/3", "1", "8/3", "2/3"],ok:0,
+ just:"m = ∭ z dV = 2. M_xy = ∭ z·z dV = 8/3. z̄ = M_xy / m = (8/3)/2 = 4/3.",
+ dist:"«1» es el centro geométrico, sin densidad. «8/3» es M_xy sin dividir por la masa. «2/3» divide la masa por M_xy.",
+ ref:"M03 L4"},
+{n:3017,mod:"03",lec:"L4",tema:"Centro de masa",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la masa de la lámina [0, 2] × [0, 3] con densidad ρ(x, y) = xy.",
+ op:["9", "6", "18", "36"],ok:0,
+ just:"m = ∬ xy dA = (∫₀² x dx)(∫₀³ y dy) = 2 · 9/2 = 9.",
+ dist:"«6» es el área, sin densidad. «36» olvida los dos 1/2. «18» olvida uno.",
+ ref:"M03 L4"},
 /* ===== M04 L1 · Transformaciones del plano ===== */
 {n:202,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"recordar",tipo:"ms",src:"propia",
  q:"Según la definición de la cátedra, un cambio de variables T: R² → R² exige que __________.",
@@ -675,6 +880,32 @@ const QUIZ=[
  just:"El teorema de Stewart relaja la condición: T inyectiva sobre S salvo quizás en el borde. Sobre el cuadrado [0,1] × [0,1] la T del caso cumple eso.",
  dist:"Descartar el ejercicio es tomar al pie de la letra una definición que el propio material corrige después. Tampoco las polares son inyectivas en todo R², porque θ y θ + 2π dan el mismo punto.",
  ref:"M04 L1"},
+
+/* ===== M04 L1 · Transformaciones del plano · prácticos nuevos ===== */
+{n:3018,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: con T(u, v) = (2u + v, u − v), la imagen del punto (u, v) = (1, 2).",
+ op:["(4, −1)", "(3, 1)", "(5, −1)", "(4, 1)"],ok:0,
+ just:"x = 2·1 + 2 = 4. y = 1 − 2 = −1.",
+ dist:"«(4, 1)» pierde el signo de u − v. «(5, −1)» calcula 2·2 + 1, intercambiando u y v. «(3, 1)» suma y resta sin el factor 2.",
+ ref:"M04 L1"},
+{n:3019,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: con T(u, v) = (u + v, v), la imagen del cuadrado unitario [0, 1] × [0, 1].",
+ op:["El paralelogramo de vértices (0,0), (1,0), (2,1), (1,1)", "El cuadrado de vértices (0,0), (1,0), (1,1), (0,1)", "El paralelogramo de vértices (0,0), (0,1), (1,2), (1,1)", "El rectángulo de vértices (0,0), (2,0), (2,1), (0,1)"],ok:0,
+ just:"Se transforman los vértices: (0,0) → (0,0), (1,0) → (1,0), (1,1) → (2,1), (0,1) → (1,1).",
+ dist:"«El rectángulo» estira el cuadrado en x sin inclinarlo. «El cuadrado» supone que T no cambia nada. El otro paralelogramo aplica la transformación con u y v intercambiados.",
+ ref:"M04 L1"},
+{n:3020,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: con T(u, v) = (u², v), la imagen del segmento v = 0, 0 ≤ u ≤ 2.",
+ op:["El segmento del eje x entre 0 y 4", "El segmento del eje x entre 0 y 2", "El segmento del eje y entre 0 y 4", "La parábola y = x²"],ok:0,
+ just:"Con v = 0 queda (u², 0): sobre el eje x, y u² va de 0 a 4.",
+ dist:"«Entre 0 y 2» olvida elevar u al cuadrado. «Eje y» confunde las coordenadas. «La parábola» confunde la fórmula de T con la imagen del segmento.",
+ ref:"M04 L1"},
+{n:3021,mod:"04",lec:"L1",tema:"Transformaciones del plano",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: la transformación inversa de x = u + v, y = u − v.",
+ op:["u = (x + y)/2, v = (x − y)/2", "u = x + y, v = x − y", "u = (x − y)/2, v = (x + y)/2", "u = x − y, v = y"],ok:0,
+ just:"Sumando las dos ecuaciones: x + y = 2u. Restándolas: x − y = 2v.",
+ dist:"«u = x + y» olvida dividir por 2. «u = (x − y)/2» intercambia u y v. «u = x − y, v = y» despeja mal.",
+ ref:"M04 L1"},
 /* ===== M04 L2 · Jacobiano y cambio de variables ===== */
 {n:162,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"recordar",tipo:"mc",src:"propia",
  q:"El jacobiano de T dada por x = x(u,v), y = y(u,v) es ∂(x,y)/∂(u,v) = __________.",
@@ -747,6 +978,32 @@ const QUIZ=[
  op:["Verdadero","Falso"],ok:0,
  just:"Esa es la convención del material, y hay que usarla aunque otros textos llamen jacobiano a la matriz entera.",
  dist:"Marcar Falso es traer la convención de otra bibliografía. En el cambio de variables lo que multiplica es un escalar, no una matriz.",
+ ref:"M04 L2"},
+
+/* ===== M04 L2 · Jacobiano y cambio de variables · prácticos nuevos ===== */
+{n:3022,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para x = 2u + v, y = u − 3v, el valor |∂(x, y)/∂(u, v)|.",
+ op:["7", "5", "−7", "−5"],ok:0,
+ just:"Jacobiano: det [[2, 1], [1, −3]] = 2·(−3) − 1·1 = −7. En el teorema entra el valor absoluto: 7.",
+ dist:"«−7» olvida el valor absoluto. «5» y «−5» suman los productos de las diagonales en vez de restarlos.",
+ ref:"M04 L2"},
+{n:3023,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para x = uv, y = u, el jacobiano ∂(x, y)/∂(u, v).",
+ op:["−u", "u", "v", "uv"],ok:0,
+ just:"det [[∂x/∂u, ∂x/∂v], [∂y/∂u, ∂y/∂v]] = det [[v, u], [1, 0]] = v·0 − u·1 = −u.",
+ dist:"«u» pierde el signo del determinante. «v» y «uv» toman productos sueltos de la matriz sin restar.",
+ ref:"M04 L2"},
+{n:3024,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el área de la imagen de S = [0, 1] × [0, 1] por x = 2u, y = 3v.",
+ op:["6", "5", "1", "1/6"],ok:0,
+ just:"|J| = det [[2, 0], [0, 3]] = 6. Área = ∬_S 6 du dv = 6.",
+ dist:"«5» suma 2 + 3. «1» es el área de S, sin el jacobiano. «1/6» invierte el factor.",
+ ref:"M04 L2"},
+{n:3025,mod:"04",lec:"L2",tema:"Jacobiano y cambio de variables",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∬_R (x + y) dA, con x = u + v, y = u − v y S = [0, 1] × [0, 1].",
+ op:["2", "1", "4", "1/2"],ok:0,
+ just:"x + y = 2u y |J| = |det [[1, 1], [1, −1]]| = 2. ∬_S 2u · 2 du dv = 4 · 1/2 = 2.",
+ dist:"«1» olvida el jacobiano. «4» olvida el 1/2 de la integral de u. «1/2» olvida el 2 de x + y y el jacobiano.",
  ref:"M04 L2"},
 /* ===== M04 L3 · Cilíndricas y esféricas ===== */
 {n:173,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"recordar",tipo:"mc",src:"propia",
@@ -827,6 +1084,38 @@ const QUIZ=[
  just:"La longitud sí coincide con θ, pero φ y la latitud se miden desde puntos distintos.",
  dist:"Marcar Falso es suponer que φ y la latitud son lo mismo por describir las dos una posición norte sur. El origen de medición es el que cambia.",
  ref:"M04 L3"},
+
+/* ===== M04 L3 · Cilíndricas y esféricas · prácticos nuevos ===== */
+{n:3026,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el punto en cilíndricas (r, θ, z) = (2, π/2, 3) en cartesianas.",
+ op:["(0, 2, 3)", "(2, 0, 3)", "(2, π/2, 3)", "(0, 3, 2)"],ok:0,
+ just:"x = r cos θ = 2·0 = 0. y = r sen θ = 2·1 = 2. z = 3.",
+ dist:"«(2, 0, 3)» intercambia seno y coseno. «(0, 3, 2)» intercambia y con z. «(2, π/2, 3)» no convierte.",
+ ref:"M04 L3"},
+{n:3027,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el volumen del cilindro de radio 2 y altura 5 en cilíndricas.",
+ op:["20π", "10π", "40π", "20"],ok:0,
+ just:"∫₀^{2π} ∫₀² ∫₀⁵ r dz dr dθ = 2π · 2 · 5 = 20π.",
+ dist:"«10π» toma θ solo hasta π. «40π» olvida el 1/2 de r². «20» olvida la integral en θ.",
+ ref:"M04 L3"},
+{n:3028,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el volumen de la semiesfera superior de radio 3 en esféricas.",
+ op:["18π", "36π", "9π", "27π"],ok:0,
+ just:"∫₀^{2π} ∫₀^{π/2} ∫₀³ ρ² sen φ dρ dφ dθ = 2π · 1 · 9 = 18π.",
+ dist:"«36π» es la esfera entera (φ hasta π). «27π» olvida el 1/3 de ρ³/3. «9π» toma θ solo hasta π.",
+ ref:"M04 L3"},
+{n:3029,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: ∭_E z dV con E el cilindro r ≤ 1, 0 ≤ z ≤ 2.",
+ op:["2π", "4π", "π", "2"],ok:0,
+ just:"∫₀^{2π} ∫₀¹ ∫₀² z·r dz dr dθ = 2π · (1/2) · 2 = 2π.",
+ dist:"«4π» olvida el r del jacobiano. «π» toma z²/2 = 1 en vez de 2. «2» olvida la integral en θ.",
+ ref:"M04 L3"},
+{n:3030,mod:"04",lec:"L3",tema:"Cilíndricas y esféricas",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el punto en esféricas (ρ, θ, φ) = (4, π/2, π/2) en cartesianas.",
+ op:["(0, 4, 0)", "(4, 0, 0)", "(0, 0, 4)", "(0, 4, 4)"],ok:0,
+ just:"x = ρ sen φ cos θ = 4·1·0 = 0. y = ρ sen φ sen θ = 4·1·1 = 4. z = ρ cos φ = 4·0 = 0.",
+ dist:"«(0, 0, 4)» toma φ = 0. «(4, 0, 0)» toma θ = 0. «(0, 4, 4)» calcula z con sen en vez de cos.",
+ ref:"M04 L3"},
 /* ===== M04 L4 · Cambio de variables en R³ ===== */
 {n:186,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"recordar",tipo:"mc",src:"propia",
  q:"En el jacobiano ∂(x,y,z)/∂(u,v,w), cada fila y cada columna del determinante corresponden a __________.",
@@ -899,6 +1188,32 @@ const QUIZ=[
  op:["áreas","longitudes","densidades","volúmenes"],ok:3,
  just:"En dimensión 1 el factor es g′(u) y mide longitudes, en dimensión 2 es el determinante 2 × 2 y mide áreas, en dimensión 3 el 3 × 3 y mide volúmenes.",
  dist:"Áreas corresponde a la dimensión 2 y longitudes a la 1. Densidades es el uso del mismo factor en normalizing flows, no lo que mide en la cátedra.",
+ ref:"M04 L4"},
+
+/* ===== M04 L4 · Cambio de variables en R³ · prácticos nuevos ===== */
+{n:3031,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para x = 2u, y = 3v, z = 4w, el valor |∂(x, y, z)/∂(u, v, w)|.",
+ op:["24", "9", "1/24", "6"],ok:0,
+ just:"La matriz es diagonal: el determinante es el producto 2 · 3 · 4 = 24.",
+ dist:"«9» suma 2 + 3 + 4. «1/24» invierte el factor. «6» multiplica solo 2 · 3.",
+ ref:"M04 L4"},
+{n:3032,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el volumen del elipsoide x²/9 + y²/4 + z² ≤ 1.",
+ op:["8π", "4π", "6π", "36π"],ok:0,
+ just:"Volumen del elipsoide: (4/3)π·a·b·c con a = 3, b = 2, c = 1. (4/3)π · 6 = 8π.",
+ dist:"«6π» olvida el 4/3. «36π» usa a², b², c² (9·4·1) en vez de los semiejes. «4π» usa solo el semieje a = 3.",
+ ref:"M04 L4"},
+{n:3033,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: para x = u + v, y = v + w, z = u + w, el valor |∂(x, y, z)/∂(u, v, w)|.",
+ op:["2", "0", "3", "1"],ok:0,
+ just:"Matriz [[1, 1, 0], [0, 1, 1], [1, 0, 1]]. Desarrollando por la primera fila: 1·(1 − 0) − 1·(0 − 1) + 0 = 2.",
+ dist:"«0» comete un error de signo en el segundo menor. «3» suma los unos de la diagonal. «1» toma solo el primer menor.",
+ ref:"M04 L4"},
+{n:3034,mod:"04",lec:"L4",tema:"Cambio de variables en R³",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Resolver: el volumen de la imagen del cubo [0, 1]³ por x = 2u, y = 3v, z = 4w.",
+ op:["24", "9", "1", "4"],ok:0,
+ just:"Volumen = ∭ |J| du dv dw = 24 · 1 = 24. Es una caja de 2 × 3 × 4.",
+ dist:"«1» es el volumen del cubo original, sin el jacobiano. «9» suma los lados. «4» toma solo el lado en z.",
  ref:"M04 L4"}
 ];
 
@@ -1146,9 +1461,10 @@ QUIZ.forEach(q=>{AMP[q.n]={"03L1":T_DOBLE,"03L2":T_POLAR,"03L3":T_TRIPLE,"03L4":
 
 
 /* ---------- Estado ---------- */
-const HKEY="s21.calculo.parcial2.v1", FKEY=HKEY+".flags", PKEY=HKEY+".pin2";
+const HKEY="s21.calculo.parcial2.v1", FKEY=HKEY+".flags", VKEY=HKEY+".votos", PKEY=HKEY+".pin2";
 const LETRA=k=>"abcdefg"[k]||"?";
 let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+let revisando=false;
 const $=id=>document.getElementById(id);
 const esc=document.getElementById("escenario");
 
@@ -1165,6 +1481,29 @@ try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
 try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
 function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
 function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+/* ---------- Calificacion interna (pulgares). Solo guarda, no cambia nada de la pagina ---------- */
+let votos={};
+try{votos=JSON.parse(localStorage.getItem(VKEY)||"{}")}catch(e){votos={}}
+function votar(p,v){
+  const k=modo+":"+p.n;
+  if(votos[k]&&votos[k].v===v) delete votos[k];
+  else votos[k]={v:v,banco:modo,n:p.n,tema:p.tema||"",nivel:p.nivel||"",tipo:p.tipo||"",ref:p.ref||"",
+    q:String(p.q||"").replace(/<[^>]+>/g,"").slice(0,300),f:new Date().toISOString().slice(0,10)};
+  try{localStorage.setItem(VKEY,JSON.stringify(votos))}catch(e){}
+}
+function pintarVotos(p){
+  const k=modo+":"+p.n, v=votos[k]?votos[k].v:0;
+  $("vUp").setAttribute("aria-pressed",v===1); $("vDn").setAttribute("aria-pressed",v===-1);
+}
+function exportarVotos(){
+  const d={pagina:HKEY,exportado:new Date().toISOString(),votos:votos};
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,1)],{type:"application/json"}));
+  a.download=HKEY.replace(/\./g,"-")+"-votos.json";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function revisarHashVotos(){if(location.hash==="#votos")setTimeout(exportarVotos,400)}
+window.addEventListener("hashchange",revisarHashVotos); revisarHashVotos();
 function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
 function marcadas(){return BANCO().filter(q=>flags[q.n])}
 function alternarFlag(n,btn){
@@ -1306,19 +1645,107 @@ function pintarChips(){
   if(_pan) _pan.scrollTop=_sc;
 }
 
+/* ---------- Mejoras de uso 2026-10-25 ----------
+   Respuestas multiples con tope y contador, atajos de teclado, barra por
+   segmentos (continua si son mas de 40) y racha de aciertos. */
+let pistaTeclasVista=false, avisoMs=0;
+function pistaTeclas(){
+  if(pistaTeclasVista) return "";
+  pistaTeclasVista=true;
+  return '<p class="pistaTeclas">Atajos: letra para elegir, Enter para seguir</p>';
+}
+function contarMs(p,tope){
+  const c=$("cont"), chk=$("chk");
+  if(!c||!chk||$("fb").classList.contains("visible")) return;
+  const n=p.ok.length, m=esc.querySelectorAll(".opcion.elegida").length;
+  clearTimeout(avisoMs);
+  chk.disabled = m!==n;
+  c.classList.toggle("tope",!!tope);
+  if(tope){
+    c.textContent="Ya marcaste "+n+", desmarcá una para cambiar";
+    avisoMs=setTimeout(()=>contarMs(p),2000);
+    return;
+  }
+  c.textContent = m<n ? (n-m===1?"Te falta 1":"Te faltan "+(n-m)) : "Listo, marcaste "+n;
+}
+function alternarMs(p,b){
+  const on=b.getAttribute("aria-pressed")!=="true";
+  if(on && esc.querySelectorAll(".opcion.elegida").length>=p.ok.length){contarMs(p,true);return}
+  b.setAttribute("aria-pressed",on);
+  b.classList.toggle("elegida",on);
+  contarMs(p);
+}
+/* Letras a-g o numeros 1-9 eligen la opcion; en V/F, V y F. En multiples la
+   tecla alterna la marca y Enter comprueba. */
+function teclaOpcion(e){
+  if(e.ctrlKey||e.metaKey||e.altKey) return false;
+  const t=e.target;
+  if(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable)) return false;
+  const p=lista[i];
+  if(!p||!["mc","ms","vf"].includes(p.tipo)) return false;
+  const ops=[...esc.querySelectorAll(".opcion")];
+  if(!ops.length||ops[0].disabled) return false;
+  const k0=e.key.toLowerCase();
+  if(k0==="enter"){
+    if(p.tipo!=="ms") return false;
+    if(t && t.tagName==="BUTTON" && !t.classList.contains("opcion") && t.id!=="chk") return false;
+    e.preventDefault();
+    if(!$("chk").disabled) $("chk").click();
+    return true;
+  }
+  let k=-1;
+  if(p.tipo==="vf") k = (k0==="v"||k0==="1")?0 : (k0==="f"||k0==="2")?1 : -1;
+  else if(/^[a-g]$/.test(k0)) k=k0.charCodeAt(0)-97;
+  else if(/^[1-9]$/.test(k0)) k=+k0-1;
+  if(k<0||k>=ops.length) return false;
+  e.preventDefault();
+  ops[k].focus({preventScroll:true});
+  ops[k].click();
+  return true;
+}
+
 function cabecera(){
-  const tot=lista.length;
-  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
-  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
-  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+  const tot=lista.length, hechas=resultados.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot+" · Quedan "+(tot-hechas) : "";
+  let racha=0;
+  for(let k=hechas-1;k>=0&&resultados[k].bien;k--) racha++;
+  $("marcador").innerHTML = hechas? aciertos+" de "+hechas+" correctas"+
+    (racha>=3?'<span class="racha">Racha de '+racha+'</span>':"") : "";
+  const b=$("barra");
+  b.setAttribute("aria-hidden","true");
+  if(!tot){b.className="";b.innerHTML="";return}
+  if(tot>40){
+    b.className="continua";
+    b.innerHTML='<i class="ok" style="width:'+(aciertos/tot*100)+'%"></i>'+
+      '<i class="mal" style="width:'+((hechas-aciertos)/tot*100)+'%"></i>';
+  } else {
+    b.className="segmentos";
+    b.innerHTML=lista.map((_,k)=>'<i class="'+
+      (k<hechas?(resultados[k].bien?"ok":"mal"):(k===i?"actual":""))+'"></i>').join("");
+  }
 }
 
 function render(){
   cabecera();
+  pintarAnt();
   if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
   if(i>=lista.length){resumen();return}
-  pregunta(lista[i]);
+  if(i<resultados.length) revisar(resultados[i]); else pregunta(lista[i]);
 }
+
+/* ---------- Pregunta anterior 2026-10-27 ----------
+   Volver muestra la pregunta ya respondida tal como quedo, con la opcion
+   elegida y su correccion, sin volver a puntuarla ni a responderla. */
+function irAnterior(){if(i>0&&i<=lista.length){i--;render()}}
+function pintarAnt(){$("flotAnt").classList.toggle("visible",i>0&&i<lista.length)}
+function revisar(r){
+  const p=r.p;
+  if(Array.isArray(r.op)){p.op=r.op.slice();p.ok=Array.isArray(r.ok)?r.ok.slice():r.ok}
+  revisando=true; pregunta(p); revisando=false;
+  esc.querySelectorAll("input").forEach((x,k)=>x.value=r.vals[k]||"");
+  responder(p,Array.isArray(r.el)?r.el.slice():r.el,true);
+}
+$("flotAnt").onclick=irAnterior;
 
 /* ---------- Orden de las opciones ----------
    Se baraja en cada render, así la posición de la correcta nunca es una pista,
@@ -1337,21 +1764,23 @@ function barajar(p){
 }
 
 function pregunta(p){
-  barajar(p);
+  if(!revisando) barajar(p);
   $("flot").classList.remove("visible");
   let cuerpo="";
   if(p.tipo==="ms"){
-    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+    cuerpo='<p class="rotulo-ms">Elegí '+p.ok.length+' de '+p.op.length+' opciones</p><div class="opciones">'+p.op.map((o,k)=>
       '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
       LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
-      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
-      '<button class="btn" id="chk">Comprobar</button></div>';
+      '<div class="msPie"><button class="btn" id="chk" disabled>Comprobar</button>'+
+      '<span class="contador" id="cont" aria-live="polite"></span></div>';
   } else if(p.tipo==="mc"||p.tipo==="vf"){
-    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+    cuerpo='<p class="rotulo-ms">'+(p.tipo==="vf"?"Verdadero o falso":
+      "Una respuesta correcta · "+p.op.length+" opciones")+'</p><div class="opciones">'+p.op.map((o,k)=>
       '<button class="opcion" data-k="'+k+'"><span class="letra">'+
       (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
   }
 
+  if(["mc","ms","vf"].includes(p.tipo)) cuerpo+=pistaTeclas();
   const cab = modo==="quiz"
     ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
     : p.inst+' · pregunta '+p.orig+' · '+p.tema;
@@ -1360,36 +1789,41 @@ function pregunta(p){
    '<div class="tarjeta">'+
      '<div class="metaFila"><div class="meta">'+cab+
        ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
-       '<button class="flag" id="flag"></button></div>'+
+       '<div class="votos"><button class="voto" id="vUp" title="Calificacion interna: se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="voto" id="vDn" title="Calificacion interna: no se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scale(-1,-1)"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="flag" id="flag"></button></div></div>'+
      '<p class="enunciado">'+p.q+'</p>'+
      cuerpo+
+     '<div class="sr" id="vivo" aria-live="polite"></div>'+
      '<div class="feedback" id="fb"></div>'+
    '</div>';
 
   const bf=$("flag");
   pintarFlag(bf,p.n);
   bf.onclick=()=>alternarFlag(p.n,bf);
+  pintarVotos(p);
+  $("vUp").onclick=()=>{votar(p,1);pintarVotos(p)};
+  $("vDn").onclick=()=>{votar(p,-1);pintarVotos(p)};
 
   if(p.tipo==="ms"){
-    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
-      const on=b.getAttribute("aria-pressed")!=="true";
-      b.setAttribute("aria-pressed",on);
-      b.classList.toggle("elegida",on);
-    });
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>alternarMs(p,b));
+    contarMs(p);
     $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
   } else if(p.tipo==="mc"||p.tipo==="vf"){
     esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
   }
 }
 
-function responder(p,elegido){
+function responder(p,elegido,rev){
   const bien = p.tipo==="ms"
       ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
       : elegido===p.ok;
-  if(bien) aciertos++;
-  resultados.push({p:p,bien:bien});
-  marcar(p.n,bien);
-  pintarChips();
+  if(!rev){
+    if(bien) aciertos++;
+    resultados.push({p:p,bien:bien,el:Array.isArray(elegido)?elegido.slice():elegido,
+      op:Array.isArray(p.op)?p.op.slice():p.op,ok:Array.isArray(p.ok)?p.ok.slice():p.ok,
+      vals:[...esc.querySelectorAll("input")].map(x=>x.value)});
+    marcar(p.n,bien);
+    pintarChips();
+  }
 
   if(p.tipo==="ms"){
     $("chk").disabled=true;
@@ -1415,16 +1849,23 @@ function responder(p,elegido){
                  : p.op[p.ok];
 
   $("fb").innerHTML=
-    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    '<div class="veredicto '+(bien?"bien":"mal")+'" aria-live="polite">'+(bien?"Correcta":"Incorrecta")+
+      (p.tipo==="ms"?'<span class="parcialMs">Acertaste '+elegido.filter(k=>p.ok.includes(k)).length+
+        ' de '+p.ok.length+'</span>':'')+'</div>'+
     (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
     (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
     '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
     '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
     (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
     '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
-    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+    '<span class="navPreg"><button class="btn sec" id="ant"'+(i===0?' disabled':'')+'>Anterior</button>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></span></div>';
+  if($("cont")) $("cont").textContent="";
+  if($("vivo")) $("vivo").textContent=(bien?"Correcta":"Incorrecta")+
+    (p.tipo==="ms"?". Acertaste "+elegido.filter(k=>p.ok.includes(k)).length+" de "+p.ok.length:"");
   $("fb").classList.add("visible");
   $("sig").onclick=()=>{i++;render()};
+  $("ant").onclick=irAnterior;
   $("sig").focus({preventScroll:true});
 
   const fl=$("flot");
@@ -1502,6 +1943,9 @@ function resumen(){
 
 /* ---------- Panel ---------- */
 const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+/* En celular el menu nunca queda anclado: arranca cerrado y se abre con Temas. */
+const MOVIL=window.matchMedia("(max-width:640px)");
+function anclado(){return fijo && !MOVIL.matches}
 let fijo=true;
 try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
 
@@ -1513,24 +1957,34 @@ function pintarFijar(){
 }
 function aplicarFijo(guardar){
   document.body.classList.toggle("fijo",fijo);
-  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  if(anclado()){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  else if(MOVIL.matches){panel.classList.remove("abierto");fondo.classList.remove("abierto");
+    btnAbrir.setAttribute("aria-expanded","false")}
   pintarFijar();
   if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
 }
 function abrirPanel(){panel.classList.add("abierto");
-  if(!fijo)fondo.classList.add("abierto");
+  if(!anclado())fondo.classList.add("abierto");
   btnAbrir.setAttribute("aria-expanded","true")}
 function cerrarPanel(){
-  if(fijo) return;
+  if(anclado()) return;
   panel.classList.remove("abierto");fondo.classList.remove("abierto");
   btnAbrir.setAttribute("aria-expanded","false")}
 
 btnAbrir.onclick=abrirPanel;
 btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
-$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+$("cerrar").onclick=()=>{if(MOVIL.matches){cerrarPanel();return}
+  fijo=false;aplicarFijo(true);cerrarPanel()};
 fondo.onclick=cerrarPanel;
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){cerrarPanel();return}
+  if(teclaOpcion(e)) return;
+  const t=e.target;
+  if((e.key==="ArrowLeft"||e.key==="ArrowRight") && (e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||
+     (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable)))) return;
+  if(e.key==="ArrowLeft" && $("flotAnt").classList.contains("visible")){
+    e.preventDefault(); irAnterior(); return;
+  }
   if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
     e.preventDefault(); $("flot").click();
   }
@@ -1546,6 +2000,76 @@ document.querySelectorAll(".modo").forEach(b=>{
 });
 aplicar();
 
+</script>
+<script>
+/* ---------- Ajustes para celular 2026-10-20 ----------
+   Gestos para usar con una mano, solo en pantallas de 640 px o menos:
+   deslizar a la derecha abre Temas, a la izquierda lo cierra, y con la
+   pregunta ya respondida deslizar a la izquierda pasa a la siguiente.
+   El boton Atras del telefono cierra el panel en vez de salir de la pagina. */
+(function(){
+  const MOVIL=window.matchMedia("(max-width:640px)");
+  const panel=document.getElementById("panel"), fondo=document.getElementById("fondo"),
+        btnTemas=document.getElementById("abrir"), flot=document.getElementById("flot");
+  if(!panel||!fondo||!btnTemas||!flot) return;
+  /* En celular el menu nunca queda anclado, asi que la clase refleja si esta a la vista. */
+  const abierto=()=>panel.classList.contains("abierto");
+  const abrir=()=>{if(!abierto()) btnTemas.click()};
+  const cerrar=()=>{if(abierto()) fondo.click()};
+
+  /* No robar el gesto a lo que ya se desplaza de costado (tablas, figuras anchas). */
+  function desplazableDeCostado(el){
+    for(;el && el!==document.body;el=el.parentElement){
+      if(el===panel) return false;
+      const ox=getComputedStyle(el).overflowX;
+      if((ox==="auto"||ox==="scroll") && el.scrollWidth>el.clientWidth+2) return true;
+    }
+    return false;
+  }
+  let ini=null;
+  document.addEventListener("touchstart",e=>{
+    ini=null;
+    if(!MOVIL.matches || e.touches.length!==1) return;
+    const t=e.touches[0];
+    /* Los bordes de la pantalla son del navegador (volver atras en iPhone y Android). */
+    if(t.clientX<24 || t.clientX>innerWidth-24) return;
+    if(!abierto() && desplazableDeCostado(e.target)) return;
+    ini={x:t.clientX,y:t.clientY,t:Date.now()};
+  },{passive:true});
+  document.addEventListener("touchend",e=>{
+    if(!ini) return;
+    const t=e.changedTouches[0], dx=t.clientX-ini.x, dy=t.clientY-ini.y, dt=Date.now()-ini.t;
+    ini=null;
+    if(dt>700 || Math.abs(dx)<60 || Math.abs(dx)<Math.abs(dy)*1.6) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(abierto()){ if(dx<0) cerrar(); return }
+    if(dx>0) abrir();
+    else if(flot.classList.contains("visible")) flot.click();
+  },{passive:true});
+
+  /* Boton Atras: con el panel abierto lo cierra. */
+  new MutationObserver(()=>{
+    if(!MOVIL.matches) return;
+    const st=history.state||{};
+    if(abierto() && !st.temas) history.pushState(Object.assign({},st,{temas:1}),"");
+    else if(!abierto() && st.temas) history.back();
+  }).observe(panel,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("popstate",()=>{if(abierto()) cerrar()});
+
+  /* La primera vez que se entra desde el celular, una pista de los gestos. */
+  const CLAVE="s21-gestos-visto";
+  let visto=false;
+  try{visto=localStorage.getItem(CLAVE)==="1"}catch(e){}
+  if(MOVIL.matches && !visto){
+    const p=document.createElement("div");
+    p.className="pistaGestos";p.setAttribute("role","status");
+    p.textContent="Deslizá hacia la derecha para ver los temas. Con la pregunta respondida, deslizá hacia la izquierda para seguir.";
+    document.body.appendChild(p);
+    requestAnimationFrame(()=>p.classList.add("visible"));
+    setTimeout(()=>{p.classList.remove("visible");setTimeout(()=>p.remove(),400)},6000);
+    try{localStorage.setItem(CLAVE,"1")}catch(e){}
+  }
+})();
 </script>
 </body>
 </html>
