@@ -335,13 +335,24 @@
      Anterior al lado de Siguiente y un flotante debajo del de Siguiente;
      en celular queda a la izquierda de Siguiente, en la barra de abajo. */
   .navPreg{display:flex;gap:9px;align-items:center}
-  #flotAnt{top:calc(50% + 54px);transform:none}
-  @media (max-width:900px){#flotAnt{top:calc(50% + 44px)}}
+  /* Diseno 2026-10-28: Siguiente y Anterior con el mismo ancho, alineados;
+     Anterior como boton secundario (blanco con borde) para no competir. */
+  #flot{width:108px}
+  #flotAnt{top:calc(50% + 52px);transform:none;width:108px;flex-direction:row;
+    justify-content:center;gap:7px;padding:9px 0;background:var(--panel);
+    color:var(--acento);border:1px solid var(--acento);box-shadow:0 2px 10px rgba(45,74,62,.14)}
+  #flotAnt:hover{background:var(--okBg)}
+  #flotAnt b{font-size:15px}
+  #flotAnt small{display:none}
+  @media (max-width:900px){#flot,#flotAnt{width:96px}#flotAnt{top:calc(50% + 41px)}}
   @media (max-width:640px){
     .pie .navPreg .btn{width:auto;flex:1 1 0}
-    #flotAnt{top:auto;left:136px;right:auto;width:60px;padding:12px 0}
+    #flot{width:auto}
+    #flotAnt{top:auto;left:136px;right:auto;width:52px;min-height:52px;padding:0;
+      box-shadow:0 3px 14px rgba(26,26,26,.16)}
+    #flotAnt b{font-size:20px}
     #flotAnt span{display:none}
-    #flotAnt.visible + #flot{left:206px}
+    #flotAnt.visible + #flot{left:200px}
   }
 </style>
 </head>
