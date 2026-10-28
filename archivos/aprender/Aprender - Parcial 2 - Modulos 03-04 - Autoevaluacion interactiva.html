@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aprender en el Siglo XXI · Parcial 2</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --ok:#2D4A3E; --okBg:#EAF1ED;
+    --mal:#8C2F2F; --malBg:#F7EBEB; --tenue:#6B6B6B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:18.5px;line-height:1.6}
+
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Disposición de libro ---------- */
+  /* ---------- Página y menú lateral ---------- */
+  .wrap{max-width:980px;margin:0 auto;padding:26px 24px 70px}
+  header{text-align:center;margin-bottom:22px}
+  header h1{margin:0 auto 5px}
+  header p{margin:0 auto}
+
+  .barraSup{display:flex;align-items:center;gap:16px;margin-bottom:9px;flex-wrap:wrap}
+  .barraSup .estado{margin:0;flex:1;justify-content:flex-end}
+  .burger{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:7px 14px;border:1px solid var(--borde);background:var(--panel);
+    color:var(--titulo);border-radius:3px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:10px;flex-shrink:0}
+  .burger:hover{border-color:#C9C6C3}
+  .ham{width:15px;height:2px;background:currentColor;border-radius:1px;display:block;
+    box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor}
+
+  .panel{position:fixed;top:0;left:0;z-index:40;width:340px;max-width:86vw;height:100vh;
+    background:var(--panel);border-right:1px solid var(--borde);overflow-y:auto;
+    padding:18px 16px 26px;transform:translateX(-101%);transition:transform .22s ease}
+  .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+  .fondo{position:fixed;inset:0;z-index:30;background:rgba(26,26,26,.34);
+    opacity:0;visibility:hidden;transition:opacity .22s ease}
+  .fondo.abierto{opacity:1;visibility:visible}
+  .panelTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .panelTop h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);margin:0;font-weight:600}
+  .cerrarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-size:16px;line-height:1;padding:2px 5px}
+  .cerrarPanel:hover{color:var(--titulo)}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 15px 60px}
+    .barraSup .estado{justify-content:flex-start}
+  }
+
+  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+
+
+  .estado{display:flex;justify-content:space-between;align-items:center;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14.5px;
+    color:var(--tenue);margin-bottom:8px;gap:12px;flex-wrap:wrap}
+  .progreso{height:4px;background:var(--borde);border-radius:2px;overflow:hidden;margin-bottom:20px}
+  .progreso div{height:100%;background:var(--acento);width:0;transition:width .25s}
+
+  .tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:24px 24px 20px}
+  .meta{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--tenue);margin-bottom:10px}
+  .enunciado{font-size:20.5px;margin:0 0 20px}
+
+  .opciones{display:flex;flex-direction:column;gap:9px}
+  .opcion{text-align:left;font-family:Georgia,serif;font-size:18px;line-height:1.5;
+    padding:12px 15px;border:1px solid var(--borde);background:#fff;color:var(--texto);
+    border-radius:3px;cursor:pointer;display:flex;gap:11px;align-items:flex-start}
+  .opcion:hover:not(:disabled){border-color:#C9C6C3}
+  .opcion:disabled{cursor:default}
+  .letra{font-family:'Segoe UI',sans-serif;font-size:13.5px;font-weight:600;color:var(--tenue);
+    border:1px solid var(--borde);border-radius:3px;min-width:25px;height:25px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+  .opcion.correcta{background:var(--okBg);border-color:var(--ok)}
+  .opcion.correcta .letra{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .opcion.incorrecta{background:var(--malBg);border-color:var(--mal)}
+  .opcion.incorrecta .letra{background:var(--mal);color:#fff;border-color:var(--mal)}
+
+  .opcion.elegida{border-color:var(--acento);background:#F3F7F4}
+  .opcion.elegida .letra{background:var(--acento);color:#fff;border-color:var(--acento)}
+  .opcion.faltante{background:#EDF3EF;border-color:var(--ok);border-style:dashed}
+  .opcion.faltante .letra{background:#fff;color:var(--ok);border-color:var(--ok)}
+  .msPie{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    margin-top:13px;flex-wrap:wrap}
+  .ayuda{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--tenue)}
+  .rotulo-ms{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 9px;font-weight:600}
+  .btn{font-family:'Segoe UI',sans-serif;font-size:15px;padding:10px 20px;
+    border:1px solid var(--acento);background:var(--acento);color:#fff;border-radius:3px;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--acento)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .feedback{margin-top:18px;padding-top:16px;border-top:1px solid var(--borde);display:none}
+  .feedback.visible{display:block}
+  .veredicto{font-family:'Segoe UI',sans-serif;font-size:14.5px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;margin-bottom:9px}
+  .veredicto.bien{color:var(--ok)}
+  .veredicto.mal{color:var(--mal)}
+  .respuesta{margin:0 0 10px}
+  .respuesta strong{color:var(--acento)}
+  .bloque{margin:0 0 12px;font-size:17.5px;line-height:1.6}
+  .bloque .rot{font-family:'Segoe UI',sans-serif;font-size:12px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);display:block;margin-bottom:2px}
+  .pie{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+  .ref{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--tenue)}
+
+  .resumen{background:var(--panel);border:1px solid var(--borde);border-radius:4px;padding:26px}
+  .resumen h2{font-size:23px;color:var(--titulo);font-weight:normal;margin:0 0 6px}
+  .puntaje{font-size:46px;color:var(--acento);margin:12px 0 4px}
+  .resumen table{width:100%;border-collapse:collapse;margin:18px 0;font-size:16.5px}
+  .resumen th,.resumen td{border-bottom:1px solid var(--borde);padding:8px 6px;text-align:left}
+  .resumen th{font-family:'Segoe UI',sans-serif;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--tenue);background:var(--borde);font-weight:600}
+  .resumen td.n{text-align:right;font-family:'Segoe UI',sans-serif}
+  .flojo{color:var(--mal)}
+
+  .amp{overflow-x:auto;font-size:17px;line-height:1.6}
+  .amp table{width:100%;border-collapse:collapse;font-size:15.5px;margin:11px 0;min-width:420px}
+  .amp th,.amp td{border:1px solid var(--borde);padding:6px 9px;text-align:left;vertical-align:top}
+  .amp th{background:var(--borde);font-family:'Segoe UI',sans-serif;font-size:12.5px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--titulo);font-weight:600}
+  .amp ol,.amp ul{margin:7px 0 7px 20px;padding:0}
+  .amp li{margin-bottom:4px}
+  .amp p{margin:7px 0}
+  .amp blockquote{margin:9px 0;padding:9px 15px;border-left:3px solid var(--acento);
+    background:var(--fondo);font-style:italic}
+  .amp em.dato{font-style:normal;background:#F0EDE7;padding:0 4px;border-radius:2px}
+  .amp code{font-family:Consolas,monospace;font-size:15px;background:#F0EDE7;padding:1px 4px;border-radius:2px}
+
+  .endef{background:#F4F2EC;border-left:3px solid var(--acento);
+    padding:13px 17px;border-radius:0 3px 3px 0;font-size:17.5px;line-height:1.6}
+  .endef .rot{margin-bottom:3px}
+  /* ---------- Índice de temas ---------- */
+  .arbol{display:flex;flex-direction:column;gap:2px}
+  .arbol button{font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    border:none;background:none;color:var(--texto);width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    text-align:left;border-radius:4px;padding:7px 10px;line-height:1.35}
+  .arbol button:hover{background:#F2F0EC}
+  .arbol button[aria-pressed="true"]{background:var(--acento);color:#fff}
+  .arbol button span:first-child{min-width:0}
+  .der{display:flex;align-items:center;gap:7px;flex-shrink:0;align-self:center}
+  .arbol em{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    background:var(--borde);color:var(--tenue);padding:0 7px;min-width:26px}
+  .est{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-height:18px;height:18px;line-height:18px;box-sizing:border-box;font-style:normal;
+    text-align:center;border-radius:9px;flex-shrink:0;font-size:10.5px;
+    font-weight:600;padding:0 7px;min-width:40px}
+  .est.alto{background:#DCEBE2;color:#1F5137}
+  .est.medio{background:#E8EFE9;color:#2D4A3E}
+  .est.bajo{background:#F5EAD8;color:#7A5A22}
+  .est.mal{background:#F7E2E2;color:#8C2F2F}
+  .est.vacio{background:transparent;color:#C4C0BC;border:1px dashed var(--borde);font-weight:normal}
+  .est.parcial::after{content:"·";margin-left:3px;opacity:.6}
+  .arbol button[aria-pressed="true"] em,
+  .arbol button[aria-pressed="true"] .est{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+  .rama.todo{font-size:13.5px;font-weight:600;margin-bottom:14px;box-shadow:inset 0 0 0 1px var(--borde)}
+  .rama.todo[aria-pressed="true"]{box-shadow:none}
+  .modulo{margin-top:13px}
+  .modulo.plano{margin-top:18px;padding-top:13px;border-top:1px solid var(--borde)}
+  .tronco{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--tenue)}
+  .modulo.conhijo .tronco{color:var(--acento)}
+  .tronco[aria-pressed="true"]{color:#fff}
+  .hojas{margin:3px 0 0 10px;padding-left:12px;border-left:1px solid var(--borde);
+    display:flex;flex-direction:column;gap:1px}
+  .hojas.sinlinea{border-left:none;margin-left:0;padding-left:0}
+  .hoja{font-size:12.5px}
+  .rotgrupo{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--tenue);margin-bottom:5px;font-weight:600;padding-left:10px}
+  .pieArbol{display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+    margin-top:20px;padding-top:13px;border-top:1px solid var(--borde);
+    font-family:'Segoe UI',sans-serif;font-size:11px;color:var(--tenue)}
+  .pieArbol button{background:none;border:none;color:var(--acento);cursor:pointer;
+    font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:underline;padding:0;width:auto}
+  .leyenda{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+  .leyenda span{display:inline-flex;align-items:center;gap:6px}
+  .leyenda i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .barra-modo{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .modo{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:12.5px;
+    padding:8px 12px;border:1px solid var(--borde);background:#fff;
+    color:var(--titulo);border-radius:3px;cursor:pointer;text-align:left;width:100%}
+  .modo[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+  .metaFila{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+  .metaFila .meta{margin-bottom:0;padding-top:2px}
+  .flag{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11.5px;
+    background:none;border:1px solid var(--borde);color:var(--tenue);
+    border-radius:14px;padding:4px 11px;cursor:pointer;flex-shrink:0;
+    display:inline-flex;align-items:center;gap:6px;line-height:1}
+  .flag:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .votos{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+  .voto{background:none;border:1px solid var(--borde);color:var(--tenue);border-radius:14px;
+    padding:4px 9px;cursor:pointer;line-height:1;display:inline-flex;align-items:center}
+  .voto svg{width:14px;height:14px;display:block}
+  .voto:hover{border-color:#C9C6C3;color:var(--titulo)}
+  .voto:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  #vUp[aria-pressed="true"]{background:var(--acento);border-color:var(--acento);color:#fff}
+  #vDn[aria-pressed="true"]{background:var(--mal);border-color:var(--mal);color:#fff}
+  .flag b{font-size:13px;line-height:1;font-weight:normal}
+  .flag[aria-pressed="true"]{background:#F6EEE2;border-color:#D9BE86;color:#7A5A22;font-weight:600}
+  .est.marcadas{background:#F6EEE2;color:#7A5A22;border:none}
+  /* ---------- Menú fijado ---------- */
+  body.fijo{padding-left:340px}
+  body.fijo .panel{transform:none;box-shadow:none}
+  body.fijo .fondo{display:none}
+  body.fijo .burger{display:none}
+  .accionesPanel{display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .fijarPanel{background:none;border:none;color:var(--tenue);cursor:pointer;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.05em;text-transform:uppercase;font-weight:600;
+    padding:4px 8px;border-radius:3px;display:inline-flex;align-items:center;gap:5px}
+  .fijarPanel:hover{background:#F2F0EC;color:var(--titulo)}
+  .fijarPanel[aria-pressed="true"]{background:#E8EFE9;color:var(--acento)}
+  .fijarPanel b{font-size:12px;font-weight:normal;line-height:1}
+  @media (max-width:1024px){
+    body.fijo{padding-left:0}
+    body.fijo .panel{transform:translateX(-101%)}
+    body.fijo .panel.abierto{transform:none;box-shadow:2px 0 24px rgba(0,0,0,.14)}
+    body.fijo .fondo{display:block}
+    body.fijo .burger{display:inline-flex}
+    .fijarPanel{display:none}
+  }
+  .accionesFin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  /* ---------- Siguiente flotante ---------- */
+  .flot{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:25;
+    display:none;flex-direction:column;align-items:center;gap:3px;
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif;cursor:pointer;
+    background:var(--acento);color:#fff;border:none;border-radius:6px;
+    padding:16px 18px;box-shadow:0 3px 16px rgba(45,74,62,.28)}
+  .flot.visible{display:inline-flex}
+  .flot:hover{background:#243B31}
+  .flot b{font-size:20px;line-height:1;font-weight:normal}
+  .flot span{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+  .flot small{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:.04em}
+  @media (max-width:900px){
+    .flot{right:14px;padding:13px 14px}
+    .flot small{display:none}
+  }
+  .origen{border-radius:2px;padding:1px 6px}
+  .origen.paquete{background:#E4EAE6;color:var(--acento)}
+  .origen.propia{background:#EFE9DC;color:#6B5A32}
+  .origen.catedra{background:#E4EAE6;color:var(--acento)}
+  .origen.mixto,.origen.propio{background:#EFE9DC;color:#6B5A32}
+  .origen.preguntero{background:#E3E8EE;color:#38506B}
+  .origen.errado{background:#F7E2E2;color:#8C2F2F;font-weight:600}
+  .nota100{font-family:'Segoe UI',sans-serif;font-size:13.5px;color:var(--titulo);
+    border:1px solid var(--borde);border-radius:3px;padding:12px 15px;margin:16px 0 0}
+  .aviso{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);
+    background:var(--borde);padding:11px 14px;border-radius:3px;margin-bottom:16px}
+  .flash .enunciado{font-size:19.5px}
+  .revelado{display:none}
+  .revelado.visible{display:block}
+  .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
+  footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Aprender en el Siglo XXI · Parcial 2</h1>
+  <p class="ui">Autoevaluación interactiva de los módulos 03 y 04 · Ricardo Alvarez</p>
+</header>
+
+<div class="barraSup">
+  <button class="burger" id="abrir" aria-expanded="false" aria-controls="panel"><span class="ham"></span><span>Temas</span></button>
+  <div class="estado">
+    <span id="posicion"></span>
+    <span id="marcador"></span>
+  </div>
+</div>
+<div class="progreso"><div id="barra"></div></div>
+<div id="escenario"></div>
+<button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
+
+<footer class="ui">Contenido tomado del paquete de estudio del Parcial 2 de Aprender en el Siglo XXI, secciones 2, 4, 6, 7, 8 y 9, de los TP online de los módulos 03 y 04, y del caso Randstad adjunto al TP del módulo 04.</footer>
+
+</div>
+
+<div class="fondo" id="fondo"></div>
+<aside class="panel" id="panel">
+  <div class="panelTop">
+    <h2 id="rotuloFiltro">Elegí qué estudiar</h2>
+    <div class="accionesPanel">
+      <button class="fijarPanel" id="fijar" aria-pressed="false"></button>
+      <button class="cerrarPanel" id="cerrar" title="Ocultar el panel">&#10005;</button>
+    </div>
+  </div>
+  <div class="barra-modo">
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 56 preguntas</button>
+  <button class="modo" data-modo="tps" aria-pressed="false">Ya tomadas · 25 preguntas</button>
+  <button class="modo" data-modo="preg">Caso Randstad · 8 preguntas</button>
+  </div>
+  <div class="arbol" id="chips"></div>
+</aside>
+
+<script>
+/* ---------- Banco 1: autoevaluación, sección 9 del paquete ---------- */
+const QUIZ = [
+
+/* ===== Módulo 03 · L1 · Modelo académico y competencias ===== */
+
+{n:1,mod:"03",lec:"L1",tema:"Competencias",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La definición de competencia según el modelo Academia 21 es:",
+ op:["El conjunto de conocimientos teóricos adquiridos durante la carrera","Un conocimiento en ejecución que funciona como habilidad para hacer frente a determinadas situaciones","La suma de habilidades técnicas y actitudes profesionales","La capacidad de aprobar las evaluaciones de cada materia"],ok:1,
+ just:"Definición literal del material. Los dos elementos que la componen son el conocimiento y su puesta en ejecución.",
+ dist:"La opción «El conjunto de conocimientos teóricos adquiridos durante la carrera» confunde competencia con conocimiento acumulado, que es justo lo que el modelo niega. La opción «La suma de habilidades técnicas y actitudes profesionales» suena razonable pero le falta el componente de ejecución, que es el que define el término.",ref:"M03 L1"},
+
+{n:2,mod:"03",lec:"L1",tema:"Competencias",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Cómo se determina la adquisición de una competencia?",
+ op:["Por la asistencia a clases y la participación en foros","Por la nota obtenida en el examen final","A través de evidencias o comportamientos comprobables","Por la cantidad de horas de cursado acreditadas"],ok:2,
+ just:"La acreditación es por evidencias o comportamientos comprobables. El ejemplo del material usa gestión del conocimiento evaluada por transferencia.",
+ dist:"Las tres incorrectas describen formas tradicionales de acreditación por cursada. El modelo por competencias las reemplaza justamente por eso.",ref:"M03 L1"},
+
+{n:3,mod:"03",lec:"L1",tema:"Competencias",nivel:"comprender",tipo:"vf",src:"paquete",
+ q:"El modelo de aprendizaje basado en competencias se centra en la demostración del aprendizaje adquirido de acuerdo con el ritmo de cada estudiante y sus habilidades.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Es la formulación literal del enfoque en el dominio. La cátedra ya la tomó textual en el TP del módulo 03.",
+ dist:"Este verdadero o falso es de los que reproducen la definición exacta. Cuando la afirmación coincide palabra por palabra con el material, la respuesta es verdadero.",ref:"M03 L1"},
+
+{n:4,mod:"03",lec:"L1",tema:"Vida 21",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Los cuatro ejes de Vida 21 son:",
+ op:["Salud, deporte, cultura y arte, desarrollo","Salud, emprendimiento, internacionalización, sustentabilidad","Deporte, arte, tecnología, bienestar","Salud, deporte, académico, profesional"],ok:0,
+ just:"Los cuatro ejes de las propuestas de Vida 21, que extiende el modelo fuera del aula.",
+ dist:"La opción «Salud, emprendimiento, internacionalización, sustentabilidad» lista los tres centros de excelencia disfrazados de ejes. Es el cruce más probable de esta lección, porque los dos son espacios institucionales fuera del aula.",ref:"M03 L1"},
+
+{n:5,mod:"03",lec:"L1",tema:"Autogestión",nivel:"comprender",tipo:"vf",src:"paquete",
+ q:"La autogestión implica gestionar las propias necesidades de manera autónoma y está estrechamente relacionada con el autoconocimiento.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"La definición incluye el sin necesidad de solicitar ayuda externa, y la lección vincula la autogestión al autoconocimiento de manera explícita.",
+ dist:"Un distractor posible sería separar los dos conceptos y decir que son independientes. La lección los presenta encadenados.",ref:"M03 L1"},
+
+{n:6,mod:"03",lec:"L1",tema:"Autogestión",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La actitud que la lección asocia a la autogestión en el uso de herramientas digitales académicas es la actitud:",
+ op:["Proactiva","Exploradora","Autónoma","Colaborativa"],ok:1,
+ just:"Actitud exploradora, la que permite indagar y descubrir posibilidades dentro de las herramientas digitales académicas.",
+ dist:"Términos como proactiva o autónoma describen bien la idea pero no son el término de la cátedra. El material usa exploradora y solo esa.",ref:"M03 L1"},
+
+{n:7,mod:"03",lec:"L1",tema:"Autogestión",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Los tres contenidos de gestionarse, según la lección, son la toma de decisiones, la responsabilidad por acciones y resultados, y:",
+ op:["La planificación del tiempo de estudio","La organización y el control de recursos y procesos","La evaluación del propio desempeño","La comunicación con los docentes"],ok:1,
+ just:"Enumeración cerrada de tres elementos: decisiones, organización y control de recursos y procesos, y responsabilidad.",
+ dist:"Las tres incorrectas describen actividades que sí forman parte del estudio autogestionado, pero no están en la enumeración. La cátedra evalúa la lista exacta.",ref:"M03 L1"},
+
+/* ===== Módulo 03 · L2 · Metahabilidades ===== */
+
+{n:8,mod:"03",lec:"L2",tema:"Metahabilidades",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Según Rafael Echeverría (2005), la metahabilidad más importante para el ser humano en el siglo XXI es:",
+ op:["Aprender a emprender","La mentalidad de crecimiento","Aprender a aprender","El autoliderazgo"],ok:2,
+ just:"Echeverría la señala como la más importante. El PDF de la lección la usa como consigna de completar espacio en blanco.",
+ dist:"La opción «La mentalidad de crecimiento» es de Dweck, no de Echeverría, y es el cruce de autores más probable de todo el módulo. La opción «El autoliderazgo» pertenece al módulo 04.",ref:"M03 L2"},
+
+{n:9,mod:"03",lec:"L2",tema:"Metahabilidades",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"¿Qué sostiene Echeverría sobre el emprendimiento?",
+ op:["Que consiste principalmente en la creación de nuevos negocios","Que no se trata solo de crear negocios, sino de transformar la realidad a través de la innovación y la creatividad","Que requiere formación financiera previa","Que solo es posible con apoyo institucional"],ok:1,
+ just:"La lección niega la lectura comercial en su primera línea sobre el tema.",
+ dist:"La opción «Que consiste principalmente en la creación de nuevos negocios» es la lectura intuitiva del término y por eso es el distractor central. La cátedra evalúa precisamente que el estudiante no caiga ahí.",ref:"M03 L2"},
+
+{n:10,mod:"03",lec:"L2",tema:"Mentalidad",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Una persona sostiene que su desempeño académico depende de la inteligencia con la que nació. Según Dweck (2006), esa persona experimenta:",
+ op:["Una mentalidad de crecimiento","La teoría de incremento de la inteligencia","Una mentalidad fija","Un mindset de aprendizaje"],ok:2,
+ just:"Atribuir el éxito a una capacidad única e innata define la mentalidad fija.",
+ dist:"La opción «La teoría de incremento de la inteligencia» es sinónimo de mentalidad de crecimiento, o sea lo contrario. Es el distractor más caro porque suena técnico y el estudiante que no sabe que son sinónimos puede marcarlo.",ref:"M03 L2"},
+
+{n:11,mod:"03",lec:"L2",tema:"Mentalidad",nivel:"aplicar",tipo:"ms",src:"propia",
+ q:"Seleccione las sentencias que corresponden a una mentalidad de crecimiento.",
+ op:["Voy a capacitarme para poder seguir creciendo profesionalmente","No es necesario seguir capacitándome, ya que con mi formación es más que suficiente","Voy a tomar nuevos desafíos que me permitan ampliar mi visión de la realidad","Puedo innovar cuando lo sienta o cuando me aflore la innovación personal","Voy a esforzarme para cumplir mis objetivos"],ok:[0,2,4],
+ just:"Las tres que empiezan con Voy a expresan la creencia de que el resultado depende del trabajo y la formación.",
+ dist:"La opción «No es necesario seguir capacitándome, ya que con mi formación es más que suficiente» es mentalidad fija. La opción «Puedo innovar cuando lo sienta o cuando me aflore la innovación personal» es un distractor puro: en el TP del módulo 03 la cátedra usó sentencias que empiezan con Puedo y ponen una condición, y esas no van en ninguna de las dos cajas.",ref:"M03 L2"},
+
+{n:12,mod:"03",lec:"L2",tema:"Gabinete de Bienestar",nivel:"recordar",tipo:"vf",src:"paquete",
+ q:"El Gabinete de Bienestar está integrado por docentes tutores de cada carrera.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Lo integran psicólogos y psicólogas egresados de Siglo 21. Es un dato duro del material.",
+ dist:"Los tutores existen y acompañan lo académico, pero son otro servicio. El Gabinete es de acompañamiento psicológico.",ref:"M03 L2"},
+
+{n:13,mod:"03",lec:"L2",tema:"Metahabilidades",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Qué relación establece la lección entre la mentalidad de crecimiento y aprender a aprender?",
+ op:["Son dos nombres de la misma metahabilidad","La mentalidad de crecimiento es la base sobre la que se desarrolla aprender a aprender","Aprender a aprender permite adquirir la mentalidad de crecimiento","No hay relación, pertenecen a autores distintos"],ok:1,
+ just:"La definición operativa dice que aprender a aprender consiste en abordar y organizar el propio aprendizaje a partir del desarrollo de una mentalidad de crecimiento.",
+ dist:"La opción «Aprender a aprender permite adquirir la mentalidad de crecimiento» invierte la dependencia y es el error más fácil de cometer. La opción «No hay relación, pertenecen a autores distintos» usa el argumento correcto de que son autores distintos para llegar a la conclusión equivocada.",ref:"M03 L2"},
+
+/* ===== Módulo 03 · L3 · Centros de excelencia ===== */
+
+{n:14,mod:"03",lec:"L3",tema:"Centros de excelencia",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Los tres centros de excelencia de la Universidad son:",
+ op:["Emprendimiento e Innovación, Internacionalización, Sustentabilidad","Emprendimiento, Investigación, Extensión","Innovación, Tecnología, Bienestar","Internacionalización, Accesibilidad, Voluntariado"],ok:0,
+ just:"Los tres pilares diferenciadores del modelo Academia 21, que fortalecen las competencias transversales institucionales.",
+ dist:"La opción «Internacionalización, Accesibilidad, Voluntariado» toma dos programas del Centro de Sustentabilidad, accesibilidad y voluntariado, y los asciende a centros. Es el distractor más fino de la lección.",ref:"M03 L3"},
+
+{n:15,mod:"03",lec:"L3",tema:"Extensión universitaria",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Un proyecto que aborda una problemática compleja, involucra varias carreras con enfoque interdisciplinario y dura un año, corresponde a:",
+ op:["PAT, proyecto académico transversal","SEC, servicio de extensión comunitaria","PIC, proyecto de intervención comunitaria","Voluntarios21"],ok:2,
+ just:"El PIC es anual, interdisciplinario y aborda problemáticas más complejas que el PAT.",
+ dist:"PAT y PIC son el par que la cátedra usa para armar este ítem, porque las siglas se parecen y las dos articulan cátedras con la comunidad. La diferencia operativa es la duración y el alcance.",ref:"M03 L3"},
+
+{n:16,mod:"03",lec:"L3",tema:"Internacionalización",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Las learning expeditions son programas de formación a corto plazo que duran:",
+ op:["Un fin de semana","Una semana","Quince días","Un cuatrimestre"],ok:1,
+ just:"Único plazo concreto de todos los programas del Centro de Internacionalización.",
+ dist:"Las misiones académicas también son de corta duración, pero el material no les pone un número. El único plazo cerrado es el de las expeditions.",ref:"M03 L3"},
+
+{n:17,mod:"03",lec:"L3",tema:"Certificados",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"El Certificado en Competencias de Internacionalización se caracteriza porque:",
+ op:["Es obligatorio para todas las carreras de grado","Se elige voluntariamente a partir del segundo año y sin costo de inscripción","Requiere haber realizado un intercambio previo","Reemplaza al título de grado con validez internacional"],ok:1,
+ just:"Las tres condiciones son segundo año, carácter voluntario y sin costo de inscripción. Es el único certificado con condiciones explícitas en el material.",
+ dist:"La opción «Reemplaza al título de grado con validez internacional» confunde certificado con doble titulación. Los certificados son acreditación complementaria y el material lo dice con esas palabras.",ref:"M03 L3"},
+
+{n:18,mod:"03",lec:"L3",tema:"Sustentabilidad",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"Voluntarios21 cuenta con cuatro áreas de desarrollo, que son:",
+ op:["Servicio, Educación, Medioambiente, Derechos Humanos","Salud, Educación, Deporte, Cultura","Servicio, Investigación, Extensión, Inclusión","Educación, Ambiente, Género, Accesibilidad"],ok:0,
+ just:"Las cuatro áreas de Voluntarios21, dentro del Centro de Sustentabilidad.",
+ dist:"La opción «Salud, Educación, Deporte, Cultura» toma los ejes de Vida 21 y los mezcla. La opción «Educación, Ambiente, Género, Accesibilidad» suma temas que sí aparecen en el módulo, género y accesibilidad, pero en otros programas.",ref:"M03 L3"},
+
+{n:19,mod:"03",lec:"L3",tema:"Certificados",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Las definiciones de los certificados de sustentabilidad y de internacionalización son casi idénticas. Lo único que las separa es:",
+ op:["El año de la carrera desde el que se pueden cursar","El adjetivo con que cierra la frase, visión sustentable o visión global","La cantidad de materias que exige cada uno","El centro de excelencia que las emite"],ok:1,
+ just:"Las dos dicen que agregan valor a la carrera con materias y prácticas que ayudan a insertarse en el mercado laboral. Solo cambia el cierre.",
+ dist:"El TP del módulo 03 tomó este par y agregó un tercer distractor con visión territorial, que no corresponde a ningún certificado del material.",ref:"M03 L3"},
+
+/* ===== Módulo 03 · L4 · Plataformas ===== */
+
+{n:20,mod:"03",lec:"L4",tema:"Plataformas",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"El acceso al Portal de Estudiantes desde la página institucional figura identificado como:",
+ op:["SAM","Ecampus","La Nube 21","Ebook 21"],ok:1,
+ just:"Ecampus lleva al Portal de Estudiantes. SAM lleva a Canvas.",
+ dist:"Ecampus suena a campus virtual y por asociación uno lo vincula con el aula. Ahí está la trampa: el aula virtual es SAM. Es el dato más preguntable del módulo 03.",ref:"M03 L4"},
+
+{n:21,mod:"03",lec:"L4",tema:"Plataformas",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Un estudiante quiere ver una materia que cursó el año pasado en Canvas. Debe entrar a:",
+ op:["Tablero","Cursos","Calendario","Cuenta"],ok:1,
+ just:"Cursos muestra las materias actuales y las inscripciones pasadas. Tablero muestra únicamente las actuales.",
+ dist:"Tablero es el distractor natural porque es la vista que uno abre todos los días. La distinción entre las dos entradas es exactamente lo que la cátedra evalúa.",ref:"M03 L4"},
+
+{n:22,mod:"03",lec:"L4",tema:"Plataformas",nivel:"comprender",tipo:"vf",src:"paquete",
+ q:"Desde la opción Materias del Portal de Estudiantes se finaliza el proceso de inscripción a materias.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"La inscripción se cierra desde Pagos. Materias sirve para elegir y para controlar el avance de la carrera.",
+ dist:"Es contraintuitivo y por eso funciona como ítem. El material dice que Pagos brinda acceso directo para finalizar el proceso de inscripción.",ref:"M03 L4"},
+
+{n:23,mod:"03",lec:"L4",tema:"Plataformas",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Ebook 21 garantiza el acceso virtual a los contenidos de la biblioteca:",
+ op:["Nube 21","Eduardo Mundet","Juan Carlos Rabbat","Academia 21"],ok:1,
+ just:"La biblioteca física se llama Eduardo Mundet, y Ebook 21 es su versión virtual.",
+ dist:"La opción «Juan Carlos Rabbat» usa el apellido del autor de la cita institucional del módulo, que aparece en la misma lección. Es un cruce plausible.",ref:"M03 L4"},
+
+{n:24,mod:"03",lec:"L4",tema:"Plataformas",nivel:"recordar",tipo:"ms",src:"propia",
+ q:"Seleccione las plataformas digitales institucionales que la lección desarrolla.",
+ op:["Portal de Estudiantes","Mail","Canvas","Google","La Nube 21"],ok:[0,2,4],
+ just:"Las cinco plataformas del material son la página institucional, el Portal, Canvas, Ebook 21 y La Nube 21.",
+ dist:"Mail y Google son herramientas que el estudiante usa a diario pero que el material no lista como plataformas institucionales. La cátedra tomó esta pregunta tal cual en el TP del módulo 03.",ref:"M03 L4"},
+
+{n:25,mod:"03",lec:"L4",tema:"Reglamento",nivel:"recordar",tipo:"mc",src:"propia",
+ q:"El reglamento institucional abarca, entre otros temas, los orígenes de la universidad, las condiciones de admisión y permanencia, el modelo académico, los aspectos del cursado y:",
+ op:["El régimen de becas y ayudas económicas","Las normas de comportamiento y sanciones","El listado de materias por carrera","Los convenios internacionales vigentes"],ok:1,
+ just:"El quinto tema de la enumeración, y el que cierra la lista en el material.",
+ dist:"Las tres incorrectas son temas que un reglamento universitario razonablemente contendría, pero el material enumera cinco y solo cinco.",ref:"M03 L4"},
+
+/* ===== Módulo 04 · L1 · El mundo del trabajo ===== */
+
+{n:26,mod:"04",lec:"L1",tema:"Contexto VUCA",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La sigla VICA hace referencia a un mundo:",
+ op:["Visual, incierto, creativo y ambiguo","Volátil, inseguro, complejo y ambicioso","Volátil, incierto, complejo y ambiguo","Virtual, innovador, consciente y ambiguo"],ok:2,
+ just:"Volátil, incierto, complejo y ambiguo. VICA en español, VUCA en inglés.",
+ dist:"Los tres distractores cambian una o dos letras manteniendo la inicial. La cátedra ya usó exactamente este mecanismo en el TP del módulo 04. Leer la sigla completa antes de marcar.",ref:"M04 L1"},
+
+{n:27,mod:"04",lec:"L1",tema:"Contexto VUCA",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Según Johansen (2012), la capacidad que responde a un mundo ambiguo es:",
+ op:["Visión","Claridad","Comprensión","Agilidad"],ok:3,
+ just:"Agilidad responde a lo ambiguo y claridad responde a lo complejo.",
+ dist:"El PDF lista las capacidades en orden visión, comprensión, agilidad, claridad, que no sigue el orden de la sigla. Si uno empareja por posición, marca claridad y pierde el punto.",ref:"M04 L1"},
+
+{n:28,mod:"04",lec:"L1",tema:"Contexto VUCA",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Al concepto de entorno VUCA se le añade la letra H en referencia a la:",
+ op:["Hipercompetencia","Hiperinformación","Hiperconectividad","Humanidad"],ok:2,
+ just:"El ser humano vive conectado de manera constante a la información a través de dispositivos y plataformas digitales.",
+ dist:"Hipercompetencia y humanidad aparecen en otras versiones del modelo fuera del material. La cátedra usa hiperconectividad.",ref:"M04 L1"},
+
+{n:29,mod:"04",lec:"L1",tema:"Nómadas digitales",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Según el Programa Nómadas Digitales del Gobierno de Argentina, la cantidad de nómadas digitales registrados en el mundo es:",
+ op:["Más de 15 millones","Más de 35 millones","Más de 50 millones","Más de 70 millones"],ok:1,
+ just:"Más de 35 millones, en su mayoría con formación universitaria y en un rango de 20 a 40 años.",
+ dist:"Las cifras redondas son fáciles de confundir. Los otros dos datos del mismo párrafo, formación universitaria y rango etario, también son preguntables.",ref:"M04 L1"},
+
+{n:30,mod:"04",lec:"L1",tema:"Nómadas digitales",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Una persona que comercializa ebooks y aplicaciones de bajo costo que le generan ingresos pasivos corresponde al tipo de nómada digital:",
+ op:["Freelance","Emprendedor","Por cuenta ajena","Nómada de conocimiento"],ok:1,
+ just:"El emprendedor comercializa productos digitales de bajo costo con ingresos pasivos. El freelance vende servicios.",
+ dist:"La palabra que decide es productos frente a servicios. La opción «Nómada de conocimiento» cambia de categoría: el nómada de conocimiento no es un tipo de nómada digital.",ref:"M04 L1"},
+
+{n:31,mod:"04",lec:"L1",tema:"Modelo 70-20-10",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"En el modelo 70-20-10, el 70 % corresponde a:",
+ op:["La educación formal y las capacitaciones","La exposición y el trabajo colaborativo","El trabajo en sí, con proyectos y mentorías","El coaching profesional"],ok:2,
+ just:"El 70 es el trabajo en sí, el 20 la exposición y el 10 la educación formal.",
+ dist:"Lo intuitivo es asignar el porcentaje mayor a la formación, porque el modelo aparece en contextos de capacitación. Es al revés, y ese es todo el punto del modelo.",ref:"M04 L1"},
+
+{n:32,mod:"04",lec:"L1",tema:"Mercado laboral",nivel:"recordar",tipo:"vf",src:"paquete",
+ q:"Se estima que en los próximos años menos del 20 % de las tareas laborales y profesionales cambiarán.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"La cifra del material es más del 50 %, junto con el creciente desacople entre empleo y trabajo.",
+ dist:"El distractor baja la cifra a un nivel que haría innecesario todo el módulo. Si solo cambiara una tarea de cada cinco, no habría razón para hablar de aprender a aprender.",ref:"M04 L1"},
+
+{n:33,mod:"04",lec:"L1",tema:"Nómadas de conocimiento",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Qué relación plantea la lección entre el esquema tradicional del maestro como única fuente de saber y los nuevos formatos de acceso al conocimiento?",
+ op:["Los nuevos formatos reemplazaron por completo al esquema tradicional","El esquema tradicional convive con los nuevos formatos","Los nuevos formatos todavía no tienen impacto real","El esquema tradicional volvió a imponerse por la sobrecarga de información"],ok:1,
+ just:"El verbo del material es convive. No hay reemplazo.",
+ dist:"La opción «Los nuevos formatos reemplazaron por completo al esquema tradicional» es la lectura fuerte y la más tentadora, sobre todo con la inteligencia artificial generativa en el medio. La cátedra elige una formulación más moderada y evalúa esa.",ref:"M04 L1"},
+
+/* ===== Módulo 04 · L2 · Autoliderazgo ===== */
+
+{n:34,mod:"04",lec:"L2",tema:"Autoliderazgo",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Los cinco componentes del autoliderazgo según Goleman son:",
+ op:["Autoconciencia emocional, autocontrol emocional, automotivación, empatía, habilidades sociales","Autoconocimiento, autogestión, autoevaluación, empatía, comunicación","Visión, comprensión, agilidad, claridad, resonancia","Autoconciencia, disciplina, motivación, liderazgo, negociación"],ok:0,
+ just:"Los cinco componentes de la inteligencia emocional de Goleman aplicados al autoliderazgo.",
+ dist:"La opción «Visión, comprensión, agilidad, claridad, resonancia» lista las cuatro capacidades de Johansen más resonancia, mezclando dos autores. La opción «Autoconocimiento, autogestión, autoevaluación, empatía, comunicación» usa términos del módulo 03 que suenan cercanos pero pertenecen a la autogestión.",ref:"M04 L2"},
+
+{n:35,mod:"04",lec:"L2",tema:"Autoliderazgo",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"El modelo de líder coach, en el que el líder actúa como facilitador que ayuda a otros a encontrar su propio camino, corresponde a:",
+ op:["Goleman (2013)","Schwander (2020)","Echeverría (2000)","Johansen (2020)"],ok:2,
+ just:"Echeverría, en La empresa emergente de 2000.",
+ dist:"Echeverría aparece dos veces en la materia con obras y años distintos: 2005 para las metahabilidades del módulo 03 y 2000 para el líder coach. Ese cruce es el más probable de todo el parcial.",ref:"M04 L2"},
+
+{n:36,mod:"04",lec:"L2",tema:"Liderazgo resonante",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La capacidad de un líder para conectar con las emociones de su equipo y generar un clima emocional positivo se denomina:",
+ op:["Empatía","Carisma","Resonancia","Asertividad"],ok:2,
+ just:"Concepto de Goleman ligado a la inteligencia emocional del líder.",
+ dist:"El PDF de la lección usa este mismo hueco como miniactividad, con el adjetivo resonante. Empatía y carisma son las respuestas intuitivas y las dos son incorrectas.",ref:"M04 L2"},
+
+{n:37,mod:"04",lec:"L2",tema:"Autoliderazgo",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Según Schwander (2020), sobre si el líder nace o se hace:",
+ op:["Se nace líder, la capacidad es innata","Se nace con el potencial de liderarse, y los líderes se construyen a lo largo de su trayectoria","El liderazgo depende exclusivamente de la formación recibida","Solo lideran quienes tienen alta inteligencia emocional de nacimiento"],ok:1,
+ just:"La formulación intermedia es la correcta: potencial innato, construcción posterior.",
+ dist:"Las opciones «Se nace líder, la capacidad es innata» y «El liderazgo depende exclusivamente de la formación recibida» son los dos extremos y las dos son incorrectas. La cátedra evalúa que el estudiante retenga la posición intermedia, que es la que el material sostiene.",ref:"M04 L2"},
+
+{n:38,mod:"04",lec:"L2",tema:"Autoliderazgo",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Una persona reconoce que está frustrada por una devolución negativa y decide no responder el correo hasta el día siguiente. ¿Qué componente del autoliderazgo está ejerciendo al postergar la respuesta?",
+ op:["Autoconciencia emocional","Autocontrol emocional","Automotivación","Empatía"],ok:1,
+ just:"Reconocer la frustración es autoconciencia. Gestionarla para no reaccionar es autocontrol.",
+ dist:"La opción «Autoconciencia emocional» describe la primera mitad de la escena y por eso es el distractor. Los dos componentes empiezan igual y se confunden, pero uno es darse cuenta y el otro es gestionar.",ref:"M04 L2"},
+
+{n:39,mod:"04",lec:"L2",tema:"Modelo de observador",nivel:"comprender",tipo:"vf",src:"propia",
+ q:"Según el modelo de observador, los lentes con que miramos el mundo determinan cómo actuamos y, por lo tanto, los resultados que obtenemos.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"La cadena que plantea la lección es observador, acción, resultado.",
+ dist:"Este concepto viene de lecturas anteriores de la materia y reaparece en el módulo 04. Es el tipo de contenido transversal que un parcial integrador toma.",ref:"M04 L2"},
+
+/* ===== Módulo 04 · L3 · Habilidades requeridas ===== */
+
+{n:40,mod:"04",lec:"L3",tema:"Soft y hard skills",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Las soft skills se caracterizan por ser:",
+ op:["Habilidades técnicas específicas de cada profesión","Competencias genéricas intrapersonales e interpersonales, complementarias a las hard skills","Competencias que reemplazan a los conocimientos técnicos","Habilidades exclusivamente interpersonales"],ok:1,
+ just:"La definición incluye las dos dimensiones y el carácter complementario respecto de las habilidades duras.",
+ dist:"La opción «Habilidades exclusivamente interpersonales» recorta la definición dejando solo lo interpersonal, que es el error más común. La opción «Competencias que reemplazan a los conocimientos técnicos» exagera la relación con las hard skills. El TP del módulo 04 usó estas dos vías.",ref:"M04 L3"},
+
+{n:41,mod:"04",lec:"L3",tema:"Marr",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"Marr (2022) propone diez capacidades. De ellas:",
+ op:["Las diez son soft skills","Ocho son soft skills y dos son hard skills","Cinco son soft skills y cinco hard skills","Dos son soft skills y ocho hard skills"],ok:1,
+ just:"Ocho blandas y dos técnicas. Las dos técnicas son alfabetización digital y alfabetización de datos.",
+ dist:"La opción «Las diez son soft skills» es tentadora porque el listado de Marr se asocia a habilidades del futuro y esas suelen ser blandas. El material explicita el reparto.",ref:"M04 L3"},
+
+{n:42,mod:"04",lec:"L3",tema:"Marr",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Según Bernard Marr, la alfabetización digital comprende:",
+ op:["La capacidad de usar una computadora para tareas básicas como navegar y enviar correos","La capacidad de comprender y utilizar la tecnología en una amplia gama de campos laborales y profesionales","La capacidad de programar computadoras y analizar datos","La capacidad de reconocer el alfabeto digital"],ok:1,
+ just:"Es una de las dos hard skills del listado, definida por su alcance amplio.",
+ dist:"La opción «La capacidad de usar una computadora para tareas básicas como navegar y enviar correos» reduce el concepto a ofimática y la opción «La capacidad de programar computadoras y analizar datos» lo sube a perfil técnico. La cátedra ya tomó esta pregunta con esos mismos distractores en el TP del módulo 04.",ref:"M04 L3"},
+
+{n:43,mod:"04",lec:"L3",tema:"Learnability",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Cuál es la diferencia entre long life learning y learnability?",
+ op:["Son sinónimos, la cátedra usa los dos indistintamente","El long life learning es el principio de aprender a lo largo de la vida, el learnability es la capacidad individual para el aprendizaje constante","El learnability aplica a organizaciones y el long life learning a personas","El long life learning es una técnica de estudio y el learnability una actitud"],ok:1,
+ just:"El primero nombra un proceso o principio, el segundo nombra una capacidad de la persona ligada a la frontera del desempeño.",
+ dist:"La opción «Son sinónimos, la cátedra usa los dos indistintamente» es el error más frecuente porque los dos términos aparecen en el mismo párrafo. El TP del módulo 04 los tomó por separado y en verdadero o falso, señal de que la cátedra los distingue.",ref:"M04 L3"},
+
+{n:44,mod:"04",lec:"L3",tema:"STEAM",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Dentro del enfoque STEAM, el desarrollo de habilidades sociales, emocionales y de creatividad para la resolución de problemas corresponde a la letra:",
+ op:["S, science","E, engineering","A, arts","M, mathematics"],ok:2,
+ just:"La A de artes aporta lo social, lo emocional y la creatividad, no una habilidad artística.",
+ dist:"La asignación es contraintuitiva y por eso se pregunta. La otra letra que se presta a error es la M, que en el material apunta a análisis financiero y economía, no a matemática pura.",ref:"M04 L3"},
+
+{n:45,mod:"04",lec:"L3",tema:"STEAM",nivel:"aplicar",tipo:"mc",src:"propia",
+ q:"Dentro del enfoque STEAM, el análisis financiero, la contabilidad y la economía circular corresponden a la letra:",
+ op:["S, science","T, technology","E, engineering","M, mathematics"],ok:3,
+ just:"La M de matemáticas se define en el material por sus aplicaciones económicas y financieras.",
+ dist:"Quien asocia matemáticas con cálculo y ciencia formal tiende a marcar S. El material define cada letra por su dominio de aplicación, no por la disciplina académica.",ref:"M04 L3"},
+
+{n:46,mod:"04",lec:"L3",tema:"Pensamiento de espectro",nivel:"comprender",tipo:"vf",src:"paquete",
+ q:"Para Bob Johansen (2020), el pensamiento de espectro completo es una nueva forma de pensar que trata de categorizar las situaciones para responder a un futuro cada día más certero.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Es la inversión exacta del concepto. El pensamiento de espectro busca conexiones en lugar de categorizaciones, y sostiene que la claridad importa más que la certeza.",
+ dist:"La afirmación toma las dos palabras del modelo, categorizar y certeza, y las pone del lado equivocado. Cuando un verdadero o falso suena al revés de lo que uno recuerda, casi siempre es falso.",ref:"M04 L3"},
+
+{n:47,mod:"04",lec:"L3",tema:"Competencias institucionales",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"Las cinco competencias institucionales de Siglo 21 son gestión del conocimiento, actuación colaborativa en ecosistemas de bienestar, actuación en la globalidad, acción emprendedora y:",
+ op:["Aprendizaje continuo","Innovación y transformación digital","Pensamiento crítico","Autoliderazgo"],ok:1,
+ just:"Innovación y transformación digital cierra el listado. Reconoce el impacto acelerado y disruptivo de las tecnologías.",
+ dist:"Las tres incorrectas son conceptos que la materia desarrolla en otras lecciones, lo que las vuelve plausibles. La lista de competencias institucionales es cerrada y son cinco.",ref:"M04 L3"},
+
+{n:48,mod:"04",lec:"L3",tema:"Trabajo colaborativo",nivel:"comprender",tipo:"mc",src:"propia",
+ q:"¿Qué condición distingue al trabajo colaborativo del trabajo en paralelo, según el material?",
+ op:["Que se realiza con herramientas digitales en la nube","Que el objetivo común sería difícil de alcanzar de forma individual","Que todos los integrantes tienen el mismo rol","Que se desarrolla de manera remota"],ok:1,
+ just:"Esa cláusula es la que la definición pone como condición del trabajo colaborativo.",
+ dist:"La opción «Que se realiza con herramientas digitales en la nube» y la «Que se desarrolla de manera remota» describen el medio, no el criterio. Las herramientas digitales aparecen en la lección como facilitadoras, no como definitorias.",ref:"M04 L3"},
+
+/* ===== Módulo 04 · L4 · FODA e inserción laboral ===== */
+
+{n:49,mod:"04",lec:"L4",tema:"FODA",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"La matriz FODA implica observar y analizar:",
+ op:["Aspectos personales internos como fortalezas y oportunidades, y aspectos profesionales externos como debilidades y amenazas","Aspectos personales externos como fortalezas y debilidades, y aspectos profesionales internos como oportunidades y amenazas","Aspectos personales internos como fortalezas y debilidades, y aspectos profesionales externos como oportunidades y amenazas","Aspectos internos y externos sin distinción de origen"],ok:2,
+ just:"Fortalezas y debilidades son internas, oportunidades y amenazas son externas.",
+ dist:"Los distractores rotan los cuadrantes manteniendo la estructura de la frase. La cátedra tomó esta pregunta con estas mismas tres opciones en el TP del módulo 04. Hay que leer qué par queda de cada lado.",ref:"M04 L4"},
+
+{n:50,mod:"04",lec:"L4",tema:"FODA",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"En un FODA personal, la afirmación el mercado de datos en Argentina está creciendo se ubica en el cuadrante de:",
+ op:["Fortalezas","Debilidades","Oportunidades","Amenazas"],ok:2,
+ just:"Es una tendencia del mercado, de origen externo y signo positivo.",
+ dist:"Quien tiene experiencia en el sector puede leerlo como fortaleza propia. El criterio es el origen del factor, no si lo beneficia. La tendencia existe con independencia de la persona.",ref:"M04 L4"},
+
+{n:51,mod:"04",lec:"L4",tema:"FODA",nivel:"comprender",tipo:"vf",src:"paquete",
+ q:"Para hacer un FODA personal conviene empezar listando las fortalezas y recién al final definir el objetivo.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Es al revés: el objetivo va primero. Sin objetivo no se puede decidir qué es fortaleza y qué es debilidad, porque eso depende de para qué.",
+ dist:"Suena razonable porque la F de fortalezas va primera en la sigla, pero el orden de la sigla no es el orden del procedimiento.",ref:"M04 L4"},
+
+{n:52,mod:"04",lec:"L4",tema:"Inserción laboral",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La Práctica Profesional exige completar:",
+ op:["150 horas","200 horas","250 horas","300 horas"],ok:2,
+ just:"250 horas, como materia obligatoria de todas las carreras de grado.",
+ dist:"Es el único número de la lección y por eso vale la pena tenerlo. El otro dato que separa las propuestas es que la pasantía es remunerada.",ref:"M04 L4"},
+
+{n:53,mod:"04",lec:"L4",tema:"Inserción laboral",nivel:"aplicar",tipo:"mc",src:"paquete",
+ q:"Una experiencia profesional remunerada durante el cursado, gestionada por la universidad en un marco regulado, corresponde a:",
+ op:["Networking","Práctica Profesional","Club de Emprendedores","Pasantías"],ok:3,
+ just:"La palabra que decide es remunerada. La Práctica Profesional es materia obligatoria y no remunerada.",
+ dist:"Práctica Profesional es el distractor central porque las dos son experiencia en organizaciones. La cátedra tomó esta pregunta con estas mismas opciones.",ref:"M04 L4"},
+
+{n:54,mod:"04",lec:"L4",tema:"Redes profesionales",nivel:"recordar",tipo:"mc",src:"paquete",
+ q:"La red profesional que pertenece al Grupo Santander y está orientada al ámbito universitario es:",
+ op:["LinkedIn","Womenalia","Xing","Universia"],ok:3,
+ just:"Universia, del Grupo Santander, dirigida a profesores y estudiantes.",
+ dist:"El rasgo distintivo de cada red es lo preguntable. Xing tiene la brújula cultural, Womenalia conecta por sector u ocupación, LinkedIn es la general.",ref:"M04 L4"},
+
+{n:55,mod:"04",lec:"L4",tema:"Empleabilidad",nivel:"comprender",tipo:"mc",src:"paquete",
+ q:"La misión del área de Empleabilidad es:",
+ op:["Potenciar la formación teórica de los estudiantes e incrementar las oportunidades laborales","Potenciar la formación práctica de los estudiantes e incrementar las oportunidades laborales","Insertar laboralmente a todos los alumnos y egresados, independientemente de su disciplina","Mostrar los trabajos del futuro y las competencias tecnológicas para acceder a esos puestos"],ok:1,
+ just:"Formación práctica, no teórica. El resto de la frase es idéntico en las dos primeras opciones.",
+ dist:"El distractor cambia una sola palabra, práctica por teórica, y todo lo demás queda igual. La cátedra ya lo usó así. Es el ejemplo más claro de que hay que tener la formulación literal.",ref:"M04 L4"},
+
+{n:56,mod:"04",lec:"L4",tema:"Redes profesionales",nivel:"recordar",tipo:"vf",src:"propia",
+ q:"Según el material, un profesional que no está presente en las redes profesionales corre el riesgo de ser invisible en el mundo virtual.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Es la afirmación más citable de la lección y aparece con esas palabras.",
+ dist:"Es una formulación fuerte que uno podría matizar por criterio propio. En el examen va lo que dice el material.",ref:"M04 L4"}
+
+];
+
+/* ---------- Banco 2: instancias ya tomadas ---------- */
+const TPS = [
+
+/* ===== TP online del módulo 03 · 100 sobre 100 ===== */
+
+{n:1001,orig:1,inst:"TP online M03",tema:"Plataformas",tipo:"ms",fid:"catedra",
+ q:"¿Cuáles son las diferentes plataformas digitales con que cuentas como estudiante para utilizar a diario en la universidad?",
+ op:["Portal Estudiantes","Mail","Google","Canvas","La Nube 21"],ok:[0,3,4],
+ just:"Tres de las cinco plataformas que desarrolla la lección. Ebook 21 no estaba entre las opciones.",
+ dist:"Mail y Google son herramientas de uso diario real del estudiante, pero el material no las lista como plataformas institucionales. Ese es el criterio que evalúa la pregunta.",ref:"M03 L4"},
+
+{n:1002,orig:2,inst:"TP online M03",tema:"Centros de excelencia",tipo:"mc",fid:"catedra",
+ q:"Identifique el propósito del Centro de Internacionalización.",
+ op:["Estrechar lazos de colaboración con diversas universidades e instituciones en todos los continentes","Generar profesionales capaces de crear y desarrollar proyectos que generen cambios sociales y económicos","Contribuir a la formación con una mirada en la transformación social del país","Agregar valor a tu carrera para insertarte con una visión global"],ok:0,
+ just:"El propósito de cada centro está redactado con una fórmula propia. La de Internacionalización abre con estrechar lazos de colaboración.",
+ dist:"La opción «Agregar valor a tu carrera para insertarte con una…» es la definición del certificado de internacionalización, no la del centro. La cátedra puso los centros y los certificados en la misma actividad de coincidencia justamente por eso.",ref:"M03 L3"},
+
+{n:1003,orig:3,inst:"TP online M03",tema:"Mentalidad",tipo:"ms",fid:"catedra",
+ q:"Seleccione las sentencias que corresponden a la mentalidad fija.",
+ op:["No voy a tomar nuevos desafíos, ya que pueden implicar riesgos","Voy a esforzarme para cumplir mis objetivos","No necesito innovar, ya que he dado lo suficiente en mi profesión y estoy satisfecho","Puedo tomar desafíos cuando esté preparado, luego de mi carrera","No es necesario seguir capacitándome, ya que con mi formación es más que suficiente"],ok:[0,2,4],
+ just:"Las tres que empiezan con No expresan la creencia de que ya no hace falta desarrollarse.",
+ dist:"La actividad original advertía que había distractores. Las tres sentencias que empiezan con Puedo y ponen una condición no pertenecen a ninguna de las dos mentalidades. Ese patrón puede repetirse en el parcial.",ref:"M03 L2"},
+
+{n:1004,orig:4,inst:"TP online M03",tema:"Competencias",tipo:"vf",fid:"catedra",
+ q:"El modelo de aprendizaje basado en competencias se centra en la demostración del aprendizaje adquirido de acuerdo al ritmo de cada estudiante y sus habilidades.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Definición literal del enfoque en el dominio.",
+ dist:"La cátedra copió la frase del material sin cambiarle nada. Es el caso más simple de verdadero o falso y también el más frecuente en esta materia.",ref:"M03 L1"},
+
+{n:1005,orig:5,inst:"TP online M03",tema:"Portal de Estudiantes",tipo:"mc",fid:"catedra",
+ q:"Javier es un ______ universitario que ya presentó su trámite de equivalencias. Mientras espera la resolución, ingresa al ______ de estudiantes para avanzar con la inscripción de sus materias. Los dos huecos se completan con:",
+ op:["Recursante · portal","Ingresante · portal","Ingresante · programa","Profesional · sistema de equivalencias"],ok:1,
+ just:"El recorrido completo era ingresante, equivalencias, portal, materias, cursado y correlatividades.",
+ dist:"Los distractores del primer hueco eran recursante y profesional. Los del último, programas y equivalencias. La pregunta pedía las etiquetas exactas del menú del Portal, no sinónimos.",ref:"M03 L4"},
+
+/* ===== TP online del módulo 04 · 90 sobre 100 ===== */
+
+{n:1011,orig:1,inst:"TP online M04",tema:"STEAM",tipo:"vf",fid:"catedra",
+ q:"El enfoque STEAM prioriza la especialización temprana en una sola disciplina científica.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Es lo contrario: STEAM integra ciencia, tecnología, ingeniería, arte y matemática, y lo que busca es el cruce entre ellas.",
+ dist:"La A de arte es justamente lo que distingue a STEAM de STEM, y es la señal de que el enfoque va hacia la integración y no hacia la especialización.",ref:"M04 L3"},
+
+{n:1012,orig:2,inst:"TP online M04",tema:"Caso Randstad",tipo:"mc",fid:"catedra",
+ q:"Según la investigación de Randstad, el pensamiento crítico es una de las habilidades más requeridas por las organizaciones. ¿A qué hace referencia esta habilidad?",
+ op:["La capacidad de evitar sesgos y prejuicios en el análisis de información","La capacidad de identificar problemas laborales","La capacidad de pensar creativamente","La capacidad de pensar analíticamente todo","La capacidad de pensar de manera lógica y racional"],ok:0,
+ just:"El pensamiento crítico se define por el trabajo sobre la información y no por el modo de razonar en abstracto.",
+ dist:"Esta se falló en el intento real. Pensar de manera lógica y racional es la definición de diccionario y por eso atrae. El módulo no define pensamiento crítico en ningún lado: solo lo nombra dentro de STEAM y del listado del WEF. La respuesta sale del caso, no de la teoría.",ref:"Caso Randstad"},
+
+{n:1013,orig:3,inst:"TP online M04",tema:"Caso Randstad",tipo:"mc",fid:"catedra",
+ q:"Estamos insertos en un contexto VUCA que nos desafía a responder a cambios de velocidad creciente. ¿Qué soft skills deberían desarrollar los miembros de una organización para responder a este contexto?",
+ op:["La creatividad, innovando en tiempos bajo metodologías ágiles","El liderazgo, para liderar los proyectos de una organización en tiempos óptimos","La flexibilidad horaria para gestionar mejor la productividad laboral","La gestión del tiempo, priorizando y organizando tareas de manera eficiente"],ok:3,
+ just:"En el ranking de Randstad, organización y gestión del tiempo va cuarta con 15 %, la posición más alta entre las opciones ofrecidas.",
+ dist:"Esta se falló en el intento real. La creatividad parece la respuesta conceptual correcta frente a un entorno cambiante, y en el vocabulario profesional lo sería. Pero en el ranking de la fuente citada la creatividad va última con 1 %. Cuando el enunciado nombra una investigación, manda el ranking de esa investigación.",ref:"Caso Randstad"},
+
+{n:1014,orig:4,inst:"TP online M04",tema:"Caso Randstad",tipo:"ms",fid:"catedra",
+ q:"Según la investigación de Randstad y los conceptos del módulo, ¿cuáles son las tres competencias blandas más valoradas por los argentinos?",
+ op:["Flexibilidad y adaptación al cambio","Trabajo en equipo","Capacidad resolutiva","Negociación","Creatividad"],ok:[0,1,2],
+ just:"Las tres primeras del ranking, con 23 %, 19 % y 18 %.",
+ dist:"Negociación va anteúltima con 3 % y creatividad última con 1 %. Los dos distractores están tomados del extremo opuesto del mismo ranking.",ref:"Caso Randstad"},
+
+{n:1015,orig:5,inst:"TP online M04",tema:"Liderazgo",tipo:"vf",fid:"catedra",
+ q:"Hoy, el liderazgo en las organizaciones implica la capacidad de motivar a las personas e inspirarlas a trabajar juntas, tomar decisiones y gestionar conflictos, entre otras cosas.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Coincide con el núcleo común de las definiciones de liderazgo y con la de Goleman.",
+ dist:"La formulación es amplia y no contradice nada del material. Los verdadero o falso amplios de esta materia suelen ser verdaderos, los que invierten un concepto son los falsos.",ref:"M04 L2"},
+
+{n:1016,orig:6,inst:"TP online M04",tema:"FODA",tipo:"mc",fid:"catedra",
+ q:"La matriz FODA implica observar y analizar, ¿qué?",
+ op:["Aspectos personales internos como las fortalezas y oportunidades y aspectos profesionales externos como las debilidades y amenazas","Aspectos personales externos como las fortalezas y debilidades y aspectos profesionales internos como las oportunidades y amenazas","Aspectos personales internos como las fortalezas y debilidades y aspectos profesionales externos como las oportunidades y amenazas"],ok:2,
+ just:"Fortalezas y debilidades internas, oportunidades y amenazas externas.",
+ dist:"Las tres opciones tienen la misma estructura sintáctica y solo cambian qué par va de cada lado. Hay que leer despacio los cuatro términos antes de marcar.",ref:"M04 L4"},
+
+{n:1017,orig:7,inst:"TP online M04",tema:"Caso Randstad",tipo:"mc",fid:"catedra",
+ q:"Según la investigación de Randstad, ¿las personas nacen con competencias blandas incorporadas o se pueden adquirir, desarrollar y mejorar en el tiempo?",
+ op:["No es posible, ya que los factores genéticos y biológicos lo determinan","Siempre es posible si la persona las tiene de forma innata","Siempre es posible solo cuando se tiene la formación adecuada","Siempre es posible desarrollarlas y mejorarlas en el tiempo a través de la formación","No es posible ya los factores sociales y familiares lo determinan"],ok:3,
+ just:"Andrea Ávila lo afirma en la nota: aunque haya predisposición natural, siempre es posible mejorarlas a través de la formación, la autorreflexión, la retroalimentación y la práctica consciente.",
+ dist:"Las opciones «Siempre es posible si la persona las tiene de forma innata» y «Siempre es posible solo cuando se tiene la formación adecuada» ponen condiciones que la nota descarta. Es la misma lógica que Schwander aplica al liderazgo: hay potencial de base, pero el desarrollo es posible siempre.",ref:"Caso Randstad"},
+
+{n:1018,orig:8,inst:"TP online M04",tema:"Soft y hard skills",tipo:"mc",fid:"catedra",
+ q:"¿Qué aportan las soft skills al ámbito laboral?",
+ op:["Aportan la capacidad para interactuar efectivamente con colegas, jefes, dependientes y clientes y son complementarias a las habilidades duras o conocimientos técnicos","Aportan la capacidad para interactuar efectivamente con colegas, jefes, dependientes y clientes y se basan en las habilidades duras o conocimientos técnicos","Aportan la capacidad para interactuar efectivamente con colegas, jefes, dependientes y clientes y no son complementarias a las habilidades duras o conocimientos técnicos"],ok:0,
+ just:"El material usa la palabra complementarias. Las tres opciones son idénticas hasta la última cláusula.",
+ dist:"Los distractores cambian complementarias por se basan en y por no son complementarias. Toda la pregunta se juega en las últimas cinco palabras.",ref:"M04 L3"},
+
+{n:1019,orig:9,inst:"TP online M04",tema:"Pensamiento de espectro",tipo:"vf",fid:"catedra",
+ q:"Para Bob Johansen (2020) el pensamiento de espectro completo es una nueva forma de pensar que trata de categorizar las situaciones para responder a un futuro que cada día será más certero.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"El pensamiento de espectro busca conexiones en lugar de categorizaciones, y sostiene que la claridad se vuelve más relevante que la certeza.",
+ dist:"La afirmación toma las dos palabras centrales del modelo, categorizar y certeza, y las invierte. Es el ejemplo típico del verdadero o falso construido dando vuelta el concepto.",ref:"M04 L3"},
+
+{n:1020,orig:10,inst:"TP online M04",tema:"Caso Randstad",tipo:"ms",fid:"catedra",
+ q:"Según la investigación de Randstad, la mayoría de los trabajadores es consciente de la relevancia de las habilidades blandas porque les permiten, ¿qué?",
+ op:["Potenciar la empleabilidad en el mercado laboral","Acceder a posiciones de liderazgo","Acceder a oportunidades de desarrollo personal y profesional","Acceder a mayores conocimientos específicos de su disciplina","Acceder a mayores conocimientos técnicos"],ok:[0,1,2],
+ just:"Los tres aparecen en la segunda cita de Andrea Ávila sobre acceso a oportunidades de desarrollo, posiciones de liderazgo y empleabilidad.",
+ dist:"Los dos distractores hablan de conocimientos específicos y técnicos, que son hard skills. La pregunta separa un tipo de habilidad del otro.",ref:"Caso Randstad"},
+
+{n:1021,orig:11,inst:"TP online M04",tema:"Nómadas",tipo:"mc",fid:"catedra",
+ q:"El contexto laboral mediado por la tecnología dio surgimiento a los nómadas del conocimiento y a los nómadas digitales. ¿Qué característica en común poseen ambos?",
+ op:["Son solo personas que lideran inteligentemente sus emociones","Son personas que tienen una visión amplia del mundo","Son personas que tienen una visión amplia del ciberespacio","Son personas que tienen una visión específica del mundo tecnológico","Son solo personas centennials"],ok:1,
+ just:"La lección define al nómada de conocimiento por su visión amplia del mundo y de las situaciones.",
+ dist:"La opción «Son personas que tienen una visión amplia del ciberespacio» cambia mundo por ciberespacio, que suena adecuado por el contexto digital. La opción «Son personas que tienen una visión específica del mundo tecnológico» invierte amplia por específica. Las dos que empiezan con solo se descartan por el recorte.",ref:"M04 L1"},
+
+{n:1022,orig:12,inst:"TP online M04",tema:"Contexto VUCA",tipo:"vf",fid:"catedra",
+ q:"Bob Johansen emparejó los elementos del entorno VUCA así: visión para un mundo volátil, comprensión para un mundo incierto, agilidad para un mundo complejo y claridad para un mundo ambiguo.",
+ op:["Verdadero","Falso"],ok:1,
+ just:"Los dos últimos están cruzados. En el material va agilidad para lo ambiguo y claridad para lo complejo.",
+ dist:"Es el distractor más difícil del tema, porque los dos primeros pares están bien y la intuición asocia la claridad con lo ambiguo. Conviene memorizar los cuatro pares juntos.",ref:"M04 L1"},
+
+{n:1023,orig:13,inst:"TP online M04",tema:"Marr",tipo:"mc",fid:"catedra",
+ q:"La alfabetización digital es una de las habilidades requeridas para el mundo actual según Bernard Marr. ¿Qué comprende?",
+ op:["La capacidad para reconocer el alfabeto digital","La capacidad de comprender y utilizar la tecnología en una amplia gama de campos laborales y profesionales","La capacidad de usar la tecnología para comunicarse con amigos y familiares","La capacidad de programar computadoras y analizar datos","La capacidad de usar una computadora para tareas básicas como navegar por Internet y enviar correos electrónicos"],ok:1,
+ just:"Es una de las dos hard skills de Marr, definida por su alcance amplio en campos laborales y profesionales.",
+ dist:"La opción «La capacidad de usar una computadora para tareas básicas como navegar…» reduce el concepto a ofimática básica y la opción «La capacidad de programar computadoras y analizar datos» lo sube a perfil técnico especializado. La correcta está en el medio y habla de amplitud de campos.",ref:"M04 L3"},
+
+{n:1024,orig:14,inst:"TP online M04",tema:"Empleabilidad",tipo:"ms",fid:"catedra",
+ q:"¿Cuál es la misión del área de Empleabilidad, Dirección de Egresados y Relaciones con la Comunidad?",
+ op:["Su misión es potenciar la formación teórica de los estudiantes e incrementar las oportunidades laborales para alumnos y egresados","Su misión es potenciar la formación práctica de los estudiantes e incrementar las oportunidades laborales para alumnos y egresados","Su misión es mostrar los trabajos del futuro y las competencias tecnológicas para acceder a esos puestos","Su misión es insertar laboralmente a todos los alumnos y egresados, independientemente de su disciplina","Su misión es incrementar la tasa de empleabilidad de los alumnos y egresados de la universidad"],ok:[1],
+ just:"Formación práctica, no teórica. El resto de la frase es idéntico en las dos primeras opciones.",
+ dist:"El distractor cambia una sola palabra. La opción «Su misión es incrementar la tasa de empleabilidad de los alumnos y…» parece razonable pero el material no habla de tasa de empleabilidad, y la opción «Su misión es insertar laboralmente a todos los alumnos y egresados,…» promete algo que el área no promete.",ref:"M04 L4"},
+
+{n:1025,orig:15,inst:"TP online M04",tema:"Long life learning",tipo:"vf",fid:"catedra",
+ q:"El aprendizaje a lo largo de la vida, o long life learning, viene a responder la obsolescencia del saber frente a la necesidad constante de desarrollar la metahabilidad aprender a aprender.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Definición literal del material.",
+ dist:"Esta y la siguiente son el par que la cátedra usó para verificar que el estudiante distinga long life learning de learnability. Las dos vinieron como verdadero.",ref:"M04 L3"},
+
+{n:1026,orig:16,inst:"TP online M04",tema:"Learnability",tipo:"vf",fid:"catedra",
+ q:"El learnability implica la capacidad individual para el aprendizaje constante que un individuo necesita incorporar para estar siempre en la frontera de desempeño en el campo de la disciplina que elija.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"Definición literal, incluida la expresión frontera de desempeño.",
+ dist:"La expresión frontera del desempeño es propia del material y funciona como marca de autenticidad de la definición.",ref:"M04 L3"},
+
+{n:1027,orig:17,inst:"TP online M04",tema:"Contexto VUCA",tipo:"mc",fid:"catedra",
+ q:"Actualmente, a nivel mundial estamos insertos en un contexto VICA. ¿A qué hace referencia este contexto?",
+ op:["A un mundo visual, incierto, creativo y ambiguo","A un mundo volátil, incierto, complejo y ambiguo","A un mundo virtual, innovador, consciente y ambiguo","A un mundo visionario, innovador, competitivo y ambicioso","A un mundo volátil, inseguro, complejo y ambicioso"],ok:1,
+ just:"Volátil, incierto, complejo y ambiguo.",
+ dist:"Los cuatro distractores conservan las iniciales V, I, C y A y cambian las palabras. La opción «A un mundo volátil, inseguro, complejo y ambicioso» es la más peligrosa porque acierta dos de cuatro. Leer los cuatro términos completos.",ref:"M04 L1"},
+
+{n:1028,orig:18,inst:"TP online M04",tema:"Redes profesionales",tipo:"mc",fid:"catedra",
+ q:"¿Cuál de las siguientes redes corresponde a una red profesional?",
+ op:["Instagram","Linkedin","Facebook","TikTok"],ok:1,
+ just:"Las cuatro redes profesionales del material son LinkedIn, Universia, Womenalia y Xing.",
+ dist:"Las tres incorrectas son redes sociales generalistas. La distinción entre red social y red profesional es lo que evalúa la pregunta.",ref:"M04 L4"},
+
+{n:1029,orig:19,inst:"TP online M04",tema:"Autoliderazgo",tipo:"mc",fid:"catedra",
+ q:"¿Qué implica desarrollar la competencia del autoliderazgo según Daniel Goleman?",
+ op:["Implica la habilidad de dirigir nuestras propias acciones y conocimientos, a la par de motivarnos a nosotros mismos y a los demás","Implica la habilidad de dirigir nuestras propias emociones y comportamientos, a la par de motivarnos a nosotros mismos y a los demás","Implica la habilidad de dirigir nuestras propias emociones y conocimientos, a la par de motivarnos a nosotros mismos y a los demás"],ok:1,
+ just:"El par correcto es emociones y comportamientos.",
+ dist:"Las tres opciones son casi idénticas y solo cambian el par de sustantivos. Una pone acciones y conocimientos, otra emociones y conocimientos. Hay que tener la definición palabra por palabra.",ref:"M04 L2"},
+
+{n:1030,orig:20,inst:"TP online M04",tema:"Aprendizaje continuo",tipo:"mc",fid:"catedra",
+ q:"¿Qué aportan la curiosidad y el aprendizaje continuo al desarrollo de habilidades blandas?",
+ op:["La capacidad de no adaptarse a los cambios y aceptar nuevos desafíos","El deseo y la curiosidad constante de aprender cosas nuevas y ampliar los conocimientos","La habilidad de tomar decisiones rápidas sin necesidad de mucha información previa","La capacidad de trabajar en equipo y de comunicarse efectivamente con los demás","La capacidad a pensar de manera crítica sin cuestionar el status quo"],ok:1,
+ just:"Es la única opción que describe efectivamente curiosidad y aprendizaje.",
+ dist:"Las opciones «La capacidad de no adaptarse a los cambios y aceptar nuevos desafíos» y «La capacidad a pensar de manera crítica sin cuestionar el status quo» se autocontradicen, no adaptarse y no cuestionar. La opción «La capacidad de trabajar en equipo y de comunicarse efectivamente con los demás» describe otra soft skill distinta. Los distractores mal formados son frecuentes en esta materia y se descartan por lógica interna.",ref:"M04 L3"}
+
+];
+
+/* ---------- Banco 3: el caso Randstad ---------- */
+const PREG = [
+
+{n:2001,inst:"Caso Randstad",tema:"Datos del estudio",tipo:"mc",fid:"caso",
+ q:"El estudio de Randstad sobre habilidades blandas se realizó sobre una muestra de:",
+ op:["1.010 personas","1.510 personas","2.500 personas","510 personas"],ok:1,
+ just:"Encuesta online a 1.510 personas que se encuentran buscando empleo activamente, entre el 2 y el 20 de enero.",
+ dist:"Los números de muestra son el dato más olvidable del caso y por eso conviene tenerlo. El otro dato de contexto es la fecha de publicación, 8 de febrero de 2023.",ref:"Caso Randstad"},
+
+{n:2002,inst:"Caso Randstad",tema:"Datos del estudio",tipo:"mc",fid:"caso",
+ q:"Según el estudio, el porcentaje de argentinos que considera imprescindibles las habilidades blandas para el trabajo es:",
+ op:["77 %","88 %","91 %","95 %"],ok:1,
+ just:"88 % imprescindibles, 11 % medianamente importantes y 1 % irrelevantes.",
+ dist:"El 77 % es del otro dato del estudio, el de autopercepción sobre el propio desarrollo. Los dos porcentajes están en la misma nota y se cruzan con facilidad.",ref:"Caso Randstad"},
+
+{n:2003,inst:"Caso Randstad",tema:"Ranking",tipo:"mc",fid:"caso",
+ q:"La habilidad social más importante para los trabajadores argentinos, según el estudio, es:",
+ op:["El trabajo en equipo","La capacidad resolutiva","La flexibilidad para adaptarse a los cambios","La habilidad de comunicación"],ok:2,
+ just:"Flexibilidad para adaptarse a los cambios, con 23 %. Le siguen trabajo en equipo con 19 % y capacidad resolutiva con 18 %.",
+ dist:"Las tres incorrectas están en el top 5, lo que las vuelve plausibles. Solo saber el conjunto no alcanza, hay que saber el orden.",ref:"Caso Randstad"},
+
+{n:2004,inst:"Caso Randstad",tema:"Ranking",tipo:"mc",fid:"caso",
+ q:"En el ranking de Randstad, la habilidad que ocupa el último lugar con apenas 1 % es:",
+ op:["La negociación","La creatividad","La proactividad","El liderazgo"],ok:1,
+ just:"Creatividad 1 %, negociación 3 %, proactividad 5 % y liderazgo 6 %.",
+ dist:"Este dato es el que costó una pregunta en el TP real. La creatividad tiene enorme prestigio en el discurso sobre habilidades del futuro, y en esta encuesta va última.",ref:"Caso Randstad"},
+
+{n:2005,inst:"Caso Randstad",tema:"Definición",tipo:"mc",fid:"caso",
+ q:"Según la nota, las habilidades blandas se definen como:",
+ op:["Conocimientos técnicos aplicados al trato con clientes","Rasgos de personalidad, habilidades socioemocionales, de comunicación, lenguaje y hábitos que moldean los vínculos con otras personas","Competencias que se adquieren únicamente en el ámbito laboral","La capacidad de liderar equipos de trabajo"],ok:1,
+ just:"La definición de la nota agrega el componente de rasgos de personalidad y hábitos, que la definición del módulo no incluye.",
+ dist:"La definición del caso y la del módulo se parecen pero no son idénticas. La del módulo habla de competencias genéricas intrapersonales e interpersonales. Si el enunciado cita a Randstad, va esta.",ref:"Caso Randstad"},
+
+{n:2006,inst:"Caso Randstad",tema:"Autopercepción",tipo:"mc",fid:"caso",
+ q:"Sobre el grado de desarrollo de sus propias soft skills, el porcentaje de consultados que afirma tenerlas muy desarrolladas es:",
+ op:["55 %","66 %","77 %","88 %"],ok:2,
+ just:"77 % muy desarrolladas, 22 % algo desarrolladas y 1 % poco o nada.",
+ dist:"El 88 % corresponde al primer dato del estudio, el de considerarlas imprescindibles. Los dos porcentajes altos de la nota se confunden entre sí.",ref:"Caso Randstad"},
+
+{n:2007,inst:"Caso Randstad",tema:"Autoridad citada",tipo:"mc",fid:"caso",
+ q:"La CEO de Randstad para Argentina y Uruguay que aparece citada dos veces en la nota es:",
+ op:["Andrea Aguirre","Andrea Ávila","Andrea Acosta","Andrea Álvarez"],ok:1,
+ just:"Andrea Ávila firma las dos citas del caso, la del carácter desarrollable de las habilidades blandas y la de lo que estas permiten conseguir.",
+ dist:"Los nombres propios del caso son dato duro igual que los autores del módulo. Si el parcial trae el caso adjunto, la atribución es preguntable.",ref:"Caso Randstad"},
+
+{n:2008,inst:"Caso Randstad",tema:"WEF",tipo:"mc",fid:"caso",
+ q:"La nota menciona un reporte que incluyó las diez habilidades principales para el futuro de cara al 2025. Ese reporte es:",
+ op:["Future skills, de Bernard Marr","The Future of Jobs, del World Economic Forum","Full-spectrum Thinking, de Bob Johansen","El Reporte de Sustentabilidad de Siglo 21"],ok:1,
+ just:"The Future of Jobs, del World Economic Forum, con las diez habilidades laborales de cara al 2025.",
+ dist:"La opción «Future skills, de Bernard Marr» es la trampa fina: Marr también propone diez habilidades y también aparece en el módulo. Son dos listados distintos, de fuentes distintas. Marr está en la lección, el WEF está en el caso.",ref:"Caso Randstad"}
+
+];
+
+/* ---------- Definiciones en castellano ---------- */
+const D_COMPETENCIA=`<b>Una competencia</b> no es lo que sabés, es lo que podés hacer con lo que sabés.
+Alguien puede tener leído el manual entero de SQL y no ser competente escribiendo consultas. La cátedra lo dice
+en una frase corta: es un <b>conocimiento en ejecución</b>. Por eso el modelo no te evalúa por asistir, te evalúa
+por demostrar. Y como se evalúa la ejecución, la prueba de que la tenés es una <b>evidencia</b>, o sea un
+comportamiento comprobable, algo que hiciste y se puede verificar.`;
+
+const D_AUTOGESTION=`<b>La autogestión</b> es arreglártelas solo con lo tuyo. En esta materia significa manejar
+tu propia trayectoria universitaria sin depender de que alguien te avise: saber cuándo cierra la inscripción,
+qué correlativas te faltan, cómo se paga. Depende del <b>autoconocimiento</b>, porque para gestionarte tenés que
+saber en qué sos bueno y en qué no. Ojo con este término si trabajás en datos: allá autogestión significa que
+el usuario se hace sus propios reportes. Acá es otra cosa.`;
+
+const D_VIDA21=`<b>Vida 21</b> es todo lo que la universidad ofrece fuera de la cursada: talleres, deportes,
+actividades culturales. La idea es que el aprendizaje no termina en la materia. Tiene cuatro ejes y conviene
+saberlos porque la cátedra pregunta a qué eje pertenece cada actividad: salud, deporte, cultura y arte, y desarrollo.
+Un taller de finanzas personales es desarrollo, uno de yoga es salud.`;
+
+const D_METAHABILIDAD=`<b>Una metahabilidad</b> es una habilidad que sirve para adquirir otras habilidades.
+El prefijo meta significa eso, que está un nivel arriba. Aprender Python es una habilidad. Saber cómo aprendés
+mejor, cuánto tiempo te lleva y qué método te funciona, eso es una metahabilidad, y te sirve para el próximo
+lenguaje también. Por eso la cátedra las pone en el centro: no importa tanto qué sabés hoy, importa cuán rápido
+podés aprender lo que va a hacer falta mañana.`;
+
+const D_MINDSET=`<b>La teoría del mindset</b>, de Carol Dweck, dice que las personas se dividen según de dónde
+creen que viene su éxito. Si creés que sos bueno en algo porque naciste con eso, tenés <b>mentalidad fija</b>:
+frente a un fracaso pensás que llegaste a tu techo. Si creés que sos bueno porque trabajaste, tenés
+<b>mentalidad de crecimiento</b>: frente al mismo fracaso pensás que te falta práctica. La segunda también se
+llama teoría de incremento de la inteligencia. No es optimismo ni actitud positiva, es una creencia sobre si
+la inteligencia es un dato fijo o algo que se construye.`;
+
+const D_CENTROS=`<b>Los centros de excelencia</b> son tres áreas de la universidad que existen aparte de las
+carreras: Emprendimiento e Innovación, Internacionalización y Sustentabilidad. Sirven para las competencias que
+no son de tu carrera pero la universidad quiere que tengas igual, las que llama transversales institucionales.
+Cada uno tiene programas, materias y un certificado propio. La lógica es que las metahabilidades no se aprenden
+leyendo sobre ellas, se aprenden participando en algo.`;
+
+const D_EXTENSION=`<b>Los proyectos de extensión</b> son la forma en que la universidad sale a la comunidad.
+Hay cuatro y se distinguen por tamaño y duración. El <b>PAT</b> es el más chico, articula una cátedra con una
+organización y dura un bimestre o un cuatrimestre. El <b>PIC</b> es el grande: un año, varias carreras, un
+problema complejo. El <b>SEC</b> es un servicio permanente y federal. <b>Voluntarios21</b> es la puerta abierta
+para quien quiera sumarse, con cuatro áreas.`;
+
+const D_PLATAFORMAS=`<b>Las cinco plataformas</b> de la universidad se reparten el trabajo. El <b>Portal de
+Estudiantes</b> es lo administrativo: inscripciones, exámenes, pagos, certificados. <b>Canvas</b> es el aula:
+contenidos, TP, foros. <b>Ebook 21</b> es la biblioteca. <b>La Nube 21</b> es donde está la información sobre
+cómo hacer las cosas. Y la página institucional es la puerta de entrada a todo. Lo que hay que tener grabado
+son los dos accesos, porque los nombres no ayudan: <b>Ecampus lleva al Portal</b> y <b>SAM lleva a Canvas</b>.`;
+
+const D_VUCA=`<b>VUCA</b>, o VICA en español, es una forma de describir por qué el mundo se volvió difícil de
+planificar. Son cuatro problemas distintos. <b>Volátil</b> es que las cosas cambian rápido. <b>Incierto</b> es
+que no sabés qué va a pasar. <b>Complejo</b> es que hay tantas partes conectadas que no entendés el sistema.
+<b>Ambiguo</b> es que lo mismo se puede leer de varias maneras. Johansen le puso una respuesta a cada uno:
+visión, comprensión, claridad y agilidad. El truco de memoria es que agilidad va con ambiguo y claridad con
+complejo, que es al revés de como el PDF las lista.`;
+
+const D_NOMADAS=`<b>Un nómada digital</b> es alguien que trabaja por internet desde donde quiera. Hay tres
+tipos según qué venden: el <b>freelance</b> vende servicios, el <b>emprendedor</b> vende productos digitales que
+después siguen generando plata sin que él haga nada más, y el <b>por cuenta ajena</b> es empleado de una empresa
+pero trabaja remoto. <b>El nómada de conocimiento</b> es otra cosa: no se define por dónde trabaja sino por cómo
+aprende, de muchas fuentes distintas en vez de un solo maestro.`;
+
+const D_702010=`<b>El modelo 70-20-10</b> dice de dónde viene realmente lo que una persona aprende en el trabajo.
+El <b>70 %</b> del trabajo mismo, haciendo. El <b>20 %</b> de los demás, mirando, preguntando, con coaching.
+Y solo el <b>10 %</b> de los cursos formales. Es contraintuitivo y ahí está la gracia: las empresas invierten
+casi todo el presupuesto de formación en ese 10 %. Cuando la pregunta te dé una actividad, preguntate quién
+produce el aprendizaje, si el trabajo, otra persona o un curso.`;
+
+const D_AUTOLIDERAZGO=`<b>El autoliderazgo</b> es conducirse a uno mismo antes de conducir a otros. Goleman lo
+arma con cinco piezas. <b>Autoconciencia</b> es darte cuenta de lo que estás sintiendo. <b>Autocontrol</b> es
+hacer algo razonable con eso en vez de reaccionar. <b>Automotivación</b> es empujarte solo cuando nadie te
+empuja. <b>Empatía</b> es entender lo que le pasa al otro. Y <b>habilidades sociales</b> es sostener buenas
+relaciones. Las dos últimas miran hacia afuera y por eso sorprende que estén en algo que se llama auto, pero
+están: la lista de Goleman es esa.`;
+
+const D_LIDERAZGO=`<b>El liderazgo</b>, en esta materia, no es un cargo. Todas las definiciones coinciden en lo
+mismo: influir en otros para llegar a un objetivo común. Después hay variantes. El <b>líder coach</b> de
+Echeverría no dice qué hacer, ayuda al otro a encontrarlo. El <b>liderazgo resonante</b> de Goleman es el que
+conecta con las emociones del equipo y genera buen clima, y esa capacidad se llama <b>resonancia</b>. No lo
+mezcles con el líder coach: son dos autores y dos conceptos distintos.`;
+
+const D_OBSERVADOR=`<b>El modelo de observador</b> es la idea de que no vemos la realidad tal cual es, la vemos
+a través de unos lentes que nos armamos con la experiencia. Y como actuamos según lo que vemos, esos lentes
+terminan definiendo los resultados que obtenemos. La cadena es observador, acción, resultado. Lo interesante es
+la consecuencia práctica: si los resultados no te gustan, podés cambiar lo que hacés, o podés cambiar los
+lentes, que es más profundo.`;
+
+const D_SKILLS=`<b>Las soft skills</b> son las que no dependen de tu profesión: comunicarte, trabajar con otros,
+adaptarte. Las <b>hard skills</b> sí dependen: saber SQL, saber contabilidad. La palabra que la cátedra usa para
+la relación entre las dos es <b>complementarias</b>, y ahí se juegan varias preguntas: las blandas no reemplazan
+a las duras ni se apoyan en ellas, van al lado. Marr propone diez habilidades para el futuro y solo dos son
+duras, alfabetización digital y de datos.`;
+
+const D_LEARNABILITY=`Son dos términos parecidos que la cátedra distingue. <b>Long life learning</b> es el
+principio: vas a estar aprendiendo toda la vida porque lo que sabés se vuelve viejo. <b>Learnability</b> es tu
+capacidad personal de hacerlo, lo que te permite estar en lo que el material llama la <b>frontera del
+desempeño</b> de tu disciplina. Uno es el paisaje y el otro es tu motor. En el TP los tomaron por separado, así
+que la cátedra los tiene bien diferenciados.`;
+
+const D_STEAM=`<b>STEAM</b> son cinco áreas que la universidad quiere que se toquen entre sí: ciencia,
+tecnología, ingeniería, artes y matemáticas. Dos de las letras no significan lo que uno esperaría. La <b>A de
+artes</b> no es dibujar: es todo lo social, lo emocional y la creatividad para resolver problemas. Y la <b>M de
+matemáticas</b> no es cálculo puro: en el material es finanzas, economía, contabilidad, inversión. Esas dos son
+las que se preguntan justamente porque son contraintuitivas.`;
+
+const D_ESPECTRO=`<b>El pensamiento de espectro completo</b>, de Johansen, propone dejar de meter todo en
+cajas. El <b>pensamiento categórico</b> clasifica y con eso te da certezas, pero también te vuelve rígido y te
+hace perder lo que no entra en ninguna caja. El de espectro busca conexiones en vez de categorías, y acepta que
+no vas a tener certeza. La frase que resume todo: <b>la claridad importa más que la certeza</b>. Ver bien el
+panorama vale más que estar seguro de algo.`;
+
+const D_COMPINST=`<b>Las competencias institucionales</b> son las cinco que la universidad promete que vas a
+tener sin importar qué carrera hagas. Se anuncian en el módulo 3 como parte de la insignia Siglo y recién se
+listan en el módulo 4: gestión del conocimiento, actuación colaborativa en ecosistemas de bienestar, actuación
+en la globalidad, acción emprendedora, e innovación y transformación digital. Las dos primeras se apoyan en el
+learnability y la cuarta lleva como lema aprender a emprender.`;
+
+const D_COLABORATIVO=`<b>El trabajo colaborativo</b> no es simplemente varias personas trabajando juntas. La
+condición que pone la cátedra es que el objetivo <b>sería difícil de alcanzar de forma individual</b>. Si tres
+personas hacen cada una su parte y después se suman, eso es trabajo en paralelo. Si el resultado sale de que
+interactúen, eso es colaborativo. Las herramientas digitales lo facilitan pero no lo definen.`;
+
+const D_FODA=`<b>El FODA</b> es una tabla de cuatro casilleros cruzada por dos criterios. Uno es de dónde viene
+el factor, de vos o del contexto. El otro es si te suma o te resta. Fortalezas y debilidades son tuyas,
+oportunidades y amenazas son del entorno. El error clásico es clasificar por si algo es bueno o malo en vez de
+por su origen. Y hay un paso previo que casi todos saltan: <b>primero definís el objetivo</b>, porque una
+fortaleza para una cosa puede ser irrelevante para otra.`;
+
+const D_INSERCION=`<b>Las cuatro propuestas</b> de la universidad para acercarte al trabajo son fáciles de
+mezclar. La <b>Práctica Profesional</b> es una materia, obligatoria, 250 horas, no te pagan. Las <b>Pasantías</b>
+son trabajo real y sí te pagan, pero son opcionales. <b>Capacitación</b> son talleres y charlas. Y
+<b>Networking</b> es la red de contactos, que se materializa en ComunidadNET. Lo que separa la práctica de la
+pasantía es esa palabra: remunerada.`;
+
+const D_REDES=`<b>Las cuatro redes profesionales</b> del material tienen cada una un rasgo que la identifica.
+<b>LinkedIn</b> es la general. <b>Universia</b> es universitaria y pertenece al Grupo Santander. <b>Womenalia</b>
+conecta por sector u ocupación. <b>Xing</b> permite filtrar búsquedas y tiene la <b>brújula cultural</b>, que te
+deja ver cómo sería trabajar en esa empresa. La frase que la cátedra deja como advertencia: quien no está en
+estas redes corre el riesgo de ser invisible en el mundo virtual.`;
+
+const D_CASO=`<b>El caso Randstad</b> es una encuesta a 1.510 argentinos que buscaban empleo, publicada en
+febrero de 2023. El titular es que el <b>88 %</b> considera imprescindibles las habilidades blandas. Lo que más
+se pregunta es el <b>ranking</b>: flexibilidad primera con 23 %, después trabajo en equipo, capacidad resolutiva,
+gestión del tiempo y comunicación. Y al final, con 1 %, la creatividad. Ese último dato es el que sorprende y
+el que ya costó puntos.`;
+
+const DEF={
+ 1:D_COMPETENCIA,2:D_COMPETENCIA,3:D_COMPETENCIA,4:D_VIDA21,5:D_AUTOGESTION,6:D_AUTOGESTION,7:D_AUTOGESTION,
+ 8:D_METAHABILIDAD,9:D_METAHABILIDAD,10:D_MINDSET,11:D_MINDSET,12:D_MINDSET,13:D_METAHABILIDAD,
+ 14:D_CENTROS,15:D_EXTENSION,16:D_CENTROS,17:D_CENTROS,18:D_EXTENSION,19:D_CENTROS,
+ 20:D_PLATAFORMAS,21:D_PLATAFORMAS,22:D_PLATAFORMAS,23:D_PLATAFORMAS,24:D_PLATAFORMAS,25:D_PLATAFORMAS,
+ 26:D_VUCA,27:D_VUCA,28:D_VUCA,29:D_NOMADAS,30:D_NOMADAS,31:D_702010,32:D_VUCA,33:D_NOMADAS,
+ 34:D_AUTOLIDERAZGO,35:D_LIDERAZGO,36:D_LIDERAZGO,37:D_AUTOLIDERAZGO,38:D_AUTOLIDERAZGO,39:D_OBSERVADOR,
+ 40:D_SKILLS,41:D_SKILLS,42:D_SKILLS,43:D_LEARNABILITY,44:D_STEAM,45:D_STEAM,46:D_ESPECTRO,47:D_COMPINST,48:D_COLABORATIVO,
+ 49:D_FODA,50:D_FODA,51:D_FODA,52:D_INSERCION,53:D_INSERCION,54:D_REDES,55:D_INSERCION,56:D_REDES,
+ 1001:D_PLATAFORMAS,1002:D_CENTROS,1003:D_MINDSET,1004:D_COMPETENCIA,1005:D_PLATAFORMAS,
+ 1011:D_STEAM,1012:D_CASO,1013:D_CASO,1014:D_CASO,1015:D_LIDERAZGO,1016:D_FODA,1017:D_CASO,
+ 1018:D_SKILLS,1019:D_ESPECTRO,1020:D_CASO,1021:D_NOMADAS,1022:D_VUCA,1023:D_SKILLS,1024:D_INSERCION,
+ 1025:D_LEARNABILITY,1026:D_LEARNABILITY,1027:D_VUCA,1028:D_REDES,1029:D_AUTOLIDERAZGO,1030:D_SKILLS,
+ 2001:D_CASO,2002:D_CASO,2003:D_CASO,2004:D_CASO,2005:D_CASO,2006:D_CASO,2007:D_CASO,2008:D_CASO};
+
+/* ---------- Teoría completa ---------- */
+const T_COMPETENCIA=`<p><b>Modelo Academia 21.</b> Se creó en respuesta al contexto VICA y se basa en el desarrollo
+y la evaluación de competencias para la vida y el trabajo, centrándose en los estudiantes.</p>
+<blockquote>Una competencia es un conocimiento en ejecución, y funciona como una habilidad para hacer frente a
+determinadas situaciones.</blockquote>
+<p><b>Enfoque en el dominio.</b> El modelo se centra en la demostración del aprendizaje adquirido de acuerdo con
+el ritmo de cada estudiante y sus habilidades. Lo que importa es que cada alumno pueda demostrar dominio de las
+competencias identificadas y de los resultados de aprendizaje.</p>
+<p><b>Cómo se acredita.</b> A través de evidencias o comportamientos comprobables.</p>
+<div class="tabla"><table><thead><tr><th>Competencia</th><th>Qué se evalúa</th><th>Evidencia</th></tr></thead>
+<tbody><tr><td>Gestión del conocimiento</td><td>Transferencia del conocimiento</td>
+<td>Delimita las habilidades del campo profesional en relación con su trayecto formativo y realiza la planificación del mismo</td></tr></tbody></table></div>
+<p>Las competencias de carácter institucional forman parte de la <b>insignia Siglo</b> y se listan recién en el
+módulo 04, lección 3. Son cinco.</p>`;
+
+const T_VIDA21=`<p><b>Vida 21</b> potencia el aprendizaje en tres planos, ser, saber y hacer, dentro y fuera del
+aula, fomentando la autonomía y el desarrollo del estudiante.</p>
+<div class="tabla"><table><thead><tr><th>Eje</th><th>Qué ofrece</th></tr></thead><tbody>
+<tr><td>Salud</td><td>Nutrición consciente, yoga, mindfulness, primeros auxilios, estiramiento consciente, gimnasia funcional. Gratuitos y en la web</td></tr>
+<tr><td>Deporte</td><td>Hockey, fútbol, vóley, básquet, trekking, running, funcional, rugby. Ajedrez en sede Nueva Córdoba, actividades en sede Campus</td></tr>
+<tr><td>Cultura y arte</td><td>Fotografía, escritura creativa, DJ. Talleres virtuales</td></tr>
+<tr><td>Desarrollo</td><td>Club de lectura, Excel, finanzas personales, oratoria, negociación, creación de contenidos para redes</td></tr>
+</tbody></table></div>
+<p>Los talleres varían según las necesidades de la comunidad educativa. Algunos están todo el año y otros tienen
+apertura particular. Contacto institucional: vida21@ues21.edu.ar.</p>`;
+
+const T_AUTOGESTION=`<p><b>Definición.</b> Capacidad de las personas para gestionar y abordar sus propias
+necesidades o situaciones de manera autónoma, sin la necesidad de solicitar ayuda externa. Está muy relacionada
+con el <b>autoconocimiento</b>, que permite entender fortalezas y oportunidades de mejora.</p>
+<p><b>Los tres contenidos de gestionarse</b>, enumeración cerrada:</p>
+<ul><li>La toma de decisiones</li><li>La organización y el control de recursos y procesos</li>
+<li>La responsabilidad por las acciones tomadas y los resultados alcanzados</li></ul>
+<p><b>Aprender y desaprender.</b> Algunas gestiones requieren ser aprendidas y otras desaprendidas, porque
+alcanzaron su <b>obsolescencia</b>.</p>
+<p><b>Actitud exploradora</b> es el término que la lección asocia a la autogestión en el uso de herramientas
+digitales académicas.</p>
+<p><b>Las seis oportunidades:</b> mejora el desempeño académico, genera motivación interna, genera sentido de
+logro, refuerza la creencia de autoeficacia, fomenta la responsabilidad, y <b>promueve el autoliderazgo</b>. La
+última es el puente al módulo 04.</p>
+<p><b>Choque con el vocabulario de datos.</b> En BI la autogestión es que el usuario final consulte sin pedirle
+nada al equipo de datos. Acá es una competencia personal de gestión de la propia trayectoria.</p>`;
+
+const T_METAHABILIDAD=`<blockquote>Las metahabilidades son definidas como aquellas habilidades, capacidades y
+conocimientos que necesitamos desarrollar para responder al entorno académico, profesional y laboral.</blockquote>
+<p><b>Aprender a aprender</b>, Echeverría (2005). La metahabilidad más importante para el ser humano en el siglo
+XXI. Consiste en la capacidad de abordar y organizar el propio aprendizaje, a partir del desarrollo de una
+mentalidad de crecimiento. Sus cinco oportunidades van numeradas en el material: aprender de manera efectiva,
+ser aprendices autónomos, adaptarse a nuevos desafíos, incorporar nuevos paradigmas, crecer personal y
+profesionalmente.</p>
+<p><b>Aprender a emprender</b>, mismo autor y año.</p>
+<blockquote>El emprendimiento no se trata solo de crear negocios, sino también de transformar la realidad a
+través de la innovación y la creatividad.</blockquote>
+<p>Sus cinco oportunidades: tomar las riendas del propio futuro, generar valor e impacto positivo, asumir riesgos
+y responsabilidades, fortalecer la autoestima y la confianza, contribuir al desarrollo económico y social.</p>
+<p><b>La dependencia entre las tres.</b> La mentalidad de crecimiento sostiene el aprender a aprender, y aprender
+a emprender es la aplicación de ambas sobre la realidad.</p>`;
+
+const T_MINDSET=`<p><b>Carol Dweck (2006), teoría del mindset.</b></p>
+<div class="tabla"><table><thead><tr><th>Mentalidad</th><th>De dónde viene el éxito</th><th>Cómo entiende la inteligencia</th></tr></thead><tbody>
+<tr><td>Fija</td><td>De la capacidad única e innata</td><td>Es un dato fijo</td></tr>
+<tr><td>De crecimiento</td><td>Del trabajo constante, el aprendizaje y la formación</td><td>Teoría de incremento de la inteligencia, sin límites, desarrollable toda la vida</td></tr>
+</tbody></table></div>
+<p><b>Las seis oportunidades del mindset de crecimiento</b>, todas formuladas como mayor: proactividad y
+rendimiento, creatividad e innovación, flexibilidad a los cambios, sentido de logro, creencia de autoeficacia y
+por lo tanto resiliencia ante el fracaso, y capacidad de trabajo en equipo y por lo tanto relaciones positivas y
+asertivas.</p>
+<p><b>El patrón de los distractores.</b> En el TP del módulo 03 la cátedra separó las sentencias así: las de
+crecimiento empiezan con Voy a, las fijas con No, y las que empiezan con Puedo y ponen una condición son
+distractores puros que no pertenecen a ninguna caja.</p>
+<p><b>El Gabinete de Bienestar</b> es la respuesta institucional para desarrollar la mentalidad de crecimiento.
+Lo integran psicólogos y psicólogas egresados de Siglo 21, y ofrece entrevistas con seguimiento personalizado,
+talleres de gestión de emociones, encuentros sobre el cursado y herramientas para desarrollar el aprendizaje.</p>
+<p><b>Errata del material.</b> La Figura 2 de esta lección no se recupera del PDF. Probablemente traiga el cuadro
+comparativo completo de conductas típicas de cada mentalidad. Verificar en Canvas.</p>`;
+
+const T_CENTROS=`<p>Los tres centros son los <b>pilares diferenciadores</b> del modelo Academia 21 y fortalecen
+las <b>competencias transversales institucionales</b>, no las específicas del plan de estudios.</p>
+<div class="tabla"><table><thead><tr><th>Centro</th><th>Propósito, con la fórmula del material</th></tr></thead><tbody>
+<tr><td>Emprendimiento e Innovación</td><td>Formar líderes emprendedores, potenciando innovación, creatividad y autogestión. Generar profesionales capaces de crear y desarrollar proyectos que abran nuevas posibilidades y generen cambios sociales y económicos</td></tr>
+<tr><td>Internacionalización</td><td>Estrechar lazos de colaboración con diversas universidades e instituciones en todos los continentes</td></tr>
+<tr><td>Sustentabilidad</td><td>Contribuir a la formación de estudiantes con una mirada en la transformación social del país y en el mejoramiento de la calidad de vida de los sectores vulnerados</td></tr>
+</tbody></table></div>
+<p><b>Programas de Internacionalización:</b> Doble Titulación, Learning expeditions de <b>una semana</b>,
+Movilidad internacional u outgoings, y Misiones académicas con <b>cinco tipos</b>: Académica con Certificación
+Internacional, de Impacto Social y Humanitario, de Vinculación y Business Internacional, de Emprendimiento e
+Innovación, y de Turismo Idiomático.</p>
+<p><b>Los tres certificados</b> comparten casi toda la definición y solo cambian en el cierre:</p>
+<div class="tabla"><table><thead><tr><th>Certificado</th><th>Cierra con</th><th>Condiciones</th></tr></thead><tbody>
+<tr><td>Competencias Emprendedoras</td><td>Insertarte con tu propio emprendimiento</td><td>Complemento del título de grado</td></tr>
+<tr><td>Competencias de Sustentabilidad</td><td>Visión sustentable</td><td>Marco conceptual y herramientas de gestión de recursos</td></tr>
+<tr><td>Competencias de Internacionalización</td><td>Visión global</td><td>Desde 2.º año, voluntario, sin costo. Agenda 2030</td></tr>
+</tbody></table></div>
+<p><b>Erratas del material.</b> La bibliografía de esta lección corresponde a otra materia: sus cinco referencias
+son de derecho civil. Y la Figura 2, con los seis programas del Centro de Emprendimiento, no se recupera del PDF,
+aunque el texto afirme que son seis.</p>`;
+
+const T_EXTENSION=`<div class="tabla"><table><thead><tr><th>Proyecto</th><th>Alcance</th><th>Duración</th></tr></thead><tbody>
+<tr><td><b>PAT</b>, proyectos académicos transversales</td><td>Articulan cátedras con organizaciones de la sociedad civil sobre demandas sociales reales</td><td>Bimestral o cuatrimestral</td></tr>
+<tr><td><b>PIC</b>, proyectos de intervención comunitaria</td><td>Problemáticas más complejas que los PAT, enfoque interdisciplinario con varias carreras</td><td>Anual</td></tr>
+<tr><td><b>SEC</b>, servicio de extensión comunitaria</td><td>Servicios con organizaciones de la comunidad, carácter federal, seis líneas temáticas</td><td>Permanente</td></tr>
+<tr><td><b>Voluntarios21</b></td><td>Espacio abierto a la comunidad, nexo para alumnos, egresados, docentes y codocentes. Cuatro áreas: Servicio, Educación, Medioambiente, Derechos Humanos</td><td>El material no informa</td></tr>
+</tbody></table></div>
+<p><b>Otros programas del Centro de Sustentabilidad:</b> Accesibilidad en Siglo 21, RED IDUC para la inclusión de
+personas con discapacidad, y el Reporte de Sustentabilidad, que refleja la adhesión al <b>Pacto Global de
+Naciones Unidas</b> y el compromiso con los <b>ODS</b>.</p>`;
+
+const T_PLATAFORMAS=`<div class="tabla"><table><thead><tr><th>Plataforma</th><th>Acceso</th><th>Para qué</th></tr></thead><tbody>
+<tr><td>Página institucional, 21.edu.ar</td><td>Sección Soy estudiante</td><td>Punto de entrada</td></tr>
+<tr><td>Portal de Estudiantes</td><td><b>Ecampus</b></td><td>Gestiones académicas y administrativas</td></tr>
+<tr><td>Canvas, aula virtual</td><td><b>SAM</b></td><td>Contenidos, trabajos prácticos, foros</td></tr>
+<tr><td>Ebook 21</td><td>Acceso directo</td><td>Biblioteca virtual de la biblioteca <b>Eduardo Mundet</b></td></tr>
+<tr><td>La Nube 21</td><td>Plataforma abierta</td><td>Información de cursado, tutoriales, talleres</td></tr>
+</tbody></table></div>
+<p><b>Las siete opciones del Portal:</b> Cursado, Examen, Materias, <b>Pagos</b>, Simulador de Precios,
+Certificados y Más opciones. Dos detalles que la cátedra remarca: Pagos es lo que cierra la inscripción a
+materias, y desde Examen se hace tanto la inscripción como la desinscripción de parciales, recuperatorios y
+finales.</p>
+<p><b>Canvas, menú general:</b> Cuenta, <b>Tablero</b> con solo las materias actuales, <b>Cursos</b> con actuales
+y pasadas, Calendario y Bandeja de entrada. Dentro de una materia: página de inicio, foros de discusión, anuncios
+y calificaciones. Al hacer clic en Comenzar se habilitan los <b>cuatro módulos</b>, cada uno con lecturas,
+audiolecturas y un trabajo práctico.</p>
+<p><b>La Nube 21</b> tiene la pestaña <b>Soy ingresante</b> con tutoriales sobre exámenes parciales, trabajos
+prácticos, calendarios académicos, inscripción a materias y condiciones de cursado.</p>
+<p><b>Reglamento institucional.</b> Tres objetivos: garantizar el correcto funcionamiento, promover la convivencia
+armoniosa y asegurar el cumplimiento de los valores institucionales. Cinco temas, en este orden: orígenes de la
+universidad, condiciones de admisión y permanencia, el modelo académico, aspectos del cursado, y normas de
+comportamiento y sanciones.</p>`;
+
+const T_VUCA=`<div class="tabla"><table><thead><tr><th>Componente</th><th>Definición de la cátedra</th><th>Capacidad que responde</th></tr></thead><tbody>
+<tr><td>Volátil</td><td>Lo rápido que pueden ocurrir cambios significativos en un contexto determinado</td><td><b>Visión</b></td></tr>
+<tr><td>Incierto</td><td>La limitada capacidad de predecir lo que puede pasar y la dirección que puede tomar</td><td><b>Comprensión</b></td></tr>
+<tr><td>Complejo</td><td>La dificultad para comprender el contexto como un sistema difícil de describir</td><td><b>Claridad</b></td></tr>
+<tr><td>Ambiguo</td><td>La falta de claridad para entender el contexto, que puede interpretarse de diversas maneras</td><td><b>Agilidad</b></td></tr>
+</tbody></table></div>
+<p><b>Johansen (2012)</b>, del <b>Institute for the Future</b>, en <i>Leaders Make the Future</i>. El PDF lista
+las capacidades en orden visión, comprensión, agilidad, claridad, que no sigue el orden de la sigla. El par que
+se invierte es agilidad y claridad.</p>
+<p><b>VUCA más H.</b> Se añade la letra H por la <b>hiperconectividad</b>: el ser humano vive conectado de manera
+constante a la información a través de dispositivos y plataformas digitales.</p>
+<p><b>Cuidado con los dos Johansen.</b> Las cuatro capacidades son de 2012. El pensamiento de espectro completo
+es de 2020, en <i>Full-spectrum Thinking</i>. La palabra claridad aparece en los dos y por eso el cruce es
+probable.</p>`;
+
+const T_NOMADAS=`<p><b>Nómadas digitales.</b> Según el Programa Nómadas Digitales del Gobierno de Argentina, en el
+mundo se registran <b>más de 35 millones</b>, en su mayoría con formación universitaria y en un rango etario de
+<b>20 a 40 años</b>. La formulación que resume la actitud: se trabaja para vivir, no se vive para trabajar.</p>
+<p><b>Las tres características de Galindo (2023):</b> estilo de vida, libertad de movimiento y diferentes modelos
+de negocio.</p>
+<div class="tabla"><table><thead><tr><th>Tipo</th><th>Qué hace</th></tr></thead><tbody>
+<tr><td>Freelance</td><td>Vende <b>servicios</b> de manera online y autónoma</td></tr>
+<tr><td>Emprendedor</td><td>Comercializa <b>productos digitales</b> de bajo costo con <b>ingresos pasivos</b>: ebooks, guías turísticas, aplicaciones, audiolibros</td></tr>
+<tr><td>Por cuenta ajena</td><td>Trabaja de manera remota para una empresa</td></tr>
+</tbody></table></div>
+<p><b>Nómadas de conocimiento.</b> Personas con una <b>visión amplia del mundo</b> y de las situaciones, capaces
+de abordar perspectivas y encuadres diferentes, con mayor conocimiento de sí mismas incluida la inteligencia
+emocional. En la actualidad todos lo somos en mayor o menor medida. El esquema tradicional del maestro como única
+fuente inagotable de saber <b>convive</b> con nuevos formatos sustentados en herramientas tecnológicas y en la
+inteligencia artificial generativa.</p>
+<p><b>Modalidades de trabajo:</b> full time, part time y freelance. El material solo desarrolla freelance, las
+definiciones de las otras dos están en una figura que no se recupera.</p>`;
+
+const T_702010=`<div class="tabla"><table><thead><tr><th>%</th><th>Área</th><th>Qué contempla</th></tr></thead><tbody>
+<tr><td><b>70</b></td><td><b>El trabajo en sí</b></td><td>Proyectos, actividades, subproyectos y mentorías internas entre compañeros. Incluye el desarrollo del liderazgo y el autoliderazgo. Permite aplicar lo aprendido en la práctica laboral</td></tr>
+<tr><td><b>20</b></td><td><b>Exposición</b></td><td>Integración de los equipos para que trabajen colaborativamente y aprendan unos de otros. El coaching profesional expande los límites de lo conocido y elimina barreras</td></tr>
+<tr><td><b>10</b></td><td><b>Educación</b></td><td>Contemplar y actualizar las capacitaciones. Definir tiempo disponible, metodología, y cómo se vincula con el 20 y el 70</td></tr>
+</tbody></table></div>
+<p>El modelo busca crear un círculo virtuoso de conocimiento, priorizando la gestión del talento humano sobre la
+base de aprovechar el conocimiento y las habilidades de las personas para aplicarlas en la práctica cotidiana.</p>
+<p><b>El argumento previo:</b> no basta con la competencia del saber, hace falta la habilidad de <b>saber hacer</b>,
+y ese saber hacer debe estar conectado a un propósito mayor con visión global de la organización y del mundo.</p>
+<p><b>Dos afirmaciones sobre el mercado</b> que pueden venir en verdadero o falso: hay un creciente <b>desacople
+entre empleo y trabajo</b>, y en los próximos años <b>más del 50 %</b> de las tareas laborales y profesionales
+cambiarán.</p>`;
+
+const T_AUTOLIDERAZGO=`<blockquote>El autoliderazgo es la habilidad de gestionar nuestras propias emociones y
+comportamientos, además de motivarnos a nosotros mismos y a los demás para alcanzar objetivos. (Goleman, 2013)</blockquote>
+<div class="tabla"><table><thead><tr><th>Componente</th><th>Definición</th></tr></thead><tbody>
+<tr><td>Autoconciencia emocional</td><td>Ser consciente de los propios sentimientos y de cómo afectan pensamientos y comportamientos</td></tr>
+<tr><td>Autocontrol emocional</td><td>Gestionar las emociones de forma saludable, incluso en situaciones difíciles</td></tr>
+<tr><td>Automotivación</td><td>Motivarnos para alcanzar objetivos, incluso cuando enfrentamos desafíos</td></tr>
+<tr><td>Empatía</td><td>Comprender y compartir los sentimientos de los demás</td></tr>
+<tr><td>Habilidades sociales</td><td>Construir y mantener relaciones positivas con los demás</td></tr>
+</tbody></table></div>
+<p><b>Definición ampliada.</b> Capacidad personal de guiarnos a nosotros mismos. Implica asumir un rol
+protagónico en la propia vida, definiendo el rumbo a seguir sin ser influenciado por el entorno.</p>
+<p><b>Schwander (2020):</b> nacemos con el <b>potencial</b> de liderarnos, y los líderes se construyen y
+desarrollan a lo largo de su trayectoria personal e histórica. Los líderes influyen en otros, pero la primera
+influencia debería ser sobre uno mismo.</p>
+<p><b>El diagrama de Venn</b> del cierre conecta cuatro elementos: vocación, pasión, misión y profesión.</p>
+<p><b>Errata del material.</b> La Figura 1, con las claves para desarrollar el autoliderazgo, no se recupera del
+PDF. El texto remite a ella sin repetir el contenido.</p>`;
+
+const T_LIDERAZGO=`<p><b>Núcleo común.</b> No hay una definición universalmente aceptada, pero todas coinciden en
+la <b>capacidad de influir en los demás para alcanzar objetivos comunes</b>.</p>
+<div class="tabla"><table><thead><tr><th>Autor</th><th>Definición</th></tr></thead><tbody>
+<tr><td>Goleman (2013)</td><td>Capacidad de crear un ambiente en el que los miembros del equipo se sientan inspirados a alcanzar su máximo rendimiento y potencial</td></tr>
+<tr><td>Echeverría (2000), <i>La empresa emergente</i></td><td>Modelo de <b>líder coach</b>: el líder actúa como facilitador o guía que ayuda a los demás a encontrar su propio camino</td></tr>
+</tbody></table></div>
+<p><b>Liderazgo resonante.</b> La <b>resonancia</b> es la capacidad de un líder para conectar con las emociones de
+su equipo y generar un clima emocional positivo. Goleman señala que los líderes más efectivos demuestran estados
+de ánimo caracterizados por el optimismo, respetan los estados emocionales de su equipo incluso ante
+frustraciones, y alientan a avanzar con esperanza y humor.</p>
+<blockquote>Los líderes más eficientes coinciden en un aspecto fundamental: todos poseen un gran nivel de lo que
+se ha dado en llamarse inteligencia emocional. (Goleman, 2013, p. 74)</blockquote>
+<p><b>Los cuatro beneficios del liderazgo resonante:</b> mayor compromiso y motivación, mejor comunicación y
+colaboración, mayor creatividad e innovación, y mayor productividad y rendimiento.</p>
+<p><b>Los seis estilos de liderazgo.</b> Goleman identifica seis tipos que pueden darse en una organización, y
+cada uno responde a la situación, a las características del equipo y a la capacidad del líder de adaptarse.
+<b>Los nombres no están en el material</b>: figuran en una tabla imagen con fuente Gil (2021). Es un hueco
+declarado y hay que verificarlo en Canvas.</p>
+<p><b>No confundir.</b> El líder coach es de Echeverría, la resonancia es de Goleman. Y Echeverría aparece dos
+veces en la materia: 2005 para las metahabilidades del módulo 03, 2000 para el líder coach.</p>`;
+
+const T_OBSERVADOR=`<p>El <b>modelo de observador</b> o mapa mental que poseemos condiciona nuestra manera de
+percibir la realidad. La metáfora que usa la cátedra son los <b>lentes</b>: los lentes con que observamos el mundo
+determinan cómo actuamos y, por lo tanto, los resultados que obtenemos, sean estos esperados o no.</p>
+<p>La cadena queda así: <b>observador, acción, resultado</b>. Si el resultado no es el buscado, la intervención
+puede ir sobre la acción o, más profundo, sobre el observador.</p>
+<p>Es un concepto que la materia trae de lecturas anteriores y reaparece en el módulo 04 como fundamento del
+autoliderazgo: antes de cambiar lo que hacés, conviene revisar desde dónde estás mirando.</p>`;
+
+const T_SKILLS=`<div class="tabla"><table><thead><tr><th>Tipo</th><th>Definición de la cátedra</th></tr></thead><tbody>
+<tr><td><b>Soft skills</b></td><td>Competencias genéricas, tanto <b>intrapersonales como interpersonales</b>, que una persona adquiere en su interacción con distintos entornos, como el trabajo, la universidad u otras organizaciones. Ayudan a generar respuestas eficientes a diversas situaciones</td></tr>
+<tr><td><b>Hard skills</b></td><td>Habilidades técnicas o específicas de una profesión</td></tr>
+</tbody></table></div>
+<p>Las soft skills son <b>complementarias</b> a las hard skills. Esa palabra es la que decide la pregunta que la
+cátedra ya tomó: los distractores la cambian por se basan en y por no son complementarias.</p>
+<p><b>Bernard Marr (2022)</b> propone <b>diez capacidades</b>: <b>ocho soft skills</b> y <b>dos hard skills</b>,
+que son <b>alfabetización digital</b> y <b>alfabetización de datos</b>. La alfabetización digital se define como
+la capacidad de comprender y utilizar la tecnología en una amplia gama de campos laborales y profesionales.</p>
+<p><b>Errata del material.</b> Los nombres de las ocho soft skills de Marr no están en el texto, solo en una
+figura que no se recupera. Además, la referencia del PDF consigna <i>The 20 skills and competencies</i> mientras
+el texto habla de diez. La cátedra evalúa las diez que anuncia.</p>
+<p><b>La curiosidad y el aprendizaje continuo</b> aportan el deseo y la curiosidad constante de aprender cosas
+nuevas y ampliar los conocimientos. Esa formulación se tomó tal cual en el TP.</p>`;
+
+const T_LEARNABILITY=`<div class="tabla"><table><thead><tr><th>Término</th><th>Qué es</th></tr></thead><tbody>
+<tr><td><b>Long life learning</b>, aprendizaje a lo largo de la vida</td><td>La respuesta a la <b>obsolescencia del saber</b> frente a la necesidad constante de desarrollar la metahabilidad de aprender a aprender</td></tr>
+<tr><td><b>Learnability</b></td><td>La <b>capacidad individual</b> para el aprendizaje constante, primordial para mantenerse en la <b>frontera del desempeño</b> dentro del campo disciplinar elegido</td></tr>
+</tbody></table></div>
+<p>El primero nombra un proceso o principio, el segundo nombra una capacidad de la persona. La cátedra los tomó
+por separado en el TP del módulo 04, los dos en formato de verdadero o falso y los dos con la definición textual.</p>
+<p>Conclusión que el material deja escrita: la capacidad de aprendizaje continuo es una de las habilidades
+indispensables para enfrentar con éxito cualquier mercado laboral.</p>
+<p>El learnability reaparece en las competencias institucionales: sostiene tanto la gestión del conocimiento como
+la actuación colaborativa en ecosistemas de bienestar.</p>`;
+
+const T_STEAM=`<div class="tabla"><table><thead><tr><th>Letra</th><th>Palabra</th><th>Competencias que desarrolla</th></tr></thead><tbody>
+<tr><td>S</td><td>Science</td><td>Cambio climático, medicina, química, biología</td></tr>
+<tr><td>T</td><td>Technology</td><td>Desde lenguajes de programación hasta inteligencia artificial</td></tr>
+<tr><td>E</td><td>Engineering</td><td>Competencias prácticas para infraestructura y ciudades inteligentes</td></tr>
+<tr><td><b>A</b></td><td>Arts</td><td><b>Habilidades sociales, emocionales y creatividad para la resolución de problemas</b></td></tr>
+<tr><td><b>M</b></td><td>Mathematics</td><td><b>Análisis financiero, economía, contabilidad, inversión, economía circular</b></td></tr>
+</tbody></table></div>
+<p><b>Propósito.</b> Formar e integrar a las personas en un mundo tecnológico en constante avance, tanto en el
+ámbito profesional como en el académico. Esa formulación vino textual en verdadero o falso.</p>
+<p><b>Metodología.</b> Aprendizaje experiencial, práctico y situado, que promueve resolución de problemas,
+pensamiento crítico y colaboración entre disciplinas diversas. Trabajar con STEAM implica involucrar más de una
+disciplina y requiere indagación y trabajo colaborativo.</p>
+<p><b>Los siete países con más graduados STEAM en 2019:</b> China 4,7 millones, India 2,6 millones, Estados
+Unidos 568 mil, Rusia 561 mil, Irán 335 mil, Indonesia 206 mil, Japón 195 mil.</p>`;
+
+const T_ESPECTRO=`<p><b>Bob Johansen (2020)</b>, del Institute for the Future, en <i>Full-spectrum Thinking</i>.</p>
+<div class="tabla"><table><thead><tr><th>Pensamiento categórico</th><th>Pensamiento de espectro completo</th></tr></thead><tbody>
+<tr><td>Categoriza y polariza</td><td>Busca establecer conexiones, evita divisiones innecesarias</td></tr>
+<tr><td>Proporciona certezas</td><td>Acepta la incertidumbre inherente a la velocidad del cambio tecnológico</td></tr>
+<tr><td>Dificulta la claridad y genera rigidez</td><td>Pone el foco en observar con claridad la incertidumbre</td></tr>
+<tr><td>Limita la capacidad de respuesta ante el entorno VICA</td><td>Permite expandirse y responder a los desafíos</td></tr>
+</tbody></table></div>
+<p><b>La afirmación central:</b> a medida que avanza la tecnología, la <b>claridad se vuelve más relevante que la
+certeza</b>.</p>
+<p><b>Una cuarta idea que se despega</b> porque es sobre negocios: las empresas inteligentes dejan de enfocarse
+únicamente en la venta de productos y se centran en ofrecer <b>experiencias duraderas</b>.</p>
+<p><b>El cruce con el otro Johansen.</b> Las cuatro capacidades frente a VUCA son de 2012. Este modelo es de 2020.
+La palabra claridad aparece en los dos con sentidos distintos: allá es una capacidad frente a lo complejo, acá es
+lo que reemplaza a la certeza.</p>`;
+
+const T_COMPINST=`<div class="tabla"><table><thead><tr><th>Competencia institucional</th><th>Con qué se vincula</th></tr></thead><tbody>
+<tr><td>Gestión del conocimiento</td><td>Con el <b>learnability</b> y la habilidad de aprender a aprender</td></tr>
+<tr><td>Actuación colaborativa en ecosistemas de bienestar</td><td>También con el learnability. Habilidades para trabajar en entornos colaborativos orientados al bienestar colectivo</td></tr>
+<tr><td>Actuación en la globalidad</td><td>Perspectiva global para integrarse en un mundo interconectado</td></tr>
+<tr><td>Acción emprendedora</td><td>Bajo el lema <b>aprender a emprender</b></td></tr>
+<tr><td>Innovación y transformación digital</td><td>Reconoce el impacto acelerado y disruptivo de las tecnologías</td></tr>
+</tbody></table></div>
+<p>Este listado es el que el módulo 03 anunció como parte de la <b>insignia Siglo</b> y no desarrolló. Aparece
+completo recién acá, lo que lo vuelve contenido de integración entre los dos módulos y candidato natural a
+pregunta transversal.</p>
+<p>El objetivo institucional que cierra la lección: formar profesionales que combinen hard skills, específicas de
+su carrera, con soft skills, genéricas para la vida.</p>`;
+
+const T_COLABORATIVO=`<p><b>Definición operativa.</b> Requiere la participación activa de todos los integrantes del
+equipo, que contribuyen en conjunto hacia un objetivo común <b>que sería difícil de alcanzar de forma
+individual</b>. Esa cláusula final es la que lo distingue del trabajo en paralelo.</p>
+<p>Las herramientas digitales aparecen como facilitadoras, permitiendo colaborar en la nube de manera remota,
+pero no son lo que define el concepto.</p>
+<p><b>Las seis oportunidades:</b></p>
+<ul><li>Optimiza el tiempo en la resolución de objetivos</li>
+<li>Potencia la comunicación bidireccional entre sus integrantes</li>
+<li>Es más eficaz, ya que toma las fortalezas de cada miembro</li>
+<li>Impulsa la diversidad y la inclusión</li>
+<li>Crea un <b>ecosistema de bienestar</b> y por lo tanto un mejor clima laboral</li>
+<li>Genera confianza entre los miembros del equipo</li></ul>
+<p>La expresión ecosistema de bienestar reaparece en el nombre de una competencia institucional, no es casual.</p>`;
+
+const T_FODA=`<div class="tabla"><table><thead><tr><th></th><th>Origen interno</th><th>Origen externo</th></tr></thead><tbody>
+<tr><td><b>Positivo</b></td><td>Fortalezas</td><td>Oportunidades</td></tr>
+<tr><td><b>Negativo</b></td><td>Debilidades</td><td>Amenazas</td></tr>
+</tbody></table></div>
+<p>La matriz permite realizar un <b>análisis interno a nivel personal</b> y una <b>evaluación externa del
+contexto</b>. El criterio de clasificación es <b>el origen del factor</b>, no si es bueno o malo.</p>
+<p><b>Condición previa.</b> Para realizar un FODA personal es necesario <b>partir del objetivo que se desea
+alcanzar</b>. Es el paso que más se omite y por eso es preguntable.</p>
+<p><b>Las siete preguntas guía</b>, agrupadas por cuadrante:</p>
+<div class="tabla"><table><thead><tr><th>Cuadrante</th><th>Preguntas</th></tr></thead><tbody>
+<tr><td>Fortalezas</td><td>¿En qué actividades me destaco? ¿Qué aspectos valoran los demás de mí?</td></tr>
+<tr><td>Debilidades</td><td>¿Qué debería mejorar en mi personalidad? ¿Qué conocimientos y habilidades necesito fortalecer? ¿Qué hábitos me dificultan avanzar?</td></tr>
+<tr><td>Oportunidades</td><td>¿Qué tendencias del mercado laboral me benefician?</td></tr>
+<tr><td>Amenazas</td><td>¿Qué situaciones del entorno podrían perjudicarme?</td></tr>
+</tbody></table></div>
+<p><b>Choque con el vocabulario de datos.</b> En el trabajo se dice análisis SWOT. En el examen va FODA, aunque el
+concepto sea idéntico.</p>`;
+
+const T_INSERCION=`<p>El área se llama <b>Dirección de Egresados y Relaciones con la Comunidad</b>.</p>
+<blockquote>Fortalecer la formación práctica de los estudiantes e incrementar las oportunidades laborales para
+alumnos y alumnas, así como para egresados y egresadas de la Universidad.</blockquote>
+<div class="tabla"><table><thead><tr><th>Propuesta</th><th>Qué es</th><th>Dato duro</th></tr></thead><tbody>
+<tr><td><b>Práctica Profesional</b></td><td>Materia obligatoria en todas las carreras de grado, con supervisión docente constante</td><td><b>250 horas</b></td></tr>
+<tr><td><b>Pasantías</b></td><td>Experiencia profesional <b>remunerada</b> durante el cursado, gestionada por la universidad en marco regulado</td><td>Búsquedas en el Portal de Empleo</td></tr>
+<tr><td><b>Capacitación</b></td><td>Talleres de empleabilidad y charlas con referentes profesionales</td><td>Para alumnos y egresados</td></tr>
+<tr><td><b>Networking</b></td><td>Conexión entre estudiantes, egresados y empresas mediante convenios y ComunidadNET</td><td>App propia</td></tr>
+</tbody></table></div>
+<p><b>ComunidadNET</b> es una red de comunidades con impacto, que busca expandir y fortalecer el ecosistema de
+bienestar. Tiene <b>once comunidades</b>: ProtagonistasNET, Voluntarios 21, Club Emprendedores 21, Comunidad
+E-Sport, EmbajadoresNET, InnovadoresNET, GlobalesNET, English Talk, Saber+Net, Club de Lectura y Conectados 21.
+Dos de ellas ya aparecieron en el módulo 03 como programas de los centros de excelencia.</p>`;
+
+const T_REDES=`<div class="tabla"><table><thead><tr><th>Red</th><th>Qué la distingue</th></tr></thead><tbody>
+<tr><td><b>LinkedIn</b></td><td>Plataforma social para conectar profesionales, empresas y personas interesadas en negocios y mercado laboral. Perfiles con experiencia laboral y habilidades</td></tr>
+<tr><td><b>Universia</b></td><td>Red profesional del <b>ámbito universitario</b>. Forma parte del <b>Grupo Santander</b>. Dirigida a profesores y estudiantes. Ofrece capacitaciones, bolsa de empleo, cursos y noticias</td></tr>
+<tr><td><b>Womenalia</b></td><td>Conecta con personas del mismo sector u ocupación. Permite desarrollarse profesionalmente o impulsar un emprendimiento mediante cursos</td></tr>
+<tr><td><b>Xing</b></td><td>Permite <b>filtrar búsquedas por nombre, ciudad o empresa</b>. Tiene una guía de búsqueda laboral y una <b>brújula cultural</b> para comprobar cómo sería trabajar en una organización</td></tr>
+</tbody></table></div>
+<p><b>La afirmación más citable:</b> un profesional que no está presente en las redes profesionales corre el
+riesgo de ser invisible en el mundo virtual.</p>
+<p>Las plataformas también facilitan el acceso a los modelos de trabajo freelance, part time y full time, y
+permiten a los nómadas digitales ofrecer sus servicios. Con eso la lección cierra el circuito con la Lección 1
+del módulo.</p>`;
+
+const T_CASO=`<p><b>Randstad (2023).</b> Encuesta online a <b>1.510 personas</b> que buscaban empleo activamente,
+realizada entre el <b>2 y el 20 de enero</b> y publicada el <b>8 de febrero de 2023</b>.</p>
+<div class="tabla"><table><thead><tr><th>Dato</th><th>Valor</th></tr></thead><tbody>
+<tr><td>Considera las habilidades blandas imprescindibles</td><td><b>88 %</b></td></tr>
+<tr><td>Las considera medianamente importantes</td><td>11 %</td></tr>
+<tr><td>Las considera irrelevantes</td><td>1 %</td></tr>
+<tr><td>Afirma tenerlas muy desarrolladas</td><td><b>77 %</b></td></tr>
+<tr><td>Algo desarrolladas</td><td>22 %</td></tr>
+<tr><td>Poco o nada desarrolladas</td><td>1 %</td></tr>
+</tbody></table></div>
+<p><b>El ranking completo</b>, que es lo que más se pregunta:</p>
+<div class="tabla"><table><thead><tr><th>Puesto</th><th>Habilidad</th><th>%</th></tr></thead><tbody>
+<tr><td>1</td><td>Flexibilidad para adaptarse a los cambios</td><td>23</td></tr>
+<tr><td>2</td><td>Disposición para el trabajo en equipo</td><td>19</td></tr>
+<tr><td>3</td><td>Capacidad resolutiva</td><td>18</td></tr>
+<tr><td>4</td><td>Organización y gestión del tiempo</td><td>15</td></tr>
+<tr><td>5</td><td>Habilidad de comunicación</td><td>11</td></tr>
+<tr><td>6</td><td>Liderazgo</td><td>6</td></tr>
+<tr><td>7</td><td>Proactividad</td><td>5</td></tr>
+<tr><td>8</td><td>Negociación</td><td>3</td></tr>
+<tr><td>9</td><td><b>Creatividad</b></td><td><b>1</b></td></tr>
+</tbody></table></div>
+<p><b>Definición de habilidades blandas según la nota:</b> rasgos de personalidad, habilidades socioemocionales,
+de comunicación, lenguaje y hábitos que moldean los vínculos que los individuos establecen con otras personas.
+Son complementarias a las habilidades duras o conocimientos técnicos.</p>
+<p><b>Andrea Ávila</b>, CEO de Randstad para Argentina y Uruguay, firma las dos citas. La primera sostiene que
+siempre es posible mejorar las habilidades blandas a través de la formación, la autorreflexión, la
+retroalimentación y la práctica consciente. La segunda dice que los trabajadores son conscientes de su relevancia
+para acceder a oportunidades de desarrollo, posiciones de liderazgo y para potenciar la empleabilidad.</p>
+<p><b>El reporte del WEF.</b> La nota cita <i>The Future of Jobs</i> del <b>World Economic Forum</b>, con diez
+habilidades de cara al 2025: pensamiento analítico e innovación, aprendizaje activo y estrategias de aprendizaje,
+resolución de problemas complejos, pensamiento crítico y análisis, creatividad originalidad e iniciativa,
+liderazgo e influencia social, uso seguimiento y control de la tecnología, diseño y programación de tecnología,
+resiliencia tolerancia al estrés y flexibilidad, y razonamiento y resolución de problemas. <b>No confundir este
+listado con el de Marr</b>, que también son diez y está en la lección.</p>
+<p><b>Por qué importa este caso.</b> Cuatro de las veinte preguntas del TP del módulo 04 salieron de acá, y las
+dos únicas que se fallaron están entre esas cuatro.</p>`;
+
+const AMP={
+ 1:T_COMPETENCIA,2:T_COMPETENCIA,3:T_COMPETENCIA,4:T_VIDA21,5:T_AUTOGESTION,6:T_AUTOGESTION,7:T_AUTOGESTION,
+ 8:T_METAHABILIDAD,9:T_METAHABILIDAD,10:T_MINDSET,11:T_MINDSET,12:T_MINDSET,13:T_METAHABILIDAD,
+ 14:T_CENTROS,15:T_EXTENSION,16:T_CENTROS,17:T_CENTROS,18:T_EXTENSION,19:T_CENTROS,
+ 20:T_PLATAFORMAS,21:T_PLATAFORMAS,22:T_PLATAFORMAS,23:T_PLATAFORMAS,24:T_PLATAFORMAS,25:T_PLATAFORMAS,
+ 26:T_VUCA,27:T_VUCA,28:T_VUCA,29:T_NOMADAS,30:T_NOMADAS,31:T_702010,32:T_702010,33:T_NOMADAS,
+ 34:T_AUTOLIDERAZGO,35:T_LIDERAZGO,36:T_LIDERAZGO,37:T_AUTOLIDERAZGO,38:T_AUTOLIDERAZGO,39:T_OBSERVADOR,
+ 40:T_SKILLS,41:T_SKILLS,42:T_SKILLS,43:T_LEARNABILITY,44:T_STEAM,45:T_STEAM,46:T_ESPECTRO,47:T_COMPINST,48:T_COLABORATIVO,
+ 49:T_FODA,50:T_FODA,51:T_FODA,52:T_INSERCION,53:T_INSERCION,54:T_REDES,55:T_INSERCION,56:T_REDES,
+ 1001:T_PLATAFORMAS,1002:T_CENTROS,1003:T_MINDSET,1004:T_COMPETENCIA,1005:T_PLATAFORMAS,
+ 1011:T_STEAM,1012:T_CASO,1013:T_CASO,1014:T_CASO,1015:T_LIDERAZGO,1016:T_FODA,1017:T_CASO,
+ 1018:T_SKILLS,1019:T_ESPECTRO,1020:T_CASO,1021:T_NOMADAS,1022:T_VUCA,1023:T_SKILLS,1024:T_INSERCION,
+ 1025:T_LEARNABILITY,1026:T_LEARNABILITY,1027:T_VUCA,1028:T_REDES,1029:T_AUTOLIDERAZGO,1030:T_SKILLS,
+ 2001:T_CASO,2002:T_CASO,2003:T_CASO,2004:T_CASO,2005:T_CASO,2006:T_CASO,2007:T_CASO,2008:T_CASO};
+
+/* ---------- Estado ---------- */
+const HKEY="s21.aprender.parcial2.v1", FKEY=HKEY+".flags", VKEY=HKEY+".votos", PKEY=HKEY+".pin2";
+let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
+const $=id=>document.getElementById(id);
+const LETRA=k=>"abcdefg"[k]||"?";
+const esc=document.getElementById("escenario");
+
+const BANCOS={quiz:QUIZ,tps:TPS,preg:PREG};
+const BANCO=()=>BANCOS[modo];
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ROTULO={paquete:"sección 9 del paquete",propia:"escrita para practicar",
+  catedra:"opciones de la cátedra",mixto:"opciones en parte reconstruidas",
+  propio:"opciones reconstruidas",
+  caso:"del caso Randstad adjunto al TP"};
+
+/* ---------- Progreso y banderas ---------- */
+let hist={}, flags={};
+try{hist=JSON.parse(localStorage.getItem(HKEY)||"{}")}catch(e){hist={}}
+try{flags=JSON.parse(localStorage.getItem(FKEY)||"{}")}catch(e){flags={}}
+function guardarHist(){try{localStorage.setItem(HKEY,JSON.stringify(hist))}catch(e){}}
+function guardarFlags(){try{localStorage.setItem(FKEY,JSON.stringify(flags))}catch(e){}}
+/* ---------- Calificacion interna (pulgares). Solo guarda, no cambia nada de la pagina ---------- */
+let votos={};
+try{votos=JSON.parse(localStorage.getItem(VKEY)||"{}")}catch(e){votos={}}
+function votar(p,v){
+  const k=modo+":"+p.n;
+  if(votos[k]&&votos[k].v===v) delete votos[k];
+  else votos[k]={v:v,banco:modo,n:p.n,tema:p.tema||"",nivel:p.nivel||"",tipo:p.tipo||"",ref:p.ref||"",
+    q:String(p.q||"").replace(/<[^>]+>/g,"").slice(0,300),f:new Date().toISOString().slice(0,10)};
+  try{localStorage.setItem(VKEY,JSON.stringify(votos))}catch(e){}
+}
+function pintarVotos(p){
+  const k=modo+":"+p.n, v=votos[k]?votos[k].v:0;
+  $("vUp").setAttribute("aria-pressed",v===1); $("vDn").setAttribute("aria-pressed",v===-1);
+}
+function exportarVotos(){
+  const d={pagina:HKEY,exportado:new Date().toISOString(),votos:votos};
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,1)],{type:"application/json"}));
+  a.download=HKEY.replace(/\./g,"-")+"-votos.json";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function revisarHashVotos(){if(location.hash==="#votos")setTimeout(exportarVotos,400)}
+window.addEventListener("hashchange",revisarHashVotos); revisarHashVotos();
+function marcar(n,bien){const h=hist[n]||(hist[n]={i:0,a:0});h.i++;if(bien)h.a++;h.u=bien?1:0;guardarHist()}
+function marcadas(){return BANCO().filter(q=>flags[q.n])}
+function alternarFlag(n,btn){
+  if(flags[n]) delete flags[n]; else flags[n]=1;
+  guardarFlags(); pintarFlag(btn,n); pintarChips();
+}
+function pintarFlag(btn,n){
+  const on=!!flags[n];
+  btn.setAttribute("aria-pressed",on);
+  btn.innerHTML='<b>'+(on?"⚑":"⚐")+'</b><span>'+(on?"Marcada":"Marcar")+'</span>';
+  btn.title=on?"Marcada para repasar. Tocá para sacarle la bandera"
+              :"Bandera interna, para volver a esta pregunta más tarde";
+}
+function estado(items){
+  const con=items.filter(q=>hist[q.n]);
+  if(!con.length) return null;
+  const ok=con.filter(q=>hist[q.n].u===1).length;
+  return {resp:con.length,tot:items.length,pct:Math.round(ok/con.length*100)};
+}
+function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
+
+/* ---------- Índice ---------- */
+function arbol(){
+  const base=BANCO();
+  const claves = modo==="quiz" ? ["03","04"] : [...new Set(base.map(x=>x.inst))];
+  const mods=claves.map(c=>{
+    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    let hojas;
+    if(modo==="quiz"){
+      hojas=[...new Set(sub.map(x=>x.lec))].sort().map(l=>{
+        const s2=sub.filter(x=>x.lec===l);
+        return {k:c+l,t:l+" · "+s2[0].tema,c:s2.length,e:estado(s2)};
+      });
+    } else {
+      hojas=[...new Set(sub.map(x=>x.tema))].map(t=>{
+        const s2=sub.filter(x=>x.tema===t);
+        return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
+      });
+    }
+    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+            c:sub.length, hojas:hojas, e:estado(sub)};
+  });
+  const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
+  const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
+  (modo==="quiz"?["paquete","propia"]:modo==="tps"?["catedra","mixto","propio"]:["caso"]).forEach(o=>{
+    const sub=porOrigen(o);
+    if(sub.length) extras.push({k:"src:"+o,
+      t:(o==="paquete"?"Solo las del paquete":o==="propia"?"Solo las de práctica":
+         o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
+         o==="propio"?"Opciones reconstruidas":o==="preguntero"?"Verificadas contra el material":
+         "Donde el preguntero se equivoca"), c:sub.length, e:estado(sub)});
+  });
+  return {todo:{k:"todo",t:"Todo, repaso general",c:base.length,e:estado(base)},mods:mods,extras:extras};
+}
+
+function aplicar(){
+  const base=BANCO();
+  if(filtro==="todo") lista=[...base];
+  else if(filtro==="flag") lista=marcadas();
+  else if(filtro.startsWith("src:")) lista=base.filter(x=>ORIGEN(x)===filtro.slice(4));
+  else if(filtro.startsWith("i:")) lista=base.filter(x=>x.inst===filtro.slice(2));
+  else if(filtro.startsWith("mod")) lista=base.filter(x=>x.mod===filtro.slice(3));
+  else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
+    lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
+  else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
+  if(modo==="quiz") lista.sort((a,b)=>
+    a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
+    ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
+  else lista.sort((a,b)=>a.n-b.n);
+  i=0;aciertos=0;resultados=[];
+  pintarChips();render();
+}
+
+function pintarChips(){
+  /* el panel se reconstruye entero, así que hay que devolverle su posición
+     de scroll: si no, al elegir un tema el menú salta al fondo */
+  const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
+  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+    : modo==="tps" ? "Elegí qué instancia" : "Elegí qué parte del caso";
+  const a=arbol(), cont=$("chips");
+  cont.innerHTML="";
+  const mk=(g,cls)=>{
+    const b=document.createElement("button");
+    b.className=cls;
+    b.setAttribute("aria-pressed",filtro===g.k);
+    const ins = g.marca
+      ? '<i class="est marcadas" title="Preguntas con tu bandera">⚑ '+g.c+'</i>'
+      : g.e
+      ? '<i class="est '+claseEst(g.e.pct)+(g.e.resp<g.e.tot?" parcial":"")+'" title="'+
+        g.e.pct+' por ciento en el último intento · '+g.e.resp+' de '+g.e.tot+' respondidas">'+g.e.pct+'%</i>'
+      : '<i class="est vacio" title="Todavía sin responder">—</i>';
+    b.innerHTML='<span>'+g.t+'</span><span class="der">'+ins+(g.marca?'':'<em>'+g.c+'</em>')+'</span>';
+    b.onclick=()=>{filtro=g.k;aplicar();cerrarPanel();
+      window.scrollTo({top:0,behavior:"instant"});};
+    return b;
+  };
+  cont.appendChild(mk(a.todo,"rama todo"));
+  a.mods.forEach(m=>{
+    const box=document.createElement("div");
+    box.className="modulo"+(m.hojas.some(h=>h.k===filtro)?" conhijo":"");
+    box.appendChild(mk(m,"tronco"));
+    const h=document.createElement("div");
+    h.className="hojas";
+    m.hojas.forEach(x=>h.appendChild(mk(x,"hoja")));
+    box.appendChild(h);
+    cont.appendChild(box);
+  });
+  const box=document.createElement("div");
+  box.className="modulo plano";
+  const rot=document.createElement("div");
+  rot.className="rotgrupo"; rot.textContent="Cortes transversales";
+  box.appendChild(rot);
+  const h=document.createElement("div");
+  h.className="hojas sinlinea";
+  a.extras.forEach(x=>h.appendChild(mk(x,"hoja")));
+  box.appendChild(h);
+  cont.appendChild(box);
+
+  const pie=document.createElement("div");
+  pie.className="pieArbol";
+  pie.innerHTML='<span class="leyenda">'+
+    '<span><i style="background:#7FA890"></i>90 o más</span>'+
+    '<span><i style="background:#B6C9BC"></i>75 a 89</span>'+
+    '<span><i style="background:#D9BE86"></i>60 a 74</span>'+
+    '<span><i style="background:#C88A8A"></i>menos de 60</span>'+
+    '<span><i style="background:#DEDAD6"></i>sin responder</span></span>';
+  const btn=document.createElement("button");
+  btn.textContent="Reiniciar el progreso";
+  btn.onclick=()=>{if(confirm("Se borra el puntaje de todos los temas, en los dos bancos. ¿Seguimos?")){
+    hist={};guardarHist();aplicar();}};
+  pie.appendChild(btn);
+  if(Object.keys(flags).length){
+    const btn2=document.createElement("button");
+    btn2.textContent="Quitar las "+Object.keys(flags).length+" banderas";
+    btn2.onclick=()=>{if(confirm("Se quitan todas las banderas. El puntaje no se toca. ¿Seguimos?")){
+      flags={};guardarFlags();aplicar();}};
+    pie.appendChild(btn2);
+  }
+  cont.appendChild(pie);
+  if(_pan) _pan.scrollTop=_sc;
+}
+
+function cabecera(){
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
+}
+
+function render(){
+  cabecera();
+  if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
+  if(i>=lista.length){resumen();return}
+  pregunta(lista[i]);
+}
+
+/* ---------- Orden de las opciones ----------
+   Se baraja en cada render, así la posición de la correcta nunca es una pista,
+   ni siquiera al repetir la misma pregunta dentro de una corrida.
+   Verdadero y falso queda como está, porque V y F tienen orden fijo. */
+function barajar(p){
+  if(p.tipo==="vf"||!Array.isArray(p.op)||p.op.length<2) return;
+  const idx=p.op.map((_,k)=>k);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  p.op=idx.map(k=>p.op[k]);
+  p.ok = p.tipo==="ms" ? p.ok.map(k=>idx.indexOf(k)).sort((a,b)=>a-b)
+                       : idx.indexOf(p.ok);
+}
+
+function pregunta(p){
+  barajar(p);
+  $("flot").classList.remove("visible");
+  let cuerpo="";
+  if(p.tipo==="ms"){
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  } else {
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
+      '<button class="opcion" data-k="'+k+'"><span class="letra">'+
+      LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>';
+  }
+
+  const cab = modo==="quiz"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
+    : p.inst+' · pregunta '+p.orig+' · '+p.tema;
+
+  esc.innerHTML=
+   '<div class="tarjeta">'+
+     '<div class="metaFila"><div class="meta">'+cab+
+       ' · <span class="origen '+ORIGEN(p)+'">'+ROTULO[ORIGEN(p)]+'</span></div>'+
+       '<div class="votos"><button class="voto" id="vUp" title="Calificacion interna: se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="voto" id="vDn" title="Calificacion interna: no se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scale(-1,-1)"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="flag" id="flag"></button></div></div>'+
+     '<p class="enunciado">'+p.q+'</p>'+
+     cuerpo+
+     '<div class="feedback" id="fb"></div>'+
+   '</div>';
+
+  const bf=$("flag");
+  pintarFlag(bf,p.n);
+  bf.onclick=()=>alternarFlag(p.n,bf);
+  pintarVotos(p);
+  $("vUp").onclick=()=>{votar(p,1);pintarVotos(p)};
+  $("vDn").onclick=()=>{votar(p,-1);pintarVotos(p)};
+
+  if(p.tipo==="ms"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
+    $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  } else {
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
+  }
+}
+
+function responder(p,elegido){
+  const bien = p.tipo==="ms"
+      ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
+      : elegido===p.ok;
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
+
+  if(p.tipo==="ms"){
+    $("chk").disabled=true;
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      const era=p.ok.includes(k), marc=elegido.includes(k);
+      b.classList.remove("elegida");
+      if(era&&marc) b.classList.add("correcta");
+      else if(era&&!marc) b.classList.add("faltante");
+      else if(!era&&marc) b.classList.add("incorrecta");
+    });
+  } else if(p.tipo==="mc"||p.tipo==="vf"){
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  } else {
+    esc.querySelectorAll(".opcion").forEach((b,k)=>{
+      b.disabled=true;
+      if(k===p.ok) b.classList.add("correcta");
+      else if(k===elegido) b.classList.add("incorrecta");
+    });
+  }
+
+  const correcta = (p.tipo==="ms") ? p.ok.map(LETRA).join(", ")+
+                     ". Las de borde punteado son las que te faltaron"
+                 : (p.tipo==="mc") ? LETRA(p.ok)+") "+p.op[p.ok]
+                 : (p.tipo==="vf") ? p.op[p.ok]
+                 : LETRA(p.ok)+") "+p.op[p.ok];
+
+  $("fb").innerHTML=
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
+    (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
+    (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
+    '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
+    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
+    '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
+  $("fb").classList.add("visible");
+  $("sig").onclick=()=>{i++;render()};
+  $("sig").focus({preventScroll:true});
+
+  const fl=$("flot");
+  fl.innerHTML='<b>&#8594;</b><span>'+(i===lista.length-1?"Ver resultado":"Siguiente")+
+    '</span><small>Enter</small>';
+  fl.onclick=()=>{i++;render()};
+  fl.classList.add("visible");
+
+  cabecera();
+}
+
+function resumen(){
+  $("flot").classList.remove("visible");
+  $("barra").style.width="100%";
+  const fallos=resultados.filter(r=>!r.bien);
+  const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
+  const porTema={};
+  resultados.forEach(r=>{
+    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    porTema[k]=porTema[k]||{ok:0,tot:0};
+    porTema[k].tot++; if(r.bien) porTema[k].ok++;
+  });
+  const filas=Object.entries(porTema).map(([k,v])=>{
+    const flojo=v.ok/v.tot<0.75;
+    return '<tr><td'+(flojo?' class="flojo"':'')+'>'+k+'</td><td class="n">'+v.ok+' / '+v.tot+'</td>'+
+           '<td class="n">'+(flojo?'<span class="flojo">Volver</span>':'Firme')+'</td></tr>';
+  }).join("");
+
+  const tot=resultados.length, base=BANCO();
+  const puntos=Math.round(aciertos/tot*100);
+  const completa=tot===base.length;
+  const nota = puntos>=90?"Listo para rendir"
+             : puntos>=75?"Aprobado, con temas para reforzar"
+             : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
+             : "Insuficiente. Volver a la teoría antes de repetir";
+  const detalle = modo==="quiz"
+    ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
+      ' de la sección 9 del paquete más las '+base.filter(q=>ORIGEN(q)==="propia").length+
+      ' escritas sobre el material.'
+    : modo==="preg"
+    ? 'Las '+base.length+' preguntas rescatadas de pregunteros de circulación libre, filtradas y verificadas contra tu material. Solo entraron las que aportan algo que el banco de estudio no cubría.'
+    : 'Las '+base.length+' preguntas que la cátedra ya te tomó este período. El enunciado y la respuesta correcta salen del registro de cada trabajo práctico; parte de las opciones están reconstruidas y cada pregunta lo aclara.';
+
+  esc.innerHTML=
+   '<div class="resumen">'+
+     '<h2>'+(completa?'Evaluación completa':'Resultado parcial')+'</h2>'+
+     '<div class="puntaje">'+puntos+' / 100</div>'+
+     '<p class="ui" style="color:var(--tenue);font-size:14px;margin:0">'+aciertos+' de '+tot+' correctas</p>'+
+     '<div class="nota100"><b>'+nota+'</b><br>'+
+       (completa?detalle:'Corriste '+tot+' de las '+base.length+' preguntas de este banco. Para el puntaje comparable hay que hacer la corrida completa, con el filtro en Todo.')+
+     '</div>'+
+     (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
+       '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
+     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Trabajo práctico")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<tbody>'+filas+'</tbody></table>'+
+     '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
+     '<div class="pie">'+
+       '<button class="btn sec" id="rep">Repetir todo</button>'+
+       '<span class="accionesFin">'+
+         (fallos.length?'<button class="btn sec" id="marcarFallos"'+(sinMarcar.length?'':' disabled')+'>'+
+           (sinMarcar.length?'⚑ Marcar las '+sinMarcar.length+' que fallé':'⚑ Ya están todas marcadas')+'</button>':'')+
+         (fallos.length?'<button class="btn" id="solo">Repasar ahora las '+fallos.length+'</button>':'')+
+       '</span>'+
+     '</div>'+
+   '</div>';
+  $("rep").onclick=()=>{i=0;aciertos=0;resultados=[];render()};
+  if(fallos.length){
+    $("solo").onclick=()=>{lista=fallos.map(f=>f.p);i=0;aciertos=0;resultados=[];render()};
+    const bm=$("marcarFallos");
+    if(sinMarcar.length) bm.onclick=()=>{
+      sinMarcar.forEach(n=>flags[n]=1);
+      guardarFlags();
+      bm.disabled=true;
+      bm.textContent="⚑ Listo, quedaron "+sinMarcar.length+" marcadas";
+      pintarChips();
+    };
+  }
+}
+
+/* ---------- Panel ---------- */
+const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
+let fijo=true;
+try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
+
+function pintarFijar(){
+  btnFijar.setAttribute("aria-pressed",fijo);
+  btnFijar.innerHTML='<b>'+(fijo?"◀":"▶")+'</b>'+(fijo?"Soltar":"Fijar");
+  btnFijar.title=fijo?"El menú deja de estar fijo y vuelve a abrirse solo cuando lo pedís"
+                     :"Dejar el menú siempre a la vista, al costado de las preguntas";
+}
+function aplicarFijo(guardar){
+  document.body.classList.toggle("fijo",fijo);
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
+  pintarFijar();
+  if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
+}
+function abrirPanel(){panel.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
+  btnAbrir.setAttribute("aria-expanded","true")}
+function cerrarPanel(){
+  if(fijo) return;
+  panel.classList.remove("abierto");fondo.classList.remove("abierto");
+  btnAbrir.setAttribute("aria-expanded","false")}
+
+btnAbrir.onclick=abrirPanel;
+btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
+fondo.onclick=cerrarPanel;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){cerrarPanel();return}
+  if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
+    e.preventDefault(); $("flot").click();
+  }
+});
+aplicarFijo(false);
+
+document.querySelectorAll(".modo").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.modo;filtro="todo";
+    document.querySelectorAll(".modo").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    aplicar();
+  };
+});
+aplicar();
+
+</script>
+</body>
+</html>

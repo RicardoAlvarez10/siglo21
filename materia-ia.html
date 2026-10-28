@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2D4A3E">
+<meta name="color-scheme" content="light">
+<title>Introducción a la Inteligencia Artificial · Siglo 21</title>
+<script>
+/* Abierta desde la carpeta local (file:///) se muestran tambien los PDF, indices .md y
+   autoevaluaciones que no estan publicados, y los enlaces apuntan a las carpetas de cada materia. */
+if(location.protocol==="file:")document.documentElement.classList.add("local");
+</script>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --tenue:#6B6B6B; --ambar:#7A5A22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 24px 70px}
+
+  header{text-align:center;margin-bottom:30px}
+  header h1{font-size:clamp(21px,5.6vw,29px);line-height:1.22;color:var(--titulo);margin:0 0 6px;font-weight:normal}
+  header p{margin:0;color:var(--tenue);font-size:clamp(12.5px,3.2vw,14px);
+    font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+
+  .volver{display:inline-flex;align-items:center;min-height:36px;margin-bottom:14px;
+    font-family:'Segoe UI',sans-serif;font-size:13px;color:var(--acento);text-decoration:none}
+  .volver:hover{text-decoration:underline}
+
+  .materia{background:var(--panel);border:1px solid var(--borde);border-radius:5px;
+    padding:20px 22px;margin-bottom:16px}
+
+  .destacado{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:#F3F6F4;border:1px solid #D6E0D9;border-radius:4px;min-height:56px;
+    padding:13px 16px;text-decoration:none;color:var(--texto);margin-bottom:14px;flex-wrap:wrap;
+    transition:border-color .15s ease,background .15s ease}
+  .destacado:hover{border-color:var(--acento);background:#EDF3EF}
+  .destacado .txt{min-width:0}
+  .destacado b{font-family:'Segoe UI',sans-serif;font-size:14px;color:var(--acento);display:block}
+  .destacado span{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .marcador{font-family:'Segoe UI',sans-serif;font-size:11.5px;color:var(--tenue);
+    text-align:right;flex-shrink:0}
+  .marcador b{font-size:17px;color:var(--acento);display:block;font-family:'Segoe UI',sans-serif}
+  .marcador:empty{display:none}
+
+  .modulos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .modulo{border:1px solid var(--borde);border-radius:4px;padding:12px 14px}
+  .modulo h3{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--tenue);margin:0 0 8px;font-weight:600}
+  .modulo ol{margin:0 0 10px 17px;padding:0;font-size:13.5px}
+  .modulo li{margin-bottom:3px}
+  .modulo h3.tps{margin-top:14px}
+  .enlaces{display:flex;flex-wrap:wrap;gap:7px}
+  .enlaces a{font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:none;
+    border:1px solid var(--borde);border-radius:12px;padding:4px 10px;color:var(--titulo)}
+  .enlaces a:hover{border-color:var(--acento);color:var(--acento)}
+  .destacado:focus-visible,.enlaces a:focus-visible,.volver:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+  .nota{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);margin:11px 0 0}
+
+  .flujo{background:var(--panel);border:1px solid var(--borde);border-radius:5px;padding:16px 22px}
+  .flujo summary{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--tenue);font-weight:600;cursor:pointer}
+  .flujo ol{margin:14px 0 0 18px;padding:0;font-size:14.5px}
+  .flujo li{margin-bottom:7px}
+  .flujo code{font-family:Consolas,monospace;font-size:13px;background:#F0EDE7;
+    padding:1px 5px;border-radius:2px}
+
+  footer{margin-top:34px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue);
+    border-top:1px solid var(--borde);padding-top:14px}
+
+  /* Lo que solo existe en la carpeta local se oculta en GitHub Pages, y viceversa */
+  html:not(.local) .solo-local{display:none!important}
+  html.local .solo-web{display:none!important}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 16px 56px}
+    header{text-align:left;margin-bottom:24px}
+    .materia{padding:16px 15px;border-radius:6px}
+    .destacado{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px}
+    .marcador{text-align:left}
+    .marcador b{display:inline;font-size:15px;margin-right:6px}
+    .modulos{grid-template-columns:1fr;gap:10px}
+    .volver{min-height:44px}
+    .enlaces a{min-height:44px;display:inline-flex;align-items:center;padding:6px 12px;font-size:12px}
+    .flujo{padding:14px 15px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="volver" href="index.html" data-local="../Siglo 21 - Inicio.html">← Todas las materias</a>
+
+<header>
+  <h1>Introducción a la Inteligencia Artificial</h1>
+  <p>4 módulos · 16 lecturas · materia completa</p>
+</header>
+
+<div class="materia">
+  <a class="destacado solo-local" target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 1 - Modulos 01-02 - Autoevaluacion interactiva.html">
+    <span class="txt">
+      <b>Autoevaluación del Parcial 1</b>
+      <span>71 preguntas de estudio y 28 de las instancias ya tomadas</span>
+    </span>
+    <span class="marcador" data-clave="s21.ia.parcial1.v1" data-total="99"></span>
+  </a>
+
+  <a class="destacado solo-web" target="_blank" rel="noopener" href="ia.html">
+    <span class="txt">
+      <b>Autoevaluación del Parcial 1</b>
+      <span>71 de estudio, 28 ya tomadas y 15 del preguntero</span>
+    </span>
+    <span class="marcador" data-clave="s21.ia.parcial1.v1" data-total="114"></span>
+  </a>
+
+  <a class="destacado solo-local" target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 2 - Modulos 03-04 - Autoevaluacion interactiva.html">
+    <span class="txt">
+      <b>Autoevaluación del Parcial 2</b>
+      <span>100 preguntas de estudio y 48 de las cuatro instancias ya tomadas</span>
+    </span>
+    <span class="marcador" data-clave="s21.ia.parcial2.v1" data-total="148"></span>
+  </a>
+
+  <section class="parcial">
+    <h2>Parcial 1 · Módulos 01-02</h2>
+    <p class="material"><a target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 1 - Modulos 01-02 - Autoevaluacion interactiva.html">Autoevaluación interactiva</a> · <a target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 1 - Modulos 01-02 - Paquete de estudio.pdf">Paquete de estudio</a></p>
+  </section>
+
+  <section class="parcial">
+    <h2>Parcial 2 · Módulos 03-04</h2>
+    <p class="material"><a target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 2 - Modulos 03-04 - Autoevaluacion interactiva.html">Autoevaluación interactiva</a> · <a target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 2 - Modulos 03-04 - Paquete de estudio.pdf">Paquete de estudio</a> · <a target="_blank" rel="noopener" href="archivos/ia/IA - Parcial 2 - Modulos 03-04 - Resumen express.pdf">Resumen express</a></p>
+  </section>
+
+  <div class="modulos">
+    <div class="modulo">
+      <h3>Módulo 01 · Introducción a la IA</h3>
+      <ol>
+        <li>Inteligencia artificial</li>
+        <li>Big data</li>
+        <li>Machine y deep learning</li>
+        <li>Visión e iluminación artificial</li>
+      </ol>
+      <div class="enlaces">
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 01/Teoria/IA - Modulo 01 - 00 - Mapa conceptual.html">Mapa conceptual</a>
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 01/Teoria/IA - Modulo 01 - 00 - Indice.md">Índice</a>
+      </div>
+    </div>
+    <div class="modulo">
+      <h3>Módulo 02 · Evolución de la IA</h3>
+      <ol>
+        <li>Fundamentos de la IA</li>
+        <li>Orígenes de la IA</li>
+        <li>Áreas de aplicación</li>
+        <li>Agentes inteligentes</li>
+      </ol>
+      <div class="enlaces">
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 02/Teoria/IA - Modulo 02 - 00 - Mapa conceptual.html">Mapa conceptual</a>
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 02/Teoria/IA - Modulo 02 - 00 - Indice.md">Índice</a>
+      </div>
+    </div>
+    <div class="modulo">
+      <h3>Módulo 03 · Data Mining y Bots</h3>
+      <ol>
+        <li>Minería de datos</li>
+        <li>Clasificación de la minería de datos</li>
+        <li>Diseño y aplicación de bots</li>
+        <li>Aplicación de bots conversacionales</li>
+      </ol>
+      <div class="enlaces">
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 03/Teoria/IA - Modulo 03 - 00 - Mapa conceptual.html">Mapa conceptual</a>
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 03/Teoria/IA - Modulo 03 - 00 - Indice.md">Índice</a>
+      </div>
+    </div>
+    <div class="modulo">
+      <h3>Módulo 04 · Impacto cultural</h3>
+      <ol>
+        <li>Recapitulación de conceptos</li>
+        <li>La IA en la cultura digital</li>
+        <li>Ética e inclusión en IA</li>
+        <li>Sistemas de IA en economías en desarrollo</li>
+      </ol>
+      <div class="enlaces">
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 04/Teoria/IA - Modulo 04 - 00 - Mapa conceptual.html">Mapa conceptual</a>
+        <a class="solo-local" target="_blank" rel="noopener" data-local="../Introduccion a la Inteligencia Artificial/Modulo 04/Teoria/IA - Modulo 04 - 00 - Indice.md">Índice</a>
+      </div>
+    </div>
+  </div>
+
+  <p class="nota solo-local">Huecos declarados del material: la iluminación artificial no se desarrolla en M01 L4, el PDF de M02 L3 es un escaneo sin capa de texto y los cuatro del M03 también lo son. El M04 es el de más pérdida de contenido, con los cuatro casos anunciados y sin desarrollar. Los cuatro TP cerraron en 100, 100, 100 y 97,5.</p>
+  <p class="nota solo-web">Huecos declarados del material: la iluminación artificial no se desarrolla en M01 L4, y el PDF de M02 L3 es un escaneo sin capa de texto.</p>
+</div>
+
+<details class="flujo solo-local">
+  <summary>Cómo se estudia cada módulo</summary>
+  <ol>
+    <li>Los PDF de cátedra entran a <code>Modulo NN/Teoria</code> y salen como un resumen por lección, más un índice y un mapa conceptual del módulo.</li>
+    <li>Cuando el módulo cierra, el TP online y la actividad práctica quedan archivados en <code>Modulo NN/TPs</code> con las respuestas correctas.</li>
+    <li>Antes de una evaluación se arma el paquete de estudio en <code>Parciales</code>, con síntesis, glosario, marcos, errores frecuentes, choques de vocabulario y autoevaluación.</li>
+    <li>Sobre ese paquete se genera la <b>autoevaluación interactiva</b>, que es la página que se usa para estudiar de verdad.</li>
+  </ol>
+  <p class="nota">Para armar una autoevaluación nueva, pedir <code>/crear-pagina-estudio</code> con la materia y los módulos que entran.</p>
+</details>
+
+<footer>
+  Todo el contenido sale de los PDF de cátedra y de los paquetes de estudio. Donde el material declara un hueco, la página lo dice.
+</footer>
+</div>
+
+<script>
+if(document.documentElement.classList.contains("local")){
+  document.querySelectorAll("[data-local]").forEach(a=>{a.setAttribute("href",a.dataset.local)});
+}
+/* Si el navegador comparte el almacenamiento entre archivos locales, se muestra
+   el avance de cada autoevaluación. Si no, la etiqueta queda vacía y no molesta. */
+document.querySelectorAll(".marcador").forEach(el=>{
+  let hist=null;
+  try{hist=JSON.parse(localStorage.getItem(el.dataset.clave)||"null")}catch(e){}
+  if(!hist||!Object.keys(hist).length) return;
+  const ns=Object.keys(hist);
+  const bien=ns.filter(n=>hist[n].u===1).length;
+  const pct=Math.round(bien/ns.length*100);
+  el.innerHTML='<b>'+pct+'%</b>'+ns.length+' de '+el.dataset.total+' respondidas';
+});
+</script>
+</body>
+</html>
