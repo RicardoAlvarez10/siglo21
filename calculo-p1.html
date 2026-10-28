@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cálculo · Parcial 1 · Autoevaluación interactiva</title>
 <style>
   :root{
@@ -263,103 +263,6 @@
   .vacio{color:var(--tenue);font-style:italic;padding:30px 0;text-align:center}
   footer{margin-top:32px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
 </style>
-<style>
-  /* Las insignias .est.vacio heredaban el padding de 30px del estado .vacio
-     y estiraban cada fila del indice de temas. */
-  .est.vacio{padding:0 7px;font-style:normal;text-align:center}
-  /* ---------- Ajustes para celular 2026-10-20 ----------
-     Solo pantallas de 640 px o menos, pensado para usar con una mano:
-     Temas y Siguiente quedan abajo, al alcance del pulgar, con objetivos de
-     toque de 44 px y opciones mas separadas. */
-  @media (max-width:640px){
-    .burger,.btn,.modo,.arbol button,.opcion,.flag{min-height:44px}
-    .cerrarPanel{min-width:44px;min-height:44px;display:inline-flex;
-      align-items:center;justify-content:center}
-    .voto{min-width:44px;min-height:44px;justify-content:center}
-    .pieArbol button{min-height:44px;display:inline-flex;align-items:center}
-    .opciones{gap:12px}
-    /* Temas, flotando abajo a la izquierda */
-    .burger,body.fijo .burger{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));
-      z-index:26;width:112px;min-height:52px;justify-content:center;border-radius:6px;
-      box-shadow:0 3px 14px rgba(26,26,26,.16)}
-    /* Siguiente, al lado y hasta el borde derecho */
-    .flot{position:fixed;left:136px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
-      top:auto;transform:none;width:auto;border-radius:6px;flex-direction:row;
-      justify-content:center;align-items:center;gap:10px;min-height:52px;padding:12px 16px;
-      box-shadow:0 3px 16px rgba(45,74,62,.28)}
-    .flot.visible{display:flex}
-    .flot small{display:none}
-    .wrap{padding-bottom:calc(124px + env(safe-area-inset-bottom))}
-    /* Que deslizar de costado no dispare el volver atras del navegador. */
-    html,body{overscroll-behavior-x:none}
-    .pistaGestos{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));
-      z-index:27;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;
-      background:var(--titulo);color:#fff;border-radius:6px;padding:11px 14px;text-align:center;
-      pointer-events:none;opacity:0;transition:opacity .3s ease}
-    .pistaGestos.visible{opacity:.94}
-  }
-  .pistaGestos{display:none}
-  @media (max-width:640px){.pistaGestos{display:block}}
-</style>
-<style>
-  /* ---------- Mejoras de uso 2026-10-25 ----------
-     Rotulos por tipo de pregunta, contador de respuestas multiples, ayuda de
-     atajos, barra de progreso por segmentos, racha, foco visible y movimiento
-     reducido. */
-  .rotulo-ms{text-transform:none;letter-spacing:.01em;font-size:12.5px}
-  .msPie{justify-content:flex-start}
-  .contador{font-family:'Segoe UI',sans-serif;font-size:13px;color:var(--tenue)}
-  .contador.tope{color:#7A5A22}
-  .veredicto .parcialMs{text-transform:none;letter-spacing:0;font-weight:normal;
-    color:var(--titulo);margin-left:10px}
-  .pistaTeclas{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue);
-    opacity:.75;margin:12px 0 0}
-  @media (pointer:coarse){.pistaTeclas{display:none}}
-  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
-    white-space:nowrap;margin:-1px;padding:0;border:0}
-  .racha{display:inline-block;margin-left:8px;padding:0 8px;border:1px solid var(--borde);
-    border-radius:10px;color:var(--acento);font-weight:600;font-size:12px}
-  .progreso{height:6px;background:none;border-radius:0;overflow:visible}
-  .progreso #barra{width:100%;height:100%;background:none;display:flex;transition:none}
-  #barra.segmentos{gap:2px}
-  #barra i{display:block;height:100%;background:var(--borde);border-radius:2px}
-  #barra.segmentos i{flex:1 1 0}
-  #barra.continua{background:var(--borde);border-radius:3px;overflow:hidden}
-  #barra.continua i{border-radius:0}
-  #barra i.ok{background:var(--ok)}
-  #barra i.mal{background:var(--mal)}
-  #barra i.actual{background:#C9C6C3}
-  button:focus-visible,.opcion:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
-  @media (max-width:640px),(pointer:coarse){.opcion,.btn{min-height:44px}}
-  @media (prefers-reduced-motion:reduce){
-    *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
-  }
-</style>
-<style>
-  /* ---------- Pregunta anterior 2026-10-27 ----------
-     Anterior al lado de Siguiente y un flotante debajo del de Siguiente;
-     en celular queda a la izquierda de Siguiente, en la barra de abajo. */
-  .navPreg{display:flex;gap:9px;align-items:center}
-  /* Diseno 2026-10-28: Siguiente y Anterior con el mismo ancho, alineados;
-     Anterior como boton secundario (blanco con borde) para no competir. */
-  #flot{width:108px}
-  #flotAnt{top:calc(50% + 52px);transform:none;width:108px;flex-direction:row;
-    justify-content:center;gap:7px;padding:9px 0;background:var(--panel);
-    color:var(--acento);border:1px solid var(--acento);box-shadow:0 2px 10px rgba(45,74,62,.14)}
-  #flotAnt:hover{background:var(--okBg)}
-  #flotAnt b{font-size:15px}
-  #flotAnt small{display:none}
-  @media (max-width:900px){#flot,#flotAnt{width:96px}#flotAnt{top:calc(50% + 41px)}}
-  @media (max-width:640px){
-    .pie .navPreg .btn{width:auto;flex:1 1 0}
-    #flot{width:auto}
-    #flotAnt{top:auto;left:136px;right:auto;width:52px;min-height:52px;padding:0;
-      box-shadow:0 3px 14px rgba(26,26,26,.16)}
-    #flotAnt b{font-size:20px}
-    #flotAnt span{display:none}
-    #flotAnt.visible + #flot{left:200px}
-  }
-</style>
 </head>
 <body>
 <div class="wrap">
@@ -378,7 +281,6 @@
 </div>
 <div class="progreso"><div id="barra"></div></div>
 <div id="escenario"></div>
-<button class="flot" id="flotAnt" title="Volver a la pregunta anterior"><b>&#8592;</b><span>Anterior</span><small>&#8592;</small></button>
 <button class="flot" id="flot" title="Pasar a la siguiente pregunta"></button>
 
 <footer class="ui">Contenido tomado de los resúmenes de teoría de los módulos 01 y 02 de Cálculo Avanzado, de sus dos índices y del paquete de estudio del Parcial 1. Las preguntas del banco de repaso son las cuatro que traen las propias lecturas de cátedra, con su enunciado y sus opciones registrados. Esta materia todavía no tiene trabajos prácticos ni actividades prácticas archivadas. Ojo con una cosa: Cálculo Avanzado es una matemática de desarrollo, así que esta página mide identificación de conceptos y resolución de ejercicios cortos, no reemplaza haber resuelto a mano los procedimientos de las secciones 4 y 5 del paquete de estudio.</footer>
@@ -395,8 +297,9 @@
     </div>
   </div>
   <div class="barra-modo">
-  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 139 preguntas</button>
+  <button class="modo" data-modo="quiz" aria-pressed="true">Autoevaluación · 169 preguntas</button>
   <button class="modo" data-modo="preg" aria-pressed="false">Repaso de cátedra · 4 preguntas</button>
+  <button class="modo" data-modo="exam" aria-pressed="false">Exámenes anteriores · 73 preguntas</button>
   </div>
   <div class="arbol" id="chips"></div>
 </aside>
@@ -457,7 +360,7 @@ const QUIZ=[
  q:"El teorema de la sucesión monótona garantiza __________.",
  op:["que el límite existe, sin decir cuál es","el valor exacto del límite","que la sucesión es creciente","que la sucesión está acotada"],ok:0,
  just:"La propia lectura lo señala como la única desventaja del teorema: es un resultado de existencia, y el valor hay que calcularlo por otro camino.",
- dist:"Creer que el teorema entrega el valor es el error más común. Las dos últimas opciones invierten el teorema: la acotación y la monotonía son hipótesis, no conclusiones.",
+ dist:"Creer que el teorema entrega el valor es el error más común. Las opciones «que la sucesión es creciente» y «que la sucesión está acotada» invierten el teorema: la acotación y la monotonía son hipótesis, no conclusiones.",
  ref:"M01 L1"},
 {n:104,mod:"01",lec:"L1",tema:"Sucesiones",nivel:"aplicar",tipo:"mc",src:"propia",
  q:"¿Cuál es el límite de aₙ = (n + 5) / (n² + 1)?",
@@ -763,7 +666,7 @@ const QUIZ=[
  q:"Una serie es, con precisión, __________.",
  op:["el límite de la sucesión de sumas parciales Sₙ","la suma de infinitos términos de una sucesión","una sucesión de términos que se acumulan","cualquier secuencia indexada de valores"],ok:0,
  just:"La cátedra insiste en este punto: la definición no garantiza que exista una suma infinita, solo define una notación para indicar la convergencia de las sumas parciales.",
- dist:"La opción «la suma de infinitos términos de una sucesión» es la formulación intuitiva y la que el propio PDF sale a corregir. La última es el choque con el vocabulario de datos, donde serie significa secuencia.",
+ dist:"La opción «la suma de infinitos términos de una sucesión» es la formulación intuitiva y la que el propio PDF sale a corregir. La opción «cualquier secuencia indexada de valores» es el choque con el vocabulario de datos, donde serie significa secuencia.",
  ref:"M01 L2"},
 {n:8,mod:"01",lec:"L2",tema:"Series",nivel:"comprender",tipo:"mc",src:"paquete",
  q:"¿Cuál es la única familia de series del módulo donde se conoce el valor exacto de la suma?",
@@ -775,7 +678,7 @@ const QUIZ=[
  q:"Decidir la naturaleza de la serie Σ n/(2n+3).",
  op:["Diverge, por el criterio del término general","Converge, por comparación con la serie p","Converge, porque el término general tiende a 1/2","Diverge, por el criterio de la integral"],ok:0,
  just:"El límite del término general es 1/2, distinto de cero, por lo que la serie diverge y no hace falta ningún otro criterio.",
- dist:"La opción «Converge, porque el término general tiende a 1/2» invierte el criterio: que el término tienda a un valor no nulo es exactamente lo que prueba la divergencia. La cuarta llega al resultado correcto por un camino innecesario.",
+ dist:"La opción «Converge, porque el término general tiende a 1/2» invierte el criterio: que el término tienda a un valor no nulo es exactamente lo que prueba la divergencia. La opción «Diverge, por el criterio de la integral» llega al resultado correcto por un camino innecesario.",
  ref:"M01 L2"},
 {n:10,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"paquete",
  q:"Calcular la suma de Σ(n=1 a ∞) (2/5)ⁿ.",
@@ -799,13 +702,13 @@ const QUIZ=[
  q:"¿Cuándo conviene el criterio de la raíz por sobre el del cociente?",
  op:["Cuando el término general tiene potencias n-ésimas","Cuando el término general tiene factoriales","Cuando la serie es alternante","Cuando el término general es un cociente de polinomios"],ok:0,
  just:"La lectura lo dice de forma explícita al presentar cada criterio: el del cociente para factoriales, el de la raíz para potencias de n.",
- dist:"Las dos primeras opciones están intercambiadas a propósito. Es un dato de memoria pura y por eso es fácil de preguntar.",
+ dist:"Las opciones «Cuando el término general tiene potencias n-ésimas» y «Cuando el término general tiene factoriales» están intercambiadas a propósito. Es un dato de memoria pura y por eso es fácil de preguntar.",
  ref:"M01 L2"},
 {n:14,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"paquete",
  q:"Decidir la naturaleza de Σ 1/n^(1/2).",
  op:["Diverge, es la serie p con p = 1/2","Converge, es la serie p con p = 1/2","Converge, por el criterio de la integral","Diverge, por el criterio del término general"],ok:0,
  just:"La serie p converge si y solo si p > 1. Acá p = 1/2, que es menor o igual a 1, por lo que diverge.",
- dist:"La opción «Converge, es la serie p con p = 1/2» invierte la condición del criterio. La cuarta llega al resultado correcto por un camino inválido: el término general tiende a cero, así que ese criterio no dice nada.",
+ dist:"La opción «Converge, es la serie p con p = 1/2» invierte la condición del criterio. La opción «Diverge, por el criterio del término general» llega al resultado correcto por un camino inválido: el término general tiende a cero, así que ese criterio no dice nada.",
  ref:"M01 L2"},
 {n:105,mod:"01",lec:"L2",tema:"Series",nivel:"aplicar",tipo:"mc",src:"propia",
  q:"Decidir la naturaleza de Σ 2ⁿ/n!.",
@@ -887,7 +790,7 @@ const QUIZ=[
  q:"Para que la serie de Taylor represente a f en un intervalo, el residuo debe cumplir __________.",
  op:["lím(n→∞) Rₙ(x) = 0 en ese intervalo","Rₙ(x) = 0 para todo x del intervalo","que Rₙ esté acotado por una constante","que f tenga todas sus derivadas en el intervalo"],ok:0,
  just:"El teorema 1 pide exactamente ese límite. Que las derivadas existan es necesario pero no suficiente.",
- dist:"La opción «Rₙ(x) = 0 para todo x del intervalo» confunde el residuo tendiendo a cero con el residuo siendo cero, que solo pasa si f ya es un polinomio. La cuarta se queda con la hipótesis previa y olvida la condición central.",
+ dist:"La opción «Rₙ(x) = 0 para todo x del intervalo» confunde el residuo tendiendo a cero con el residuo siendo cero, que solo pasa si f ya es un polinomio. La opción «que f tenga todas sus derivadas en el intervalo» se queda con la hipótesis previa y olvida la condición central.",
  ref:"M01 L3"},
 {n:18,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"recordar",tipo:"mc",src:"paquete",
  q:"El desarrollo de Maclaurin de eˣ y su radio de convergencia son __________.",
@@ -899,7 +802,7 @@ const QUIZ=[
  q:"El polinomio de Maclaurin de cos(x) hasta el grado 4 es __________.",
  op:["1 − x²/2 + x⁴/24","1 − x²/2 + x⁴/12","x − x³/6","1 + x²/2 + x⁴/24"],ok:0,
  just:"De la tabla, cos x = Σ (−1)ⁿ x^(2n)/(2n)!. Los términos hasta grado 4 son 1, −x²/2! y +x⁴/4!, o sea 1 − x²/2 + x⁴/24.",
- dist:"El 12 sale de confundir 4! con 4·3. La opción «x − x³/6» es el desarrollo del seno. La cuarta olvida el signo alternado, que es el rasgo distintivo de las trigonométricas.",
+ dist:"El 12 sale de confundir 4! con 4·3. La opción «x − x³/6» es el desarrollo del seno. La opción «1 + x²/2 + x⁴/24» olvida el signo alternado, que es el rasgo distintivo de las trigonométricas.",
  ref:"M01 L3"},
 {n:20,mod:"01",lec:"L3",tema:"Fórmula de Taylor",nivel:"aplicar",tipo:"mc",src:"paquete",
  q:"Con f(x) = √x y centro a = 4, el polinomio T₂ aproxima √5 en __________.",
@@ -1017,7 +920,7 @@ const QUIZ=[
  q:"El polinomio de Taylor de orden 2 en a = 0 de f(x) = sen(x) + cos(x) es __________.",
  op:["1 + x − x²/2","x + 1 − x²","1 + x + x²/2","x − x²/2"],ok:0,
  just:"El de sen(x) a orden 2 es simplemente x, porque su siguiente término es cúbico. El de cos(x) es 1 − x²/2. La suma no requiere truncar.",
- dist:"La opción «1 + x + x²/2» invierte el signo del término cuadrático, que viene del coseno y es negativo. La cuarta olvida el 1 del coseno, que es el único término independiente.",
+ dist:"La opción «1 + x + x²/2» invierte el signo del término cuadrático, que viene del coseno y es negativo. La opción «x − x²/2» olvida el 1 del coseno, que es el único término independiente.",
  ref:"M01 L4"},
 {n:118,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",nivel:"recordar",tipo:"mc",src:"propia",
  q:"Para acotar el residuo de un polinomio de grado n hace falta la derivada de orden __________ y el factorial __________.",
@@ -1111,7 +1014,7 @@ const QUIZ=[
  q:"El plano que pasa por A(1,0,0), B(0,2,0) y C(0,0,3) tiene por ecuación __________.",
  op:["6x + 3y + 2z = 6","x + y + z = 1","6x + 3y + 2z = 0","2x + 3y + 6z = 6"],ok:0,
  just:"Con AB = ⟨−1,2,0⟩ y AC = ⟨−1,0,3⟩ el producto cruz da el normal ⟨6,3,2⟩. Aplicando la ecuación en el punto A queda 6(x−1)+3y+2z = 0, o sea 6x+3y+2z = 6.",
- dist:"La opción «6x + 3y + 2z = 0» olvida el término independiente, que sale de pasar el plano por A. La cuarta permuta los coeficientes del normal, que es el error de armar el determinante con las filas cambiadas.",
+ dist:"La opción «6x + 3y + 2z = 0» olvida el término independiente, que sale de pasar el plano por A. La opción «2x + 3y + 6z = 6» permuta los coeficientes del normal, que es el error de armar el determinante con las filas cambiadas.",
  ref:"M02 L1"},
 {n:121,mod:"02",lec:"L1",tema:"Vectores",nivel:"comprender",tipo:"mc",src:"propia",
  q:"El producto escalar de dos vectores devuelve __________ y el producto cruz devuelve __________.",
@@ -1187,7 +1090,7 @@ const QUIZ=[
  q:"Para r(t) = ⟨3t, 4t, 5⟩, el vector tangente unitario T(0) es __________.",
  op:["⟨3/5, 4/5, 0⟩","⟨3, 4, 0⟩","⟨3, 4, 5⟩","⟨3/5, 4/5, 1⟩"],ok:0,
  just:"r'(t) = ⟨3,4,0⟩, que es constante. Su norma es 5, por lo que T = ⟨3/5, 4/5, 0⟩, con norma 1.",
- dist:"La opción «⟨3, 4, 0⟩» es r' sin normalizar, que es el error de confundir el tangente con el tangente unitario. La tercera deriva mal la constante 5, que aporta 0 y no 5.",
+ dist:"La opción «⟨3, 4, 0⟩» es r' sin normalizar, que es el error de confundir el tangente con el tangente unitario. La opción «⟨3, 4, 5⟩» deriva mal la constante 5, que aporta 0 y no 5.",
  ref:"M02 L2"},
 {n:34,mod:"02",lec:"L2",tema:"Derivación de un vector",nivel:"aplicar",tipo:"mc",src:"paquete",
  q:"La longitud de r(t) = ⟨2cos t, 2sen t, 3t⟩ para 0 ≤ t ≤ 2 es __________.",
@@ -1223,7 +1126,7 @@ const QUIZ=[
  q:"Para r(t) = ⟨t², eᵗ, sen t⟩, el vector tangente unitario en t = 0 es __________.",
  op:["⟨0, √2/2, √2/2⟩","⟨0, 1, 1⟩","⟨0, 1, 0⟩","⟨2, 1, 1⟩"],ok:0,
  just:"r'(t) = ⟨2t, eᵗ, cos t⟩, que en t = 0 vale ⟨0,1,1⟩, con norma √2. Dividiendo queda ⟨0, √2/2, √2/2⟩, cuya norma es 1.",
- dist:"La opción «⟨0, 1, 1⟩» es r'(0) sin normalizar. La cuarta deriva mal t², evaluando 2t como si fuera 2.",
+ dist:"La opción «⟨0, 1, 1⟩» es r'(0) sin normalizar. La opción «⟨2, 1, 1⟩» deriva mal t², evaluando 2t como si fuera 2.",
  ref:"M02 L2"},
 
 /* ===== M02 L2 · Derivación de un vector · prácticos nuevos ===== */
@@ -1263,7 +1166,7 @@ const QUIZ=[
  q:"Para f(x,y) = x²y³ + e^(xy), la derivada parcial fₓ es __________.",
  op:["2xy³ + y·e^(xy)","2xy³ + e^(xy)","3x²y² + x·e^(xy)","2xy³ + xy·e^(xy)"],ok:0,
  just:"Se deja y fija. El primer término da 2xy³ y el segundo requiere regla de la cadena, con la derivada interna de xy respecto de x, que es y.",
- dist:"La opción «2xy³ + e^(xy)» olvida la cadena y pierde el factor y. La tercera es fy, o sea la parcial respecto de la otra variable.",
+ dist:"La opción «2xy³ + e^(xy)» olvida la cadena y pierde el factor y. La opción «3x²y² + x·e^(xy)» es fy, o sea la parcial respecto de la otra variable.",
  ref:"M02 L3"},
 {n:37,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"recordar",tipo:"mc",src:"paquete",
  q:"El teorema de Clairaut afirma que fₓᵧ = fᵧₓ siempre que __________.",
@@ -1293,7 +1196,7 @@ const QUIZ=[
  q:"Para f(x,y) = x²y³ + 2xy, ¿cuánto vale la parcial cruzada fₓᵧ?",
  op:["6xy² + 2","6x²y² + 2","2xy³ + 2y","2x²y³ + 2x"],ok:0,
  just:"Primero fₓ = 2xy³ + 2y, dejando y fija. Derivando eso respecto de y queda 6xy² + 2. Se verifica por el otro camino: fᵧ = 3x²y² + 2x, y su derivada respecto de x es 6xy² + 2. Coinciden, como corresponde por Clairaut.",
- dist:"La opción «6x²y² + 2» agrega una potencia de x que no está, que es el error de derivar respecto de x cuando toca derivar respecto de y. Las dos últimas son parciales de primer orden, fₓ y una variante de fᵧ, o sea detenerse un paso antes.",
+ dist:"La opción «6x²y² + 2» agrega una potencia de x que no está, que es el error de derivar respecto de x cuando toca derivar respecto de y. Las opciones «2xy³ + 2y» y «2x²y³ + 2x» son parciales de primer orden, fₓ y una variante de fᵧ, o sea detenerse un paso antes.",
  ref:"M02 L3"},
 {n:132,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"aplicar",tipo:"mc",src:"propia",
  q:"El límite de xy/(x²+y²) cuando (x,y) tiende a (0,0) __________.",
@@ -1305,7 +1208,7 @@ const QUIZ=[
  q:"Para la función de Cobb-Douglas P(L,K) = 1,47·L^0,65·K^0,35, la parcial respecto de L es __________.",
  op:["0,9555·L^(−0,35)·K^0,35","0,9555·L^0,65·K^0,35","0,5145·L^0,65·K^(−0,65)","1,47·0,65·L^0,65"],ok:0,
  just:"Se deja K fijo y se aplica la regla de la potencia sobre L: 1,47·0,65 = 0,9555, y el exponente baja de 0,65 a 0,65 − 1 = −0,35.",
- dist:"La opción «0,9555·L^0,65·K^0,35» multiplica por el exponente pero no lo baja en uno. La tercera es la parcial respecto de K. Esta cuenta reaparece en la lección 4 dentro de la regla de la cadena.",
+ dist:"La opción «0,9555·L^0,65·K^0,35» multiplica por el exponente pero no lo baja en uno. La opción «0,5145·L^0,65·K^(−0,65)» es la parcial respecto de K. Esta cuenta reaparece en la lección 4 dentro de la regla de la cadena.",
  ref:"M02 L3"},
 {n:134,mod:"02",lec:"L3",tema:"Funciones de varias variables",nivel:"recordar",tipo:"mc",src:"propia",
  q:"Las notaciones fₓ, ∂f/∂x, D₁f y f₁ designan __________.",
@@ -1363,13 +1266,13 @@ const QUIZ=[
  q:"El plano tangente a z = x² + y² en el punto (1, 2, 5) es __________.",
  op:["z = 2x + 4y − 5","z = 2x + 4y + 5","z = x + 2y + 2","z = 2x + 2y + 1"],ok:0,
  just:"fₓ = 2x y fᵧ = 2y, que en (1,2) valen 2 y 4. Reemplazando en z − 5 = 2(x−1) + 4(y−2) queda z = 2x + 4y − 5. Se verifica evaluando en (1,2), que da 5.",
- dist:"La opción «z = 2x + 4y + 5» suma el término independiente en lugar de restarlo. La tercera usa el punto en lugar de las parciales como coeficientes.",
+ dist:"La opción «z = 2x + 4y + 5» suma el término independiente en lugar de restarlo. La opción «z = x + 2y + 2» usa el punto en lugar de las parciales como coeficientes.",
  ref:"M02 L4"},
 {n:137,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"aplicar",tipo:"mc",src:"propia",
  q:"Si z = x²y con x = cos t e y = sen t, entonces dz/dt es __________.",
  op:["−2cos t·sen²t + cos³t","2cos t·sen²t + cos³t","−2sen t + cos t","2xy + x²"],ok:0,
  just:"Por la regla de la cadena, dz/dt = 2xy·(−sen t) + x²·(cos t). Sustituyendo x e y queda −2cos t sen²t + cos³t. Se verifica derivando cos²t·sen t directamente.",
- dist:"La opción «2cos t·sen²t + cos³t» pierde el signo menos que viene de derivar el coseno. La cuarta se queda en las parciales sin encadenar con las derivadas de las variables intermedias.",
+ dist:"La opción «2cos t·sen²t + cos³t» pierde el signo menos que viene de derivar el coseno. La opción «2xy + x²» se queda en las parciales sin encadenar con las derivadas de las variables intermedias.",
  ref:"M02 L4"},
 {n:138,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",nivel:"comprender",tipo:"mc",src:"propia",
  q:"La regla de la cadena para u función de n variables intermedias que dependen de m independientes tiene, en cada derivada, __________.",
@@ -1469,6 +1372,448 @@ const QUIZ=[
  just:"El teorema pide las dos cosas a la vez: acotada y monótona. La quinta opción es la definición de sucesión, que ya está dada de entrada y no es una hipótesis adicional.",
  dist:"Exigir que sea creciente es restringir de más, porque el teorema admite también decrecientes. Pedir que el término tienda a cero es confundir con el criterio de series, que pertenece a otra lección.",
  ref:"M01 L1"}
+];
+
+/* ---------- Banco 3 · Exámenes anteriores (preguntero Daypo 2022) ---------- */
+const EXAM=[
+{n:4001,daypo:1,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim 3n(2^(−2/n) − 1) es:",
+ op:["6 ln 2","−6","−6 ln 2"],ok:2,
+ just:"Con n(a^(k/n) − 1) tiende a k·ln a: 3·(−2)·ln 2 = −6 ln 2.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 1"},
+{n:4002,daypo:2,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim n(5^(4/n) − 1) es:",
+ op:["5 ln 4","4 ln 5","−5 ln 4"],ok:1,
+ just:"n(a^(k/n) − 1) tiende a k·ln a = 4 ln 5.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 2"},
+{n:4003,daypo:3,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim n·sen(−3/n) es:",
+ op:["3","−1/3","−3"],ok:2,
+ just:"sen(x) ≈ x para x chico: n·(−3/n) = −3.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 3"},
+{n:4004,daypo:4,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim 3n(3^(2/n) − 1) es:",
+ op:["3 ln 6","6 ln 3","−6 ln 3"],ok:1,
+ just:"3·2·ln 3 = 6 ln 3.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 4"},
+{n:4005,daypo:5,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim 0,5n(1 − cos(10/n)) es:",
+ op:["1/4","0","1/10"],ok:1,
+ just:"1 − cos x ≈ x²/2: 0,5n·50/n² = 25/n tiende a 0.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 5"},
+{n:4006,daypo:6,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim (1 + 3/n)^(2n) es:",
+ op:["6e","e⁶","−6e"],ok:1,
+ just:"(1 + a/n)^(bn) tiende a e^(ab) = e⁶.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 6"},
+{n:4007,daypo:7,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim n(e^(−3/n) − 1) es:",
+ op:["1/3","−3","−1/3"],ok:1,
+ just:"e^x − 1 ≈ x: n·(−3/n) = −3.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 7"},
+{n:4008,daypo:8,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim (n/5)·sen(3/n) es:",
+ op:["5/3","3/5","−5/3"],ok:1,
+ just:"(n/5)·(3/n) = 3/5.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 8"},
+{n:4009,daypo:9,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim (n/4)·sen(2/n) es:",
+ op:["2","1/2","−2"],ok:1,
+ just:"(n/4)·(2/n) = 1/2.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 9"},
+{n:4010,daypo:10,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ 1/((n+9)(n+10)) es:",
+ op:["10","1/10","−10"],ok:1,
+ just:"Telescópica: 1/((n+9)(n+10)) = 1/(n+9) − 1/(n+10). Queda el primer término 1/10.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 10"},
+{n:4011,daypo:11,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ 1/((n+7)(n+8)) es:",
+ op:["1/9","1/8","1/10"],ok:1,
+ just:"Telescópica: queda 1/(1+7) = 1/8.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 11"},
+{n:4012,daypo:12,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ aₙ de números reales no nulos cumple lim |aₙ₊₁ / aₙ| = 3. Entonces es válido afirmar que:",
+ op:["Σ (1/3)ⁿ aₙ diverge por el criterio del cociente","Con el criterio del cociente no es posible decidir la convergencia de Σ (1/3)ⁿ aₙ","Σ (1/3)ⁿ aₙ converge por el criterio del cociente"],ok:1,
+ just:"El cociente de Σ (1/3)ⁿ aₙ tiende a (1/3)·3 = 1, y con L = 1 el criterio no concluye.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 12"},
+{n:4013,daypo:13,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"Dada la serie Σ (−1)ⁿ/n, es correcto afirmar que:",
+ op:["No es convergente, no es absolutamente convergente, es alternante","Es convergente, no es absolutamente convergente, es alternante","Es convergente, es absolutamente convergente, es alternante"],ok:1,
+ just:"Converge por el criterio alternante. Sin signos es la armónica, que diverge: es condicional.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 13"},
+{n:4014,daypo:14,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"Verdadero o falso: la serie Σ (−1)ⁿ xⁿ/(2n) tiene radio de convergencia 2.",
+ op:["Falso","Verdadero"],ok:0,
+ just:"Por el cociente, |aₙ₊₁/aₙ| tiende a |x|, así que el radio es 1.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 14"},
+{n:4015,daypo:15,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"Verdadero o falso: la serie Σ (−1)ⁿ xⁿ/(2n)! tiene conjunto de convergencia (−∞, 2).",
+ op:["Falso","Verdadero"],ok:0,
+ just:"Con factorial en el denominador el cociente tiende a 0 para todo x: converge en todo ℝ.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 15"},
+{n:4016,daypo:16,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"La serie de Taylor de f(x) = e^(−5x) es:",
+ op:["Σ (−1)ⁿ 5ⁿ xⁿ / n!","Σ (−1)ⁿ 5ⁿ⁻¹ xⁿ / n!"],ok:0,
+ just:"Se reemplaza x por −5x en eˣ = Σ xⁿ/n!.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 16"},
+{n:4017,daypo:17,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"La serie de Taylor de f(x) = cos 2x es:",
+ op:["Σ (−1)ⁿ 4ⁿ x²ⁿ / (2n)!","Σ (−1)ⁿ 4ⁿ x²ⁿ⁻¹ / (2n)!"],ok:0,
+ just:"cos u = Σ (−1)ⁿ u²ⁿ/(2n)! con u = 2x, y (2x)²ⁿ = 4ⁿ x²ⁿ.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 17"},
+{n:4018,daypo:19,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"La serie de Taylor de f(x) = sen 2x es:",
+ op:["Σ (−1)ⁿ 2²ⁿ⁺¹ x²ⁿ⁺¹ / (2n+1)!","Σ (−1)ⁿ 2²ⁿ⁺¹ x²ⁿ⁻¹ / (2n+1)!"],ok:0,
+ just:"sen u = Σ (−1)ⁿ u²ⁿ⁺¹/(2n+1)! con u = 2x. <b>Sobre el Daypo:</b> El Daypo escribe el exponente como 2^n+1. Lo correcto es 2^(2n+1).",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 19"},
+{n:4019,daypo:20,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"La serie de Taylor de f(x) = 1/(1 − 3x) es:",
+ op:["Σ 3ⁿ xⁿ","Σ 3ⁿ xⁿ⁻¹"],ok:0,
+ just:"Geométrica 1/(1 − r) = Σ rⁿ con r = 3x.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 20"},
+{n:4020,daypo:21,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del séptimo mes?",
+ op:["5892","5692","5792"],ok:0,
+ just:"Pₙ = 1,08·Pₙ₋₁ − 300 desde P₀ = 5000. P₇ = 5892,28.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 21"},
+{n:4021,daypo:22,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del quinto mes?",
+ op:["5586","5486","5386"],ok:0,
+ just:"P₅ = 5586,66.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 22"},
+{n:4022,daypo:23,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del primer mes?",
+ op:["5100","6100","5111"],ok:0,
+ just:"P₁ = 5000·1,08 − 300 = 5100.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 23"},
+{n:4023,daypo:24,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del cuarto mes?",
+ op:["5451","5421","5351"],ok:0,
+ just:"P₄ = 5450,61, se redondea a 5451.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 24"},
+{n:4024,daypo:25,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del noveno mes?",
+ op:["6248","6348","6148"],ok:0,
+ just:"P₉ = 6248,76. La cátedra trunca a 6248.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 25"},
+{n:4025,daypo:26,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del octavo mes?",
+ op:["6063","6163","6263"],ok:0,
+ just:"P₈ = 6063,66.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 26"},
+{n:4026,daypo:27,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"En una granja piscícola hay 5000 bagres. El número aumenta un 8% cada mes y el productor cosecha 300 bagres mensualmente. ¿Cuántos peces habrá al cabo del décimo mes?",
+ op:["6448","6348","6248"],ok:0,
+ just:"P₁₀ = 6448,66.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 27"},
+{n:4027,daypo:28,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim 2n·sen(1/(3n)) es:",
+ op:["2/3","1/3","3"],ok:0,
+ just:"2n·1/(3n) = 2/3.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 28"},
+{n:4028,daypo:29,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dada la familia de vectores u = ⟨1, 2, 3⟩, v = ⟨0, −1, −2⟩, w = ⟨0, 0, 1⟩, es correcto decir que:",
+ op:["w · (u × v) = −1","w · (u × v) = −2","w · (u × v) = 1"],ok:0,
+ just:"u × v = ⟨−1, 2, −1⟩ y w · (u × v) = −1.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 29"},
+{n:4029,daypo:30,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dada la familia de vectores u = ⟨1, 2, 3⟩, v = ⟨0, −1, −2⟩, w = ⟨0, 0, 1⟩, es correcto decir que:",
+ op:["‖u‖ + ‖v‖ + ‖w‖ = 6,9777","‖u‖ + ‖v‖ + ‖w‖ = 8,9777","‖u‖ + ‖v‖ + ‖w‖ = 9,9777"],ok:0,
+ just:"√14 + √5 + 1 = 3,7417 + 2,2361 + 1.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 30"},
+{n:4030,daypo:31,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dada la familia de vectores u = ⟨1, 2, 3⟩, v = ⟨0, −1, −2⟩, w = ⟨0, 0, 1⟩, es correcto decir que:",
+ op:["u·v = −8, u·w = 3, v·w = −2","u·v = 8, u·w = 3, v·w = −2","u·v = −8, u·w = 3, v·w = 2"],ok:0,
+ just:"Producto escalar componente a componente.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 31"},
+{n:4031,daypo:32,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dada la familia de vectores u = ⟨1, 2, 3⟩, v = ⟨0, −1, −2⟩, w = ⟨0, 0, 1⟩, es correcto decir que:",
+ op:["cos(u, v) = −0,9562 y cos(u, w) = −0,8018","cos(u, v) = 0,9562 y cos(u, w) = 0,8018","cos(u, v) = −0,9562 y cos(u, w) = 0,8018"],ok:2,
+ just:"cos(u, v) = −8/(√14·√5) = −0,9562 y cos(u, w) = 3/√14 = 0,8018. <b>Sobre el Daypo:</b> El Daypo marca la primera opción, pero cos(u, w) es positivo. Agregamos la opción correcta.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 32"},
+{n:4032,daypo:33,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dada la familia de vectores u = ⟨1, 2, 3⟩, v = ⟨0, −1, −2⟩, w = ⟨0, 0, 1⟩, es correcto decir que:",
+ op:["v × w = ⟨−1, 0, 0⟩, u · (v × w) = −1, v · (w × u) = −1","v × w = ⟨1, 0, 0⟩, u · (v × w) = −1, v · (w × u) = −1"],ok:0,
+ just:"v × w = ⟨−1, 0, 0⟩. El producto mixto no cambia con una permutación cíclica.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 33"},
+{n:4033,daypo:34,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dado u = ⟨1, 2, 3⟩, vale decir que:",
+ op:["El coseno del ángulo con el eje y es 0,5345 y con el eje z es 0,8018","El coseno del ángulo con el eje y es −0,5345 y con el eje z es −0,8018"],ok:0,
+ just:"Cosenos directores: 2/√14 y 3/√14.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 34"},
+{n:4034,daypo:35,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Sea f(x, y) = 2 − x + 3y − 2x² + 5y² + 6xy. Es correcto afirmar que:",
+ op:["f_y(3, 4) = 61","f_y(3, 4) = 63"],ok:0,
+ just:"f_y = 3 + 10y + 6x = 3 + 40 + 18 = 61.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 35"},
+{n:4035,daypo:36,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",tipo:"mc",src:"daypo",
+ q:"Sea f(x, y) = 2 − x + 3y − 2x² + 5y² + 6xy. Es correcto afirmar que:",
+ op:["f_y = 3 + 10y + 6x, f_x(3, 4) = 11, ∇f(3, 4) = ⟨11, 61⟩, y con u = ⟨cos π/3, sen π/3⟩, D_u f(3, 4) = 58,3275","f_y = −3 + 10y + 6x, f_x(3, 4) = 11, ∇f(3, 4) = ⟨−11, 61⟩, y con u = ⟨cos π/3, sen π/3⟩, D_u f(3, 4) = 58,3275"],ok:0,
+ just:"f_x = −1 − 4x + 6y = 11. D_u f = 11·0,5 + 61·0,866 = 58,33.",
+ dist:"",
+ ref:"M02 L4 · preguntero Daypo 2022, pregunta 36"},
+{n:4036,daypo:37,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Sea f(x, y) = 2 − x + 3y − 2x² + 5y² + 6xy. Es correcto afirmar que:",
+ op:["f(1, 0) = −1","f(1, 0) = 1"],ok:0,
+ just:"2 − 1 − 2 = −1.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 37"},
+{n:4037,daypo:38,mod:"02",lec:"L2",tema:"Derivación de un vector",tipo:"mc",src:"daypo",
+ q:"u, v: ℝ tiende a ℝ³ con u(1) = ⟨3, 4, 5⟩, v(1) = ⟨2, 3, 6⟩, u′(1) = ⟨1, 2, 7⟩, v′(1) = ⟨0, 1, 8⟩. Entonces d/dt(u·v) en t = 1 es:",
+ op:["94","84","74"],ok:0,
+ just:"u′·v + u·v′ = 50 + 44 = 94.",
+ dist:"",
+ ref:"M02 L2 · preguntero Daypo 2022, pregunta 38"},
+{n:4038,daypo:39,mod:"02",lec:"L2",tema:"Derivación de un vector",tipo:"mc",src:"daypo",
+ q:"u: ℝ tiende a ℝ³ y f: ℝ tiende a ℝ con u(1) = ⟨3, 4, 5⟩, u′(1) = ⟨1, 2, 7⟩, f(1) = 1 y f′(1) = 2. Entonces:",
+ op:["d/dt(f·u)(1) = ⟨7, 10, 17⟩ y d/dt u(f(t)) en 1 = ⟨2, 4, 7⟩","d/dt(f·u)(−1) = ⟨−7, 10, 17⟩ y d/dt u(f(t)) en 1 = ⟨2, 4, 7⟩","d/dt(f·u)(1) = ⟨7, 10, 17⟩ y d/dt u(f(t)) en 1 = ⟨2, 4, 14⟩"],ok:2,
+ just:"(f·u)′ = f′u + f u′ = ⟨7, 10, 17⟩. u(f(t))′ = u′(f(1))·f′(1) = ⟨1, 2, 7⟩·2 = ⟨2, 4, 14⟩. <b>Sobre el Daypo:</b> El Daypo da ⟨2, 4, 7⟩ para la segunda parte. Con regla de la cadena da ⟨2, 4, 14⟩.",
+ dist:"",
+ ref:"M02 L2 · preguntero Daypo 2022, pregunta 39"},
+{n:4039,daypo:40,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Sea f(x, y) = 2 − x + 3y − 2x² + 5y² + 6xy. Es correcto afirmar que:",
+ op:["f(1, 1) = 13 y f(1, 0) = −1","f(1, 1) = 13 y f(1, 0) = 1"],ok:0,
+ just:"Se reemplaza en f.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 40"},
+{n:4040,daypo:41,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Verdadero o falso: si f(x, y) = x² + y², la curva de nivel {f = −4} es vacía.",
+ op:["Verdadero","Falso"],ok:0,
+ just:"x² + y² nunca es negativo.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 41"},
+{n:4041,daypo:42,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Verdadero o falso: si f(x, y) = x² + y², la curva de nivel {f = 4} es una circunferencia de radio 2.",
+ op:["Falso","Verdadero"],ok:1,
+ just:"x² + y² = 4 es la circunferencia de radio √4 = 2. <b>Sobre el Daypo:</b> El Daypo marca Falso. Es Verdadero.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 42"},
+{n:4042,daypo:43,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ aₙ de números reales no nulos cumple lim |aₙ₊₁ / aₙ| = 3. Entonces es válido afirmar que:",
+ op:["La serie Σ aₙ diverge","La serie Σ aₙ converge"],ok:0,
+ just:"Cociente L = 3 &gt; 1: diverge.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 43"},
+{n:4043,daypo:44,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ aₙ de números reales no nulos cumple lim |aₙ₊₁ / aₙ| = 3. Entonces es válido afirmar que:",
+ op:["Con el criterio del cociente no es posible decidir la convergencia de Σ (1/3)ⁿ aₙ","Σ (1/3)ⁿ aₙ diverge"],ok:0,
+ just:"El cociente da (1/3)·3 = 1, no concluye.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 44"},
+{n:4044,daypo:45,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ aₙ de números reales no nulos cumple lim |aₙ₊₁ / aₙ| = 3. Entonces es válido afirmar que:",
+ op:["Σ (1/6)ⁿ aₙ converge y Σ (5/3)ⁿ aₙ diverge","Σ (1/6)ⁿ aₙ diverge y Σ (5/3)ⁿ aₙ converge"],ok:0,
+ just:"Cocientes: (1/6)·3 = 1/2 &lt; 1 converge, (5/3)·3 = 5 &gt; 1 diverge.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 45"},
+{n:4045,daypo:46,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",tipo:"mc",src:"daypo",
+ q:"u depende de x₁…x₅ y cada xᵢ de t₁…t₇. En un punto, [∂u/∂xᵢ] = [1 1 0 2 3] y la matriz [∂xᵢ/∂tⱼ] tiene filas (1 2 3 1 0 0 2), (4 5 0 0 1 2 0), (5 6 0 3 4 5 0), (6 8 0 9 5 6 3), (7 1 1 5 4 3 1). Entonces:",
+ op:["∂u/∂t₁ = 38, ∂u/∂t₂ = 26, ∂u/∂t₄ = 34","∂u/∂t₁ = −38, ∂u/∂t₂ = −26, ∂u/∂t₄ = 34"],ok:0,
+ just:"Regla de la cadena: fila [1 1 0 2 3] por cada columna. t₁: 1 + 4 + 0 + 12 + 21 = 38.",
+ dist:"",
+ ref:"M02 L4 · preguntero Daypo 2022, pregunta 46"},
+{n:4046,daypo:47,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Ladrillo con aristas u = ⟨10, 0, 0⟩, v = ⟨0, 20, 0⟩, w = ⟨10, 10, 10⟩ (cm). Pintar la cara u, v cuesta $3/cm², la cara u, w $5/cm² y la cara v, w $2/cm². ¿Cuál es el área de la cara formada por u y w?",
+ op:["141,42 cm²","14,142 cm²"],ok:0,
+ just:"‖u × w‖ = ‖⟨0, −100, 100⟩‖ = 141,42.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 47"},
+{n:4047,daypo:48,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Ladrillo con aristas u = ⟨10, 0, 0⟩, v = ⟨0, 20, 0⟩, w = ⟨10, 10, 10⟩ (cm). Pintar la cara u, v cuesta $3/cm², la cara u, w $5/cm² y la cara v, w $2/cm². El ángulo agudo de la cara formada por u y w es:",
+ op:["0,96 π rad","0,86 π rad","−0,96 π rad"],ok:0,
+ just:"cos = 100/(10·17,32) = 0,577, ángulo 0,955 rad. La cátedra escribe π rad como unidad.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 48"},
+{n:4048,daypo:50,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Ladrillo con aristas u = ⟨10, 0, 0⟩, v = ⟨0, 20, 0⟩, w = ⟨10, 10, 10⟩ (cm). Pintar la cara u, v cuesta $3/cm², la cara u, w $5/cm² y la cara v, w $2/cm². ¿Cuál es el área de la cara formada por u y v?",
+ op:["100 cm²","10 cm²","200 cm²"],ok:2,
+ just:"‖u × v‖ = 10·20 = 200. <b>Sobre el Daypo:</b> El Daypo marca 100, que corresponde a la versión con v = ⟨0, 10, 0⟩. Con estos datos da 200.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 50"},
+{n:4049,daypo:52,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Ladrillo con aristas u = ⟨10, 0, 0⟩, v = ⟨0, 20, 0⟩, w = ⟨10, 10, 10⟩ (cm). Pintar la cara u, v cuesta $3/cm², la cara u, w $5/cm² y la cara v, w $2/cm². ¿Cuánto cuesta pintar la cara formada por u y w?",
+ op:["$707,11","$607,11","$777,78"],ok:0,
+ just:"141,42 cm² · $5 = $707,11.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 52"},
+{n:4050,daypo:54,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dado u = ⟨1, 2, 3⟩, vale decir que:",
+ op:["El coseno del ángulo con el eje y es 0,5345","El seno del ángulo con el eje y es 0,5345","El coseno del ángulo con el eje y es 1,5345"],ok:0,
+ just:"2/√14 = 0,5345. Un coseno no puede valer más de 1.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 54"},
+{n:4051,daypo:56,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",tipo:"mc",src:"daypo",
+ q:"Terreno con altura f(x, y) = 1 + x + y + x² + y² − xy (msnm). ¿Cuál de las opciones es correcta?",
+ op:["La altura en (10, 20) es 331 msnm, el máximo descenso es ⟨−1, −31⟩ y el máximo ascenso ⟨1, 31⟩","La altura en (10, 20) es 3310 msnm, el máximo descenso es ⟨1, −31⟩ y el máximo ascenso ⟨1, 31⟩","La altura en (15, 20) es 331 msnm, el máximo descenso es ⟨−1, −31⟩ y el máximo ascenso ⟨1, 31⟩"],ok:0,
+ just:"f(10, 20) = 331. ∇f = ⟨1 + 2x − y, 1 + 2y − x⟩ = ⟨1, 31⟩. Descenso: −∇f.",
+ dist:"",
+ ref:"M02 L4 · preguntero Daypo 2022, pregunta 56"},
+{n:4052,daypo:58,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",tipo:"mc",src:"daypo",
+ q:"Se calcula ∫₀¹ e^(−x²) dx con la serie de Taylor de e^(−x²). Es correcto afirmar que el área es aproximadamente:",
+ op:["1 − 1/3 + 1/10 − 1/42 + 1/216, con un polinomio de grado 8","1 − 1/3 + 1/10 − 1/42 + 1/216, con un polinomio de grado 7","1 − 1/3 + 1/10 − 1/42 + 1/216, con un polinomio de grado 10"],ok:0,
+ just:"e^(−x²) = 1 − x² + x⁴/2 − x⁶/6 + x⁸/24. Hasta x⁸ (grado 8) se integran cinco términos. <b>Sobre el Daypo:</b> El Daypo da grado 9 en una versión y grado 8 en otra. Los dos dan el mismo polinomio porque no hay término x⁹.",
+ dist:"",
+ ref:"M01 L4 · preguntero Daypo 2022, pregunta 58"},
+{n:4053,daypo:59,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",tipo:"mc",src:"daypo",
+ q:"Se calcula ∫₀¹ e^(−x²) dx con la serie de Taylor de e^(−x²). Es correcto afirmar que el área es aproximadamente:",
+ op:["1 − 1/3 + 1/10, con un polinomio de grado 4","1 − 1/3 + 1/10, con un polinomio de grado 6","1 − 1/3 + 1/10, con un polinomio de grado 3"],ok:0,
+ just:"Tres términos: 1 − x² + x⁴/2, grado 4.",
+ dist:"",
+ ref:"M01 L4 · preguntero Daypo 2022, pregunta 59"},
+{n:4054,daypo:60,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",tipo:"mc",src:"daypo",
+ q:"Se calcula ∫₀¹ e^(−x²) dx con la serie de Taylor de e^(−x²). Es correcto afirmar que el área es aproximadamente:",
+ op:["1 − 1/3, con un polinomio de grado 2","1 − 1/3, con un polinomio de grado 4","1 − 1/3, con un polinomio de grado 1"],ok:0,
+ just:"1 − x², grado 2. <b>Sobre el Daypo:</b> El Daypo marca grado 3: da el mismo polinomio (no hay término x³). Si aparece solo grado 3, es esa.",
+ dist:"",
+ ref:"M01 L4 · preguntero Daypo 2022, pregunta 60"},
+{n:4055,daypo:61,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",tipo:"mc",src:"daypo",
+ q:"Se calcula ∫₀¹ e^(−x²) dx con la serie de Taylor de e^(−x²). Es correcto afirmar que el área es aproximadamente:",
+ op:["1, con un polinomio de grado 0","1, con un polinomio de grado −1","1, con un polinomio de grado 2"],ok:0,
+ just:"Solo el término constante 1.",
+ dist:"",
+ ref:"M01 L4 · preguntero Daypo 2022, pregunta 61"},
+{n:4056,daypo:63,mod:"01",lec:"L4",tema:"Usos del polinomio de Taylor",tipo:"mc",src:"daypo",
+ q:"Se calcula ∫₀¹ e^(−x²) dx con la serie de Taylor de e^(−x²). Es correcto afirmar que el área es aproximadamente:",
+ op:["1 − 1/3 + 1/10 − 1/42, con un polinomio de grado 6","1 − 1/3 + 1/10 − 1/42, con un polinomio de grado 5","1 − 1/3 + 1/10 − 1/42, con un polinomio de grado 8"],ok:0,
+ just:"Hasta x⁶/6: grado 6.",
+ dist:"",
+ ref:"M01 L4 · preguntero Daypo 2022, pregunta 63"},
+{n:4057,daypo:64,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"Si lim aₙ = a y lim bₙ = b, entonces (seleccionar la opción correcta):",
+ op:["lim(aₙ − bₙ) = a − b y lim(aₙ + bₙ) = a + b","lim(aₙ + bₙ) = a − b y lim(aₙ + bₙ) = a + b","lim(aₙ − bₙ) = a − b y lim(aₙ − bₙ) = a + b"],ok:0,
+ just:"Álgebra de límites.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 64"},
+{n:4058,daypo:65,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Una placa tiene temperatura T(x, y) = 100 / (1 + x² + y²)². Las curvas de nivel se llaman isotermas. Es válido afirmar que:",
+ op:["El punto (0, 1) está en la isoterma de 25 °C","El punto (1, 1) está en la isoterma de 25 °C","El punto (2, 0) está en la isoterma de 25 °C"],ok:0,
+ just:"T = 25 da (1 + x² + y²)² = 4, o sea x² + y² = 1. (0, 1) cumple. <b>Sobre el Daypo:</b> (1, 0) también está en esa isoterma.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 65"},
+{n:4059,daypo:66,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Una placa tiene temperatura T(x, y) = 100 / (1 + x² + y²)². Las curvas de nivel se llaman isotermas. Es válido afirmar que:",
+ op:["La circunferencia de centro (0, 0) y radio √(√10 − 1) es la isoterma de 10 °C, la de radio √(√50 − 1) la de 2 °C, y (0, 0) está en la de 100 °C","La circunferencia de centro (1, 0) y radio √(√10 − 1) es la isoterma de 10 °C","La circunferencia de centro (0, 1) y radio √(√10 − 1) es la isoterma de 10 °C"],ok:0,
+ just:"T = 10 da (1 + r²)² = 10, r² = √10 − 1, centrada en el origen. T(0, 0) = 100.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 66"},
+{n:4060,daypo:67,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"El radio de convergencia de la serie de f(x) = ln(1 + 4x) es:",
+ op:["1/4","1/3","1/5"],ok:0,
+ just:"ln(1 + u) converge para |u| &lt; 1: |4x| &lt; 1, R = 1/4.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 67"},
+{n:4061,daypo:68,mod:"01",lec:"L3",tema:"Fórmula de Taylor",tipo:"mc",src:"daypo",
+ q:"La serie de Taylor de f(x) = 1/(1 + 3x) es:",
+ op:["Σ (−1)ⁿ 3ⁿ xⁿ desde n = 0","Σ (−1)ⁿ 3ⁿ xⁿ desde n = 1","Σ 4ⁿ xⁿ desde n = 0"],ok:0,
+ just:"Geométrica con r = −3x, empezando en n = 0.",
+ dist:"",
+ ref:"M01 L3 · preguntero Daypo 2022, pregunta 68"},
+{n:4062,daypo:69,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"Un personaje sube escaleras de a 1, 2, 3 o 4 escalones. Es correcto afirmar que:",
+ op:["Hay 15 formas de llegar al escalón 5 y 401 al escalón 10","Hay 25 formas de llegar al escalón 5 y 401 al escalón 10","Hay 15 formas de llegar al escalón 5 y 410 al escalón 10"],ok:0,
+ just:"aₙ = aₙ₋₁ + aₙ₋₂ + aₙ₋₃ + aₙ₋₄: 1, 1, 2, 4, 8, 15, 29, 56, 108, 208, 401.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 69"},
+{n:4063,daypo:70,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim 5n(1 − cos(3/n)) es:",
+ op:["0","1","2"],ok:0,
+ just:"1 − cos x ≈ x²/2: 5n·9/(2n²) tiende a 0.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 70"},
+{n:4064,daypo:71,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim n(4^(−3/n) − 1) es:",
+ op:["−3 ln 4","4 ln(−3)","3 ln(−4)"],ok:0,
+ just:"k·ln a = −3 ln 4.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 71"},
+{n:4065,daypo:72,mod:"02",lec:"L3",tema:"Funciones de varias variables",tipo:"mc",src:"daypo",
+ q:"Sea f(x, y) = 2 − x + 3y − 2x² + 5y² + 6xy. Es correcto afirmar que:",
+ op:["f(1, 1) = 13","f(1, 1) = 12","f(1, 1) = 11"],ok:0,
+ just:"2 − 1 + 3 − 2 + 5 + 6 = 13.",
+ dist:"",
+ ref:"M02 L3 · preguntero Daypo 2022, pregunta 72"},
+{n:4066,daypo:73,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dada la familia de vectores u = ⟨1, 2, 3⟩, v = ⟨0, −1, −2⟩, w = ⟨0, 0, 1⟩, es correcto decir que:",
+ op:["u × w = ⟨2, −1, 0⟩","u × w = ⟨3, −1, 0⟩","u × w = ⟨1, −2, 0⟩"],ok:0,
+ just:"⟨2·1 − 3·0, 3·0 − 1·1, 0⟩.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 73"},
+{n:4067,daypo:74,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ 1/((n+5)(n+6)) es:",
+ op:["1/6","1/5","1/7"],ok:0,
+ just:"Telescópica: queda 1/6.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 74"},
+{n:4068,daypo:75,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"Dada una sucesión de números reales, es posible decir que:",
+ op:["Si el límite existe, es único, y cada término está unívocamente definido","Si el límite existe, no es único, y cada término está unívocamente definido","Si el límite existe, es único, y cada término está unívocamente indefinido"],ok:0,
+ just:"Unicidad del límite. Una sucesión es una función: cada n tiene un único aₙ.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 75"},
+{n:4069,daypo:76,mod:"02",lec:"L1",tema:"Vectores",tipo:"mc",src:"daypo",
+ q:"Dado u = ⟨1, 2, 3⟩, vale decir que:",
+ op:["El coseno del ángulo con el eje x es 0,2673","El coseno del ángulo con el eje x es 0,3673","El coseno del ángulo con el eje x es 0,4673"],ok:0,
+ just:"1/√14 = 0,2673.",
+ dist:"",
+ ref:"M02 L1 · preguntero Daypo 2022, pregunta 76"},
+{n:4070,daypo:77,mod:"02",lec:"L4",tema:"Regla de la cadena y gradiente",tipo:"mc",src:"daypo",
+ q:"u depende de x₁…x₅ y cada xᵢ de t₁…t₇. En un punto, [∂u/∂xᵢ] = [1 1 0 2 3] y la matriz [∂xᵢ/∂tⱼ] tiene filas (1 2 3 1 0 0 2), (4 5 0 0 1 2 0), (5 6 0 3 4 5 0), (6 8 0 9 5 6 3), (7 1 1 5 4 3 1). Entonces:",
+ op:["∂u/∂t₇ = 11","∂u/∂t₇ = 21","∂u/∂t₇ = 31"],ok:0,
+ just:"Fila [1 1 0 2 3] por la columna de t₇ (2, 0, 0, 3, 1): 2 + 0 + 0 + 6 + 3 = 11. <b>Sobre el Daypo:</b> El Daypo pregunta por t₁, pero 11 es la derivada respecto de t₇. Respecto de t₁ da 38.",
+ dist:"",
+ ref:"M02 L4 · preguntero Daypo 2022, pregunta 77"},
+{n:4071,daypo:78,mod:"01",lec:"L1",tema:"Sucesiones",tipo:"mc",src:"daypo",
+ q:"lim 2(1 − 5/n)ⁿ es:",
+ op:["2e^(−5)","−2e^(−5)","2e⁵"],ok:0,
+ just:"(1 + a/n)ⁿ tiende a e^a.",
+ dist:"",
+ ref:"M01 L1 · preguntero Daypo 2022, pregunta 78"},
+{n:4072,daypo:79,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ aₙ de números reales no nulos cumple lim |aₙ₊₁ / aₙ| = 3. Entonces es válido afirmar que:",
+ op:["Σ (5/3)ⁿ aₙ diverge","Σ (5/3)ⁿ aₙ converge","Con el cociente no se puede decidir"],ok:0,
+ just:"Cociente (5/3)·3 = 5 &gt; 1.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 79"},
+{n:4073,daypo:80,mod:"01",lec:"L2",tema:"Series",tipo:"mc",src:"daypo",
+ q:"La serie Σ 1/((n+8)(n+9)) es:",
+ op:["1/9","1/8","1/10"],ok:0,
+ just:"Telescópica: queda 1/9.",
+ dist:"",
+ ref:"M01 L2 · preguntero Daypo 2022, pregunta 80"}
 ];
 
 /* ---------- Banco 2 · Repaso de cátedra ---------- */
@@ -1738,18 +2083,18 @@ const AMP={};
 const HKEY="s21.calculo.p1.v1", FKEY=HKEY+".flags", VKEY=HKEY+".votos", PKEY=HKEY+".pin2";
 const LETRA=k=>"abcdefg"[k]||"?";
 let modo="quiz", filtro="todo", lista=[], i=0, aciertos=0, resultados=[];
-let revisando=false;
 const $=id=>document.getElementById(id);
 const esc=document.getElementById("escenario");
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
   .replace(/\s+/g,"").replace(/[^a-z0-9=+*\/!().,-]/g,"").trim();
 
-const BANCOS={quiz:QUIZ,preg:TPS};
+const BANCOS={quiz:QUIZ,preg:TPS,exam:EXAM};
+const PORMOD=()=>modo!=="preg";
 const BANCO=()=>BANCOS[modo];
-const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"?"propia":"paquete");
+const ORIGEN=q=>q.fid?q.fid:(q.src==="propia"||q.src==="daypo"?q.src:"paquete");
 const ROTULO={paquete:"del paquete de estudio",propia:"escrita para practicar",
   catedra:"enunciado y opciones de la cátedra",mixto:"opciones en parte reconstruidas",
-  propio:"opciones reconstruidas"};
+  propio:"opciones reconstruidas",daypo:"preguntero Daypo 2022"};
 
 /* ---------- Progreso y banderas ---------- */
 let hist={}, flags={};
@@ -1804,11 +2149,11 @@ function claseEst(p){return p>=90?"alto":p>=75?"medio":p>=60?"bajo":"mal"}
 /* ---------- Índice ---------- */
 function arbol(){
   const base=BANCO();
-  const claves = modo==="quiz" ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
+  const claves = PORMOD() ? ["01","02"] : [...new Set(base.map(x=>x.inst))];
   const mods=claves.map(c=>{
-    const sub = modo==="quiz" ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
+    const sub = PORMOD() ? base.filter(x=>x.mod===c) : base.filter(x=>x.inst===c);
     let hojas;
-    if(modo==="quiz"){
+    if(PORMOD()){
       hojas=[...new Set(sub.map(x=>x.lec))].sort().flatMap(l=>{
         const s1=sub.filter(x=>x.lec===l);
         return [...new Set(s1.map(x=>x.tema))].map(t=>{
@@ -1822,15 +2167,15 @@ function arbol(){
         return {k:"t:"+c+"|"+t,t:t,c:s2.length,e:estado(s2)};
       });
     }
-    return {k:(modo==="quiz"?"mod":"i:")+c, t:(modo==="quiz"?"Módulo "+c:c),
+    return {k:(PORMOD()?"mod":"i:")+c, t:(PORMOD()?"Módulo "+c:c),
             c:sub.length, hojas:hojas, e:estado(sub)};
   });
   const porOrigen=o=>base.filter(q=>ORIGEN(q)===o);
   const extras=[{k:"flag",t:"Marcadas para repasar",c:marcadas().length,e:estado(marcadas()),marca:true}];
-  (modo==="quiz"?["paquete","propia"]:["catedra","mixto","propio"]).forEach(o=>{
+  (PORMOD()?["paquete","propia","daypo"]:["catedra","mixto","propio"]).forEach(o=>{
     const sub=porOrigen(o);
     if(sub.length) extras.push({k:"src:"+o,
-      t:(o==="paquete"?"Preguntas del paquete":o==="propia"?"Escritas para practicar":
+      t:(o==="paquete"?"Preguntas del paquete":o==="propia"?"Escritas para practicar":o==="daypo"?"Preguntas de exámenes anteriores":
          o==="catedra"?"Opciones de la cátedra":o==="mixto"?"Opciones en parte reconstruidas":
          "Opciones reconstruidas"), c:sub.length, e:estado(sub)});
   });
@@ -1849,7 +2194,7 @@ function aplicar(){
   else if(filtro.startsWith("t:")){const pt=filtro.slice(2).split("|");
     lista=base.filter(x=>x.inst===pt[0]&&x.tema===pt[1]);}
   else lista=base.filter(x=>x.mod===filtro.slice(0,2)&&x.lec===filtro.slice(2));
-  if(modo==="quiz") lista.sort((a,b)=>
+  if(PORMOD()) lista.sort((a,b)=>
     a.mod.localeCompare(b.mod)||a.lec.localeCompare(b.lec)||
     ORIGEN(a).localeCompare(ORIGEN(b))||a.n-b.n);
   else lista.sort((a,b)=>a.n-b.n);
@@ -1861,7 +2206,7 @@ function pintarChips(){
   /* el panel se reconstruye entero, así que hay que devolverle su posición
      de scroll: si no, al elegir un tema el menú salta al fondo */
   const _pan=$("panel"), _sc=_pan?_pan.scrollTop:0;
-  $("rotuloFiltro").textContent = modo==="quiz" ? "Elegí qué estudiar"
+  $("rotuloFiltro").textContent = PORMOD() ? "Elegí qué estudiar"
     : "Elegí qué lectura repasar";
   const a=arbol(), cont=$("chips");
   cont.innerHTML="";
@@ -1926,107 +2271,19 @@ function pintarChips(){
   if(_pan) _pan.scrollTop=_sc;
 }
 
-/* ---------- Mejoras de uso 2026-10-25 ----------
-   Respuestas multiples con tope y contador, atajos de teclado, barra por
-   segmentos (continua si son mas de 40) y racha de aciertos. */
-let pistaTeclasVista=false, avisoMs=0;
-function pistaTeclas(){
-  if(pistaTeclasVista) return "";
-  pistaTeclasVista=true;
-  return '<p class="pistaTeclas">Atajos: letra para elegir, Enter para seguir</p>';
-}
-function contarMs(p,tope){
-  const c=$("cont"), chk=$("chk");
-  if(!c||!chk||$("fb").classList.contains("visible")) return;
-  const n=p.ok.length, m=esc.querySelectorAll(".opcion.elegida").length;
-  clearTimeout(avisoMs);
-  chk.disabled = m!==n;
-  c.classList.toggle("tope",!!tope);
-  if(tope){
-    c.textContent="Ya marcaste "+n+", desmarcá una para cambiar";
-    avisoMs=setTimeout(()=>contarMs(p),2000);
-    return;
-  }
-  c.textContent = m<n ? (n-m===1?"Te falta 1":"Te faltan "+(n-m)) : "Listo, marcaste "+n;
-}
-function alternarMs(p,b){
-  const on=b.getAttribute("aria-pressed")!=="true";
-  if(on && esc.querySelectorAll(".opcion.elegida").length>=p.ok.length){contarMs(p,true);return}
-  b.setAttribute("aria-pressed",on);
-  b.classList.toggle("elegida",on);
-  contarMs(p);
-}
-/* Letras a-g o numeros 1-9 eligen la opcion; en V/F, V y F. En multiples la
-   tecla alterna la marca y Enter comprueba. */
-function teclaOpcion(e){
-  if(e.ctrlKey||e.metaKey||e.altKey) return false;
-  const t=e.target;
-  if(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable)) return false;
-  const p=lista[i];
-  if(!p||!["mc","ms","vf"].includes(p.tipo)) return false;
-  const ops=[...esc.querySelectorAll(".opcion")];
-  if(!ops.length||ops[0].disabled) return false;
-  const k0=e.key.toLowerCase();
-  if(k0==="enter"){
-    if(p.tipo!=="ms") return false;
-    if(t && t.tagName==="BUTTON" && !t.classList.contains("opcion") && t.id!=="chk") return false;
-    e.preventDefault();
-    if(!$("chk").disabled) $("chk").click();
-    return true;
-  }
-  let k=-1;
-  if(p.tipo==="vf") k = (k0==="v"||k0==="1")?0 : (k0==="f"||k0==="2")?1 : -1;
-  else if(/^[a-g]$/.test(k0)) k=k0.charCodeAt(0)-97;
-  else if(/^[1-9]$/.test(k0)) k=+k0-1;
-  if(k<0||k>=ops.length) return false;
-  e.preventDefault();
-  ops[k].focus({preventScroll:true});
-  ops[k].click();
-  return true;
-}
-
 function cabecera(){
-  const tot=lista.length, hechas=resultados.length;
-  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot+" · Quedan "+(tot-hechas) : "";
-  let racha=0;
-  for(let k=hechas-1;k>=0&&resultados[k].bien;k--) racha++;
-  $("marcador").innerHTML = hechas? aciertos+" de "+hechas+" correctas"+
-    (racha>=3?'<span class="racha">Racha de '+racha+'</span>':"") : "";
-  const b=$("barra");
-  b.setAttribute("aria-hidden","true");
-  if(!tot){b.className="";b.innerHTML="";return}
-  if(tot>40){
-    b.className="continua";
-    b.innerHTML='<i class="ok" style="width:'+(aciertos/tot*100)+'%"></i>'+
-      '<i class="mal" style="width:'+((hechas-aciertos)/tot*100)+'%"></i>';
-  } else {
-    b.className="segmentos";
-    b.innerHTML=lista.map((_,k)=>'<i class="'+
-      (k<hechas?(resultados[k].bien?"ok":"mal"):(k===i?"actual":""))+'"></i>').join("");
-  }
+  const tot=lista.length;
+  $("posicion").textContent = tot? "Pregunta "+Math.min(i+1,tot)+" de "+tot : "";
+  $("marcador").textContent = resultados.length? aciertos+" de "+resultados.length+" correctas" : "";
+  $("barra").style.width = tot? (i/tot*100)+"%" : "0%";
 }
 
 function render(){
   cabecera();
-  pintarAnt();
   if(!lista.length){esc.innerHTML='<p class="vacio">No hay preguntas en este filtro.</p>';return}
   if(i>=lista.length){resumen();return}
-  if(i<resultados.length) revisar(resultados[i]); else pregunta(lista[i]);
+  pregunta(lista[i]);
 }
-
-/* ---------- Pregunta anterior 2026-10-27 ----------
-   Volver muestra la pregunta ya respondida tal como quedo, con la opcion
-   elegida y su correccion, sin volver a puntuarla ni a responderla. */
-function irAnterior(){if(i>0&&i<=lista.length){i--;render()}}
-function pintarAnt(){$("flotAnt").classList.toggle("visible",i>0&&i<lista.length)}
-function revisar(r){
-  const p=r.p;
-  if(Array.isArray(r.op)){p.op=r.op.slice();p.ok=Array.isArray(r.ok)?r.ok.slice():r.ok}
-  revisando=true; pregunta(p); revisando=false;
-  esc.querySelectorAll("input").forEach((x,k)=>x.value=r.vals[k]||"");
-  responder(p,Array.isArray(r.el)?r.el.slice():r.el,true);
-}
-$("flotAnt").onclick=irAnterior;
 
 /* ---------- Orden de las opciones ----------
    Se baraja en cada render, así la posición de la correcta nunca es una pista,
@@ -2045,24 +2302,24 @@ function barajar(p){
 }
 
 function pregunta(p){
-  if(!revisando) barajar(p);
+  barajar(p);
   $("flot").classList.remove("visible");
   let cuerpo="";
   if(p.tipo==="ms"){
-    cuerpo='<p class="rotulo-ms">Elegí '+p.ok.length+' de '+p.op.length+' opciones</p><div class="opciones">'+p.op.map((o,k)=>
+    cuerpo='<p class="rotulo-ms">Respuestas múltiples</p><div class="opciones">'+p.op.map((o,k)=>
       '<button class="opcion" data-k="'+k+'" aria-pressed="false"><span class="letra">'+
       LETRA(k)+'</span><span>'+o+'</span></button>').join("")+'</div>'+
-      '<div class="msPie"><button class="btn" id="chk" disabled>Comprobar</button>'+
-      '<span class="contador" id="cont" aria-live="polite"></span></div>';
+      '<div class="msPie"><span class="ayuda">Marcá todas las que correspondan y después comprobá</span>'+
+      '<button class="btn" id="chk">Comprobar</button></div>';
   } else if(p.tipo==="mc"||p.tipo==="vf"){
-    cuerpo='<p class="rotulo-ms">'+(p.tipo==="vf"?"Verdadero o falso":
-      "Una respuesta correcta · "+p.op.length+" opciones")+'</p><div class="opciones">'+p.op.map((o,k)=>
+    cuerpo='<div class="opciones">'+p.op.map((o,k)=>
       '<button class="opcion" data-k="'+k+'"><span class="letra">'+
       (p.tipo==="vf"?(k===0?"V":"F"):LETRA(k))+'</span><span>'+o+'</span></button>').join("")+'</div>';
   }
 
-  if(["mc","ms","vf"].includes(p.tipo)) cuerpo+=pistaTeclas();
-  const cab = modo==="quiz"
+  const cab = modo==="exam"
+    ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · Daypo nº '+p.daypo
+    : modo==="quiz"
     ? 'Módulo '+p.mod+' · '+p.lec+' · '+p.tema+' · nivel '+p.nivel
     : p.inst+' · pregunta '+p.orig+' · '+p.tema;
 
@@ -2073,7 +2330,6 @@ function pregunta(p){
        '<div class="votos"><button class="voto" id="vUp" title="Calificacion interna: se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="voto" id="vDn" title="Calificacion interna: no se parece a lo que toman"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scale(-1,-1)"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg></button><button class="flag" id="flag"></button></div></div>'+
      '<p class="enunciado">'+p.q+'</p>'+
      cuerpo+
-     '<div class="sr" id="vivo" aria-live="polite"></div>'+
      '<div class="feedback" id="fb"></div>'+
    '</div>';
 
@@ -2085,26 +2341,25 @@ function pregunta(p){
   $("vDn").onclick=()=>{votar(p,-1);pintarVotos(p)};
 
   if(p.tipo==="ms"){
-    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>alternarMs(p,b));
-    contarMs(p);
+    esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>{
+      const on=b.getAttribute("aria-pressed")!=="true";
+      b.setAttribute("aria-pressed",on);
+      b.classList.toggle("elegida",on);
+    });
     $("chk").onclick=()=>responder(p,[...esc.querySelectorAll('.opcion.elegida')].map(b=>+b.dataset.k));
   } else if(p.tipo==="mc"||p.tipo==="vf"){
     esc.querySelectorAll(".opcion").forEach(b=>b.onclick=()=>responder(p,+b.dataset.k));
   }
 }
 
-function responder(p,elegido,rev){
+function responder(p,elegido){
   const bien = p.tipo==="ms"
       ? (elegido.length===p.ok.length && elegido.every(k=>p.ok.includes(k)))
       : elegido===p.ok;
-  if(!rev){
-    if(bien) aciertos++;
-    resultados.push({p:p,bien:bien,el:Array.isArray(elegido)?elegido.slice():elegido,
-      op:Array.isArray(p.op)?p.op.slice():p.op,ok:Array.isArray(p.ok)?p.ok.slice():p.ok,
-      vals:[...esc.querySelectorAll("input")].map(x=>x.value)});
-    marcar(p.n,bien);
-    pintarChips();
-  }
+  if(bien) aciertos++;
+  resultados.push({p:p,bien:bien});
+  marcar(p.n,bien);
+  pintarChips();
 
   if(p.tipo==="ms"){
     $("chk").disabled=true;
@@ -2130,23 +2385,16 @@ function responder(p,elegido,rev){
                  : p.op[p.ok];
 
   $("fb").innerHTML=
-    '<div class="veredicto '+(bien?"bien":"mal")+'" aria-live="polite">'+(bien?"Correcta":"Incorrecta")+
-      (p.tipo==="ms"?'<span class="parcialMs">Acertaste '+elegido.filter(k=>p.ok.includes(k)).length+
-        ' de '+p.ok.length+'</span>':'')+'</div>'+
+    '<div class="veredicto '+(bien?"bien":"mal")+'">'+(bien?"Correcta":"Incorrecta")+'</div>'+
     (bien?"":'<p class="respuesta">La respuesta correcta es <strong>'+correcta+'</strong></p>')+
     (DEF[p.n]?'<div class="bloque endef"><span class="rot">En palabras</span>'+DEF[p.n]+'</div>':'')+
     '<p class="bloque"><span class="rot">Por qué</span>'+p.just+'</p>'+
-    '<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>'+
+    (p.dist?'<p class="bloque"><span class="rot">El distractor</span>'+p.dist+'</p>':'')+
     (AMP[p.n]?'<div class="bloque amp"><span class="rot">Teoría completa</span>'+AMP[p.n]+'</div>':'')+
     '<div class="pie"><span class="ref">Referencia: '+p.ref+'</span>'+
-    '<span class="navPreg"><button class="btn sec" id="ant"'+(i===0?' disabled':'')+'>Anterior</button>'+
-    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></span></div>';
-  if($("cont")) $("cont").textContent="";
-  if($("vivo")) $("vivo").textContent=(bien?"Correcta":"Incorrecta")+
-    (p.tipo==="ms"?". Acertaste "+elegido.filter(k=>p.ok.includes(k)).length+" de "+p.ok.length:"");
+    '<button class="btn" id="sig">'+(i===lista.length-1?"Ver resultado":"Siguiente")+'</button></div>';
   $("fb").classList.add("visible");
   $("sig").onclick=()=>{i++;render()};
-  $("ant").onclick=irAnterior;
   $("sig").focus({preventScroll:true});
 
   const fl=$("flot");
@@ -2165,7 +2413,7 @@ function resumen(){
   const sinMarcar=[...new Set(fallos.map(r=>r.p.n))].filter(n=>!flags[n]);
   const porTema={};
   resultados.forEach(r=>{
-    const k = modo==="quiz" ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
+    const k = PORMOD() ? "M"+r.p.mod+" "+r.p.lec+" · "+r.p.tema : r.p.inst+" · "+r.p.tema;
     porTema[k]=porTema[k]||{ok:0,tot:0};
     porTema[k].tot++; if(r.bien) porTema[k].ok++;
   });
@@ -2182,7 +2430,9 @@ function resumen(){
              : puntos>=75?"Aprobado, con temas para reforzar"
              : puntos>=60?"Justo. Conviene otra vuelta antes del parcial"
              : "Insuficiente. Volver a la teoría antes de repetir";
-  const detalle = modo==="quiz"
+  const detalle = modo==="exam"
+    ? 'Las '+base.length+' preguntas del preguntero Daypo 2022 de exámenes anteriores, con la respuesta revisada. Donde el Daypo marcaba mal, la justificación lo aclara.'
+    : modo==="quiz"
     ? 'Las '+base.length+' preguntas del banco: las '+base.filter(q=>ORIGEN(q)==="paquete").length+
       ' que salen de la sección 9 del paquete de estudio más las '+base.filter(q=>ORIGEN(q)==="propia").length+
       ' escritas sobre los resúmenes de teoría para cubrir los huecos.'
@@ -2198,7 +2448,7 @@ function resumen(){
      '</div>'+
      (marcadas().length?'<p class="ui" style="font-size:13.5px;color:#7A5A22;margin:14px 0 0">'+
        '⚑ Te quedan '+marcadas().length+' preguntas con bandera en este banco. Están en el índice, bajo Marcadas para repasar.</p>':'')+
-     '<table><thead><tr><th>'+(modo==="quiz"?"Lección":"Lectura")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
+     '<table><thead><tr><th>'+(PORMOD()?"Lección":"Lectura")+'</th><th class="n">Aciertos</th><th class="n">Estado</th></tr></thead>'+
      '<tbody>'+filas+'</tbody></table>'+
      '<p class="ui" style="font-size:13.5px;color:var(--tenue)">Se marca como flojo todo lo que baje del 75 por ciento.</p>'+
      '<div class="pie">'+
@@ -2226,9 +2476,6 @@ function resumen(){
 
 /* ---------- Panel ---------- */
 const panel=$("panel"), fondo=$("fondo"), btnAbrir=$("abrir"), btnFijar=$("fijar");
-/* En celular el menu nunca queda anclado: arranca cerrado y se abre con Temas. */
-const MOVIL=window.matchMedia("(max-width:640px)");
-function anclado(){return fijo && !MOVIL.matches}
 let fijo=true;
 try{const g=localStorage.getItem(PKEY); if(g!==null) fijo=(g==="1");}catch(e){}
 
@@ -2240,34 +2487,24 @@ function pintarFijar(){
 }
 function aplicarFijo(guardar){
   document.body.classList.toggle("fijo",fijo);
-  if(anclado()){panel.classList.add("abierto");fondo.classList.remove("abierto")}
-  else if(MOVIL.matches){panel.classList.remove("abierto");fondo.classList.remove("abierto");
-    btnAbrir.setAttribute("aria-expanded","false")}
+  if(fijo){panel.classList.add("abierto");fondo.classList.remove("abierto")}
   pintarFijar();
   if(guardar){try{localStorage.setItem(PKEY,fijo?"1":"0")}catch(e){}}
 }
 function abrirPanel(){panel.classList.add("abierto");
-  if(!anclado())fondo.classList.add("abierto");
+  if(!fijo)fondo.classList.add("abierto");
   btnAbrir.setAttribute("aria-expanded","true")}
 function cerrarPanel(){
-  if(anclado()) return;
+  if(fijo) return;
   panel.classList.remove("abierto");fondo.classList.remove("abierto");
   btnAbrir.setAttribute("aria-expanded","false")}
 
 btnAbrir.onclick=abrirPanel;
 btnFijar.onclick=()=>{fijo=!fijo;aplicarFijo(true)};
-$("cerrar").onclick=()=>{if(MOVIL.matches){cerrarPanel();return}
-  fijo=false;aplicarFijo(true);cerrarPanel()};
+$("cerrar").onclick=()=>{fijo=false;aplicarFijo(true);cerrarPanel()};
 fondo.onclick=cerrarPanel;
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){cerrarPanel();return}
-  if(teclaOpcion(e)) return;
-  const t=e.target;
-  if((e.key==="ArrowLeft"||e.key==="ArrowRight") && (e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||
-     (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable)))) return;
-  if(e.key==="ArrowLeft" && $("flotAnt").classList.contains("visible")){
-    e.preventDefault(); irAnterior(); return;
-  }
   if((e.key==="Enter"||e.key==="ArrowRight") && $("flot").classList.contains("visible")){
     e.preventDefault(); $("flot").click();
   }
@@ -2285,76 +2522,6 @@ document.querySelectorAll(".modo").forEach(b=>{
 (function(){const m=location.hash.match(/^#filtro=(.+)$/);if(!m)return;let f;try{f=decodeURIComponent(m[1])}catch(e){return}if(modo!=="quiz")return;filtro=f;})();
 aplicar();
 
-</script>
-<script>
-/* ---------- Ajustes para celular 2026-10-20 ----------
-   Gestos para usar con una mano, solo en pantallas de 640 px o menos:
-   deslizar a la derecha abre Temas, a la izquierda lo cierra, y con la
-   pregunta ya respondida deslizar a la izquierda pasa a la siguiente.
-   El boton Atras del telefono cierra el panel en vez de salir de la pagina. */
-(function(){
-  const MOVIL=window.matchMedia("(max-width:640px)");
-  const panel=document.getElementById("panel"), fondo=document.getElementById("fondo"),
-        btnTemas=document.getElementById("abrir"), flot=document.getElementById("flot");
-  if(!panel||!fondo||!btnTemas||!flot) return;
-  /* En celular el menu nunca queda anclado, asi que la clase refleja si esta a la vista. */
-  const abierto=()=>panel.classList.contains("abierto");
-  const abrir=()=>{if(!abierto()) btnTemas.click()};
-  const cerrar=()=>{if(abierto()) fondo.click()};
-
-  /* No robar el gesto a lo que ya se desplaza de costado (tablas, figuras anchas). */
-  function desplazableDeCostado(el){
-    for(;el && el!==document.body;el=el.parentElement){
-      if(el===panel) return false;
-      const ox=getComputedStyle(el).overflowX;
-      if((ox==="auto"||ox==="scroll") && el.scrollWidth>el.clientWidth+2) return true;
-    }
-    return false;
-  }
-  let ini=null;
-  document.addEventListener("touchstart",e=>{
-    ini=null;
-    if(!MOVIL.matches || e.touches.length!==1) return;
-    const t=e.touches[0];
-    /* Los bordes de la pantalla son del navegador (volver atras en iPhone y Android). */
-    if(t.clientX<24 || t.clientX>innerWidth-24) return;
-    if(!abierto() && desplazableDeCostado(e.target)) return;
-    ini={x:t.clientX,y:t.clientY,t:Date.now()};
-  },{passive:true});
-  document.addEventListener("touchend",e=>{
-    if(!ini) return;
-    const t=e.changedTouches[0], dx=t.clientX-ini.x, dy=t.clientY-ini.y, dt=Date.now()-ini.t;
-    ini=null;
-    if(dt>700 || Math.abs(dx)<60 || Math.abs(dx)<Math.abs(dy)*1.6) return;
-    if(window.getSelection && String(window.getSelection()).length) return;
-    if(abierto()){ if(dx<0) cerrar(); return }
-    if(dx>0) abrir();
-    else if(flot.classList.contains("visible")) flot.click();
-  },{passive:true});
-
-  /* Boton Atras: con el panel abierto lo cierra. */
-  new MutationObserver(()=>{
-    if(!MOVIL.matches) return;
-    const st=history.state||{};
-    if(abierto() && !st.temas) history.pushState(Object.assign({},st,{temas:1}),"");
-    else if(!abierto() && st.temas) history.back();
-  }).observe(panel,{attributes:true,attributeFilter:["class"]});
-  window.addEventListener("popstate",()=>{if(abierto()) cerrar()});
-
-  /* La primera vez que se entra desde el celular, una pista de los gestos. */
-  const CLAVE="s21-gestos-visto";
-  let visto=false;
-  try{visto=localStorage.getItem(CLAVE)==="1"}catch(e){}
-  if(MOVIL.matches && !visto){
-    const p=document.createElement("div");
-    p.className="pistaGestos";p.setAttribute("role","status");
-    p.textContent="Deslizá hacia la derecha para ver los temas. Con la pregunta respondida, deslizá hacia la izquierda para seguir.";
-    document.body.appendChild(p);
-    requestAnimationFrame(()=>p.classList.add("visible"));
-    setTimeout(()=>{p.classList.remove("visible");setTimeout(()=>p.remove(),400)},6000);
-    try{localStorage.setItem(CLAVE,"1")}catch(e){}
-  }
-})();
 </script>
 </body>
 </html>
