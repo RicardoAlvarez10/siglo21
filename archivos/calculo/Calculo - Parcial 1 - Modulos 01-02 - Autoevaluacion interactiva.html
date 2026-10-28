@@ -2070,6 +2070,8 @@ document.querySelectorAll(".modo").forEach(b=>{
     aplicar();
   };
 });
+/* Enlace directo a un tema: calculo-p1.html#filtro=q:01|L2|Series */
+(function(){const m=location.hash.match(/^#filtro=(.+)$/);if(!m)return;let f;try{f=decodeURIComponent(m[1])}catch(e){return}if(modo!=="quiz")return;filtro=f;})();
 aplicar();
 
 </script>

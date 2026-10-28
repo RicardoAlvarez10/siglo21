@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cálculo · Series · Estudiar</title>
+<style>
+  :root{
+    --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
+    --panel:#FFFFFF; --borde:#E7E5E4; --ok:#2D4A3E; --okBg:#EAF1ED;
+    --mal:#8C2F2F; --malBg:#F7EBEB; --tenue:#6B6B6B; --trazo:#A8A29E;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.6}
+  .ui,button,.nav,table,.rot{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:26px 20px 90px}
+  a{color:var(--acento)}
+  .volver{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;text-decoration:none;color:var(--tenue)}
+  header{text-align:center;margin:14px 0 22px}
+  header h1{font-weight:normal;color:var(--titulo);margin:0 0 6px;font-size:30px}
+  header p{margin:0;color:var(--tenue);font-size:15px}
+
+  /* barra de pasos */
+  .nav{position:sticky;top:0;z-index:10;background:rgba(250,249,247,.96);
+    border-bottom:1px solid var(--borde);padding:9px 0;margin-bottom:22px;
+    display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+  .nav a{flex-shrink:0;font-size:12.5px;text-decoration:none;color:var(--titulo);
+    border:1px solid var(--borde);background:var(--panel);border-radius:3px;padding:5px 10px}
+  .nav a.hecho{background:var(--okBg);border-color:#BFD3C7;color:var(--acento)}
+  .nav a.hecho::before{content:"✓ "}
+  .avance{font-size:12.5px;color:var(--tenue);text-align:center;margin:-12px 0 20px}
+
+  section.paso{background:var(--panel);border:1px solid var(--borde);border-radius:4px;
+    padding:22px 24px;margin-bottom:22px;scroll-margin-top:60px}
+  .rot{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--tenue);font-weight:600}
+  h2{font-weight:normal;color:var(--titulo);margin:4px 0 12px;font-size:23px}
+  h3{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;color:var(--acento);
+    margin:20px 0 6px;font-weight:600}
+  p{margin:0 0 12px}
+  .formula{font-size:19px;text-align:center;background:var(--fondo);border:1px solid var(--borde);
+    border-radius:3px;padding:12px 10px;margin:10px 0 14px}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:8px 0 12px}
+  .caso{border:1px solid var(--borde);border-radius:3px;padding:12px 14px;font-size:16px}
+  .caso.si{border-left:4px solid var(--ok);background:#F6FAF7}
+  .caso.no{border-left:4px solid var(--mal);background:#FCF7F7}
+  .caso .rot{display:block;margin-bottom:4px}
+  .caso.si .rot{color:var(--ok)} .caso.no .rot{color:var(--mal)}
+  .ojo{border-left:4px solid #B08A3E;background:#FBF6EC;padding:10px 14px;margin:12px 0;font-size:16px}
+  .ojo b:first-child{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;color:#7A5E22}
+
+  /* paso a paso */
+  .pasos{counter-reset:p;margin:6px 0 12px}
+  .pasos .st{display:none;border-left:2px solid var(--borde);padding:4px 0 8px 14px;margin-left:4px}
+  .pasos .st.ver{display:block}
+  .pasos .st b.n{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;color:var(--acento)}
+  .btn{font-size:13.5px;padding:7px 14px;border:1px solid var(--acento);background:var(--panel);
+    color:var(--acento);border-radius:3px;cursor:pointer;min-height:36px}
+  .btn:hover{background:var(--okBg)}
+  .btn.lleno{background:var(--acento);color:#fff}
+  .btn.lleno:hover{background:#24403A}
+  .btn[disabled]{opacity:.45;cursor:default}
+
+  /* chequeo rapido */
+  .chk{border:1px dashed var(--trazo);border-radius:3px;padding:14px 16px;margin-top:16px}
+  .chk .q{margin-bottom:10px}
+  .chk .ops{display:flex;flex-direction:column;gap:7px}
+  .chk button.op{text-align:left;font-size:15px;padding:9px 12px;border:1px solid var(--borde);
+    background:var(--panel);border-radius:3px;cursor:pointer;color:var(--texto);min-height:40px}
+  .chk button.op:hover{border-color:var(--trazo)}
+  .chk button.op.bien{background:var(--okBg);border-color:var(--ok);color:var(--ok)}
+  .chk button.op.malo{background:var(--malBg);border-color:var(--mal);color:var(--mal)}
+  .chk .fb{font-size:15px;margin-top:9px;display:none}
+  .chk .fb.ver{display:block}
+
+  .entendi{display:flex;justify-content:flex-end;margin-top:16px}
+
+  /* tablas */
+  .tablaWrap{overflow-x:auto;margin:8px 0 12px}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border:1px solid var(--borde);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--fondo);color:var(--titulo);font-weight:600}
+
+  /* sumas parciales */
+  .lab{border:1px solid var(--borde);border-radius:3px;padding:14px;background:var(--fondo)}
+  .lab .ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:14px}
+  .lab .ctrl button.sel{background:var(--acento);color:#fff}
+  .lab input[type=range]{flex:1;min-width:160px;accent-color:var(--acento)}
+  .lab svg{width:100%;height:auto;display:block;background:var(--panel);border:1px solid var(--borde)}
+  .lab .lect{font-size:14px;margin-top:8px;color:var(--titulo)}
+
+  /* flujo */
+  .flujo{display:flex;flex-direction:column;gap:0;margin:8px 0}
+  .flujo .nodo{border:1px solid var(--borde);background:var(--panel);border-radius:3px;padding:10px 14px;font-size:15.5px}
+  .flujo .nodo b{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;color:var(--acento)}
+  .flujo .flecha{text-align:center;color:var(--trazo);font-size:18px;line-height:1.3}
+
+  /* drill */
+  .drill .serie{font-size:21px;text-align:center;margin:8px 0 12px}
+  .drill .ops{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .drill .cont{font-size:13px;color:var(--tenue);text-align:center;margin-top:10px}
+
+  .final{text-align:center;background:var(--okBg);border:1px solid #BFD3C7;border-radius:4px;padding:26px 20px}
+  .final h2{margin-top:0}
+  .final .btn.lleno{font-size:16px;padding:12px 22px;text-decoration:none;display:inline-block}
+  .final .extra{font-size:14px;margin-top:14px}
+
+  @media (max-width:640px){
+    .wrap{padding:18px 16px 70px}
+    section.paso{padding:18px 16px}
+    .dos,.drill .ops{grid-template-columns:1fr}
+    .formula{font-size:17px}
+    header h1{font-size:25px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="volver" href="materia-calculo.html">← Cálculo Avanzado</a>
+
+<header>
+  <h1>Series · estudiar antes de practicar</h1>
+  <p>Módulo 01 · Lección 2 · todo lo que no son familias: qué es una serie, los criterios y el tipo de convergencia</p>
+</header>
+
+<nav class="nav" id="nav">
+  <a href="#s1" data-p="s1">1 · Qué es</a>
+  <a href="#s2" data-p="s2">2 · Término general</a>
+  <a href="#s3" data-p="s3">3 · Integral</a>
+  <a href="#s4" data-p="s4">4 · Comparación</a>
+  <a href="#s5" data-p="s5">5 · Por el límite</a>
+  <a href="#s6" data-p="s6">6 · Cociente</a>
+  <a href="#s7" data-p="s7">7 · Raíz</a>
+  <a href="#s8" data-p="s8">8 · Absoluta y condicional</a>
+  <a href="#s9" data-p="s9">9 · Qué criterio uso</a>
+  <a href="#s10" data-p="s10">10 · Trampas</a>
+</nav>
+<div class="avance ui" id="avance"></div>
+
+<!-- ============ 1 ============ -->
+<section class="paso" id="s1">
+  <span class="rot">Paso 1</span>
+  <h2>Qué es una serie</h2>
+  <p>Tomás una sucesión, por ejemplo 1/2, 1/4, 1/8, ..., y vas sumando de a poco: primero un término, después dos, después tres. Cada una de esas sumas es una <b>suma parcial Sₙ</b>.</p>
+  <div class="formula">Sₙ = a₁ + a₂ + ... + aₙ</div>
+  <p>Las sumas parciales forman una <b>sucesión nueva</b>. La serie es <b>el límite de esa sucesión</b>:</p>
+  <div class="formula">Σ aₙ = lím (n→∞) Sₙ</div>
+  <p>Si ese límite existe y es un número real, la serie <b>converge</b> y ese número es su suma. Si no existe o es infinito, <b>diverge</b>. La cátedra insiste: no es "sumar infinitos números", es un límite de sumas finitas.</p>
+
+  <h3>Probalo: mové n y mirá cómo crecen las sumas parciales</h3>
+  <div class="lab">
+    <div class="ctrl ui">
+      <button class="btn sel" data-serie="geo">aₙ = 1/2ⁿ</button>
+      <button class="btn" data-serie="p2">aₙ = 1/n²</button>
+      <button class="btn" data-serie="arm">aₙ = 1/n</button>
+    </div>
+    <div class="ctrl ui"><span>n =</span><input type="range" id="nRange" min="1" max="40" value="10"><b id="nVal">10</b></div>
+    <svg id="graf" viewBox="0 0 600 240" role="img" aria-label="Gráfico de sumas parciales"></svg>
+    <div class="lect ui" id="lect"></div>
+  </div>
+
+  <div class="dos">
+    <div class="caso si"><span class="rot ui">Converge</span>Σ 1/2ⁿ: Sₙ = 1 − 1/2ⁿ. Cuando n crece, Sₙ se pega a 1 y no lo pasa. La serie vale 1.</div>
+    <div class="caso no"><span class="rot ui">Diverge</span>Σ 1/n: Sₙ sigue creciendo sin techo, aunque cada vez más despacio. No hay límite real.</div>
+  </div>
+
+  <div class="ojo"><b>Choque con datos.</b> Sₙ es exactamente un total acumulado, lo que calcula SUM() OVER (ORDER BY n). Y "serie" acá no es una serie temporal: es la suma de una sucesión.</div>
+
+  <h3>Álgebra de series</h3>
+  <p>Si Σ aₙ y Σ bₙ convergen y c es constante: Σ c·aₙ = c·Σ aₙ, y Σ (aₙ ± bₙ) = Σ aₙ ± Σ bₙ. Ejemplo: si Σ aₙ = 2 y Σ bₙ = 3, entonces Σ (5aₙ − bₙ) = 10 − 3 = 7.</p>
+
+  <div class="chk" data-ok="0">
+    <div class="q">Si las sumas parciales de una serie son Sₙ = 1 − 1/2ⁿ, ¿cuánto vale la serie?</div>
+    <div class="ops">
+      <button class="op">1</button><button class="op">1/2</button><button class="op">∞, porque se suman infinitos términos</button><button class="op">0</button>
+    </div>
+    <div class="fb">La serie es el límite de Sₙ. Como 1/2ⁿ → 0, Sₙ → 1. Infinitos términos no significa suma infinita.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s1">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="paso" id="s2">
+  <span class="rot">Paso 2 · siempre primero</span>
+  <h2>Criterio del término general</h2>
+  <p>Si una serie converge, sus términos tienen que achicarse hasta 0: si no, cada paso suma algo "grande" y el acumulado se escapa. Por eso:</p>
+  <div class="formula">Si lím aₙ ≠ 0 (o no existe), la serie <b>diverge</b></div>
+  <p>Es un descarte rápido. <b>Solo sirve para probar divergencia.</b> Si lím aₙ = 0, el criterio no dice nada y hay que pasar a otro.</p>
+
+  <div class="dos">
+    <div class="caso no"><span class="rot ui">Decide: diverge</span>Σ n/(n+1): el término tiende a 1 ≠ 0. Diverge, sin más cuentas.</div>
+    <div class="caso si"><span class="rot ui">No decide</span>Σ 1/n: el término tiende a 0, pero la serie diverge igual (es la armónica). Que tienda a 0 es necesario, no suficiente.</div>
+  </div>
+
+  <h3>Ejemplo resuelto: Σ n/(n+1)</h3>
+  <div class="pasos">
+    <div class="st"><b class="n">Paso 1.</b> Calcular el límite del término general: lím n/(n+1) = 1 (grados iguales, cociente de coeficientes principales 1/1).</div>
+    <div class="st"><b class="n">Paso 2.</b> Como 1 ≠ 0, por el criterio del término general la serie <b>diverge</b>. No hace falta otro criterio.</div>
+  </div>
+  <button class="btn verPaso ui">Ver siguiente paso</button>
+
+  <div class="chk" data-ok="2">
+    <div class="q">Para Σ 1/n el término general tiende a 0. ¿Qué te dice el criterio del término general?</div>
+    <div class="ops">
+      <button class="op">Que converge</button><button class="op">Que diverge</button><button class="op">Nada, no decide: hay que usar otro criterio</button>
+    </div>
+    <div class="fb">Con lím aₙ = 0 el criterio no concluye. La armónica tiene término → 0 y diverge: es el contraejemplo que usa la cátedra.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s2">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="paso" id="s3">
+  <span class="rot">Paso 3</span>
+  <h2>Criterio de la integral</h2>
+  <p>Si el término aₙ sale de una función f(x) que sabés integrar, comparás la serie con el área bajo la curva. Las dos van juntas: o las dos dan finito, o las dos se van a infinito.</p>
+  <div class="formula">f continua, positiva y decreciente en [1, ∞), con aₙ = f(n) ⟹ Σ aₙ converge ⟺ ∫₁^∞ f(x) dx converge</div>
+  <p>Las tres hipótesis se verifican siempre, y la que más se olvida es <b>decreciente</b>.</p>
+
+  <div class="dos">
+    <div class="caso si"><span class="rot ui">Converge</span>Σ 1/n³: ∫₁^∞ 1/x³ dx = 1/2, finita. La serie converge.</div>
+    <div class="caso no"><span class="rot ui">Diverge</span>Σ 1/n: ∫₁^b 1/x dx = ln b → ∞. La integral diverge, así que la serie también.</div>
+  </div>
+
+  <h3>Ejemplo resuelto: Σ 1/n³</h3>
+  <div class="pasos">
+    <div class="st"><b class="n">Paso 1.</b> Hipótesis. f(x) = 1/x³ es continua, positiva y decreciente en [1, ∞). Se cumplen las tres.</div>
+    <div class="st"><b class="n">Paso 2.</b> Primitiva: ∫ x⁻³ dx = x⁻²/(−2) = −1/(2x²).</div>
+    <div class="st"><b class="n">Paso 3.</b> Evaluar entre 1 y b: −1/(2b²) − (−1/2) = 1/2 − 1/(2b²).</div>
+    <div class="st"><b class="n">Paso 4.</b> Límite cuando b → ∞: 1/(2b²) → 0, queda 1/2. La integral converge, entonces <b>la serie converge</b>.</div>
+    <div class="st"><b class="n">Paso 5.</b> Control con serie p: p = 3 &gt; 1, converge. Coincide. Ojo: el 1/2 es el valor de la integral, <b>no</b> la suma de la serie.</div>
+  </div>
+  <button class="btn verPaso ui">Ver siguiente paso</button>
+  <div class="ojo"><b>Errata del PDF.</b> En este ejemplo el material deja la evaluación entre 1 y b sin desarrollar. El 1/2 es correcto; el paso 3 de arriba es el que falta.</div>
+
+  <div class="chk" data-ok="1">
+    <div class="q">¿Qué hipótesis pide el criterio de la integral sobre f en [1, ∞)?</div>
+    <div class="ops">
+      <button class="op">Solo que sea continua</button><button class="op">Continua, positiva y decreciente</button><button class="op">Derivable y creciente</button><button class="op">Positiva y acotada</button>
+    </div>
+    <div class="fb">Son las tres. Si f no es decreciente, el criterio no se puede aplicar aunque la integral dé finita.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s3">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="paso" id="s4">
+  <span class="rot">Paso 4</span>
+  <h2>Criterio de comparación</h2>
+  <p>Con términos positivos, ponés tu serie al lado de una que ya conocés (una serie p o una geométrica). Pensalo como alturas:</p>
+  <div class="tablaWrap"><table>
+    <tr><th>Si tu serie está...</th><th>de una serie que...</th><th>Conclusión</th></tr>
+    <tr><td>debajo (aₙ ≤ bₙ)</td><td>converge</td><td><b>converge</b>: si el techo es finito, lo de abajo también</td></tr>
+    <tr><td>arriba (aₙ ≥ bₙ)</td><td>diverge</td><td><b>diverge</b>: si el piso se va a infinito, lo de arriba también</td></tr>
+    <tr><td>debajo</td><td>diverge</td><td><b>nada</b></td></tr>
+    <tr><td>arriba</td><td>converge</td><td><b>nada</b></td></tr>
+  </table></div>
+
+  <div class="dos">
+    <div class="caso si"><span class="rot ui">Converge</span>Σ 1/(n² + 1): como n² + 1 &gt; n², vale 1/(n² + 1) ≤ 1/n². Está debajo de Σ 1/n², que converge (p = 2). Converge.</div>
+    <div class="caso no"><span class="rot ui">Diverge</span>Σ (n + 1)/n²: es 1/n + 1/n² ≥ 1/n. Está arriba de la armónica, que diverge. Diverge.</div>
+  </div>
+  <div class="ojo"><b>Trampa.</b> 1/(2n + 1) ≤ 1/n y Σ 1/n diverge. Estar <b>debajo</b> de una divergente no prueba nada. Para esa serie se usa el paso 5.</div>
+
+  <div class="chk" data-ok="3">
+    <div class="q">Sabés que 1/(3n + 2) ≤ 1/n y que Σ 1/n diverge. ¿Qué concluís por comparación directa?</div>
+    <div class="ops">
+      <button class="op">Diverge</button><button class="op">Converge</button><button class="op">Converge, porque está debajo</button><button class="op">Nada: debajo de una divergente no decide</button>
+    </div>
+    <div class="fb">Solo deciden dos combinaciones: debajo de convergente, o arriba de divergente.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s4">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="paso" id="s5">
+  <span class="rot">Paso 5</span>
+  <h2>Comparación por el límite</h2>
+  <p>Cuando la desigualdad no sale, comparás cómo se comportan "a la larga". Dividís tu término por el de la serie conocida y tomás límite:</p>
+  <div class="formula">aₙ, bₙ &gt; 0 y lím aₙ/bₙ = c, con c finito y c &gt; 0 ⟹ las dos series hacen lo mismo</div>
+  <p>Si c da 0 o ∞, el criterio <b>no sirve</b> así. Para elegir bₙ, quedate con los términos de mayor grado: 1/(2n+1) "se parece" a 1/n; (n+2)/(n³+1) "se parece" a n/n³ = 1/n².</p>
+
+  <div class="dos">
+    <div class="caso no"><span class="rot ui">Diverge</span>Σ 1/(2n+1) frente a Σ 1/n: el cociente tiende a 1/2. Comparten naturaleza, y la armónica diverge.</div>
+    <div class="caso si"><span class="rot ui">Converge</span>Σ 1/(n² + 3n) frente a Σ 1/n²: el cociente n²/(n² + 3n) tiende a 1. Comparten naturaleza, y p = 2 converge.</div>
+  </div>
+
+  <h3>Ejemplo resuelto: Σ 1/(2n+1)</h3>
+  <div class="pasos">
+    <div class="st"><b class="n">Paso 1.</b> Elegir bₙ. Mayor grado abajo: 2n, así que bₙ = 1/n. Σ 1/n diverge (serie p con p = 1).</div>
+    <div class="st"><b class="n">Paso 2.</b> Cociente: [1/(2n+1)] / [1/n] = n/(2n+1).</div>
+    <div class="st"><b class="n">Paso 3.</b> Límite: n/(2n+1) → 1/2. Acá c = 1/2, finito y positivo.</div>
+    <div class="st"><b class="n">Paso 4.</b> Comparten naturaleza. Como Σ 1/n diverge, <b>Σ 1/(2n+1) diverge</b>.</div>
+  </div>
+  <button class="btn verPaso ui">Ver siguiente paso</button>
+
+  <div class="chk" data-ok="0">
+    <div class="q">Al comparar por el límite te da lím aₙ/bₙ = 0. ¿Qué concluís con este criterio?</div>
+    <div class="ops">
+      <button class="op">Nada: c tiene que ser finito y mayor que 0</button><button class="op">Que comparten naturaleza</button><button class="op">Que tu serie converge</button><button class="op">Que tu serie diverge</button>
+    </div>
+    <div class="fb">El criterio exige 0 &lt; c &lt; ∞. Con c = 0 o c = ∞ no se concluye así.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s5">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="paso" id="s6">
+  <span class="rot">Paso 6 · si hay factoriales</span>
+  <h2>Criterio del cociente</h2>
+  <p>Mirás cuánto cambia un término respecto del anterior. Si a la larga cada término es una fracción fija menor que 1 del anterior, la serie se comporta como una geométrica que converge.</p>
+  <div class="formula">L = lím |aₙ₊₁ / aₙ| &nbsp;·&nbsp; L &lt; 1 converge absolutamente · L &gt; 1 diverge · L = 1 no concluye</div>
+  <p>Conviene cuando hay <b>factoriales</b>, porque (n+1)!/n! se simplifica a (n+1).</p>
+
+  <div class="dos">
+    <div class="caso si"><span class="rot ui">Converge</span>Σ 2ⁿ/n!: el cociente es 2/(n+1) → 0. L = 0 &lt; 1, converge absolutamente.</div>
+    <div class="caso no"><span class="rot ui">Diverge</span>Σ n!/5ⁿ: el cociente es (n+1)/5 → ∞. L &gt; 1, diverge.</div>
+  </div>
+
+  <h3>Ejemplo resuelto: Σ 2ⁿ/n!</h3>
+  <div class="pasos">
+    <div class="st"><b class="n">Paso 1.</b> Escribir aₙ₊₁: 2ⁿ⁺¹/(n+1)!.</div>
+    <div class="st"><b class="n">Paso 2.</b> Dividir: [2ⁿ⁺¹/(n+1)!] · [n!/2ⁿ] = 2 · n!/(n+1)!.</div>
+    <div class="st"><b class="n">Paso 3.</b> Simplificar: (n+1)! = (n+1)·n!, así que queda 2/(n+1).</div>
+    <div class="st"><b class="n">Paso 4.</b> Límite: 2/(n+1) → 0. L = 0 &lt; 1: la serie <b>converge absolutamente</b>.</div>
+  </div>
+  <button class="btn verPaso ui">Ver siguiente paso</button>
+  <div class="ojo"><b>L = 1 no dice nada.</b> Σ 1/n da L = 1 y diverge; Σ 1/n² da L = 1 y converge. Mismo L, distinto resultado: por eso hay que cambiar de criterio. No lo confundas con "p = 1 diverge".</div>
+
+  <div class="chk" data-ok="2">
+    <div class="q">Aplicás el cociente a Σ 1/n² y te da L = 1. ¿Qué concluís?</div>
+    <div class="ops">
+      <button class="op">Diverge, como la armónica</button><button class="op">Converge absolutamente</button><button class="op">Nada: con L = 1 hay que usar otro criterio</button><button class="op">Converge condicionalmente</button>
+    </div>
+    <div class="fb">L = 1 no concluye. Para Σ 1/n² se decide con serie p (p = 2, converge).</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s6">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="paso" id="s7">
+  <span class="rot">Paso 7 · si todo está elevado a la n</span>
+  <h2>Criterio de la raíz</h2>
+  <p>Si el término entero viene elevado a la n, la raíz n-ésima "le saca" la potencia y queda algo fácil.</p>
+  <div class="formula">L = lím ⁿ√|aₙ| &nbsp;·&nbsp; L &lt; 1 converge absolutamente · L &gt; 1 diverge · L = 1 no concluye</div>
+  <p>Mismas conclusiones que el cociente. La diferencia es cuándo conviene: <b>cociente con factoriales, raíz con potencias n-ésimas</b>.</p>
+
+  <div class="dos">
+    <div class="caso si"><span class="rot ui">Converge</span>Σ (n/(2n+1))ⁿ: la raíz da n/(2n+1) → 1/2. L &lt; 1, converge absolutamente.</div>
+    <div class="caso no"><span class="rot ui">Diverge</span>Σ (2n/(n+1))ⁿ: la raíz da 2n/(n+1) → 2. L &gt; 1, diverge.</div>
+  </div>
+
+  <h3>Ejemplo resuelto: Σ (n/(2n+1))ⁿ</h3>
+  <div class="pasos">
+    <div class="st"><b class="n">Paso 1.</b> Ver que todo el término está elevado a la n: es caso de raíz.</div>
+    <div class="st"><b class="n">Paso 2.</b> ⁿ√[(n/(2n+1))ⁿ] = n/(2n+1). La raíz se cancela con la potencia.</div>
+    <div class="st"><b class="n">Paso 3.</b> Límite: grados iguales, 1/2. L = 1/2 &lt; 1: <b>converge absolutamente</b>.</div>
+  </div>
+  <button class="btn verPaso ui">Ver siguiente paso</button>
+
+  <div class="chk" data-ok="1">
+    <div class="q">Para Σ (3n/(n+2))ⁿ, la raíz n-ésima tiende a 3. ¿Qué pasa con la serie?</div>
+    <div class="ops">
+      <button class="op">Converge absolutamente</button><button class="op">Diverge, porque L = 3 &gt; 1</button><button class="op">No concluye</button><button class="op">Converge condicionalmente</button>
+    </div>
+    <div class="fb">L &gt; 1 diverge. Solo L = 1 deja la duda.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s7">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="paso" id="s8">
+  <span class="rot">Paso 8</span>
+  <h2>Convergencia absoluta y condicional</h2>
+  <p>Cuando la serie tiene signos mezclados, hay dos preguntas distintas:</p>
+  <div class="tablaWrap"><table>
+    <tr><th>Tipo</th><th>Qué significa</th><th>Cómo se ve</th></tr>
+    <tr><td><b>Absolutamente convergente</b></td><td>Σ |aₙ| converge (sin signos converge)</td><td>Converge "con o sin ayuda" de los signos</td></tr>
+    <tr><td><b>Condicionalmente convergente</b></td><td>Σ aₙ converge, pero Σ |aₙ| diverge</td><td>Converge solo gracias a que los signos se compensan</td></tr>
+  </table></div>
+  <p>Absoluta implica convergente, al revés no. Y solo en las absolutamente convergentes se pueden <b>reordenar los términos</b> sin cambiar la suma.</p>
+
+  <div class="dos">
+    <div class="caso si"><span class="rot ui">Absoluta</span>Σ (−1)ⁿ/n²: sin signos es Σ 1/n², p = 2, converge.</div>
+    <div class="caso no"><span class="rot ui">Condicional</span>Σ (−1)ⁿ/√n: converge por alternante, pero sin signos es p = 1/2, diverge.</div>
+  </div>
+
+  <h3>Procedimiento: clasificar Σ (−1)ⁿ/n</h3>
+  <div class="pasos">
+    <div class="st"><b class="n">Paso 1. ¿Converge?</b> bₙ = 1/n. Decrece (1/(n+1) ≤ 1/n) y tiende a 0: por el criterio alternante, converge.</div>
+    <div class="st"><b class="n">Paso 2. Sacar signos.</b> Σ |(−1)ⁿ/n| = Σ 1/n.</div>
+    <div class="st"><b class="n">Paso 3. ¿Converge sin signos?</b> Es la armónica, p = 1: diverge.</div>
+    <div class="st"><b class="n">Paso 4. Clasificar.</b> Converge pero no absolutamente: <b>condicionalmente convergente</b>.</div>
+  </div>
+  <button class="btn verPaso ui">Ver siguiente paso</button>
+  <div class="ojo"><b>Atajo.</b> Si el cociente o la raíz te dan L &lt; 1, ya sabés que es <b>absolutamente</b> convergente: esos criterios trabajan con |aₙ|.</div>
+
+  <div class="chk" data-ok="3">
+    <div class="q">Σ (−1)ⁿ/∛n converge por alternante, y Σ 1/∛n diverge (p = 1/3). ¿Cómo se clasifica?</div>
+    <div class="ops">
+      <button class="op">Absolutamente convergente</button><button class="op">Divergente</button><button class="op">Absolutamente y condicionalmente</button><button class="op">Condicionalmente convergente</button>
+    </div>
+    <div class="fb">Converge con signos y diverge sin ellos: eso es condicional. Son excluyentes, nunca las dos a la vez.</div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s8">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="paso" id="s9">
+  <span class="rot">Paso 9 · lo que te piden en el parcial</span>
+  <h2>¿Qué criterio uso?</h2>
+  <p>El orden para atacar cualquier serie:</p>
+  <div class="flujo">
+    <div class="nodo"><b>1. ¿El término tiende a algo distinto de 0?</b> Término general: diverge, listo.</div>
+    <div class="flecha">↓ si tiende a 0</div>
+    <div class="nodo"><b>2. ¿Es geométrica o serie p?</b> Se decide directo (las familias que ya practicaste).</div>
+    <div class="flecha">↓ si no</div>
+    <div class="nodo"><b>3. ¿Signos alternados?</b> Criterio alternante, y después mirar el valor absoluto para el tipo.</div>
+    <div class="flecha">↓ si no</div>
+    <div class="nodo"><b>4. ¿Factoriales?</b> Cociente. <b>¿Todo elevado a la n?</b> Raíz.</div>
+    <div class="flecha">↓ si no</div>
+    <div class="nodo"><b>5. ¿Cociente de polinomios o se parece a una p?</b> Comparación, o por el límite si la desigualdad no sale. <b>¿f fácil de integrar?</b> Integral.</div>
+  </div>
+
+  <h3>Práctica rápida: elegí el criterio más directo</h3>
+  <div class="drill chk" id="drill">
+    <div class="serie" id="dSerie"></div>
+    <div class="ops" id="dOps"></div>
+    <div class="fb" id="dFb"></div>
+    <div style="text-align:center;margin-top:10px"><button class="btn ui" id="dSig" disabled>Siguiente serie</button></div>
+    <div class="cont ui" id="dCont"></div>
+  </div>
+  <div class="entendi"><button class="btn" data-hecho="s9">Lo entendí, siguiente</button></div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="paso" id="s10">
+  <span class="rot">Paso 10 · antes de practicar</span>
+  <h2>Trampas frecuentes</h2>
+  <div class="tablaWrap"><table>
+    <tr><th>Trampa</th><th>Lo correcto</th></tr>
+    <tr><td>"aₙ → 0, entonces converge"</td><td>El término general solo prueba divergencia. Contraejemplo: la armónica.</td></tr>
+    <tr><td>Comparar con una divergente que está por arriba de la tuya</td><td>No decide. Solo: debajo de convergente, o arriba de divergente.</td></tr>
+    <tr><td>Olvidar "términos positivos" en las comparaciones</td><td>Las dos comparaciones lo exigen.</td></tr>
+    <tr><td>Saltear "decreciente" en la integral</td><td>Son tres hipótesis: continua, positiva, decreciente.</td></tr>
+    <tr><td>Aceptar c = 0 o c = ∞ en comparación por el límite</td><td>c tiene que ser finito y mayor que 0.</td></tr>
+    <tr><td>Cociente o raíz con L = 1 "diverge como p = 1"</td><td>L = 1 no concluye. Cambiar de criterio.</td></tr>
+    <tr><td>Cociente para potencias n-ésimas, raíz para factoriales</td><td>Al revés: cociente con factoriales, raíz con potencias n-ésimas.</td></tr>
+    <tr><td>Quedarse en "converge por alternante"</td><td>Siempre mirar Σ |aₙ| para decir si es absoluta o condicional.</td></tr>
+    <tr><td>Reordenar una condicional</td><td>Reordenar sin cambiar la suma vale solo para absolutamente convergentes.</td></tr>
+    <tr><td>"Una serie es la suma de infinitos términos"</td><td>Es el límite de la sucesión de sumas parciales.</td></tr>
+  </table></div>
+
+  <h3>Choques con el vocabulario de datos</h3>
+  <div class="tablaWrap"><table>
+    <tr><th>En el trabajo se dice</th><th>La cátedra dice</th><th>Detalle</th></tr>
+    <tr><td>Running total, SUM() OVER</td><td>Suma parcial Sₙ</td><td>Es el mismo objeto</td></tr>
+    <tr><td>Serie (temporal)</td><td>Serie</td><td>Falso amigo: acá es la suma de una sucesión</td></tr>
+    <tr><td>"Se estabiliza el acumulado"</td><td>Serie convergente</td><td>La cátedra pide el criterio formal, no mirar el gráfico</td></tr>
+    <tr><td>Criterio, regla de corte</td><td>Criterio de convergencia</td><td>Acá es un teorema, no un umbral de negocio</td></tr>
+  </table></div>
+  <div class="entendi"><button class="btn" data-hecho="s10">Listo, terminé de estudiar</button></div>
+</section>
+
+<section class="final">
+  <h2>Ahora sí, a practicar</h2>
+  <p>Abre la autoevaluación ya filtrada en <b>L2 · Series</b> (19 preguntas). Apuntá a 80% o más.</p>
+  <a class="btn lleno ui" id="irQuiz" href="calculo-p1.html#filtro=q:01%7CL2%7CSeries">Ir a practicar L2 · Series</a>
+  <div class="extra ui">Repaso de familias:
+    <a href="calculo-p1.html#filtro=q:01%7CL2%7CSeries%20geom%C3%A9tricas">Geométricas</a> ·
+    <a href="calculo-p1.html#filtro=q:01%7CL2%7CSerie%20p%20y%20arm%C3%B3nica">Serie p y armónica</a> ·
+    <a href="calculo-p1.html#filtro=q:01%7CL2%7CSeries%20alternantes">Alternantes</a>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+
+  /* ---------- progreso por paso ---------- */
+  const KEY="s21.calculo.series.estudio.v1";
+  let hechos={};
+  try{hechos=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){hechos={}}
+  const guardar=()=>{try{localStorage.setItem(KEY,JSON.stringify(hechos))}catch(e){}};
+  const ids=[...document.querySelectorAll("section.paso")].map(s=>s.id);
+  function pintarNav(){
+    document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("hecho",!!hechos[a.dataset.p]));
+    const n=ids.filter(i=>hechos[i]).length;
+    $("avance").textContent=n+" de "+ids.length+" pasos marcados como entendidos";
+    document.querySelectorAll("[data-hecho]").forEach(b=>{
+      const h=!!hechos[b.dataset.hecho];
+      b.classList.toggle("lleno",h);
+    });
+  }
+  document.querySelectorAll("[data-hecho]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.hecho; hechos[id]=true; guardar(); pintarNav();
+    const k=ids.indexOf(id);
+    const dest=k<ids.length-1?$(ids[k+1]):document.querySelector(".final");
+    dest.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  pintarNav();
+
+  /* ---------- paso a paso ---------- */
+  document.querySelectorAll(".verPaso").forEach(btn=>{
+    const cont=btn.previousElementSibling;
+    const st=[...cont.querySelectorAll(".st")];
+    let k=0;
+    st[0].classList.add("ver"); k=1;
+    const upd=()=>{ if(k>=st.length){btn.textContent="Ver de nuevo desde el inicio";} else btn.textContent="Ver siguiente paso ("+(k+1)+" de "+st.length+")"; };
+    upd();
+    btn.onclick=()=>{
+      if(k>=st.length){st.forEach((s,j)=>s.classList.toggle("ver",j===0));k=1;}
+      else{st[k].classList.add("ver");k++;}
+      upd();
+    };
+  });
+
+  /* ---------- chequeos rapidos ---------- */
+  document.querySelectorAll(".chk[data-ok]").forEach(c=>{
+    const ok=+c.dataset.ok, ops=[...c.querySelectorAll("button.op")], fb=c.querySelector(".fb");
+    ops.forEach((b,j)=>b.onclick=()=>{
+      ops.forEach(x=>x.classList.remove("bien","malo"));
+      b.classList.add(j===ok?"bien":"malo");
+      if(j!==ok) ops[ok].classList.add("bien");
+      fb.innerHTML=(j===ok?"<b>Bien.</b> ":"<b>No.</b> ")+fb.dataset.txt;
+      fb.classList.add("ver");
+    });
+    fb.dataset.txt=fb.innerHTML;
+  });
+
+  /* ---------- sumas parciales ---------- */
+  const SER={
+    geo:{f:n=>1/Math.pow(2,n),lim:1,nom:"Σ 1/2ⁿ",txt:"converge a 1"},
+    p2:{f:n=>1/(n*n),lim:Math.PI*Math.PI/6,nom:"Σ 1/n²",txt:"converge (p = 2 &gt; 1); el valor no lo da el criterio"},
+    arm:{f:n=>1/n,lim:null,nom:"Σ 1/n",txt:"diverge: Sₙ crece sin techo, aunque despacio"}
+  };
+  let ser="geo";
+  const svg=$("graf"), rng=$("nRange");
+  function dibujar(){
+    const N=+rng.value, s=SER[ser];
+    $("nVal").textContent=N;
+    let S=[],acc=0; for(let n=1;n<=N;n++){acc+=s.f(n);S.push(acc);}
+    const ymax=ser==="arm"?Math.max(4.5,acc*1.1):2;
+    const W=600,H=240,L=40,B=24,T=10,R=10, w=(W-L-R)/N;
+    const y=v=>H-B-(v/ymax)*(H-B-T);
+    let h="";
+    for(let g=0;g<=ymax+1e-9;g+=(ymax>3?1:0.5)){
+      h+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="#E7E5E4"/>`+
+         `<text x="${L-6}" y="${y(g)+4}" text-anchor="end" font-size="11" fill="#6B6B6B" font-family="Segoe UI,Arial">${(+g.toFixed(1)).toString().replace(".",",")}</text>`;
+    }
+    S.forEach((v,j)=>{
+      const x=L+j*w+w*0.12, bw=Math.max(1,w*0.76);
+      h+=`<rect x="${x}" y="${y(v)}" width="${bw}" height="${H-B-y(v)}" fill="${j===N-1?'#2D4A3E':'#A8C2B4'}"/>`;
+    });
+    if(s.lim!==null) h+=`<line x1="${L}" x2="${W-R}" y1="${y(s.lim)}" y2="${y(s.lim)}" stroke="#8C2F2F" stroke-dasharray="5 4"/>`+
+      `<text x="${W-R-4}" y="${y(s.lim)-5}" text-anchor="end" font-size="11" fill="#8C2F2F" font-family="Segoe UI,Arial">límite</text>`;
+    h+=`<text x="${L}" y="${H-6}" font-size="11" fill="#6B6B6B" font-family="Segoe UI,Arial">S₁</text><text x="${W-R}" y="${H-6}" text-anchor="end" font-size="11" fill="#6B6B6B" font-family="Segoe UI,Arial">S${N}</text>`;
+    svg.innerHTML=h;
+    const f=v=>v.toFixed(4).replace(".",",");
+    $("lect").innerHTML=`${s.nom}: a<sub>${N}</sub> = ${f(s.f(N))} · S<sub>${N}</sub> = <b>${f(acc)}</b> · la serie ${s.txt}.`;
+  }
+  document.querySelectorAll("[data-serie]").forEach(b=>b.onclick=()=>{
+    ser=b.dataset.serie;
+    document.querySelectorAll("[data-serie]").forEach(x=>x.classList.toggle("sel",x===b));
+    dibujar();
+  });
+  rng.oninput=dibujar; dibujar();
+
+  /* ---------- practica: que criterio uso ---------- */
+  const CRIT=["Término general","Serie p o geométrica","Comparación","Comparación por el límite","Alternante","Cociente","Raíz","Integral"];
+  const D=[
+    {s:"Σ n/(2n + 3)",ok:0,r:"El término tiende a 1/2 ≠ 0: diverge por término general, sin más cuentas."},
+    {s:"Σ 3ⁿ/n!",ok:5,r:"Hay factorial: cociente. Da 3/(n+1) → 0, converge absolutamente."},
+    {s:"Σ (n/(3n + 1))ⁿ",ok:6,r:"Todo elevado a la n: raíz. Da n/(3n+1) → 1/3, converge absolutamente."},
+    {s:"Σ 1/(n² + 5)",ok:2,r:"1/(n²+5) ≤ 1/n², que converge. Comparación directa: converge."},
+    {s:"Σ (n + 2)/(n³ + 1)",ok:3,r:"Se parece a 1/n². El cociente con 1/n² tiende a 1, finito y positivo: converge. Es el camino más corto."},
+    {s:"Σ (−1)ⁿ/(n + 3)",ok:4,r:"Signos alternados: bₙ = 1/(n+3) decrece y → 0, converge. Sin signos se parece a 1/n y diverge: condicional."},
+    {s:"Σ 1/n^1,5",ok:1,r:"Es directamente una serie p con p = 1,5 &gt; 1: converge."},
+    {s:"Σ (n² + 1)/n²",ok:0,r:"El término tiende a 1 ≠ 0: diverge por término general."},
+    {s:"Σ (4/5)ⁿ",ok:1,r:"Geométrica con r = 4/5, |r| &lt; 1: converge."},
+    {s:"Σ n!/3ⁿ",ok:5,r:"Factorial: cociente. Da (n+1)/3 → ∞, diverge."}
+  ];
+  let di=0, bien=0, resp=false;
+  function mostrar(){
+    resp=false;
+    const d=D[di];
+    $("dSerie").textContent=d.s;
+    $("dFb").classList.remove("ver");
+    $("dSig").disabled=true;
+    $("dCont").textContent="Serie "+(di+1)+" de "+D.length+" · aciertos: "+bien;
+    $("dOps").innerHTML="";
+    CRIT.forEach((c,j)=>{
+      const b=document.createElement("button"); b.className="op"; b.textContent=c;
+      b.onclick=()=>{
+        if(resp) return; resp=true;
+        const ok=j===d.ok; if(ok) bien++;
+        b.classList.add(ok?"bien":"malo");
+        if(!ok) $("dOps").children[d.ok].classList.add("bien");
+        $("dFb").innerHTML=(ok?"<b>Bien.</b> ":"<b>Era "+CRIT[d.ok]+".</b> ")+d.r;
+        $("dFb").classList.add("ver");
+        $("dSig").disabled=false;
+        $("dSig").textContent=di<D.length-1?"Siguiente serie":"Empezar de nuevo";
+        $("dCont").textContent="Serie "+(di+1)+" de "+D.length+" · aciertos: "+bien;
+      };
+      $("dOps").appendChild(b);
+    });
+  }
+  $("dSig").onclick=()=>{ if(di<D.length-1) di++; else {di=0;bien=0;} mostrar(); };
+  mostrar();
+})();
+</script>
+</body>
+</html>
