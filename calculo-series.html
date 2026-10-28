@@ -168,15 +168,23 @@
 
   <div class="ojo"><b>Choque con datos.</b> Sₙ es exactamente un total acumulado, lo que calcula SUM() OVER (ORDER BY n). Y "serie" acá no es una serie temporal: es la suma de una sucesión.</div>
 
-  <h3>Álgebra de series</h3>
-  <p>Si Σ aₙ y Σ bₙ convergen y c es constante: Σ c·aₙ = c·Σ aₙ, y Σ (aₙ ± bₙ) = Σ aₙ ± Σ bₙ. Ejemplo: si Σ aₙ = 2 y Σ bₙ = 3, entonces Σ (5aₙ − bₙ) = 10 − 3 = 7.</p>
-
   <div class="chk" data-ok="0">
     <div class="q">Si las sumas parciales de una serie son Sₙ = 1 − 1/2ⁿ, ¿cuánto vale la serie?</div>
     <div class="ops">
       <button class="op">1</button><button class="op">1/2</button><button class="op">∞, porque se suman infinitos términos</button><button class="op">0</button>
     </div>
     <div class="fb">La serie es el límite de Sₙ. Como 1/2ⁿ → 0, Sₙ → 1. Infinitos términos no significa suma infinita.</div>
+  </div>
+
+  <h3>Álgebra de series</h3>
+  <p>Si Σ aₙ y Σ bₙ convergen y c es constante: Σ c·aₙ = c·Σ aₙ, y Σ (aₙ ± bₙ) = Σ aₙ ± Σ bₙ. Ejemplo: si Σ aₙ = 2 y Σ bₙ = 3, entonces Σ (5aₙ − bₙ) = 5·2 − 3 = 7. Pesa poco en el examen, pero se usa sin darse cuenta, por ejemplo Σ 5/n = 5·Σ 1/n.</p>
+
+  <div class="chk" data-ok="0">
+    <div class="q">Álgebra de series: si Σ aₙ = 4 y Σ bₙ = 1, ¿cuánto vale Σ (3aₙ − 2bₙ)?</div>
+    <div class="ops">
+      <button class="op">10</button><button class="op">12</button><button class="op">14</button><button class="op">No se puede saber sin los términos</button>
+    </div>
+    <div class="fb">3·4 − 2·1 = 12 − 2 = 10. Se puede porque las dos series convergen.</div>
   </div>
   <div class="entendi"><button class="btn" data-hecho="s1">Lo entendí, siguiente</button></div>
 </section>
@@ -301,7 +309,7 @@
     <div class="ops">
       <button class="op">Nada: c tiene que ser finito y mayor que 0</button><button class="op">Que comparten naturaleza</button><button class="op">Que tu serie converge</button><button class="op">Que tu serie diverge</button>
     </div>
-    <div class="fb">El criterio exige 0 &lt; c &lt; ∞. Con c = 0 o c = ∞ no se concluye así.</div>
+    <div class="fb">El criterio, tal como lo enuncia la cátedra, exige 0 &lt; c &lt; ∞. Con c = 0 o c = ∞ no se puede decir que comparten naturaleza: hay que elegir otra bₙ o cambiar de criterio.</div>
   </div>
   <div class="entendi"><button class="btn" data-hecho="s5">Lo entendí, siguiente</button></div>
 </section>
@@ -466,7 +474,7 @@
 
 <section class="final">
   <h2>Ahora sí, a practicar</h2>
-  <p>Abre la autoevaluación ya filtrada en <b>L2 · Series</b> (19 preguntas). Apuntá a 80% o más.</p>
+  <p>El botón abre la autoevaluación ya filtrada en <b>L2 · Series</b> (19 preguntas). Apuntá a 80% o más.</p>
   <a class="btn lleno ui" id="irQuiz" href="calculo-p1.html#filtro=q:01%7CL2%7CSeries">Ir a practicar L2 · Series</a>
   <div class="extra ui">Repaso de familias:
     <a href="calculo-p1.html#filtro=q:01%7CL2%7CSeries%20geom%C3%A9tricas">Geométricas</a> ·
@@ -535,7 +543,7 @@
   /* ---------- sumas parciales ---------- */
   const SER={
     geo:{f:n=>1/Math.pow(2,n),lim:1,nom:"Σ 1/2ⁿ",txt:"converge a 1"},
-    p2:{f:n=>1/(n*n),lim:Math.PI*Math.PI/6,nom:"Σ 1/n²",txt:"converge (p = 2 &gt; 1); el valor no lo da el criterio"},
+    p2:{f:n=>1/(n*n),lim:Math.PI*Math.PI/6,nom:"Σ 1/n²",txt:"converge (p = 2 &gt; 1). Su suma es π²/6 ≈ 1,645, pero ese valor no sale de los criterios: el criterio solo dice que converge"},
     arm:{f:n=>1/n,lim:null,nom:"Σ 1/n",txt:"diverge: Sₙ crece sin techo, aunque despacio"}
   };
   let ser="geo";
@@ -577,12 +585,13 @@
     {s:"Σ 3ⁿ/n!",ok:5,r:"Hay factorial: cociente. Da 3/(n+1) → 0, converge absolutamente."},
     {s:"Σ (n/(3n + 1))ⁿ",ok:6,r:"Todo elevado a la n: raíz. Da n/(3n+1) → 1/3, converge absolutamente."},
     {s:"Σ 1/(n² + 5)",ok:2,r:"1/(n²+5) ≤ 1/n², que converge. Comparación directa: converge."},
-    {s:"Σ (n + 2)/(n³ + 1)",ok:3,r:"Se parece a 1/n². El cociente con 1/n² tiende a 1, finito y positivo: converge. Es el camino más corto."},
+    {s:"Σ (n + 2)/(n³ + 1)",ok:3,r:"Se parece a 1/n². El cociente con 1/n² tiende a 1, finito y positivo: converge. La comparación directa también sale (≤ 3/n²), pero hay que fabricar esa cota; por el límite no hace falta."},
     {s:"Σ (−1)ⁿ/(n + 3)",ok:4,r:"Signos alternados: bₙ = 1/(n+3) decrece y → 0, converge. Sin signos se parece a 1/n y diverge: condicional."},
     {s:"Σ 1/n^1,5",ok:1,r:"Es directamente una serie p con p = 1,5 &gt; 1: converge."},
     {s:"Σ (n² + 1)/n²",ok:0,r:"El término tiende a 1 ≠ 0: diverge por término general."},
     {s:"Σ (4/5)ⁿ",ok:1,r:"Geométrica con r = 4/5, |r| &lt; 1: converge."},
-    {s:"Σ n!/3ⁿ",ok:5,r:"Factorial: cociente. Da (n+1)/3 → ∞, diverge."}
+    {s:"Σ n²/n!",ok:5,r:"Factorial: cociente. Da (n+1)²/(n+1)! · n!/n² = (n+1)/n² → 0, converge absolutamente."},
+    {s:"Σ 1/(n · ln n), n desde 2",ok:7,r:"f(x) = 1/(x ln x) es continua, positiva y decreciente en [2, ∞), y se integra con u = ln x: la integral da ln(ln b) → ∞. Diverge."}
   ];
   let di=0, bien=0, resp=false;
   function mostrar(){
