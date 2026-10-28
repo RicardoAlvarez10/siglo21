@@ -6,6 +6,33 @@
 <meta name="theme-color" content="#2D4A3E">
 <meta name="color-scheme" content="light">
 <title>Siglo 21 · Inicio</title>
+<script>
+/* =====================================================================
+   CONFIGURACIÓN · lo único que hay que tocar cuando cambia el cuatrimestre
+   ---------------------------------------------------------------------
+   EN_CURSO: las materias del cuatrimestre actual, en el orden en que se
+   muestran. Todas las demás de MATERIAS salen abajo, en "Aprobadas".
+   Para una materia nueva: agregarla a MATERIAS con su página
+   (publicar-github/materia-<clave>.html) y sumar la clave a EN_CURSO.
+   Este archivo y publicar-github/index.html son el mismo: después de
+   editarlo, copiarlo encima de index.html para que GitHub Pages lo tome.
+   ===================================================================== */
+const INICIO_CUATRIMESTRE = "05/10/2026";
+const EN_CURSO = ["calculo", "tecnologia", "transferencia", "bienestar"];
+
+const MATERIAS = {
+  calculo:       { nombre: "Cálculo Avanzado",                          detalle: "4 módulos · Parciales 1 y 2" },
+  tecnologia:    { nombre: "Tecnología, Humanidades y Modelos Globales", detalle: "4 módulos · Parciales 1 y 2" },
+  transferencia: { nombre: "Transferencia e Innovación Tecnológica",     detalle: "4 módulos · Parciales 1 y 2" },
+  bienestar:     { nombre: "Bienestar y Emociones Positivas",            detalle: "2 módulos · Trabajo Final" },
+  ia:            { nombre: "Introducción a la Inteligencia Artificial",  detalle: "4 módulos · Parciales 1 y 2" },
+  discreta:      { nombre: "Matemática Discreta",                        detalle: "4 módulos · Parciales 1 y 2" },
+  aprender:      { nombre: "Aprender en el Siglo XXI",                   detalle: "4 módulos · Parciales 1 y 2" },
+};
+/* ===================================================================== */
+
+if (location.protocol === "file:") document.documentElement.classList.add("local");
+</script>
 <style>
   :root{
     --texto:#1A1A1A; --titulo:#3D3D3D; --acento:#2D4A3E; --fondo:#FAF9F7;
@@ -14,81 +41,44 @@
   *{box-sizing:border-box}
   body{margin:0;background:var(--fondo);color:var(--texto);
     font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55}
-  .wrap{max-width:1080px;margin:0 auto;padding:34px 24px 70px}
-  .ui{font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:34px 24px 70px}
 
   header{text-align:center;margin-bottom:30px}
-  header h1{font-size:27px;color:var(--titulo);margin:0 0 6px;font-weight:normal}
-  header p{margin:0;color:var(--tenue);font-size:14px;
+  header h1{font-size:clamp(21px,5.6vw,29px);line-height:1.22;color:var(--titulo);margin:0 0 6px;font-weight:normal}
+  header p{margin:0;color:var(--tenue);font-size:clamp(12.5px,3.2vw,14px);
     font-family:'Segoe UI',Helvetica,Arial,sans-serif}
 
-  .rot{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);
-    font-weight:600;margin:34px 0 12px}
-  .rot:first-of-type{margin-top:0}
+  .seccion{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    margin:34px 0 12px}
+  .seccion:first-of-type{margin-top:0}
+  .seccion h2{font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--tenue);font-weight:600;margin:0}
+  .seccion span{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
 
-  .materia{background:var(--panel);border:1px solid var(--borde);border-radius:5px;
-    padding:20px 22px;margin-bottom:16px}
-  .materia h2{font-size:19px;color:var(--titulo);margin:0 0 3px;font-weight:normal}
-  .materia .sub{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);margin:0 0 15px}
-
-  .destacado{display:flex;align-items:center;justify-content:space-between;gap:16px;
-    background:#F3F6F4;border:1px solid #D6E0D9;border-radius:4px;
-    padding:13px 16px;text-decoration:none;color:var(--texto);margin-bottom:14px;flex-wrap:wrap}
-  .destacado:hover{border-color:var(--acento)}
-  .destacado .txt{min-width:0}
-  .destacado b{font-family:'Segoe UI',sans-serif;font-size:14px;color:var(--acento);display:block}
-  .destacado span{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
-  .marcador{font-family:'Segoe UI',sans-serif;font-size:11.5px;color:var(--tenue);
-    text-align:right;flex-shrink:0}
-  .marcador b{font-size:17px;color:var(--acento);display:block;font-family:'Segoe UI',sans-serif}
-
-  .modulos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-  .modulo{border:1px solid var(--borde);border-radius:4px;padding:12px 14px}
-  .modulo h3{font-family:'Segoe UI',sans-serif;font-size:11px;letter-spacing:.06em;
-    text-transform:uppercase;color:var(--tenue);margin:0 0 8px;font-weight:600}
-  .modulo ol{margin:0 0 10px 17px;padding:0;font-size:13.5px}
-  .modulo li{margin-bottom:3px}
-  .enlaces{display:flex;flex-wrap:wrap;gap:7px}
-  .enlaces a{font-family:'Segoe UI',sans-serif;font-size:11.5px;text-decoration:none;
-    border:1px solid var(--borde);border-radius:12px;padding:4px 10px;color:var(--titulo)}
-  .enlaces a:hover{border-color:var(--acento);color:var(--acento)}
-
-  .pendiente{opacity:.62}
-  .pendiente .modulo{border-style:dashed}
-  .nota{font-family:'Segoe UI',sans-serif;font-size:12.5px;color:var(--tenue);margin:11px 0 0}
-
-  .flujo{background:var(--panel);border:1px solid var(--borde);border-radius:5px;padding:20px 22px}
-  .flujo ol{margin:0 0 0 18px;padding:0;font-size:14.5px}
-  .flujo li{margin-bottom:7px}
-  .flujo code{font-family:Consolas,monospace;font-size:13px;background:#F0EDE7;
-    padding:1px 5px;border-radius:2px}
+  .lista{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .lista a{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:56px;
+    background:var(--panel);border:1px solid var(--borde);border-radius:5px;padding:14px 18px;
+    text-decoration:none;color:var(--texto);transition:border-color .15s ease,background .15s ease}
+  .lista a:hover{border-color:var(--acento);background:#F3F6F4}
+  .lista a:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  .lista .txt{min-width:0}
+  .lista b{display:block;font-weight:normal;font-size:17px;color:var(--titulo);line-height:1.3}
+  .lista small{font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue)}
+  .lista .flecha{font-family:'Segoe UI',sans-serif;color:var(--acento);font-size:18px;flex-shrink:0}
+  .en-curso a{border-left:3px solid var(--acento)}
+  .aprobadas b{color:var(--tenue)}
 
   footer{margin-top:34px;font-family:'Segoe UI',sans-serif;font-size:12px;color:var(--tenue);
     border-top:1px solid var(--borde);padding-top:14px}
-  @media (max-width:620px){.wrap{padding:24px 16px 60px}}
-  /* ================================================================
-     Ajustes de interfaz - se agregan al final para pisar lo anterior
-     ================================================================ */
-  header h1{font-size:clamp(21px,5.6vw,29px);line-height:1.22}
-  header p{font-size:clamp(12.5px,3.2vw,14px)}
 
-  .destacado{min-height:56px;transition:border-color .15s ease,background .15s ease}
-  .destacado:hover{background:#EDF3EF}
-  .destacado:focus-visible,.enlaces a:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
-  .marcador:empty{display:none}
+  html:not(.local) .solo-local{display:none}
 
   @media (max-width:640px){
     .wrap{padding:20px 16px 56px}
     header{text-align:left;margin-bottom:24px}
-    .materia{padding:16px 15px;border-radius:6px}
-    .materia h2{font-size:18px}
-    .destacado{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 15px}
-    .marcador{text-align:left}
-    .marcador b{display:inline;font-size:15px;margin-right:6px}
-    .modulos{grid-template-columns:1fr;gap:10px}
-    .enlaces a{min-height:36px;display:inline-flex;align-items:center;padding:6px 12px;font-size:12px}
-    .rot{margin:26px 0 10px}
+    .lista a{padding:13px 15px}
+    .lista b{font-size:16px}
+    .seccion{margin:26px 0 10px}
   }
 </style>
 </head>
@@ -97,371 +87,44 @@
 
 <header>
   <h1>Universidad Siglo 21</h1>
-  <p>Licenciatura en Inteligencia Artificial y Robótica</p>
+  <p>Licenciatura en Inteligencia Artificial y Robótica<span class="solo-local"> · Ricardo Alvarez</span></p>
 </header>
 
-<div class="rot">Materias en curso · agosto a octubre de 2026</div>
+<div class="seccion"><h2>En curso</h2><span id="desde"></span></div>
+<ul class="lista en-curso" id="en-curso"></ul>
 
-<div class="materia">
-  <h2>Introducción a la Inteligencia Artificial</h2>
-  <p class="sub">4 módulos · 16 lecturas · módulos 01 y 02 procesados</p>
-
-  <a class="destacado" href="ia.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 1</b>
-      <span>71 de estudio, 28 ya tomadas y 15 del preguntero</span>
-    </span>
-    <span class="marcador" data-clave="s21.ia.parcial1.v1" data-total="114"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Introducción a la IA</h3>
-      <ol>
-        <li>Inteligencia artificial</li>
-        <li>Big data</li>
-        <li>Machine y deep learning</li>
-        <li>Visión e iluminación artificial</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · Evolución de la IA</h3>
-      <ol>
-        <li>Fundamentos de la IA</li>
-        <li>Orígenes de la IA</li>
-        <li>Áreas de aplicación</li>
-        <li>Agentes inteligentes</li>
-      </ol>
-    </div>
-    <div class="modulo pendiente">
-      <h3>Módulo 03 · Data Mining y Bots</h3>
-      <ol><li>Sin procesar</li></ol>
-    </div>
-    <div class="modulo pendiente">
-      <h3>Módulo 04 · Impacto cultural</h3>
-      <ol><li>Sin procesar</li></ol>
-    </div>
-  </div>
-
-  <p class="nota">Huecos declarados del material: la iluminación artificial no se desarrolla en M01 L4, y el PDF de M02 L3 es un escaneo sin capa de texto.</p>
-</div>
-
-<div class="materia">
-  <h2>Matemática Discreta</h2>
-  <p class="sub">Módulos 01 y 02 procesados · evaluada con demostraciones escritas</p>
-
-  <a class="destacado" href="discreta.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 1</b>
-      <span>65 de estudio, 40 de los TPs y 27 del preguntero</span>
-    </span>
-    <span class="marcador" data-clave="s21.discreta.parcial1.v1" data-total="132"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Teoría de números</h3>
-      <ol>
-        <li>Divisibilidad</li>
-        <li>Números primos</li>
-        <li>Máximo común divisor</li>
-        <li>Inducción matemática</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · Funciones y conteo</h3>
-      <ol>
-        <li>Funciones</li>
-        <li>Principio de casillas</li>
-        <li>Permutaciones</li>
-        <li>Combinaciones</li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="enlaces" style="margin-top:12px"><a href="formulas-conteo.png">Las cuatro fórmulas de conteo</a></div>
-  <p class="nota">La autoevaluación mide identificación de conceptos y ejecución de fórmulas. La redacción de una demostración por inducción se practica aparte, con la sección 5 del paquete.</p>
-</div>
-
-<div class="materia">
-  <h2>Aprender en el Siglo XXI</h2>
-  <p class="sub">Módulos 01 y 02 procesados</p>
-
-  <a class="destacado" href="aprender.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 1</b>
-      <span>40 de estudio, 10 ya tomadas y 28 del preguntero</span>
-    </span>
-    <span class="marcador" data-clave="s21.aprender.parcial1.v1" data-total="78"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Autorregulación</h3>
-      <ol>
-        <li>Planificación de tu estudio</li>
-        <li>Cómo receptamos la información</li>
-        <li>Ejecución y técnicas de estudio</li>
-        <li>Monitoreo del aprendizaje</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · Propósito y bienestar</h3>
-      <ol>
-        <li>Propósito y oficio de estudiante</li>
-        <li>Autoconocimiento</li>
-        <li>Emociones y gestión del estrés</li>
-        <li>Ecosistemas de bienestar</li>
-      </ol>
-    </div>
-  </div>
-
-  <p class="nota">El TP online del módulo 02 cerró en 100. Los PDF de cátedra del módulo 01 están, pero solo la lección 1 tiene resumen en .md.</p>
-</div>
-
-<div class="materia">
-  <h2>Tecnología, Humanidades y Modelos Globales</h2>
-  <p class="sub">4 módulos · 16 lecturas · módulos 01 a 04 procesados</p>
-
-  <a class="destacado" href="tecnologia-p1.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 1</b>
-      <span>74 preguntas de estudio y 4 de repaso de cátedra</span>
-    </span>
-    <span class="marcador" data-clave="s21.tecnologia.p1.v1" data-total="78"></span>
-  </a>
-
-  <a class="destacado" href="tecnologia-p2.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 2</b>
-      <span>102 preguntas de estudio</span>
-    </span>
-    <span class="marcador" data-clave="s21.tecnologia.parcial2.v1" data-total="102"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Tecnología y sociedad</h3>
-      <ol>
-        <li>Significado y alcance del concepto tecnología</li>
-        <li>Revolución tecnológica y nuevos paradigmas</li>
-        <li>Cuarta Revolución Tecnológica e IA</li>
-        <li>Impacto de la IA en las organizaciones</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · Capitalismo y economía digital</h3>
-      <ol>
-        <li>Capitalismo, proceso económico e inversión</li>
-        <li>Destrucción creativa y startups</li>
-        <li>La economía digital: long tail y plataformas</li>
-        <li>Nuevas economías y transformación digital</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 03 · Nuevas sociedades y trabajo</h3>
-      <ol>
-        <li>La complejidad de las nuevas sociedades y la equidad</li>
-        <li>Empresas sociales y de triple impacto</li>
-        <li>Sociedad actual: mundos VICA y educación</li>
-        <li>Cambios en el mundo del trabajo</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 04 · Humanismo y futuro</h3>
-      <ol>
-        <li>Humanismo en tiempos de disrupción tecnológica</li>
-        <li>Las personas del futuro y el transhumanismo</li>
-        <li>Liderazgo y transformación de realidades</li>
-        <li>Objetivos de Desarrollo Sostenible de la ONU</li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="enlaces" style="margin-top:12px"><a href="tecnologia-m01-mapa.html">Mapa conceptual del módulo 01</a><a href="tecnologia-m02-mapa.html">Mapa conceptual del módulo 02</a><a href="tecnologia-m03-mapa.html">Mapa conceptual del módulo 03</a><a href="tecnologia-m04-mapa.html">Mapa conceptual del módulo 04</a></div>
-  <p class="nota">La cátedra todavía no tomó ninguna instancia evaluada, así que el peso de cada módulo es una estimación y no hay banco de preguntas ya tomadas.</p>
-</div>
-
-<div class="materia">
-  <h2>Transferencia e Innovación Tecnológica</h2>
-  <p class="sub">4 módulos · 16 lecturas · módulos 01 a 04 procesados</p>
-
-  <a class="destacado" href="transferencia-p1.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 1</b>
-      <span>73 preguntas de estudio, sin banco de preguntas ya tomadas</span>
-    </span>
-    <span class="marcador" data-clave="s21.transferencia.p1.v1" data-total="73"></span>
-  </a>
-
-  <a class="destacado" href="transferencia-p2.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 2</b>
-      <span>102 preguntas de estudio</span>
-    </span>
-    <span class="marcador" data-clave="s21.transferencia.parcial2.v1" data-total="102"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Innovación</h3>
-      <ol>
-        <li>Principios de innovación</li>
-        <li>Componentes de la innovación</li>
-        <li>Innovación disruptiva e incremental</li>
-        <li>Gestión de la innovación</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · Entorno, ciencia y tecnología</h3>
-      <ol>
-        <li>Importancia del entorno</li>
-        <li>«Culturas» y estilos de la ciencia</li>
-        <li>Precisiones acerca de la ciencia y la tecnología</li>
-        <li>Indicadores de gestión</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 03 · Innovación en la empresa</h3>
-      <ol>
-        <li>Generación de innovación en la empresa</li>
-        <li>Equipos y métodos</li>
-        <li>Metodologías de innovación</li>
-        <li>La innovación como proceso</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 04 · Vinculación y transferencia</h3>
-      <ol>
-        <li>La empresa como generadora de innovación social</li>
-        <li>Nuevos emprendedores</li>
-        <li>Propiedad intelectual</li>
-        <li>Buenas prácticas en la gestión de la vinculación</li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="enlaces" style="margin-top:12px"><a href="transferencia-m01-mapa.html">Mapa conceptual del módulo 01</a><a href="transferencia-m02-mapa.html">Mapa conceptual del módulo 02</a><a href="transferencia-m03-mapa.html">Mapa conceptual del módulo 03</a><a href="transferencia-m04-mapa.html">Mapa conceptual del módulo 04</a></div>
-  <p class="nota">Seis de los ocho PDF de cátedra de los módulos 01 y 02 vinieron escaneados y se procesaron con reconocimiento óptico, así que hay datos reconstruidos. La cátedra todavía no tomó ninguna instancia evaluada.</p>
-</div>
-
-<div class="materia">
-  <h2>Bienestar y Emociones Positivas</h2>
-  <p class="sub">2 módulos · 8 lecturas · módulos 01 y 02 procesados</p>
-
-  <a class="destacado" href="bienestar-tf.html">
-    <span class="txt">
-      <b>Autoevaluación del Trabajo Final</b>
-      <span>47 preguntas de estudio</span>
-    </span>
-    <span class="marcador" data-clave="s21.bienestar.tfi.v1" data-total="47"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Psicología Positiva y florecimiento</h3>
-      <ol>
-        <li>Fundamentos científicos del bienestar</li>
-        <li>El modelo PERMA</li>
-        <li>Engagement y Flow</li>
-        <li>Salud mental preventiva y gestión del estrés</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · ACT y DBT</h3>
-      <ol>
-        <li>Flexibilidad psicológica y el Yo-Contexto</li>
-        <li>Regulación emocional y tolerancia al malestar</li>
-        <li>Tolerancia al malestar y aceptación radical</li>
-        <li>Eficacia interpersonal y comunicación asertiva</li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="enlaces" style="margin-top:12px"><a href="bienestar-m01-mapa.html">Mapa conceptual del módulo 01</a><a href="bienestar-m02-mapa.html">Mapa conceptual del módulo 02</a></div>
-  <p class="nota">Los PDF no traen el título oficial de cada módulo, los nombres de arriba describen el contenido. La materia se evalúa con un Trabajo Final Integrador, dos actividades en Genially y una bitácora personal. La autoevaluación interactiva cubre los dos módulos con 47 preguntas.</p>
-</div>
-
-<div class="materia">
-  <h2>Cálculo Avanzado</h2>
-  <p class="sub">4 módulos · 16 lecturas · módulos 01 a 04 procesados</p>
-
-  <a class="destacado" href="calculo-p1.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 1</b>
-      <span>86 preguntas de estudio y 4 de repaso de cátedra</span>
-    </span>
-    <span class="marcador" data-clave="s21.calculo.p1.v1" data-total="90"></span>
-  </a>
-
-  <a class="destacado" href="calculo-p2.html">
-    <span class="txt">
-      <b>Autoevaluación del Parcial 2</b>
-      <span>100 preguntas de estudio</span>
-    </span>
-    <span class="marcador" data-clave="s21.calculo.parcial2.v1" data-total="100"></span>
-  </a>
-
-  <div class="modulos">
-    <div class="modulo">
-      <h3>Módulo 01 · Sucesiones, series y Taylor</h3>
-      <ol>
-        <li>Sucesiones</li>
-        <li>Series</li>
-        <li>Fórmula de Taylor</li>
-        <li>Usos del polinomio de Taylor</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 02 · Vectores y cálculo diferencial</h3>
-      <ol>
-        <li>Vectores</li>
-        <li>Derivación de un vector</li>
-        <li>Funciones de varias variables</li>
-        <li>Regla de la cadena y gradiente</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 03 · Integrales dobles y triples</h3>
-      <ol>
-        <li>Integrales dobles, primera parte</li>
-        <li>Coordenadas polares</li>
-        <li>Integrales triples y centro de masa, parte I</li>
-        <li>Integrales triples y centro de masa, parte II</li>
-      </ol>
-    </div>
-    <div class="modulo">
-      <h3>Módulo 04 · Cambio de variables</h3>
-      <ol>
-        <li>Integrales dobles, segunda parte</li>
-        <li>Cambio de variables en tres dimensiones, parte I</li>
-        <li>Cambio de variable en tres dimensiones, parte II</li>
-        <li>Cambios de variable en R³</li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="enlaces" style="margin-top:12px"><a href="calculo-m01-mapa.html">Mapa conceptual del módulo 01</a><a href="calculo-m02-mapa.html">Mapa conceptual del módulo 02</a><a href="calculo-m03-mapa.html">Mapa conceptual del módulo 03</a><a href="calculo-m04-mapa.html">Mapa conceptual del módulo 04</a></div>
-  <p class="nota">Los PDF no traen el título oficial de cada módulo, los nombres de arriba describen el contenido. La materia se evalúa con cuatro TP online de 20 preguntas y 120 minutos y cuatro actividades prácticas. El Parcial 2 todavía no tiene paquete de estudio, solo la autoevaluación.</p>
-</div>
+<div class="seccion"><h2>Aprobadas</h2></div>
+<ul class="lista aprobadas" id="aprobadas"></ul>
 
 <footer>
-  Todo el contenido sale de los PDF de cátedra y de los paquetes de estudio. Donde el material declara un hueco, la página lo dice.
+  Cada materia abre su página con las autoevaluaciones, los módulos, los mapas conceptuales y el material de estudio.
 </footer>
 </div>
 
 <script>
-/* Si el navegador comparte el almacenamiento entre archivos locales, se muestra
-   el avance de cada autoevaluación. Si no, la etiqueta queda vacía y no molesta. */
-document.querySelectorAll(".marcador").forEach(el=>{
-  let hist=null;
-  try{hist=JSON.parse(localStorage.getItem(el.dataset.clave)||"null")}catch(e){}
-  if(!hist||!Object.keys(hist).length) return;
-  const ns=Object.keys(hist);
-  const bien=ns.filter(n=>hist[n].u===1).length;
-  const pct=Math.round(bien/ns.length*100);
-  el.innerHTML='<b>'+pct+'%</b>'+ns.length+' de '+el.dataset.total+' respondidas';
-});
+/* Las páginas de materia viven en publicar-github. Desde la carpeta raíz (este archivo
+   abierto local) se entra a esa carpeta; desde index.html o GitHub Pages, ya se está en ella. */
+const BASE = (location.protocol === "file:" && !/\/publicar-github\//.test(location.pathname)) ? "publicar-github/" : "";
+
+function item(clave) {
+  const m = MATERIAS[clave];
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  a.href = BASE + "materia-" + clave + ".html";
+  a.target = "_blank";
+  a.rel = "noopener";
+  a.innerHTML = '<span class="txt"><b></b><small></small></span><span class="flecha" aria-hidden="true">→</span>';
+  a.querySelector("b").textContent = m.nombre;
+  a.querySelector("small").textContent = m.detalle;
+  li.appendChild(a);
+  return li;
+}
+
+const enCurso = EN_CURSO.filter(c => MATERIAS[c]);
+enCurso.forEach(c => document.getElementById("en-curso").appendChild(item(c)));
+Object.keys(MATERIAS).filter(c => !enCurso.includes(c))
+  .forEach(c => document.getElementById("aprobadas").appendChild(item(c)));
+document.getElementById("desde").textContent = "desde el " + INICIO_CUATRIMESTRE;
 </script>
 </body>
 </html>

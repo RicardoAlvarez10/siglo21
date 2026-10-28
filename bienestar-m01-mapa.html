@@ -113,6 +113,31 @@
     .diagrama { page-break-inside: avoid; }
   }
 </style>
+<style>
+  /* ---------- Ajustes para celular 2026-10-20 ---------- */
+  .mapaAviso{display:none}
+  @media (max-width:640px){
+    .mapaScroll{overflow-x:auto;-webkit-overflow-scrolling:touch;cursor:zoom-in}
+    .mapaScroll > svg,.mapaScroll > img{min-width:700px;max-width:none !important;height:auto}
+    .mapaAviso{display:block;font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;
+      color:#6B6B6B;text-align:center;margin:6px 0 14px}
+  }
+  /* Flex con margen automatico: centra el diagrama chico y no corta el grande. */
+  .mapaFull{position:fixed;inset:0;z-index:1000;background:#FFFFFF;overflow:auto;display:flex;
+    -webkit-overflow-scrolling:touch;touch-action:pinch-zoom pan-x pan-y;overscroll-behavior:contain;
+    padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
+  .mapaFull > svg,.mapaFull > img{display:block;min-width:0;max-width:none !important;
+    height:auto;margin:auto;flex-shrink:0}
+  /* Controles abajo a la derecha, donde llega el pulgar */
+  .mapaControles{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+    z-index:1001;display:flex;gap:10px}
+  .mapaControles button{width:52px;height:52px;border:1px solid #A8A29E;border-radius:26px;
+    background:#FFFFFF;color:#3D3D3D;font-size:22px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 14px rgba(26,26,26,.16);font-family:'Segoe UI',system-ui,sans-serif}
+  .mapaControles button:disabled{opacity:.4}
+  html.mapaAbierto,html.mapaAbierto body{overflow:hidden}
+</style>
 </head>
 <body>
 <div class="hoja">
@@ -136,5 +161,94 @@
 <div class="diagrama"><svg id="d6" width="100%" xmlns="http://www.w3.org/2000/svg" class="flowchart" style="max-width: 1323.390625px;" viewBox="0 0 1323.390625 94" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#d6{font-family:Segoe UI,Inter,sans-serif;font-size:16px;fill:#1A1A1A;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#d6 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#d6 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#d6 .error-icon{fill:hsl(240, 9.0909090909%, 100%);}#d6 .error-text{fill:#000000;stroke:#000000;}#d6 .edge-thickness-normal{stroke-width:1px;}#d6 .edge-thickness-thick{stroke-width:3.5px;}#d6 .edge-pattern-solid{stroke-dasharray:0;}#d6 .edge-thickness-invisible{stroke-width:0;fill:none;}#d6 .edge-pattern-dashed{stroke-dasharray:3;}#d6 .edge-pattern-dotted{stroke-dasharray:2;}#d6 .marker{fill:#6B6B6B;stroke:#6B6B6B;}#d6 .marker.cross{stroke:#6B6B6B;}#d6 svg{font-family:Segoe UI,Inter,sans-serif;font-size:16px;}#d6 p{margin:0;}#d6 .label{font-family:Segoe UI,Inter,sans-serif;color:#1A1A1A;}#d6 .cluster-label text{fill:#000000;}#d6 .cluster-label span{color:#000000;}#d6 .cluster-label span p{background-color:transparent;}#d6 .label text,#d6 span{fill:#1A1A1A;color:#1A1A1A;}#d6 .node rect,#d6 .node circle,#d6 .node ellipse,#d6 .node polygon,#d6 .node path{fill:#FAFAF9;stroke:#A8A29E;stroke-width:1px;}#d6 .rough-node .label text,#d6 .node .label text,#d6 .image-shape .label,#d6 .icon-shape .label{text-anchor:middle;}#d6 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#d6 .rough-node .label,#d6 .node .label,#d6 .image-shape .label,#d6 .icon-shape .label{text-align:center;}#d6 .node.clickable{cursor:pointer;}#d6 .root .anchor path{fill:#6B6B6B!important;stroke-width:0;stroke:#6B6B6B;}#d6 .arrowheadPath{fill:#0b0b0b;}#d6 .edgePaths .path{stroke:#6B6B6B;stroke-width:1px;}#d6 .flowchart-link{stroke:#6B6B6B;fill:none;}#d6 .edgeLabel{background-color:hsl(-60, 9.0909090909%, 97.8431372549%);text-align:center;}#d6 .edgeLabel p{background-color:hsl(-60, 9.0909090909%, 97.8431372549%);}#d6 .edgeLabel rect{opacity:0.5;background-color:hsl(-60, 9.0909090909%, 97.8431372549%);fill:hsl(-60, 9.0909090909%, 97.8431372549%);}#d6 .labelBkg{background-color:rgba(250, 249, 250, 0.5);}#d6 .cluster rect{fill:#F5F5F4;stroke:#A8A29E;stroke-width:1px;}#d6 .cluster text{fill:#000000;}#d6 .cluster span{color:#000000;}#d6 .node .collapsed-indicator{fill:#A8A29E;stroke:none;opacity:0.6;}#d6 .node .collapsed-separator{stroke:#A8A29E;stroke-width:0.75px;}#d6 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:Segoe UI,Inter,sans-serif;font-size:12px;background:hsl(240, 9.0909090909%, 100%);border:1px solid hsl(240, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#d6 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#1A1A1A;}#d6 rect.text{fill:none;stroke-width:0;}#d6 .icon-shape,#d6 .image-shape{background-color:hsl(-60, 9.0909090909%, 97.8431372549%);text-align:center;}#d6 .icon-shape p,#d6 .image-shape p{background-color:hsl(-60, 9.0909090909%, 97.8431372549%);padding:2px;}#d6 .icon-shape .label rect,#d6 .image-shape .label rect{opacity:0.5;background-color:hsl(-60, 9.0909090909%, 97.8431372549%);fill:hsl(-60, 9.0909090909%, 97.8431372549%);}#d6 .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#d6 .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#d6 .node .neo-node{stroke:#A8A29E;}#d6 [data-look="neo"].node rect,#d6 [data-look="neo"].cluster rect,#d6 [data-look="neo"].node polygon{stroke:url(#d6-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#d6 [data-look="neo"].swimlane.cluster rect{filter:none;}#d6 [data-look="neo"].node path{stroke:url(#d6-gradient);stroke-width:1px;}#d6 [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#d6 [data-look="neo"].node .neo-line path{stroke:#A8A29E;filter:none;}#d6 [data-look="neo"].node circle{stroke:url(#d6-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#d6 [data-look="neo"].node circle .state-start{fill:#000000;}#d6 [data-look="neo"].icon-shape .icon{fill:url(#d6-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#d6 [data-look="neo"].icon-shape .icon-neo path{stroke:url(#d6-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#d6 :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="d6_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="d6_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="d6_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="d6_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="d6_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="d6_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="d6_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="d6_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="d6_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="d6_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="d6_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="d6_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M230.984,47L235.151,47C239.318,47,247.651,47,255.318,47C262.984,47,269.984,47,273.484,47L276.984,47" id="d6-L_S1_S2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_S1_S2_0" data-points="W3sieCI6MjMwLjk4NDM3NSwieSI6NDd9LHsieCI6MjU1Ljk4NDM3NSwieSI6NDd9LHsieCI6MjgwLjk4NDM3NSwieSI6NDd9XQ==" data-look="classic" marker-end="url(#d6_flowchart-v2-pointEnd)"></path><path d="M475.188,47L479.354,47C483.521,47,491.854,47,499.521,47C507.188,47,514.188,47,517.688,47L521.188,47" id="d6-L_S2_S3_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_S2_S3_0" data-points="W3sieCI6NDc1LjE4NzUsInkiOjQ3fSx7IngiOjUwMC4xODc1LCJ5Ijo0N30seyJ4Ijo1MjUuMTg3NSwieSI6NDd9XQ==" data-look="classic" marker-end="url(#d6_flowchart-v2-pointEnd)"></path><path d="M772.875,47L777.042,47C781.208,47,789.542,47,797.208,47C804.875,47,811.875,47,815.375,47L818.875,47" id="d6-L_S3_S4_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_S3_S4_0" data-points="W3sieCI6NzcyLjg3NSwieSI6NDd9LHsieCI6Nzk3Ljg3NSwieSI6NDd9LHsieCI6ODIyLjg3NSwieSI6NDd9XQ==" data-look="classic" marker-end="url(#d6_flowchart-v2-pointEnd)"></path><path d="M1013.453,47L1017.62,47C1021.786,47,1030.12,47,1037.786,47C1045.453,47,1052.453,47,1055.953,47L1059.453,47" id="d6-L_S4_S5_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_S4_S5_0" data-points="W3sieCI6MTAxMy40NTMxMjUsInkiOjQ3fSx7IngiOjEwMzguNDUzMTI1LCJ5Ijo0N30seyJ4IjoxMDYzLjQ1MzEyNSwieSI6NDd9XQ==" data-look="classic" marker-end="url(#d6_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_S1_S2_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_S2_S3_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_S3_S4_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_S4_S5_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="d6-flowchart-S1-0" data-look="classic" transform="translate(119.4921875, 47)"><rect class="basic label-container" style="" x="-111.4921875" y="-39" width="222.984375" height="78"></rect><g class="label" style="" transform="translate(-81.4921875, -24)"><rect></rect><foreignObject width="162.984375" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>PERMA de memoria<br>en inglés y castellano</p></span></div></foreignObject></g></g><g class="node default" id="d6-flowchart-S2-1" data-look="classic" transform="translate(378.0859375, 47)"><rect class="basic label-container" style="" x="-97.1015625" y="-39" width="194.203125" height="78"></rect><g class="label" style="" transform="translate(-67.1015625, -24)"><rect></rect><foreignObject width="134.203125" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Autores y aportes<br>tabla del Índice</p></span></div></foreignObject></g></g><g class="node default" id="d6-flowchart-S3-3" data-look="classic" transform="translate(649.03125, 47)"><rect class="basic label-container" style="" x="-123.84375" y="-39" width="247.6875" height="78"></rect><g class="label" style="" transform="translate(-93.84375, -24)"><rect></rect><foreignObject width="187.6875" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Tabla desafío y habilidad<br>cinco estados</p></span></div></foreignObject></g></g><g class="node default" id="d6-flowchart-S4-5" data-look="classic" transform="translate(918.1640625, 47)"><rect class="basic label-container" style="" x="-95.2890625" y="-39" width="190.578125" height="78"></rect><g class="label" style="" transform="translate(-65.2890625, -24)"><rect></rect><foreignObject width="130.578125" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Estrés adaptativo<br>frente a crónico</p></span></div></foreignObject></g></g><g class="node default" id="d6-flowchart-S5-7" data-look="classic" transform="translate(1189.421875, 47)"><rect class="basic label-container" style="" x="-125.96875" y="-39" width="251.9375" height="78"></rect><g class="label" style="" transform="translate(-95.96875, -24)"><rect></rect><foreignObject width="191.9375" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Prácticas de cada lectura<br>qué hace cada una</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="d6-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="d6-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="d6-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#A8A29E" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(-60, 0%, 87.8431372549%)" stop-opacity="1"></stop></linearGradient></svg></div>
 <div class="pie">Ricardo Alvarez &nbsp;·&nbsp; Universidad Siglo 21</div>
 </div>
+<script>
+/* ---------- Ajustes para celular 2026-10-20 ----------
+   Cada diagrama queda en un contenedor desplazable. En celular, al tocarlo se
+   abre a pantalla completa, ajustado al ancho: doble toque acerca en ese punto
+   (y otro doble toque vuelve), + y - abajo, pellizco tambien, y el boton Atras
+   del telefono cierra. Todo se maneja con el pulgar. */
+(function(){
+  const MOVIL=window.matchMedia("(max-width:640px)");
+  const ZOOM_MAX=8, PASO=1.6, ZOOM_DOBLE=3;
+  let actual=null;
+
+  function abrir(fig){
+    const capa=document.createElement("div");
+    capa.className="mapaFull";
+    /* La copia conserva el id: los estilos de mermaid van colgados de el. */
+    const copia=fig.cloneNode(true);
+    capa.appendChild(copia);
+    const ctl=document.createElement("div");
+    ctl.className="mapaControles";
+    ctl.innerHTML='<button type="button" data-z="-" aria-label="Alejar">&minus;</button>'+
+      '<button type="button" data-z="+" aria-label="Acercar">+</button>'+
+      '<button type="button" class="mapaCerrar" aria-label="Cerrar el diagrama">&#10005;</button>';
+    document.body.appendChild(capa);document.body.appendChild(ctl);
+    document.documentElement.classList.add("mapaAbierto");
+
+    const base=()=>capa.clientWidth-24;
+    let z=1;
+    /* Cambia el zoom manteniendo quieto el punto (px,py) de la pantalla. */
+    function zoom(nz,px,py){
+      nz=Math.min(ZOOM_MAX,Math.max(1,nz));
+      const r=copia.getBoundingClientRect();
+      const fx=(px-r.left)/r.width, fy=(py-r.top)/r.height;
+      z=nz;copia.style.width=Math.round(base()*z)+"px";
+      const n=copia.getBoundingClientRect();
+      capa.scrollLeft+=n.left+fx*n.width-px;
+      capa.scrollTop+=n.top+fy*n.height-py;
+      ctl.querySelector('[data-z="-"]').disabled=z<=1;
+      ctl.querySelector('[data-z="+"]').disabled=z>=ZOOM_MAX;
+    }
+    zoom(1,innerWidth/2,innerHeight/2);
+    ctl.querySelector('[data-z="+"]').onclick=()=>zoom(z*PASO,innerWidth/2,innerHeight/2);
+    ctl.querySelector('[data-z="-"]').onclick=()=>zoom(z/PASO,innerWidth/2,innerHeight/2);
+
+    let ultimo=0,ux=0,uy=0,porToque=0;
+    capa.addEventListener("touchend",e=>{
+      if(e.touches.length) return;
+      const t=e.changedTouches[0], ahora=Date.now();
+      if(ahora-ultimo<320 && Math.hypot(t.clientX-ux,t.clientY-uy)<30){
+        zoom(z>1?1:ZOOM_DOBLE,t.clientX,t.clientY);ultimo=0;porToque=ahora;
+      } else {ultimo=ahora;ux=t.clientX;uy=t.clientY}
+    },{passive:true});
+    /* Con mouse; si el doble toque ya lo resolvio, no se aplica dos veces. */
+    capa.addEventListener("dblclick",e=>{if(Date.now()-porToque>600)zoom(z>1?1:ZOOM_DOBLE,e.clientX,e.clientY)});
+
+    function tecla(e){if(e.key==="Escape")cerrar()}
+    function cerrar(){
+      if(actual!==cerrar) return;
+      actual=null;
+      capa.remove();ctl.remove();document.documentElement.classList.remove("mapaAbierto");
+      document.removeEventListener("keydown",tecla);
+      if(history.state && history.state.mapa) history.back();
+    }
+    actual=cerrar;
+    ctl.querySelector(".mapaCerrar").onclick=cerrar;
+    document.addEventListener("keydown",tecla);
+    history.pushState(Object.assign({},history.state,{mapa:1}),"");
+  }
+  window.addEventListener("popstate",()=>{if(actual)actual()});
+
+  function preparar(){
+    document.querySelectorAll(".diagrama > svg, .diagrama > img, pre.mermaid > svg, pre.mermaid > img")
+      .forEach(fig=>{
+        const cont=fig.parentElement;
+        const caja=document.createElement("div");
+        caja.className="mapaScroll";
+        cont.insertBefore(caja,fig);
+        caja.appendChild(fig);
+        const aviso=document.createElement("p");
+        aviso.className="mapaAviso";
+        aviso.textContent="Deslizá para ver el diagrama completo";
+        cont.parentNode.insertBefore(aviso,cont.nextSibling);
+        caja.addEventListener("click",()=>{if(MOVIL.matches && !actual)abrir(fig)});
+      });
+  }
+  /* Los mapas con mermaid dibujan el svg despues de cargar. */
+  new MutationObserver(preparar).observe(document.body,{childList:true,subtree:true});
+  preparar();
+})();
+</script>
 </body>
 </html>

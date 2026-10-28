@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tecnología · Módulo 04 · Mapa conceptual</title>
 <style>
   body { font-family: Georgia, serif; color:#1A1A1A; background:#FAFAF9;
@@ -16,6 +17,31 @@
   .nota { font-family:"Segoe UI",sans-serif; font-size:12px; color:#6B6B6B;
           border-top:1px solid #A8A29E; margin-top:48px; padding-top:12px; }
   @media print { body { background:#fff; } h2 { page-break-after: avoid; } section { page-break-inside: avoid; } }
+</style>
+<style>
+  /* ---------- Ajustes para celular 2026-10-20 ---------- */
+  .mapaAviso{display:none}
+  @media (max-width:640px){
+    .mapaScroll{overflow-x:auto;-webkit-overflow-scrolling:touch;cursor:zoom-in}
+    .mapaScroll > svg,.mapaScroll > img{min-width:700px;max-width:none !important;height:auto}
+    .mapaAviso{display:block;font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;
+      color:#6B6B6B;text-align:center;margin:6px 0 14px}
+  }
+  /* Flex con margen automatico: centra el diagrama chico y no corta el grande. */
+  .mapaFull{position:fixed;inset:0;z-index:1000;background:#FFFFFF;overflow:auto;display:flex;
+    -webkit-overflow-scrolling:touch;touch-action:pinch-zoom pan-x pan-y;overscroll-behavior:contain;
+    padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
+  .mapaFull > svg,.mapaFull > img{display:block;min-width:0;max-width:none !important;
+    height:auto;margin:auto;flex-shrink:0}
+  /* Controles abajo a la derecha, donde llega el pulgar */
+  .mapaControles{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+    z-index:1001;display:flex;gap:10px}
+  .mapaControles button{width:52px;height:52px;border:1px solid #A8A29E;border-radius:26px;
+    background:#FFFFFF;color:#3D3D3D;font-size:22px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 14px rgba(26,26,26,.16);font-family:'Segoe UI',system-ui,sans-serif}
+  .mapaControles button:disabled{opacity:.4}
+  html.mapaAbierto,html.mapaAbierto body{overflow:hidden}
 </style>
 </head>
 <body>
@@ -3835,6 +3861,95 @@ globalThis["mermaid"] = globalThis.__esbuild_esm_mermaid_nm["mermaid"].default;
     themeVariables: { fontFamily: 'Segoe UI, sans-serif', fontSize: '14px',
       primaryColor:'#FAFAF9', primaryTextColor:'#1A1A1A', primaryBorderColor:'#A8A29E',
       lineColor:'#6B6B6B', tertiaryColor:'#E7E5E4' } });
+</script>
+<script>
+/* ---------- Ajustes para celular 2026-10-20 ----------
+   Cada diagrama queda en un contenedor desplazable. En celular, al tocarlo se
+   abre a pantalla completa, ajustado al ancho: doble toque acerca en ese punto
+   (y otro doble toque vuelve), + y - abajo, pellizco tambien, y el boton Atras
+   del telefono cierra. Todo se maneja con el pulgar. */
+(function(){
+  const MOVIL=window.matchMedia("(max-width:640px)");
+  const ZOOM_MAX=8, PASO=1.6, ZOOM_DOBLE=3;
+  let actual=null;
+
+  function abrir(fig){
+    const capa=document.createElement("div");
+    capa.className="mapaFull";
+    /* La copia conserva el id: los estilos de mermaid van colgados de el. */
+    const copia=fig.cloneNode(true);
+    capa.appendChild(copia);
+    const ctl=document.createElement("div");
+    ctl.className="mapaControles";
+    ctl.innerHTML='<button type="button" data-z="-" aria-label="Alejar">&minus;</button>'+
+      '<button type="button" data-z="+" aria-label="Acercar">+</button>'+
+      '<button type="button" class="mapaCerrar" aria-label="Cerrar el diagrama">&#10005;</button>';
+    document.body.appendChild(capa);document.body.appendChild(ctl);
+    document.documentElement.classList.add("mapaAbierto");
+
+    const base=()=>capa.clientWidth-24;
+    let z=1;
+    /* Cambia el zoom manteniendo quieto el punto (px,py) de la pantalla. */
+    function zoom(nz,px,py){
+      nz=Math.min(ZOOM_MAX,Math.max(1,nz));
+      const r=copia.getBoundingClientRect();
+      const fx=(px-r.left)/r.width, fy=(py-r.top)/r.height;
+      z=nz;copia.style.width=Math.round(base()*z)+"px";
+      const n=copia.getBoundingClientRect();
+      capa.scrollLeft+=n.left+fx*n.width-px;
+      capa.scrollTop+=n.top+fy*n.height-py;
+      ctl.querySelector('[data-z="-"]').disabled=z<=1;
+      ctl.querySelector('[data-z="+"]').disabled=z>=ZOOM_MAX;
+    }
+    zoom(1,innerWidth/2,innerHeight/2);
+    ctl.querySelector('[data-z="+"]').onclick=()=>zoom(z*PASO,innerWidth/2,innerHeight/2);
+    ctl.querySelector('[data-z="-"]').onclick=()=>zoom(z/PASO,innerWidth/2,innerHeight/2);
+
+    let ultimo=0,ux=0,uy=0,porToque=0;
+    capa.addEventListener("touchend",e=>{
+      if(e.touches.length) return;
+      const t=e.changedTouches[0], ahora=Date.now();
+      if(ahora-ultimo<320 && Math.hypot(t.clientX-ux,t.clientY-uy)<30){
+        zoom(z>1?1:ZOOM_DOBLE,t.clientX,t.clientY);ultimo=0;porToque=ahora;
+      } else {ultimo=ahora;ux=t.clientX;uy=t.clientY}
+    },{passive:true});
+    /* Con mouse; si el doble toque ya lo resolvio, no se aplica dos veces. */
+    capa.addEventListener("dblclick",e=>{if(Date.now()-porToque>600)zoom(z>1?1:ZOOM_DOBLE,e.clientX,e.clientY)});
+
+    function tecla(e){if(e.key==="Escape")cerrar()}
+    function cerrar(){
+      if(actual!==cerrar) return;
+      actual=null;
+      capa.remove();ctl.remove();document.documentElement.classList.remove("mapaAbierto");
+      document.removeEventListener("keydown",tecla);
+      if(history.state && history.state.mapa) history.back();
+    }
+    actual=cerrar;
+    ctl.querySelector(".mapaCerrar").onclick=cerrar;
+    document.addEventListener("keydown",tecla);
+    history.pushState(Object.assign({},history.state,{mapa:1}),"");
+  }
+  window.addEventListener("popstate",()=>{if(actual)actual()});
+
+  function preparar(){
+    document.querySelectorAll(".diagrama > svg, .diagrama > img, pre.mermaid > svg, pre.mermaid > img")
+      .forEach(fig=>{
+        const cont=fig.parentElement;
+        const caja=document.createElement("div");
+        caja.className="mapaScroll";
+        cont.insertBefore(caja,fig);
+        caja.appendChild(fig);
+        const aviso=document.createElement("p");
+        aviso.className="mapaAviso";
+        aviso.textContent="Deslizá para ver el diagrama completo";
+        cont.parentNode.insertBefore(aviso,cont.nextSibling);
+        caja.addEventListener("click",()=>{if(MOVIL.matches && !actual)abrir(fig)});
+      });
+  }
+  /* Los mapas con mermaid dibujan el svg despues de cargar. */
+  new MutationObserver(preparar).observe(document.body,{childList:true,subtree:true});
+  preparar();
+})();
 </script>
 </body>
 </html>
